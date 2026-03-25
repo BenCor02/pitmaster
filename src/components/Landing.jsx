@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { HERO_IMAGE, MEAT_IMAGES } from '../lib/images'
 import { useState, useEffect } from 'react'
 
 const css = `
@@ -58,12 +59,17 @@ export default function Landing() {
         </div>
       </nav>
 
-      {/* HERO */}
-      <div style={{ textAlign:'center', padding:'80px 24px 60px', position:'relative', overflow:'hidden' }}>
+      {/* HERO avec photo background */}
+      <div style={{ textAlign:'center', padding:'80px 24px 60px', position:'relative', overflow:'hidden', minHeight: 520 }}>
+        {/* Photo background */}
+        <div style={{ position:'absolute', inset:0, zIndex:0 }}>
+          <img src={HERO_IMAGE} alt="BBQ Pitmaster" style={{ width:'100%', height:'100%', objectFit:'cover', opacity:0.18 }} loading="eager" />
+          <div style={{ position:'absolute', inset:0, background:'linear-gradient(to bottom, rgba(8,7,6,0.3) 0%, rgba(8,7,6,0.7) 60%, #080706 100%)' }} />
+        </div>
         {/* GLOW */}
-        <div style={{ position:'absolute', top:'-100px', left:'50%', transform:'translateX(-50%)', width:'600px', height:'400px', background:'radial-gradient(ellipse,rgba(232,93,4,0.12),transparent 70%)', pointerEvents:'none', animation:'glow 3s ease-in-out infinite' }} />
+        <div style={{ position:'absolute', top:'-100px', left:'50%', transform:'translateX(-50%)', width:'600px', height:'400px', background:'radial-gradient(ellipse,rgba(232,93,4,0.15),transparent 70%)', pointerEvents:'none', animation:'glow 3s ease-in-out infinite', zIndex:1 }} />
 
-        <div className="fade-up" style={{ display:'inline-flex', alignItems:'center', gap:6, background:'rgba(232,93,4,0.08)', border:'1px solid rgba(232,93,4,0.2)', borderRadius:20, padding:'5px 14px', fontSize:12, fontWeight:700, color:'#e85d04', fontFamily:'Syne,sans-serif', letterSpacing:'0.5px', marginBottom:20 }}>
+        <div className="fade-up" style={{ position:'relative', zIndex:2, display:'inline-flex', alignItems:'center', gap:6, background:'rgba(232,93,4,0.08)', border:'1px solid rgba(232,93,4,0.2)', borderRadius:20, padding:'5px 14px', fontSize:12, fontWeight:700, color:'#e85d04', fontFamily:'Syne,sans-serif', letterSpacing:'0.5px', marginBottom:20 }}>
           🔥 L'outil BBQ que tu attendais
         </div>
 
@@ -135,6 +141,41 @@ export default function Landing() {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* SECTION VIANDES avec photos */}
+      <div style={{ padding:'60px 24px', background:'#060504' }}>
+        <div style={{ maxWidth:900, margin:'0 auto' }}>
+          <div style={{ textAlign:'center', marginBottom:40 }}>
+            <div style={{ fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:28, color:'#fff', marginBottom:8 }}>
+              Toutes les pièces <span style={{ color:'#e85d04' }}>low & slow</span>
+            </div>
+            <div style={{ fontSize:14, color:'#6a5a4a' }}>8 coupes calibrées sur les données des grands pitmasters</div>
+          </div>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(180px, 1fr))', gap:12 }}>
+            {[
+              { key:'brisket',        label:'Brisket' },
+              { key:'pork_shoulder',  label:'Pulled Pork' },
+              { key:'ribs_pork',      label:'Spare Ribs' },
+              { key:'ribs_beef',      label:'Beef Ribs' },
+              { key:'ribs_baby_back', label:'Baby Back' },
+              { key:'paleron',        label:'Paleron' },
+              { key:'plat_de_cote',   label:'Plat de Côte' },
+              { key:'lamb_shoulder',  label:'Épaule Agneau' },
+            ].map(m => (
+              <div key={m.key} onClick={() => navigate('/auth')} style={{ borderRadius:14, overflow:'hidden', position:'relative', height:130, cursor:'pointer', border:'1px solid #1e1a14', transition:'all 0.2s' }}
+                onMouseEnter={e => { e.currentTarget.style.transform='translateY(-3px)'; e.currentTarget.style.borderColor='rgba(232,93,4,0.4)' }}
+                onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.borderColor='#1e1a14' }}
+              >
+                <img src={MEAT_IMAGES[m.key]} alt={m.label} style={{ width:'100%', height:'100%', objectFit:'cover' }} loading="lazy" />
+                <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%)' }} />
+                <div style={{ position:'absolute', bottom:10, left:12, fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:13, color:'#fff' }}>
+                  {m.label}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

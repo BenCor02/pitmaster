@@ -12,7 +12,11 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { recalibrate, formatDuration, BASE_COEFFS } from '../lib/calculator'
+import { recalibrate, formatDuration } from '../lib/calculator'
+import { MEAT_IMAGES, SMOKER_IMAGE } from '../lib/images'
+
+// Coefficients wrap locaux — alignés avec BASE_COEFFS de calculator.js
+const WRAP_COEFFS = { none: 1.00, butcher_paper: 0.60, foil: 0.38, foil_boat: 0.50 }
 import { useAuth } from '../context/AuthContext'
 
 // ─── Utilitaires ─────────────────────────────────────────────
@@ -100,7 +104,7 @@ function buildCheckpoints(schedule) {
       title: 'Lancer le repos',
       titlePitmaster: 'Rest / Hold (Cambro)',
       // PATCH: rôle du repos expliqué, durée mini, flexibilité si besoin d'attendre
-      explanation: `Le repos est une étape à part entière — pas facultative. Les fibres se détendent, les jus se redistribuent, la texture s'améliore. Durée minimale recommandée : ${schedule.restMin || 60}min. Mais tu peux maintenir au chaud jusqu'à 3-4h en glacière (Cambro) sans problème. Emballe dans du papier boucher, puis entoure de serviettes dans la glacière.`,
+      explanation: "Le repos est une étape à part entière — pas facultative. Les fibres se détendent, les jus se redistribuent, la texture s'améliore. Durée minimale : 1h. Tu peux maintenir au chaud jusqu'à 3-4h en glacière (Cambro) sans problème. Emballe dans du papier boucher, puis entoure de serviettes.",
       action: 'rest_start',
       actionLabel: '😴 Repos lancé',
       validated: false,
@@ -447,7 +451,7 @@ export default function CookSession() {
       const chosen  = userResponse.wrapType || 'none'
       const current = schedule.wrapType     || 'none'
       // Coefficients officiels depuis BASE_COEFFS (calculator.js)
-      const wc = BASE_COEFFS?.wrap || { none: 1.00, butcher_paper: 0.60, foil: 0.38, foil_boat: 0.50 }
+      const wc = WRAP_COEFFS
       const stallBase   = schedule.stallMin || 0
       // Stall initial (avant tout wrap) = stallBase / coeff du wrap initial
       const stallNoWrap = stallBase / (wc[current] || 1)
@@ -538,21 +542,33 @@ export default function CookSession() {
         .fade-up { animation: fadeUp 0.25s ease both }
       `}</style>
 
-      {/* ── HEADER */}
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-          {cookStarted && (
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444', display: 'inline-block', animation: 'pulse 2s ease-in-out infinite' }} />
-          )}
-          <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: cookStarted ? '#ef4444' : 'var(--text3)' }}>
-            {cookStarted ? 'CUISSON EN COURS' : 'PRÊT À DÉMARRER'}
-          </span>
-        </div>
-        <h1 style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 22, color: 'var(--text)', marginBottom: 4 }}>
-          {schedule.meatLabel}
-        </h1>
-        <div style={{ fontSize: 12, color: 'var(--text3)' }}>
-          {schedule.weightKg}kg · {schedule.smokerTempC}°C · {schedule.smokerType}
+      {/* ── HEADER avec photo viande */}
+      <div style={{ marginBottom: 20, borderRadius: 20, overflow: 'hidden', position: 'relative', border: '1px solid var(--border)' }}>
+        {/* Photo viande ou ambiance fumoir */}
+        <div style={{ height: 140, position: 'relative' }}>
+          <img
+            src={MEAT_IMAGES[schedule.meatKey] || SMOKER_IMAGE}
+            alt={schedule.meatLabel}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            loading="eager"
+          />
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.3) 60%, transparent 100%)' }} />
+          {/* Badge statut */}
+          <div style={{ position: 'absolute', top: 12, left: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
+            {cookStarted && <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444', display: 'inline-block', animation: 'pulse 2s ease-in-out infinite' }} />}
+            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: cookStarted ? '#ef4444' : 'rgba(255,255,255,0.6)', background: 'rgba(0,0,0,0.5)', padding: '3px 8px', borderRadius: 20 }}>
+              {cookStarted ? '🔴 CUISSON EN COURS' : '⏳ PRÊT À DÉMARRER'}
+            </span>
+          </div>
+          {/* Infos viande en bas de la photo */}
+          <div style={{ position: 'absolute', bottom: 12, left: 16, right: 16 }}>
+            <h1 style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 22, color: '#fff', margin: 0, marginBottom: 2 }}>
+              {schedule.meatLabel}
+            </h1>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>
+              {schedule.weightKg}kg · {schedule.smokerTempC}°C · {schedule.smokerType}
+            </div>
+          </div>
         </div>
       </div>
 

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { MEAT_IMAGES } from '../lib/images'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
@@ -305,23 +306,43 @@ export default function Calc() {
         </p>
       </div>
 
-      {/* VIANDE */}
-      <div className="pm-card">
-        <label className="pm-field-label">Viande</label>
-        <select className="pm-input" value={meatKey} onChange={e => { setMeatKey(e.target.value); setThickness('') }}>
-          {Object.entries(MEAT_CATEGORIES).map(([cat, keys]) => (
-            <optgroup key={cat} label={cat}>
-              {keys.map(k => MEATS[k] ? <option key={k} value={k}>{MEATS[k].full}</option> : null)}
-            </optgroup>
-          ))}
-        </select>
-        {profile && (
-          <div style={{ marginTop: 8 }}>
-            <span style={{ padding: '3px 10px', borderRadius: 50, background: 'var(--orange-bg)', border: '1px solid var(--orange-border)', fontSize: 11, fontWeight: 700, color: 'var(--orange)' }}>
-              🔥 Low & Slow
-            </span>
+      {/* VIANDE + PHOTO */}
+      <div className="pm-card" style={{ padding: 0, overflow: 'hidden' }}>
+        {/* Photo de la viande sélectionnée */}
+        {MEAT_IMAGES[meatKey] && (
+          <div style={{ position: 'relative', height: 160, overflow: 'hidden' }}>
+            <img
+              src={MEAT_IMAGES[meatKey]}
+              alt={MEATS[meatKey]?.full || meatKey}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'opacity 0.4s' }}
+              loading="lazy"
+            />
+            {/* Gradient overlay */}
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)' }} />
+            {/* Nom de la viande sur la photo */}
+            <div style={{ position: 'absolute', bottom: 12, left: 16, right: 16 }}>
+              <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 18, color: '#fff', lineHeight: 1.2 }}>
+                {MEATS[meatKey]?.full}
+              </div>
+              {profile && (
+                <span style={{ display: 'inline-block', marginTop: 4, padding: '2px 8px', borderRadius: 50, background: 'rgba(232,93,4,0.85)', fontSize: 10, fontWeight: 700, color: '#fff', letterSpacing: '1px' }}>
+                  🔥 LOW & SLOW
+                </span>
+              )}
+            </div>
           </div>
         )}
+        {/* Select viande */}
+        <div style={{ padding: '12px 16px' }}>
+          <label className="pm-field-label">Changer de viande</label>
+          <select className="pm-input" value={meatKey} onChange={e => { setMeatKey(e.target.value); setThickness('') }}>
+            {Object.entries(MEAT_CATEGORIES).map(([cat, keys]) => (
+              <optgroup key={cat} label={cat}>
+                {keys.map(k => MEATS[k] ? <option key={k} value={k}>{MEATS[k].full}</option> : null)}
+              </optgroup>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* POIDS & ÉPAISSEUR */}
