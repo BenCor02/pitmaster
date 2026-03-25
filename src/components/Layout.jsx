@@ -1,0 +1,224 @@
+import { Outlet, NavLink, useLocation } from 'react-router-dom'
+import { useSiteSettings } from '../hooks/useSiteSettings'
+import { useAuth } from '../context/AuthContext'
+import { useState, useEffect } from 'react'
+
+const NAV = [
+  { section: 'CUISSON', items: [
+    { path: '/', icon: '🥩', label: 'Calculateur', end: true },
+    { path: '/party', icon: '🎉', label: 'Cook Party' },
+    { path: '/cold', icon: '❄️', label: 'Fumage à froid' },
+    { path: '/session', icon: '🔴', label: 'Session active' },
+    { path: '/timer', icon: '⏱️', label: 'Minuteur' },
+  ]},
+  { section: 'OUTILS', items: [
+    { path: '/quantity', icon: '⚖️', label: 'Quantités' },
+    { path: '/reference', icon: '📚', label: 'Référence' },
+    { path: '/journal', icon: '📓', label: 'Journal' },
+    { path: '/history', icon: '📖', label: 'Historique' },
+    { path: '/ask', icon: '🤖', label: 'Ask the Pitmaster' },
+  ]},
+]
+
+const MOBILE_NAV = [
+  { path: '/', icon: '🥩', label: 'Cuisson', end: true },
+  { path: '/party', icon: '🎉', label: 'Party' },
+  { path: '/journal', icon: '📓', label: 'Journal' },
+  { path: '/cold', icon: '❄️', label: 'Froid' },
+]
+
+const css = `
+  .pm-sb { display: flex; }
+  .pm-main { margin-left: 248px; }
+  .pm-tb { display: flex; }
+  .pm-mb, .pm-bn { display: none; }
+  .pm-pg { padding: 36px 44px; max-width: 880px; }
+
+  @media(max-width:900px) {
+    .pm-sb { display: none !important; }
+    .pm-main { margin-left: 0 !important; }
+    .pm-tb { display: none !important; }
+    .pm-mb { display: flex !important; }
+    .pm-bn { display: flex !important; }
+    .pm-pg { padding: 20px 16px 88px !important; max-width: 100% !important; }
+  }
+
+  .nav-link { display: flex; align-items: center; gap: 10px; padding: 9px 14px; border-radius: 50px; margin-bottom: 3px; cursor: pointer; transition: all 0.15s; text-decoration: none; }
+  .nav-link:hover { background: var(--surface2); }
+  .nav-link.active { background: var(--orange); }
+
+  .nav-label-active  { color: #fff; font-weight: 700; font-family: 'DM Sans',sans-serif; font-size: 14px; }
+  .nav-label-default { color: var(--text2); font-weight: 500; font-family: 'DM Sans',sans-serif; font-size: 14px; }
+
+  @keyframes slideUp { from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1} }
+`
+
+export default function Layout() {
+  const { user, signOut, isAdmin } = useAuth()
+  const { get } = useSiteSettings()
+  const siteName = get('site_name', 'PitMaster')
+  const siteTagline = get('site_tagline', 'Low & Slow')
+  const [moreOpen, setMoreOpen] = useState(false)
+  const location = useLocation()
+  const username = user?.email?.split('@')[0] || ''
+  const allItems = NAV.flatMap(s => s.items)
+  const currentPage = allItems.find(i => i.end ? location.pathname === i.path : location.pathname.startsWith(i.path))
+  useEffect(() => { setMoreOpen(false) }, [location.pathname])
+
+  return (
+    <div style={{ display:'flex', minHeight:'100vh', background:'var(--bg)', fontFamily:"'DM Sans',sans-serif" }}>
+      <style>{css}</style>
+
+      {/* ═══ SIDEBAR ═══ */}
+      <aside className="pm-sb" style={{
+        width: 248, flexShrink: 0,
+        background: 'var(--surface)',
+        borderRight: '1px solid var(--border)',
+        flexDirection: 'column',
+        position: 'fixed', inset: '0 auto 0 0', zIndex: 40,
+      }}>
+        {/* LOGO */}
+        <div style={{ padding:'22px 18px 18px', borderBottom:'1px solid var(--border)' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+            <div style={{ width:38, height:38, borderRadius:14, background:'var(--orange)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:19, flexShrink:0, boxShadow:'0 4px 14px rgba(240,96,48,0.35)' }}>🔥</div>
+            <div>
+              <div style={{ fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:17, color:'var(--text)', letterSpacing:'-0.3px', lineHeight:1.1 }}>{siteName}</div>
+              <div style={{ fontSize:10, color:'var(--text3)', fontWeight:600, marginTop:2, letterSpacing:'1px', textTransform:'uppercase' }}>{siteTagline}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* NAV */}
+        <nav style={{ flex:1, padding:'14px 10px', overflowY:'auto' }}>
+          {NAV.map(({ section, items }) => (
+            <div key={section} style={{ marginBottom:24 }}>
+              <div style={{ fontSize:10, fontWeight:700, letterSpacing:'1.5px', color:'var(--text3)', padding:'0 14px', marginBottom:6, textTransform:'uppercase' }}>
+                {section}
+              </div>
+              {items.map(item => (
+                <NavLink key={item.path} to={item.path} end={item.end} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+                  {({ isActive }) => (<>
+                    <span style={{ fontSize:16, width:22, textAlign:'center', flexShrink:0 }}>{item.icon}</span>
+                    <span className={isActive ? 'nav-label-active' : 'nav-label-default'}>{item.label}</span>
+                  </>)}
+                </NavLink>
+              ))}
+            </div>
+          ))}
+        </nav>
+
+        {/* USER */}
+        <div style={{ padding:'12px 10px 18px', borderTop:'1px solid var(--border)' }}>
+          {isAdmin && (
+            <NavLink to="/admin" style={{ textDecoration:'none', display:'block', marginBottom:8 }}>
+              <div style={{ display:'flex', alignItems:'center', gap:10, padding:'9px 14px', borderRadius:50, background:'var(--orange-bg)', border:'1px solid var(--orange-border)', cursor:'pointer', transition:'all 0.15s' }}>
+                <span style={{ fontSize:14 }}>👑</span>
+                <span style={{ fontSize:13, fontWeight:700, color:'var(--orange)', fontFamily:'Syne,sans-serif' }}>Admin Panel</span>
+              </div>
+            </NavLink>
+          )}
+          <div style={{ display:'flex', alignItems:'center', gap:10, padding:'6px 4px' }}>
+            <div style={{ width:34, height:34, borderRadius:'50%', background:'var(--orange)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:13, color:'#fff', flexShrink:0 }}>
+              {username[0]?.toUpperCase()}
+            </div>
+            <div style={{ flex:1, minWidth:0 }}>
+              <div style={{ fontSize:13, fontWeight:600, color:'var(--text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{username}</div>
+              <div style={{ fontSize:10, color:'var(--text3)', marginTop:1, letterSpacing:'0.5px', textTransform:'uppercase' }}>Pit Master</div>
+            </div>
+            <button onClick={signOut}
+              style={{ background:'none', border:'none', color:'var(--text3)', cursor:'pointer', fontSize:16, padding:'6px', lineHeight:1, borderRadius:'50%', transition:'all 0.15s', display:'flex', alignItems:'center', justifyContent:'center' }}
+              title="Déconnexion"
+              onMouseEnter={e => { e.currentTarget.style.background='var(--surface2)'; e.currentTarget.style.color='var(--text)' }}
+              onMouseLeave={e => { e.currentTarget.style.background='none'; e.currentTarget.style.color='var(--text3)' }}>
+              ⏏
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* ═══ MAIN ═══ */}
+      <div className="pm-main" style={{ flex:1, display:'flex', flexDirection:'column', minWidth:0 }}>
+
+        {/* DESKTOP TOPBAR */}
+        <header className="pm-tb" style={{
+          height:54, background:'rgba(10,10,10,0.95)', backdropFilter:'blur(20px)',
+          borderBottom:'1px solid var(--border)',
+          alignItems:'center', justifyContent:'space-between',
+          padding:'0 44px', position:'sticky', top:0, zIndex:30, gap:16,
+        }}>
+          <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+            <span style={{ fontSize:12, fontWeight:600, color:'var(--text3)' }}>{siteName}</span>
+            <span style={{ color:'var(--border2)', fontSize:16 }}>/</span>
+            <span style={{ fontSize:13, fontWeight:600, color:'var(--text2)' }}>{currentPage?.label}</span>
+          </div>
+          <div style={{ background:'var(--surface2)', border:'1px solid var(--border)', borderRadius:50, padding:'8px 18px', display:'flex', alignItems:'center', gap:8, color:'var(--text3)', fontSize:13, minWidth:180 }}>
+            <span>🔍</span><span>Rechercher...</span>
+          </div>
+        </header>
+
+        {/* MOBILE TOPBAR */}
+        <header className="pm-mb" style={{
+          height:54, background:'rgba(10,10,10,0.97)', backdropFilter:'blur(20px)',
+          borderBottom:'1px solid var(--border)',
+          alignItems:'center', justifyContent:'space-between',
+          padding:'0 16px', position:'sticky', top:0, zIndex:30,
+        }}>
+          <div style={{ display:'flex', alignItems:'center', gap:9 }}>
+            <div style={{ width:32, height:32, borderRadius:12, background:'var(--orange)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16 }}>🔥</div>
+            <span style={{ fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:17, color:'var(--text)' }}>{siteName}</span>
+          </div>
+          <div style={{ display:'flex', gap:8 }}>
+            {isAdmin && <NavLink to="/admin"><button style={mBtn}>👑</button></NavLink>}
+            <button onClick={signOut} style={mBtn}>⏏</button>
+          </div>
+        </header>
+
+        {/* PAGE */}
+        <main className="pm-pg" style={{ flex:1 }}>
+          <Outlet />
+        </main>
+
+        {/* MOBILE BOTTOM NAV */}
+        <nav className="pm-bn" style={{
+          position:'fixed', bottom:0, left:0, right:0, zIndex:50,
+          background:'rgba(10,10,10,0.97)', backdropFilter:'blur(20px)',
+          borderTop:'1px solid var(--border)',
+          height:64, alignItems:'center',
+          paddingBottom:'env(safe-area-inset-bottom,0)',
+        }}>
+          {MOBILE_NAV.map(item => (
+            <NavLink key={item.path} to={item.path} end={item.end} style={{ flex:1, textDecoration:'none' }}>
+              {({ isActive }) => (
+                <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:3, padding:'6px 4px' }}>
+                  <div style={{ width:36, height:36, borderRadius:12, background: isActive ? 'var(--orange)' : 'transparent', display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, transition:'all 0.2s' }}>{item.icon}</div>
+                  <span style={{ fontSize:9, fontWeight:700, letterSpacing:'0.5px', textTransform:'uppercase', color: isActive ? 'var(--orange)' : 'var(--text3)', transition:'color 0.2s' }}>{item.label}</span>
+                </div>
+              )}
+            </NavLink>
+          ))}
+          <button onClick={() => setMoreOpen(o => !o)} style={{ flex:1, background:'none', border:'none', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', gap:3, padding:'6px 4px' }}>
+            <div style={{ width:36, height:36, borderRadius:12, background: moreOpen ? 'var(--orange-bg)' : 'transparent', display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, transition:'all 0.2s' }}>☰</div>
+            <span style={{ fontSize:9, fontWeight:700, textTransform:'uppercase', color: moreOpen ? 'var(--orange)' : 'var(--text3)' }}>Plus</span>
+          </button>
+        </nav>
+
+        {/* MORE MENU */}
+        {moreOpen && <>
+          <div onClick={() => setMoreOpen(false)} style={{ position:'fixed', inset:0, zIndex:48, background:'rgba(0,0,0,0.5)', backdropFilter:'blur(4px)' }} />
+          <div style={{ position:'fixed', bottom:64, left:12, right:12, zIndex:49, background:'var(--surface)', border:'1px solid var(--border)', borderRadius:22, padding:'8px 0 12px', animation:'slideUp 0.2s ease', boxShadow:'0 8px 32px rgba(0,0,0,0.4)' }}>
+            {allItems.filter(i => !MOBILE_NAV.find(m => m.path === i.path)).map(item => (
+              <NavLink key={item.path} to={item.path} onClick={() => setMoreOpen(false)} style={{ textDecoration:'none', display:'flex', alignItems:'center', gap:14, padding:'12px 20px', color:'var(--text2)', fontSize:15 }}
+                onMouseEnter={e => e.currentTarget.style.background='var(--surface2)'}
+                onMouseLeave={e => e.currentTarget.style.background='transparent'}>
+                <span style={{ fontSize:20, width:26, textAlign:'center' }}>{item.icon}</span>
+                <span style={{ fontWeight:500, color:'var(--text)' }}>{item.label}</span>
+              </NavLink>
+            ))}
+          </div>
+        </>}
+      </div>
+    </div>
+  )
+}
+
+const mBtn = { width:34, height:34, borderRadius:10, border:'1px solid var(--border)', background:'var(--surface2)', color:'var(--text2)', fontSize:14, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }

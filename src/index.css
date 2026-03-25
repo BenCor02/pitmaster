@@ -1,0 +1,193 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg:        #0a0a0a;
+  --surface:   #141414;
+  --surface2:  #1e1e1e;
+  --surface3:  #282828;
+
+  --border:    #2a2a2a;
+  --border2:   #383838;
+
+  --orange:        #f06030;
+  --orange-light:  #ff7a4d;
+  --orange-bg:     #1a0e08;
+  --orange-border: #4a2010;
+
+  --text:  #ffffff;
+  --text2: #cccccc;
+  --text3: #888888;
+  --text4: #666666;
+
+  --gold:  #e8920a;
+  --green: #34d399;
+  --red:   #f87171;
+  --blue:  #60a5fa;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+
+body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; line-height: 1.5; }
+
+/* ─── TYPOGRAPHY ─── */
+h1 { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; }
+h2 { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: var(--text); }
+h3 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); }
+p  { color: var(--text2); line-height: 1.65; }
+
+/* ─── CARDS ─── */
+.pm-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 20px;
+  margin-bottom: 12px;
+}
+
+/* ─── INPUTS ─── */
+.pm-input {
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 50px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  padding: 11px 18px;
+  outline: none;
+  transition: all 0.15s;
+  width: 100%;
+}
+.pm-input:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(240,96,48,0.12); }
+.pm-input::placeholder { color: var(--text3); }
+
+.pm-textarea {
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  padding: 12px 18px;
+  outline: none;
+  transition: all 0.15s;
+  width: 100%;
+  resize: vertical;
+  line-height: 1.6;
+}
+.pm-textarea:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(240,96,48,0.12); }
+
+select {
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a6858' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 44px !important;
+  cursor: pointer;
+}
+
+input[type=range] {
+  -webkit-appearance: none;
+  height: 5px;
+  background: var(--border2);
+  border-radius: 3px;
+  outline: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  width: 100%;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--orange);
+  box-shadow: 0 2px 8px rgba(240,96,48,0.4);
+  border: 3px solid var(--surface);
+}
+
+/* ─── BUTTONS ─── */
+.pm-btn-primary {
+  background: var(--orange);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: all 0.18s;
+  box-shadow: 0 2px 10px rgba(240,96,48,0.3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.pm-btn-primary:hover { background: #d95228; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(240,96,48,0.4); }
+.pm-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.pm-btn-secondary {
+  background: var(--surface2);
+  color: var(--text2);
+  border: 1.5px solid var(--border2);
+  border-radius: 50px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 11px 22px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.pm-btn-secondary:hover { background: var(--surface3); color: var(--text); border-color: var(--border2); }
+
+/* ─── LABELS ─── */
+.pm-field-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 8px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.pm-sec-label {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 18px;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--text3); font-family: 'DM Sans', sans-serif;
+}
+
+/* ─── BADGES ─── */
+.badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 50px; font-size: 11px; font-weight: 700; }
+.badge-orange { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange-border); }
+.badge-green  { background: rgba(52,211,153,0.1); color: var(--green); border: 1px solid rgba(52,211,153,0.25); }
+.badge-red    { background: rgba(248,113,113,0.1); color: var(--red);   border: 1px solid rgba(248,113,113,0.25); }
+.badge-gray   { background: var(--surface2); color: var(--text3); border: 1px solid var(--border); }
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp  { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+@keyframes spin    { to{transform:rotate(360deg)} }
+@keyframes slideUp { from{transform:translateY(16px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+.fade-up { animation: fadeUp 0.22s ease both; }
+.fade-in { animation: fadeIn 0.2s ease both; }
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 10px; }
+
+/* ─── MISC ─── */
+.pm-divider { height: 1px; background: var(--border); margin: 16px 0; }
+.pm-mono { font-family: 'DM Mono', monospace; font-size: 13px; }
