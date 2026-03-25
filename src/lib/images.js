@@ -14,8 +14,8 @@ export const MEAT_IMAGES = {
   ribs_pork:     U('photo-1544025162-d76694265947', 800, 500),
   ribs_beef:     U('photo-1555939594-58d7cb561ad1', 800, 500),
   ribs_baby_back:U('photo-1544025162-d76694265947', 800, 500),
-  paleron:       U('photo-1588347785102-1edc8c5ef8b1', 800, 500),
-  plat_de_cote:  U('photo-1544025162-d76694265947', 800, 500),
+  paleron:       U('photo-1546964124-0cce460f38ef', 800, 500), // chuck roast beef
+  plat_de_cote:  U('photo-1607532941433-304659e8198a', 800, 500), // short ribs beef
   lamb_shoulder: U('photo-1504674900247-0877df9cc836', 800, 500),
 }
 
