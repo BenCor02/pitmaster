@@ -59,26 +59,6 @@ function AdminRoute({ children }) {
   if (loading) return null
   if (!user || !isAdmin) return <Navigate to="/app" replace />
   return children
-}) {
-  const { user, loading, checkingAdmin } = useAuth()
-  if (loading || checkingAdmin) return (
-    <div style={{ minHeight:'100vh', background:'#080706', display:'flex', alignItems:'center', justifyContent:'center' }}>
-      <div style={{ width:24, height:24, border:'2px solid var(--orange)', borderTopColor:'transparent', borderRadius:'50%', animation:'spin 0.7s linear infinite' }} />
-    </div>
-  )
-  return user ? children : <Navigate to="/" replace />
-}
-
-function AdminRoute({ children }) {
-  const { user, isAdmin, checkingAdmin } = useAuth()
-  if (checkingAdmin) return (
-    <div style={{ minHeight:'100vh', background:'#080706', display:'flex', alignItems:'center', justifyContent:'center' }}>
-      <div style={{ width:24, height:24, border:'2px solid var(--orange)', borderTopColor:'transparent', borderRadius:'50%', animation:'spin 0.7s linear infinite' }} />
-    </div>
-  )
-  if (!user) return <Navigate to="/" replace />
-  if (!isAdmin) return <Navigate to="/app" replace />
-  return children
 }
 
 export default function App() {
