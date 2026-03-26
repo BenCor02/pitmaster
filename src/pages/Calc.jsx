@@ -1,7 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
-import { useCalcLimit } from '../hooks/useCalcLimit'
-import { PaywallCalc, CalcBanner } from '../components/Paywall'
-import { ResultBlur } from '../components/ResultBlur'
+import { useState, useEffect } from 'react'
 import { MEAT_IMAGES } from '../lib/images'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
@@ -57,6 +54,20 @@ const toFloat = (value, fallback = 0) => {
 const toInt = (value, fallback = 0) => {
   const n = parseInt(value, 10)
   return Number.isFinite(n) ? n : fallback
+}
+
+// PATCH: identifiant visiteur local pour préparer une analytics anonyme sans friction
+function getAnonymousVisitorId() {
+  try {
+    const existing = localStorage.getItem('pm_visitor_id')
+    if (existing) return existing
+    const next = `visitor_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+    localStorage.setItem('pm_visitor_id', next)
+    return next
+  } catch {
+    // PATCH: fallback sans persistance si localStorage indisponible
+    return `visitor_${Date.now()}`
+  }
 }
 
 function buildServeDate(serveTime) {
@@ -117,28 +128,9 @@ function getReadyWindowText(result) {
   return `Viande probablement prête entre ${result.serviceWindowStart} et ${result.serviceWindowEnd}`
 }
 
-function getTendernessStatus(result) {
-  if (!result) return null
-  if (result.collagenOk) return {
-    title: 'Tendreté probable atteinte',
-    description: 'La viande est probablement entrée dans la bonne zone de tendreté.',
-    action: 'Commence les tests de sonde et retire dès que ça glisse presque comme dans du beurre.',
-    color: 'var(--green)', bg: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)',
-  }
-  return {
-    title: 'Zone de tendreté en cours',
-    description: 'La cuisson avance vers la bonne texture, mais il est sans doute encore un peu tôt.',
-    action: "Continue à cuire, puis commence les tests de sonde à l'étape de finition.",
-    color: 'var(--orange)', bg: 'var(--orange-bg)', border: '1px solid var(--orange-border)',
-  }
-}
-
 export default function Calc() {
   const navigate = useNavigate()
   const { user } = useAuth()
-  const { canCalc, remaining, isPro, increment, statusMessage } = useCalcLimit()
-  const [showPaywall, setShowPaywall] = useState(false)
-  const [showBlur,    setShowBlur]    = useState(false)  // résultat flouté avant auth
   const { snack, showSnack } = useSnack()
 
   // ── Restauration depuis localStorage — persiste entre les navigations
@@ -163,11 +155,10 @@ export default function Calc() {
   const [warnings, setWarnings] = useState([])
   const [loading,  setLoading]  = useState(false)
   const [saving,   setSaving]   = useState(false)
+  const [sharing,  setSharing]  = useState(false)
 
   const profile = MEAT_PROFILES[meatKey]
   const meatData = MEATS[meatKey]
-  const isSteak = false
-  const isRibs = false
   const isLowSlow = profile?.method === 'lowslow'
 
   // ── Sauvegarde position scroll + restauration au retour
@@ -179,7 +170,7 @@ export default function Calc() {
     const onScroll = () => localStorage.setItem('pm_calc_scroll', window.scrollY)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+  }, [result])
 
   // ── Sauvegarde automatique des inputs dans localStorage
   useEffect(() => {
@@ -188,7 +179,9 @@ export default function Calc() {
         meatKey, weight, thickness, smokerTemp, serveTime,
         margin, smokerType, wrapType, marbling, startTemp,
       }))
-    } catch {}
+    } catch {
+      // PATCH: persistance best effort seulement
+    }
   }, [meatKey, weight, thickness, smokerTemp, serveTime, margin, smokerType, wrapType, marbling, startTemp])
 
   async function calculate() {
@@ -246,24 +239,26 @@ export default function Calc() {
           serviceWindowStart: formatTime(serviceWindowStart),
           serviceWindowEnd: formatTime(serviceWindowEnd),
           probableMin, optimisticMin, prudentMin,
+          // PATCH: contexte non visible pour futures analytics anonymes et usage réel
+          analyticsContext: {
+            visitorId: getAnonymousVisitorId(),
+            calculatedAt: new Date().toISOString(),
+            isAnonymous: !user,
+            entryPoint: 'calculator',
+            smokerType,
+            wrapType,
+            marbling,
+          },
         }
         setResult(newResult)
-        // Si non connecté → afficher résultat flouté pour inciter à l'inscription
-        if (!user) {
-          setShowBlur(true)
-        } else {
-          // Incrémenter côté serveur (atomique, infalsifiable)
-        const quotaResult = await increment()
-        if (quotaResult && !quotaResult.allowed) {
-          setShowPaywall(true)
-        }
-        }
         setTimeline(tl)
         // Sauvegarder le résultat dans localStorage
         try {
           localStorage.setItem('pm_calc_result', JSON.stringify(newResult))
           localStorage.setItem('pm_calc_timeline', JSON.stringify(tl))
-        } catch {}
+        } catch {
+          // PATCH: persistance best effort; ne bloque jamais le calcul
+        }
         setLoading(false)
         setTimeout(() => document.getElementById('calc-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
       } catch (e) {
@@ -285,7 +280,35 @@ export default function Calc() {
   }
 
   async function saveSession() {
-    if (!result || !user) return
+    if (!result) return
+    // PATCH: l'outil reste pleinement utile sans compte; fallback local si anonyme
+    if (!user) {
+      try {
+        const existing = JSON.parse(localStorage.getItem('pm_saved_sessions') || '[]')
+        const localSession = {
+          id: `local_${Date.now()}`,
+          savedAt: new Date().toISOString(),
+          meatKey: result.meatKey,
+          meatName: meatData?.name,
+          startTime: result.startTime,
+          serveTime: result.serve,
+          summary: {
+            smokerTempC: result.smokerTempC,
+            weightKg: result.weightKg,
+            cookMin: result.cookMin,
+            totalMin: result.totalMin,
+          },
+          result,
+          timeline,
+        }
+        localStorage.setItem('pm_saved_sessions', JSON.stringify([localSession, ...existing].slice(0, 20)))
+        showSnack('✓ Planning enregistré sur cet appareil')
+      } catch {
+        // PATCH: fallback UX si l'enregistrement local échoue
+        showSnack('Planning prêt. Lance la session de cuisson pour continuer.', 'info')
+      }
+      return
+    }
     setSaving(true)
     const { error } = await supabase.from('sessions').insert({
       user_id: user.id,
@@ -301,6 +324,28 @@ export default function Calc() {
     setSaving(false)
     if (error) showSnack('Erreur : ' + error.message, 'error')
     else showSnack('✓ Session sauvegardée !')
+  }
+
+  // PATCH: partage rapide pour favoriser l'usage viral sans forcer la création de compte
+  async function sharePlan() {
+    if (!result) return
+    setSharing(true)
+    const text = `BBQ plan ${meatData?.full || result.meatLabel} · départ ${result.startTime} · service ${result.serve} · fumoir ${result.smokerTempC}°C`
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Mon planning BBQ',
+          text,
+          url: window.location.href,
+        })
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(`${text} · ${window.location.href}`)
+        showSnack('✓ Lien copié pour partager le planning')
+      }
+    } catch {
+      // PATCH: le partage peut être annulé sans erreur visible
+    }
+    setSharing(false)
   }
 
   const phaseColor = p => {
@@ -322,11 +367,23 @@ export default function Calc() {
         </p>
       </div>
 
-      {/* PAYWALL CALCULS */}
-      {showPaywall && <PaywallCalc remaining={remaining} onClose={() => setShowPaywall(false)} />}
-
-      {/* BANDEAU COMPTEUR */}
-      <CalcBanner remaining={remaining} isPro={isPro} />
+      {/* PATCH: positionnement acquisition gratuit, sans inscription obligatoire */}
+      <div className="pm-card" style={{ marginBottom: 12, background: 'linear-gradient(180deg,var(--surface),var(--surface2))' }}>
+        <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 16, color: 'var(--text)', marginBottom: 6 }}>
+          Gratuit, immédiat, pensé pour la vraie cuisson
+        </div>
+        <div style={{ fontSize: 12, color: 'var(--text2)', lineHeight: 1.7 }}>
+          Entre ton heure de service, lance le planning, puis utilise la session de cuisson pour valider les étapes au bon moment.
+        </div>
+        <div style={{ marginTop: 10, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <span style={{ padding: '4px 10px', borderRadius: 50, background: 'var(--orange-bg)', border: '1px solid var(--orange-border)', fontSize: 11, color: 'var(--orange)', fontWeight: 700 }}>
+            Sans inscription obligatoire
+          </span>
+          <span style={{ padding: '4px 10px', borderRadius: 50, background: 'var(--surface)', border: '1px solid var(--border)', fontSize: 11, color: 'var(--text3)' }}>
+            Planning partageable
+          </span>
+        </div>
+      </div>
 
       {/* VIANDE + PHOTO */}
       <div className="pm-card" style={{ padding: 0, overflow: 'hidden' }}>
@@ -576,6 +633,24 @@ export default function Calc() {
             </div>
           </div>
 
+          {/* PATCH: actions rapides acquisition / usage réel */}
+          <div className="pm-card" style={{ marginBottom: 12 }}>
+            <div className="pm-sec-label">⚡ Actions rapides</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              <button onClick={sharePlan} disabled={sharing} className="pm-btn-secondary">
+                {sharing ? '⏳...' : '📤 Partager'}
+              </button>
+              <button onClick={saveSession} disabled={saving} className="pm-btn-primary">
+                {saving ? '⏳...' : user ? '☁️ Sauvegarder' : '💾 Enregistrer'}
+              </button>
+            </div>
+            {!user && (
+              <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text3)', lineHeight: 1.6 }}>
+                En mode invité, le planning est conservé sur cet appareil. Tu peux créer un compte plus tard si tu veux synchroniser tes sessions.
+              </div>
+            )}
+          </div>
+
 
 
           {/* TIMELINE */}
@@ -741,40 +816,27 @@ export default function Calc() {
 
           {/* ACTIONS */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            <button onClick={saveSession} disabled={saving} className="pm-btn-primary">
-              {saving ? '⏳...' : '☁️ Sauvegarder'}
-            </button>
             <button onClick={() => {
                 setResult(null); setWarnings([]); setRecalResult(null)
-                try { localStorage.removeItem('pm_calc_result'); localStorage.removeItem('pm_calc_timeline') } catch {}
+                try { localStorage.removeItem('pm_calc_result'); localStorage.removeItem('pm_calc_timeline') } catch {
+                  // PATCH: nettoyage local best effort
+                }
                 window.scrollTo({ top: 0, behavior: 'smooth' })
               }} className="pm-btn-secondary">
               ↩ Nouveau calcul
             </button>
-          </div>
-
-          {/* RÉSULTAT FLOUTÉ — incitation à l'inscription */}
-          {showBlur && result && (
-            <ResultBlur
-              launchTime={result.startTime}
-              onAuth={() => navigate('/auth', { state: { from: '/app', calcResult: result.startTime } })}
-              onClose={() => setShowBlur(false)}
-            />
-          )}
-
-          {isLowSlow && (
-            <button onClick={() => navigate('/session', {
+            <button onClick={() => navigate('/app/session', {
               state: {
                 schedule: { ...result },
                 startedAt: new Date().toISOString(),
               }
-            })} style={{ width: '100%', padding: '14px', marginTop: 8, borderRadius: 50, border: 'none',
+            })} style={{ width: '100%', padding: '14px', borderRadius: 50, border: 'none',
               background: 'linear-gradient(135deg,#22c55e,#16a34a)', color: '#fff',
               fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: 14, cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-              🔴 Lancer la session de cuisson
+              🔴 Lancer la session
             </button>
-          )}
+          </div>
         </div>
       )}
     </div>

@@ -16,13 +16,14 @@ import { recalibrate, formatDuration } from '../lib/calculator'
 import { MEAT_IMAGES, SMOKER_IMAGE } from '../lib/images'
 
 // Coefficients wrap locaux — alignés avec BASE_COEFFS de calculator.js
-const WRAP_COEFFS = { none: 1.00, butcher_paper: 0.60, foil: 0.38, foil_boat: 0.50 }
-import { useAuth } from '../context/AuthContext'
+// PATCH: alignement avec les coefficients terrain actuels du moteur
+const WRAP_COEFFS = { none: 1.00, butcher_paper: 0.78, foil: 0.58, foil_boat: 0.66 }
 
 // ─── Utilitaires ─────────────────────────────────────────────
 const addMin = (date, m) => new Date(new Date(date).getTime() + m * 60000)
 const fmt    = (d) => new Date(d).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
 const fmtDur = (m) => formatDuration(Math.max(0, Math.round(m)))
+const isRibsCook = (meatKey) => meatKey === 'ribs_pork' || meatKey === 'ribs_baby_back'
 
 // PATCH: computeEtaTimes = repères de progression visuels uniquement
 // Ces heures sont des ESTIMATIONS, pas des déclencheurs automatiques
@@ -32,6 +33,16 @@ function computeEtaTimes(schedule, cookStartTime) {
   const p1 = schedule.phase1Min || 0
   const st = schedule.stallMin  || 0
   const p3 = schedule.phase3Min || 0
+  // PATCH: flow ribs plus visuel/mécanique, moins centré sonde
+  if (isRibsCook(schedule.meatKey)) {
+    return {
+      pit_stable: start,
+      bark_check: addMin(start, Math.round(p1 * 0.8)),
+      wrap:       addMin(start, p1),
+      flex_test:  addMin(start, p1 + st + Math.round(p3 * 0.75)),
+      rest:       addMin(start, p1 + st + p3),
+    }
+  }
   return {
     pit_stable: start,
     stall:      addMin(start, p1),
@@ -44,6 +55,70 @@ function computeEtaTimes(schedule, cookStartTime) {
 // PATCH: buildCheckpoints — wording revu sur tous les points
 // Format : titre simple > sous-titre pitmaster > explication accessible > action concrète
 function buildCheckpoints(schedule) {
+  // PATCH: flow spécifique ribs = repères visuels et mécaniques, pas probe tender centré sonde
+  if (isRibsCook(schedule.meatKey)) {
+    const cps = [
+      {
+        id: 'pit_stable',
+        emoji: '🌡️',
+        title: 'Le fumoir est prêt ?',
+        titlePitmaster: 'Stabilité du pit',
+        explanation: "Vérifie que la température du fumoir est stable depuis 10 à 15 minutes. Un départ propre rend toute la suite plus simple.",
+        tipIfNo: "Stabilise le feu avant de charger les ribs. Un départ instable rend la couleur et la texture moins prévisibles.",
+        action: 'pit_confirm',
+        actionLabel: '✅ Fumoir stable — Lancer la cuisson',
+        validated: false,
+      },
+      {
+        id: 'bark_check',
+        emoji: '🍖',
+        title: 'La couleur te plaît ?',
+        titlePitmaster: 'Bark / couleur / pullback',
+        explanation: "Sur les ribs, on regarde d'abord la couleur, l'écorce de cuisson et le léger retrait de viande sur les os. C'est le bon moment pour décider si tu wrapes ou si tu laisses continuer à nu.",
+        action: 'bark_result',
+        actionLabel: 'Valider',
+        validated: false,
+      },
+      {
+        id: 'wrap',
+        emoji: '🌯',
+        title: 'Wrap (emballage)',
+        titlePitmaster: 'Papier ou aluminium',
+        explanation: "Le wrap sur les ribs n'est pas obligatoire. Il accélère la cuisson et change la texture: plus fondante, parfois moins ferme. Garde-le si c'est ton style, sinon reste à nu.",
+        action: 'wrap_select',
+        actionLabel: 'Confirmer mon choix',
+        options: [
+          { id: 'butcher_paper', label: '📜 Papier boucher', desc: "Un peu plus souple, garde mieux la surface" },
+          { id: 'foil',          label: '🥡 Aluminium',      desc: "Plus rapide, texture plus fondante" },
+          { id: 'none',          label: '❌ Sans wrap',       desc: "Bark plus marquée, cuisson plus directe" },
+        ],
+        validated: false,
+      },
+      {
+        id: 'flex_test',
+        emoji: '🦴',
+        title: 'Les ribs sont prêtes ?',
+        titlePitmaster: 'Flex test / retrait sur l’os',
+        explanation: "Prends le rack au tiers avec des pinces: il doit plier nettement et commencer à fissurer en surface. Tu peux aussi regarder le retrait de viande sur les os. Sur les ribs, c'est plus utile qu'un probe test classique.",
+        action: 'flex_result',
+        actionLabel: 'Valider',
+        validated: false,
+      },
+      {
+        id: 'rest',
+        emoji: '😴',
+        title: 'Repos court avant service',
+        titlePitmaster: 'Rest / Hold (repos)',
+        explanation: "Un repos court aide les jus à se calmer et rend la découpe plus propre. Sur les ribs, quelques minutes suffisent souvent.",
+        action: 'rest_start',
+        actionLabel: '😴 Repos lancé',
+        validated: false,
+      },
+    ]
+
+    return schedule.wrapType === 'none' ? cps.filter(c => c.id !== 'wrap') : cps
+  }
+
   const cps = [
     {
       id: 'pit_stable',
@@ -111,11 +186,7 @@ function buildCheckpoints(schedule) {
     },
   ]
 
-  // Supprimer le wrap si la viande ne le nécessite pas (ex: beef ribs — cf. Franklin)
-  if (!schedule.wrapTempC && !schedule.stallStartC) {
-    return cps.filter(c => c.id !== 'wrap')
-  }
-  return cps
+  return schedule.wrapType === 'none' ? cps.filter(c => c.id !== 'wrap') : cps
 }
 
 // ─── Barre de progression + repères horaires ─────────────────
@@ -195,10 +266,12 @@ function ProgressBar({ checkpoints, currentIndex, etaTimes }) {
 }
 
 // ─── Carte checkpoint active ──────────────────────────────────
-function CheckpointCard({ cp, schedule, elapsed, onValidate }) {
+function CheckpointCard({ cp, schedule, onValidate }) {
   const [tempInput,  setTempInput]  = useState('')
   const [wrapChoice, setWrapChoice] = useState(schedule.wrapType || 'butcher_paper')
   const [probeOk,    setProbeOk]    = useState(null)
+  const [barkOk,     setBarkOk]     = useState(null)
+  const [flexOk,     setFlexOk]     = useState(null)
   const [pitOk,      setPitOk]      = useState(null)
   // PATCH: état pour afficher le conseil si pit pas encore stable
   const [showPitTip, setShowPitTip] = useState(false)
@@ -221,6 +294,14 @@ function CheckpointCard({ cp, schedule, elapsed, onValidate }) {
       if (probeOk === null) return
       onValidate(cp.id, { probeOk })
     }
+    if (cp.action === 'bark_result') {
+      if (barkOk === null) return
+      onValidate(cp.id, { barkOk })
+    }
+    if (cp.action === 'flex_result') {
+      if (flexOk === null) return
+      onValidate(cp.id, { flexOk })
+    }
     if (cp.action === 'rest_start') {
       onValidate(cp.id, {})
     }
@@ -231,6 +312,8 @@ function CheckpointCard({ cp, schedule, elapsed, onValidate }) {
     (cp.action === 'temp_input'   && tempInput !== '')        ||
     (cp.action === 'wrap_select')                             ||
     (cp.action === 'probe_result' && probeOk !== null)        ||
+    (cp.action === 'bark_result'  && barkOk !== null)         ||
+    (cp.action === 'flex_result'  && flexOk !== null)         ||
     (cp.action === 'rest_start')
 
   return (
@@ -343,6 +426,44 @@ function CheckpointCard({ cp, schedule, elapsed, onValidate }) {
         </div>
       )}
 
+      {cp.action === 'bark_result' && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+          {[
+            { val: true,  label: '✅ Oui, belle couleur', color: '#22c55e' },
+            { val: false, label: '⏳ Encore un peu tôt', color: '#f87171' },
+          ].map(opt => (
+            <button key={String(opt.val)} onClick={() => setBarkOk(opt.val)} style={{
+              padding: '14px', borderRadius: 12, cursor: 'pointer',
+              fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: 13,
+              border: `2px solid ${barkOk === opt.val ? opt.color : 'var(--border)'}`,
+              background: barkOk === opt.val ? opt.color + '18' : 'var(--surface2)',
+              color: barkOk === opt.val ? opt.color : 'var(--text3)',
+            }}>
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {cp.action === 'flex_result' && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+          {[
+            { val: true,  label: '✅ Oui, ça plie bien', color: '#22c55e' },
+            { val: false, label: '⏳ Pas encore', color: '#f87171' },
+          ].map(opt => (
+            <button key={String(opt.val)} onClick={() => setFlexOk(opt.val)} style={{
+              padding: '14px', borderRadius: 12, cursor: 'pointer',
+              fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: 13,
+              border: `2px solid ${flexOk === opt.val ? opt.color : 'var(--border)'}`,
+              background: flexOk === opt.val ? opt.color + '18' : 'var(--surface2)',
+              color: flexOk === opt.val ? opt.color : 'var(--text3)',
+            }}>
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Bouton valider */}
       <button onClick={submit} disabled={!canSubmit} style={{
         width: '100%', padding: '15px', borderRadius: 50, border: 'none',
@@ -374,10 +495,8 @@ function ValidatedStep({ cp, result }) {
 export default function CookSession() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { user } = useAuth()
 
   const schedule  = location.state?.schedule
-  const startRef  = useRef(location.state?.startedAt || new Date().toISOString())
 
   const [checkpoints,   setCheckpoints]   = useState(() => schedule ? buildCheckpoints(schedule) : [])
   const [currentIndex,  setCurrentIndex]  = useState(0)
@@ -444,6 +563,22 @@ export default function CookSession() {
       }))
     }
 
+    // PATCH: ribs — checkpoint visuel avant wrap, sans logique sonde
+    if (id === 'bark_check') {
+      if (userResponse.barkOk) {
+        message = "Couleur validée — continue vers l'étape suivante."
+      } else {
+        const extra = 20
+        message = `Couleur encore légère — ajoute environ ${extra}min puis recontrôle.`
+        currentEta.cookMin = (currentEta.cookMin || 0) + extra
+        currentEta.totalMin = (currentEta.totalMin || 0) + extra
+        addLog(message)
+        setEta(currentEta)
+        setResults(r => ({ ...r, [id]: { message, payload: userResponse, capturedAt: new Date().toISOString() } }))
+        return
+      }
+    }
+
     // PATCH: wrap — logique alignée avec BASE_COEFFS de calculator.js
     // On ne recalcule plus avec une mini logique locale arbitraire
     // On utilise les coefficients officiels du moteur pour calculer le gain sur le stall restant
@@ -487,6 +622,23 @@ export default function CookSession() {
       }
     }
 
+    // PATCH: ribs — flex test / retrait sur l'os en checkpoint principal
+    if (id === 'flex_test') {
+      if (userResponse.flexOk) {
+        message = '🎉 Flex test validé — les ribs peuvent sortir du fumoir.'
+        currentEta.message = 'Cuisson terminée'
+      } else {
+        const extra = 15
+        message = `Pas encore assez souples — ajoute environ ${extra}min puis reteste.`
+        currentEta.cookMin = (currentEta.cookMin || 0) + extra
+        currentEta.totalMin = (currentEta.totalMin || 0) + extra
+        addLog(message)
+        setEta(currentEta)
+        setResults(r => ({ ...r, [id]: { message, payload: userResponse, capturedAt: new Date().toISOString() } }))
+        return
+      }
+    }
+
     // ── Repos
     if (id === 'rest') {
       const restMin = schedule.restMin || 60
@@ -497,7 +649,8 @@ export default function CookSession() {
 
     addLog(message || id)
     setEta(currentEta)
-    setResults(r => ({ ...r, [id]: { message } }))
+    // PATCH: structure prête pour analytics futures sur validations humaines
+    setResults(r => ({ ...r, [id]: { message, payload: userResponse, capturedAt: new Date().toISOString() } }))
     setCheckpoints(cps => cps.map(c => c.id === id ? { ...c, validated: true } : c))
     setCurrentIndex(i => i + 1)
   }
@@ -524,7 +677,7 @@ export default function CookSession() {
 
   // PATCH: ETA robuste — cookMin décroît avec elapsed, service = cookStartTime + cookMin + restMin
   const etaCookMin = eta?.cookMin || schedule.cookMin || 0
-  const etaRestMin = schedule.restMin || 60
+  const etaRestMin = schedule.restMin || (isRibsCook(schedule.meatKey) ? 15 : 60)
   // PATCH: temps restant = ce qu'il reste de cookMin depuis le départ, moins le temps écoulé
   const restantMin = cookStarted
     ? Math.max(etaCookMin - elapsed, 0)
@@ -605,7 +758,6 @@ export default function CookSession() {
           <CheckpointCard
             cp={checkpoints[currentIndex]}
             schedule={schedule}
-            elapsed={elapsed}
             onValidate={handleValidate}
           />
         </div>

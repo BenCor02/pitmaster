@@ -1,30 +1,31 @@
 import { Outlet, NavLink, useLocation } from 'react-router-dom'
 import { useSiteSettings } from '../hooks/useSiteSettings'
 import { useAuth } from '../context/AuthContext'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 const NAV = [
   { section: 'CUISSON', items: [
-    { path: '/', icon: '🥩', label: 'Calculateur', end: true },
-    { path: '/party', icon: '🎉', label: 'Cook Party' },
-    { path: '/cold', icon: '❄️', label: 'Fumage à froid' },
-    { path: '/session', icon: '🔴', label: 'Session active' },
-    { path: '/timer', icon: '⏱️', label: 'Minuteur' },
+    // PATCH: liens absolus alignés avec les routes réelles sous /app
+    { path: '/app', icon: '🥩', label: 'Calculateur', end: true },
+    { path: '/app/party', icon: '🎉', label: 'Cook Party' },
+    { path: '/app/cold', icon: '❄️', label: 'Fumage à froid' },
+    { path: '/app/session', icon: '🔴', label: 'Session active' },
+    { path: '/app/timer', icon: '⏱️', label: 'Minuteur' },
   ]},
   { section: 'OUTILS', items: [
-    { path: '/quantity', icon: '⚖️', label: 'Quantités' },
-    { path: '/reference', icon: '📚', label: 'Référence' },
-    { path: '/journal', icon: '📓', label: 'Journal' },
-    { path: '/history', icon: '📖', label: 'Historique' },
-    { path: '/ask', icon: '🤖', label: 'Ask the Pitmaster' },
+    { path: '/app/quantity', icon: '⚖️', label: 'Quantités' },
+    { path: '/app/reference', icon: '📚', label: 'Référence' },
+    { path: '/app/journal', icon: '📓', label: 'Journal' },
+    { path: '/app/history', icon: '📖', label: 'Historique' },
+    { path: '/app/ask', icon: '🤖', label: 'Ask the Pitmaster' },
   ]},
 ]
 
 const MOBILE_NAV = [
-  { path: '/', icon: '🥩', label: 'Cuisson', end: true },
-  { path: '/party', icon: '🎉', label: 'Party' },
-  { path: '/journal', icon: '📓', label: 'Journal' },
-  { path: '/cold', icon: '❄️', label: 'Froid' },
+  { path: '/app', icon: '🥩', label: 'Cuisson', end: true },
+  { path: '/app/party', icon: '🎉', label: 'Party' },
+  { path: '/app/journal', icon: '📓', label: 'Journal' },
+  { path: '/app/cold', icon: '❄️', label: 'Froid' },
 ]
 
 const css = `
@@ -60,10 +61,10 @@ export default function Layout() {
   const siteTagline = get('site_tagline', 'Low & Slow')
   const [moreOpen, setMoreOpen] = useState(false)
   const location = useLocation()
-  const username = user?.email?.split('@')[0] || ''
+  // PATCH: mode invité assumé pour réduire la friction; l'auth reste optionnelle
+  const username = user?.email?.split('@')[0] || 'Invité'
   const allItems = NAV.flatMap(s => s.items)
   const currentPage = allItems.find(i => i.end ? location.pathname === i.path : location.pathname.startsWith(i.path))
-  useEffect(() => { setMoreOpen(false) }, [location.pathname])
 
   return (
     <div style={{ display:'flex', minHeight:'100vh', background:'var(--bg)', fontFamily:"'DM Sans',sans-serif" }}>
@@ -123,15 +124,20 @@ export default function Layout() {
             </div>
             <div style={{ flex:1, minWidth:0 }}>
               <div style={{ fontSize:13, fontWeight:600, color:'var(--text)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{username}</div>
-              <div style={{ fontSize:10, color:'var(--text3)', marginTop:1, letterSpacing:'0.5px', textTransform:'uppercase' }}>Pit Master</div>
+              <div style={{ fontSize:10, color:'var(--text3)', marginTop:1, letterSpacing:'0.5px', textTransform:'uppercase' }}>
+                {user ? 'Pit Master' : 'Mode libre'}
+              </div>
             </div>
-            <button onClick={signOut}
-              style={{ background:'none', border:'none', color:'var(--text3)', cursor:'pointer', fontSize:16, padding:'6px', lineHeight:1, borderRadius:'50%', transition:'all 0.15s', display:'flex', alignItems:'center', justifyContent:'center' }}
-              title="Déconnexion"
-              onMouseEnter={e => { e.currentTarget.style.background='var(--surface2)'; e.currentTarget.style.color='var(--text)' }}
-              onMouseLeave={e => { e.currentTarget.style.background='none'; e.currentTarget.style.color='var(--text3)' }}>
-              ⏏
-            </button>
+            {/* PATCH: la connexion reste optionnelle; on n'affiche plus une déconnexion vide en mode invité */}
+            {user ? (
+              <button onClick={signOut}
+                style={{ background:'none', border:'none', color:'var(--text3)', cursor:'pointer', fontSize:16, padding:'6px', lineHeight:1, borderRadius:'50%', transition:'all 0.15s', display:'flex', alignItems:'center', justifyContent:'center' }}
+                title="Déconnexion"
+                onMouseEnter={e => { e.currentTarget.style.background='var(--surface2)'; e.currentTarget.style.color='var(--text)' }}
+                onMouseLeave={e => { e.currentTarget.style.background='none'; e.currentTarget.style.color='var(--text3)' }}>
+                ⏏
+              </button>
+            ) : null}
           </div>
         </div>
       </aside>
@@ -169,7 +175,7 @@ export default function Layout() {
           </div>
           <div style={{ display:'flex', gap:8 }}>
             {isAdmin && <NavLink to="/admin"><button style={mBtn}>👑</button></NavLink>}
-            <button onClick={signOut} style={mBtn}>⏏</button>
+            {user ? <button onClick={signOut} style={mBtn}>⏏</button> : null}
           </div>
         </header>
 

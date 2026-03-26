@@ -69,7 +69,7 @@ export default function App() {
     <Routes>
       {/* PUBLIQUES */}
       <Route path="/"           element={<Landing />} />
-      <Route path="/pricing"    element={<Pricing />} />
+      <Route path="/pricing"    element={<Navigate to="/app" replace />} />
       <Route path="/auth"            element={user ? <Navigate to="/app" replace /> : <Auth />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password"  element={<ResetPassword />} />

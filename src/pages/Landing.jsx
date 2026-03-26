@@ -29,19 +29,19 @@ const PAINS = [
 ]
 
 const FEATURES = [
-  { icon:'🧮', title:'Calculateur Reverse BBQ',   badge:'Cœur du produit', desc:"Entre ton heure de service. Charbon & Flamme remonte le temps et te dit exactement à quelle heure allumer le fumoir. Algorithme calibré sur les données de Franklin, Meathead et Harry Soo." },
-  { icon:'📡', title:'Session de cuisson live',    badge:'Temps réel',      desc:"Valide chaque checkpoint manuellement — pit stable, stall, wrap, probe test. L'ETA se recalcule à chaque étape. Tu sais toujours où tu en es." },
-  { icon:'🎯', title:'Fenêtre de service',         badge:'Anti-stress',     desc:"Charbon & Flamme ne te donne pas une heure. Il te donne une fenêtre sécurisée avec marge de repos incluse. Tu peux accueillir tes invités sans stress." },
-  { icon:'🧬', title:'Science du BBQ intégrée',    badge:'Scientifique',    desc:"Collagène, stall évaporatif, probe tender — l'algo comprend la physique de ta cuisson. Pas une règle de 1h/lb. Une vraie simulation." },
-  { icon:'🍖', title:'Cook Party multi-viandes',   badge:'Pro',             desc:"Brisket + ribs + pulled pork en même temps ? Charbon & Flamme synchronise tout et te dit quoi lancer en premier." },
-  { icon:'📓', title:'Journal de cuisson',         badge:'Mémoire',         desc:"Chaque session est archivée. T° réelles, durées, observations. Tu progresses à chaque cuisson et ne répètes plus les mêmes erreurs." },
+  { icon:'🧮', title:'Calculateur BBQ gratuit',     badge:'Utilisable tout de suite', desc:"Entre ton heure de service. Charbon & Flamme te dit quand démarrer, quelle marge garder et à quel moment surveiller les étapes clés." },
+  { icon:'📡', title:'Session de cuisson guidée',   badge:'Temps réel',            desc:"Valide les checkpoints au vrai moment de ta cuisson — pit stable, stall, wrap, test de tendreté ou flex test pour les ribs. L'ETA se recalcule à chaque étape." },
+  { icon:'🎯', title:'Fenêtre de service claire',   badge:'Anti-stress',           desc:"L'outil ne te donne pas une heure magique. Il te donne une fenêtre crédible avec repos et marge de sécurité déjà intégrés." },
+  { icon:'🔥', title:'Vocabulaire pitmaster expliqué', badge:'Débutant friendly',  desc:"Bark, stall, wrap, probe tender, hold: les bons mots sont là, mais toujours traduits en langage simple et utile." },
+  { icon:'🍖', title:'Flow adapté selon la viande', badge:'Terrain réel',          desc:"Brisket, pulled pork, chuck, beef ribs ou pork ribs: les étapes et les conseils changent selon la logique réelle de la cuisson." },
+  { icon:'📤', title:'Pensé pour être partagé',     badge:'Acquisition',           desc:"Lance un planning, partage-le facilement et reviens pendant la cuisson pour recalculer sans friction ni compte obligatoire." },
 ]
 
 const STEPS = [
-  { num:'01', title:"Tu entres ton heure de service",  desc:"Charbon & Flamme part de ta contrainte — pas de la biologie de la viande. Tu veux servir à 19h00, il calcule à rebours." },
-  { num:'02', title:"L'algo calcule tout",             desc:"Phase de bark, stall évaporatif, wrap, finition, repos avec marge. Chaque paramètre pondéré selon le poids, l'épaisseur, le fumoir et le type de viande." },
-  { num:'03', title:"Tu valides les checkpoints",      desc:"Charbon & Flamme t'accompagne en temps réel. Tu confirmes chaque étape quand elle arrive. L'ETA se recalcule automatiquement." },
-  { num:'04', title:"Tu sers à l'heure",               desc:"Probe tender validé, repos fait, viande à température de service. Tes invités arrivent, tout est prêt." },
+  { num:'01', title:"Tu entres ton heure de service",  desc:"Tu dis simplement quand tu veux servir. L'outil calcule l'heure de départ recommandée." },
+  { num:'02', title:"Le planning se construit",        desc:"Température fumoir, marge, repos et étapes clés sont assemblés dans un plan simple à suivre." },
+  { num:'03', title:"Tu valides ce qui arrive vraiment", desc:"Pendant la cuisson, tu confirmes les checkpoints réels. L'ETA se recalcule selon ce qui se passe sur ton fumoir." },
+  { num:'04', title:"Tu sers plus sereinement",        desc:"La viande est prête dans une vraie fenêtre de service, avec le bon moment pour tester, retirer et laisser reposer." },
 ]
 
 const FOR_WHO = [
@@ -78,7 +78,8 @@ export default function Landing() {
     return () => window.removeEventListener('scroll', h)
   }, [])
 
-  const go = () => navigate('/auth')
+  // PATCH: acquisition first — l'utilisateur doit pouvoir utiliser l'outil immédiatement
+  const go = () => navigate('/app')
 
   return (
     <div style={{ background:'#080706', fontFamily:"'DM Sans',sans-serif", overflowX:'hidden', color:'#d4c4b0' }}>
@@ -90,9 +91,8 @@ export default function Landing() {
           🔥 Charbon &amp; Flamme
         </div>
         <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-          <button onClick={() => navigate('/pricing')} style={{ padding:'6px 14px', borderRadius:8, border:'none', background:'transparent', color:'#5a4a3a', fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:700, cursor:'pointer' }}>Tarifs</button>
-          <button onClick={go} style={{ padding:'6px 14px', borderRadius:8, border:'1px solid #2a2218', background:'transparent', color:'#8a7a6a', fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:700, cursor:'pointer' }}>Connexion</button>
-          <button onClick={go} className="hbtn" style={{ padding:'7px 18px', borderRadius:8, border:'none', background:'linear-gradient(135deg,#f48c06,#d44e00)', color:'#fff', fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:700, cursor:'pointer' }}>Commencer</button>
+          <button onClick={() => navigate('/auth')} style={{ padding:'6px 14px', borderRadius:8, border:'1px solid #2a2218', background:'transparent', color:'#8a7a6a', fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:700, cursor:'pointer' }}>Connexion</button>
+          <button onClick={go} className="hbtn" style={{ padding:'7px 18px', borderRadius:8, border:'none', background:'linear-gradient(135deg,#f48c06,#d44e00)', color:'#fff', fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:700, cursor:'pointer' }}>Ouvrir l’outil</button>
         </div>
       </nav>
 
@@ -118,25 +118,25 @@ export default function Landing() {
 
         <div style={{ position:'relative', zIndex:2, maxWidth:700 }}>
           <div className="fu" style={{ display:'inline-block', background:'rgba(232,93,4,0.07)', border:'1px solid rgba(232,93,4,0.14)', borderRadius:20, padding:'5px 16px', fontSize:11, fontWeight:700, color:'#c87040', fontFamily:"'Syne',sans-serif", letterSpacing:'2px', textTransform:'uppercase', marginBottom:24 }}>
-            5 calculs gratuits · Pas de carte bancaire
+            Gratuit · Sans inscription obligatoire
           </div>
           <h1 className="fu fu1" style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:'clamp(34px,6.5vw,60px)', color:'#fff', letterSpacing:'-2px', lineHeight:1.05, marginBottom:20 }}>
             Ton brisket arrive parfait.<br />
             <span style={{ color:'#e85d04', animation:'flicker 5s 3s ease-in-out infinite' }}>Pas par chance — par calcul.</span>
           </h1>
           <p className="fu fu2" style={{ fontSize:17, color:'#8a7a6a', lineHeight:1.8, maxWidth:500, margin:'0 auto 36px' }}>
-            Charbon &amp; Flamme calcule à la minute près quand lancer ta cuisson. 5 calculs gratuits par mois — puis Pro pour illimité.
+            Charbon &amp; Flamme te dit quand démarrer, quoi faire à chaque étape et quand tester la viande, sans te noyer dans la théorie.
           </p>
           <div className="fu fu3" style={{ display:'flex', gap:10, justifyContent:'center', flexWrap:'wrap', marginBottom:14 }}>
             <button onClick={go} className="hbtn" style={{ padding:'15px 32px', borderRadius:12, border:'none', background:'linear-gradient(135deg,#f48c06,#d44e00)', color:'#fff', fontFamily:"'Syne',sans-serif", fontSize:15, fontWeight:700, cursor:'pointer', boxShadow:'0 4px 20px rgba(232,93,4,0.28)' }}>
-              🔥 Commencer gratuitement
+              🔥 Lancer un planning
             </button>
-            <button onClick={() => navigate('/pricing')} style={{ padding:'15px 26px', borderRadius:12, border:'1px solid #2a2218', background:'transparent', color:'#5a4a3a', fontFamily:"'Syne',sans-serif", fontSize:15, fontWeight:700, cursor:'pointer' }}>
-              Voir les tarifs →
+            <button onClick={() => navigate('/auth')} style={{ padding:'15px 26px', borderRadius:12, border:'1px solid #2a2218', background:'transparent', color:'#5a4a3a', fontFamily:"'Syne',sans-serif", fontSize:15, fontWeight:700, cursor:'pointer' }}>
+              Connexion optionnelle
             </button>
           </div>
           <div className="fu fu4" style={{ fontSize:11, color:'#4a3a2e', letterSpacing:'0.5px' }}>
-            5 calculs gratuits/mois · Pas de carte bancaire · Prêt en 30 secondes
+            Outil gratuit · Mobile-first · Prêt en moins d'une minute
           </div>
         </div>
       </div>
@@ -167,7 +167,7 @@ export default function Landing() {
               { t:'Bark ~2h48',          active:false },
               { t:'Stall ~2h30',         active:false },
               { t:'Wrap papier boucher', active:true  },
-              { t:'Probe tender ~95°C',  active:false },
+              { t:'Test de tendreté ~95°C',  active:false },
               { t:'Repos 1h30',          active:false },
             ].map((b,i) => (
               <span key={i} style={{ padding:'4px 12px', borderRadius:6, fontSize:11, fontFamily:"'DM Mono',monospace", fontWeight:600, background:b.active?'rgba(232,93,4,0.1)':'#111009', border:`1px solid ${b.active?'rgba(232,93,4,0.3)':'#1e1a14'}`, color:b.active?'#e85d04':'#4a3a2e' }}>{b.t}</span>
@@ -185,9 +185,9 @@ export default function Landing() {
       <div style={{ background:'#050403', borderTop:'1px solid #111009', borderBottom:'1px solid #111009', padding:'70px 24px' }}>
         <div style={{ maxWidth:900, margin:'0 auto' }}>
           <div style={{ textAlign:'center', marginBottom:48 }}>
-            <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:11, color:'#e85d04', letterSpacing:'2.5px', textTransform:'uppercase', marginBottom:12 }}>La science derrière</div>
+            <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:11, color:'#e85d04', letterSpacing:'2.5px', textTransform:'uppercase', marginBottom:12 }}>Ce que l’outil prend en compte</div>
             <h2 style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:'clamp(24px,4vw,36px)', color:'#fff', letterSpacing:'-1px', lineHeight:1.1 }}>
-              Pas une règle de 1h/kg.<br /><span style={{ color:'#4a3a2e' }}>Une vraie simulation.</span>
+              Pas une règle grossière.<br /><span style={{ color:'#4a3a2e' }}>Un planning crédible pour le terrain.</span>
             </h2>
           </div>
           {/* Courbe température SVG */}
@@ -263,7 +263,7 @@ export default function Landing() {
             ))}
           </div>
           <p style={{ textAlign:'center', fontSize:14, color:'#6a5a4a', lineHeight:1.75, maxWidth:480, margin:'32px auto 0' }}>
-            Charbon &amp; Flamme résout exactement ces problèmes — avec un algorithme construit sur la physique réelle du BBQ.
+            Charbon &amp; Flamme résout exactement ces problèmes avec un assistant cuisson simple, crédible et pensé pour le terrain.
           </p>
         </div>
       </div>
@@ -343,7 +343,7 @@ export default function Landing() {
           <div style={{ textAlign:'center', marginBottom:40 }}>
             <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:11, color:'#e85d04', letterSpacing:'2.5px', textTransform:'uppercase', marginBottom:12 }}>Le catalogue</div>
             <h2 style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:'clamp(22px,3.5vw,32px)', color:'#fff', letterSpacing:'-0.5px', marginBottom:8 }}>8 pièces low &amp; slow</h2>
-            <p style={{ fontSize:13, color:'#6a5a4a' }}>Chaque viande a son propre algorithme. Calibré sur les données terrain des grands pitmasters.</p>
+            <p style={{ fontSize:13, color:'#6a5a4a' }}>Chaque viande a son propre comportement. L'outil adapte les étapes pour rester crédible en vraie cuisson.</p>
           </div>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(195px,1fr))', gap:10 }}>
             {MEATS_LIST.map(m => (
@@ -370,13 +370,13 @@ export default function Landing() {
             <span style={{ color:'#e85d04' }}>Calculée. Maîtrisée. Parfaite.</span>
           </h2>
           <p style={{ fontSize:15, color:'#6a5a4a', lineHeight:1.75, marginBottom:36 }}>
-            5 calculs gratuits par mois pour commencer. Passe en Pro pour illimité.
+            Ouvre l'outil, lance ton planning, puis utilise la session de cuisson pour suivre les étapes sans stress.
           </p>
           <button onClick={go} className="hbtn" style={{ padding:'17px 44px', borderRadius:12, border:'none', background:'linear-gradient(135deg,#f48c06,#d44e00)', color:'#fff', fontFamily:"'Syne',sans-serif", fontSize:16, fontWeight:700, cursor:'pointer', boxShadow:'0 6px 24px rgba(232,93,4,0.28)', display:'inline-block', marginBottom:14 }}>
-            🔥 Commencer gratuitement
+            🔥 Ouvrir le calculateur
           </button>
           <div style={{ fontSize:11, color:'#4a3a2e' }}>
-            5 calculs gratuits/mois · Pro à 4.99€/mois · Sans engagement
+            Gratuit · Session interactive · Partage facile
           </div>
         </div>
       </div>
@@ -387,11 +387,11 @@ export default function Landing() {
           🔥 Charbon &amp; Flamme
         </div>
         <div style={{ display:'flex', gap:20 }}>
-          {['Tarifs','CGU','Confidentialité','Contact'].map(l => (
+          {['Calculateur','CGU','Confidentialité','Contact'].map(l => (
             <span key={l} style={{ fontSize:12, color:'#4a3a2e', cursor:'pointer', transition:'color 0.15s' }}
               onMouseEnter={e => e.currentTarget.style.color='#8a7a6a'}
               onMouseLeave={e => e.currentTarget.style.color='#4a3a2e'}
-              onClick={() => l==='Tarifs' && navigate('/pricing')}>
+              onClick={() => l==='Calculateur' && navigate('/app')}>
               {l}
             </span>
           ))}
