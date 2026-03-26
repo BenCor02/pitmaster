@@ -246,7 +246,7 @@ export default function Calc() {
           probableMin, optimisticMin, prudentMin,
         }
         setResult(newResult)
-        await increment() // compteur calculs gratuits
+        increment() // compteur calculs gratuits (fire & forget)
         setTimeline(tl)
         // Sauvegarder le résultat dans localStorage
         try {
