@@ -423,7 +423,7 @@ export function buildTimeline(calc, smokerTempC) {
   // PATCH: timeline dédiée ribs = visuelle et mécanique, pas mini-brisket
   if (isRibsCook(meatKey)) {
     phases.push({
-      id:'phase1', label:'Bark / couleur',
+      id:'phase1', label:'Bark en formation',
       durationMin: safePhase1Min,
       description: `Fumoir à ${safeSmokerTempC}°C stable. Laisse la couleur se construire et surveille le début de pullback sur les os.`,
       targetTempNote: wrapType !== 'none' ? 'Quand la couleur te plaît, tu peux emballer pour assouplir la fin de cuisson.' : 'Laisse continuer jusqu’à une belle couleur et un léger retrait sur l’os.',
@@ -440,6 +440,17 @@ export function buildTimeline(calc, smokerTempC) {
         targetTempNote: wrapType !== 'none' ? 'Wrap (emballage) si la couleur et la texture te conviennent.' : 'Continue à nu si tu veux une bark plus marquée.',
         wrapAt: wrapTempC,
         checkpoint: wrapType === 'none' ? 'bark_check' : 'wrap_confirm',
+      })
+    }
+
+    // PATCH: étape wrap dédiée pour aider le front à afficher un flow ribs plus humain
+    if (wrapType !== 'none') {
+      phases.push({
+        id:'wrap', label:'Wrap (facultatif)',
+        durationMin: 0,
+        description: `Emballe seulement si la couleur te plaît et si tu veux une texture plus fondante. Le papier reste plus respirant, l'alu accélère davantage.`,
+        targetTempNote: 'Décision surtout visuelle : couleur, bark et retrait sur l’os.',
+        checkpoint: 'wrap_confirm',
       })
     }
 

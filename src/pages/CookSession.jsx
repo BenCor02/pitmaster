@@ -26,6 +26,35 @@ const fmt    = (d) => new Date(d).toLocaleTimeString('fr-FR', { hour: '2-digit',
 const fmtDur = (m) => formatDuration(Math.max(0, Math.round(m)))
 const isRibsCook = (meatKey) => meatKey === 'ribs_pork' || meatKey === 'ribs_baby_back'
 
+// PATCH: bridge temporaire avant persistence membre; sessionStorage plutôt que localStorage produit
+function loadPendingSession() {
+  try {
+    const raw = sessionStorage.getItem('pm_active_session')
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
+}
+
+function savePendingSession(payload) {
+  try {
+    sessionStorage.setItem('pm_active_session', JSON.stringify({
+      ...payload,
+      savedAt: new Date().toISOString(),
+    }))
+  } catch {
+    // PATCH: persistance best effort
+  }
+}
+
+function clearPendingSession() {
+  try {
+    sessionStorage.removeItem('pm_active_session')
+  } catch {
+    // PATCH: nettoyage best effort
+  }
+}
+
 // PATCH: computeEtaTimes = repères de progression visuels uniquement
 // Ces heures sont des ESTIMATIONS, pas des déclencheurs automatiques
 // Le membre valide manuellement quand l'étape arrive réellement
@@ -498,19 +527,22 @@ export default function CookSession() {
   const navigate = useNavigate()
   const { user } = useAuth()
 
-  const schedule  = location.state?.schedule
+  // PATCH: priorité à la navigation courante, fallback sessionStorage pour éviter une dépendance fragile à location.state
+  const pendingSession = loadPendingSession()
+  const schedule  = location.state?.schedule || pendingSession?.schedule
 
   const [checkpoints,   setCheckpoints]   = useState(() => schedule ? buildCheckpoints(schedule) : [])
   const [currentIndex,  setCurrentIndex]  = useState(0)
   const [results,       setResults]       = useState({})
-  // PATCH: eta stocke cookMin restant (décroissant) et totalMin pour le service
+  // PATCH: structure ETA sans ambiguïté entre total, restant et temps écoulé
   const [eta,           setEta]           = useState(() => schedule ? {
-    cookMin:  schedule.cookMin  || 0,
-    totalMin: schedule.totalMin || 0,
+    remainingCookMin:  schedule.cookMin  || 0,
+    remainingTotalMin: schedule.totalMin || 0,
+    updatedAt: null,
   } : null)
   const [elapsed,       setElapsed]       = useState(0)
-  const [cookStarted,   setCookStarted]   = useState(false)
-  const [cookStartTime, setCookStartTime] = useState(null)
+  const [cookStarted,   setCookStarted]   = useState(() => Boolean(location.state?.startedAt || pendingSession?.startedAt))
+  const [cookStartTime, setCookStartTime] = useState(() => location.state?.startedAt || pendingSession?.startedAt || null)
   const [etaTimes,      setEtaTimes]      = useState(null)
   const [restTimer,     setRestTimer]     = useState(null)
   const [log,           setLog]           = useState([])
@@ -525,6 +557,44 @@ export default function CookSession() {
     return () => clearInterval(timerRef.current)
   }, [cookStarted, cookStartTime])
 
+  useEffect(() => {
+    if (currentIndex >= checkpoints.length && checkpoints.length > 0) clearPendingSession()
+  }, [currentIndex, checkpoints.length])
+
+  // PATCH: persistance transitoire de session pour ne pas dépendre seulement du state de navigation
+  useEffect(() => {
+    if (!schedule) return
+    savePendingSession({
+      schedule,
+      startedAt: cookStartTime,
+      progress: {
+        checkpoints,
+        currentIndex,
+        results,
+        eta,
+        elapsed,
+        etaTimes,
+        restTimer,
+        log,
+      },
+    })
+  }, [schedule, cookStartTime, checkpoints, currentIndex, results, eta, elapsed, etaTimes, restTimer, log])
+
+  // PATCH: restauration légère si la page est rechargée au milieu d'une session
+  useEffect(() => {
+    const progress = pendingSession?.progress
+    if (!progress) return
+    if (progress.checkpoints?.length) setCheckpoints(progress.checkpoints)
+    if (Number.isInteger(progress.currentIndex)) setCurrentIndex(progress.currentIndex)
+    if (progress.results) setResults(progress.results)
+    if (progress.eta) setEta(progress.eta)
+    if (Number.isFinite(progress.elapsed)) setElapsed(progress.elapsed)
+    if (progress.etaTimes) setEtaTimes(progress.etaTimes)
+    if (progress.restTimer) setRestTimer(progress.restTimer)
+    if (Array.isArray(progress.log)) setLog(progress.log)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   function addLog(message) {
     setLog(l => [{ at: new Date().toISOString(), message }, ...l])
   }
@@ -532,24 +602,31 @@ export default function CookSession() {
   // ── Validation d'un checkpoint
   function handleValidate(id, userResponse) {
     let message = null
-    // PATCH: on travaille sur une copie de eta pour ne pas avoir de stale closure
+    // PATCH: on travaille sur une copie structurée avec remaining* pour éviter les ambiguïtés
     const currentEta = { ...eta }
+    const nowIso = new Date().toISOString()
+
+    const applyEtaSnapshot = (nextRemainingCookMin, nextRemainingTotalMin) => {
+      currentEta.remainingCookMin = Math.max(Math.round(nextRemainingCookMin || 0), 0)
+      currentEta.remainingTotalMin = Math.max(Math.round(nextRemainingTotalMin || 0), currentEta.remainingCookMin)
+      currentEta.updatedAt = nowIso
+    }
 
     // ── Pit stable
     if (id === 'pit_stable') {
-      const start = new Date().toISOString()
+      const start = nowIso
       setCookStarted(true)
       setCookStartTime(start)
       setEtaTimes(computeEtaTimes(schedule, start))
+      applyEtaSnapshot(schedule.cookMin || 0, schedule.totalMin || ((schedule.cookMin || 0) + (schedule.restMin || 0)))
       message = `Cuisson lancée à ${fmt(start)}`
     }
 
     // ── Stall — recalibrate() via calculator.js
     if (id === 'stall' && userResponse.actualTemp) {
       const r = recalibrate(schedule, userResponse.actualTemp, elapsed)
-      // PATCH: mettre à jour cookMin restant depuis recalibrate (source de vérité = moteur)
-      currentEta.cookMin  = r.remainingCookMin
-      currentEta.totalMin = r.remainingTotalMin
+      // PATCH: source de vérité ETA = remaining* du moteur, à l’instant du recalcul
+      applyEtaSnapshot(r.remainingCookMin, r.remainingTotalMin)
       if (r.alert) {
         message = `${r.alert}${r.action ? ' → ' + r.action : ''}`
       } else {
@@ -572,8 +649,7 @@ export default function CookSession() {
       } else {
         const extra = 20
         message = `Couleur encore légère — ajoute environ ${extra}min puis recontrôle.`
-        currentEta.cookMin = (currentEta.cookMin || 0) + extra
-        currentEta.totalMin = (currentEta.totalMin || 0) + extra
+        applyEtaSnapshot((currentEta.remainingCookMin || 0) + extra, (currentEta.remainingTotalMin || 0) + extra)
         addLog(message)
         setEta(currentEta)
         setResults(r => ({ ...r, [id]: { message, payload: userResponse, capturedAt: new Date().toISOString() } }))
@@ -601,9 +677,11 @@ export default function CookSession() {
       message = saved > 0
         ? `${labels[chosen]} — environ ${saved}min économisées sur le stall`
         : `${labels[chosen]} confirmé — stall complet maintenu`
-      // Mettre à jour l'ETA en soustrayant les minutes gagnées
-      currentEta.cookMin  = Math.max((currentEta.cookMin  || 0) - saved, 0)
-      currentEta.totalMin = Math.max((currentEta.totalMin || 0) - saved, 0)
+      // PATCH: l’ETA est mise à jour à partir du temps restant courant, pas du total historique
+      applyEtaSnapshot(
+        Math.max((currentEta.remainingCookMin || 0) - saved, 0),
+        Math.max((currentEta.remainingTotalMin || 0) - saved, 0)
+      )
     }
 
     // ── Probe test
@@ -611,11 +689,11 @@ export default function CookSession() {
       if (userResponse.probeOk) {
         message = '🎉 Probe tender — sortez la viande et lancez le repos en Cambro.'
         currentEta.message = 'Cuisson terminée'
+        applyEtaSnapshot(0, schedule.restMin || 60)
       } else {
         const extra = 30
         message = `Pas encore — +${extra}min ajoutées. Retest dans 30min.`
-        currentEta.cookMin  = (currentEta.cookMin  || 0) + extra
-        currentEta.totalMin = (currentEta.totalMin || 0) + extra
+        applyEtaSnapshot((currentEta.remainingCookMin || 0) + extra, (currentEta.remainingTotalMin || 0) + extra)
         addLog(message)
         setEta(currentEta)
         setResults(r => ({ ...r, [id]: { message } }))
@@ -629,11 +707,11 @@ export default function CookSession() {
       if (userResponse.flexOk) {
         message = '🎉 Flex test validé — les ribs peuvent sortir du fumoir.'
         currentEta.message = 'Cuisson terminée'
+        applyEtaSnapshot(0, schedule.restMin || 15)
       } else {
         const extra = 15
         message = `Pas encore assez souples — ajoute environ ${extra}min puis reteste.`
-        currentEta.cookMin = (currentEta.cookMin || 0) + extra
-        currentEta.totalMin = (currentEta.totalMin || 0) + extra
+        applyEtaSnapshot((currentEta.remainingCookMin || 0) + extra, (currentEta.remainingTotalMin || 0) + extra)
         addLog(message)
         setEta(currentEta)
         setResults(r => ({ ...r, [id]: { message, payload: userResponse, capturedAt: new Date().toISOString() } }))
@@ -646,6 +724,7 @@ export default function CookSession() {
       const restMin = schedule.restMin || 60
       const restEnd = addMin(new Date(), restMin)
       setRestTimer({ endTime: restEnd.toISOString(), durationMin: restMin })
+      applyEtaSnapshot(0, restMin)
       message = `Repos lancé — prêt à ${fmt(restEnd)} (${fmtDur(restMin)} minimum)`
     }
 
@@ -677,17 +756,27 @@ export default function CookSession() {
 
   const isFinished = currentIndex >= checkpoints.length
 
-  // PATCH: ETA robuste — cookMin décroît avec elapsed, service = cookStartTime + cookMin + restMin
-  const etaCookMin = eta?.cookMin || schedule.cookMin || 0
-  const etaRestMin = schedule.restMin || (isRibsCook(schedule.meatKey) ? 15 : 60)
-  // PATCH: temps restant = ce qu'il reste de cookMin depuis le départ, moins le temps écoulé
-  const restantMin = cookStarted
-    ? Math.max(etaCookMin - elapsed, 0)
-    : etaCookMin
-  // PATCH: heure de service recalculée depuis cookStartTime (stable, ne change pas à chaque tick)
-  const etaService = cookStartTime
-    ? fmt(addMin(cookStartTime, etaCookMin + etaRestMin))
-    : fmt(addMin(new Date(), etaCookMin + etaRestMin))
+  // PATCH: calcul ETA cohérent; on soustrait uniquement le temps écoulé depuis le dernier snapshot ETA
+  const etaReferenceAt = eta?.updatedAt
+    ? new Date(eta.updatedAt)
+    : cookStartTime
+      ? new Date(cookStartTime)
+      : null
+  const elapsedSinceEtaSnapshot = etaReferenceAt
+    ? Math.max(Math.round((Date.now() - etaReferenceAt.getTime()) / 60000), 0)
+    : 0
+  const baseRemainingCookMin = eta?.remainingCookMin ?? schedule.cookMin ?? 0
+  const baseRemainingTotalMin = eta?.remainingTotalMin ?? schedule.totalMin ?? ((schedule.cookMin || 0) + (schedule.restMin || 0))
+  const restRemainingMin = restTimer
+    ? Math.max(Math.round((new Date(restTimer.endTime).getTime() - Date.now()) / 60000), 0)
+    : null
+  const remainingCookMin = restTimer
+    ? 0
+    : Math.max(baseRemainingCookMin - elapsedSinceEtaSnapshot, 0)
+  const remainingTotalMin = restTimer
+    ? restRemainingMin
+    : Math.max(baseRemainingTotalMin - elapsedSinceEtaSnapshot, remainingCookMin)
+  const etaService = fmt(addMin(new Date(), remainingTotalMin))
 
   return (
     <div style={{ fontFamily: "'DM Sans',sans-serif" }}>
@@ -736,7 +825,7 @@ export default function CookSession() {
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Restant</div>
           <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 20, color: 'var(--orange)' }}>
-            {fmtDur(restantMin)}
+            {fmtDur(remainingTotalMin)}
           </div>
         </div>
         <div style={{ textAlign: 'center' }}>
@@ -853,7 +942,7 @@ export default function CookSession() {
       )}
 
       {/* ── TERMINER */}
-      <button onClick={() => navigate('/app')} style={{ width: '100%', padding: '14px', borderRadius: 50, border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text3)', fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: 13, cursor: 'pointer', marginTop: 16 }}>
+      <button onClick={() => { clearPendingSession(); navigate('/app') }} style={{ width: '100%', padding: '14px', borderRadius: 50, border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text3)', fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: 13, cursor: 'pointer', marginTop: 16 }}>
         ↩ Terminer la session
       </button>
     </div>

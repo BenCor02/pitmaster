@@ -56,6 +56,28 @@ const toInt = (value, fallback = 0) => {
   return Number.isFinite(n) ? n : fallback
 }
 
+// PATCH: persistance locale réduite aux brouillons de formulaire uniquement
+function getCalcDraft() {
+  try {
+    return JSON.parse(localStorage.getItem('pm_calc') || '{}')
+  } catch {
+    return {}
+  }
+}
+
+// PATCH: bridge temporaire pour une future persistence membre/Supabase des sessions
+function savePendingSession(payload) {
+  try {
+    sessionStorage.setItem('pm_active_session', JSON.stringify({
+      ...payload,
+      savedAt: new Date().toISOString(),
+      source: 'calculator',
+    }))
+  } catch {
+    // PATCH: session best effort seulement
+  }
+}
+
 // PATCH: identifiant visiteur local pour préparer une analytics anonyme sans friction
 function getAnonymousVisitorId() {
   try {
@@ -85,6 +107,7 @@ function buildServeDate(serveTime) {
 }
 
 function getTimelineStepContent(step, result) {
+  const isRibsCook = result?.meatKey === 'ribs_pork' || result?.meatKey === 'ribs_baby_back'
   if (step.isService) return {
     title: 'Service',
     explanation: 'La cuisson, le repos et la marge sont terminés.',
@@ -96,25 +119,42 @@ function getTimelineStepContent(step, result) {
     action: 'Laisse reposer au chaud avant de trancher ou effilocher.',
   }
   if (step.isStall) return {
-    title: result?.wrapType !== 'none'
-      ? 'Wrap (emballage) + Stall (ralentissement normal)'
-      : 'Stall (ralentissement normal)',
-    explanation: result?.wrapType !== 'none'
-      ? "La température peut ralentir. C'est normal. Le wrap, c'est emballer la viande pour accélérer la fin de cuisson et garder plus de jus."
-      : "La température peut ralentir ou presque stagner. C'est normal pendant le low & slow.",
-    action: result?.wrapType !== 'none'
-      ? `Emballe quand la couleur te plaît ou autour de ${result.wrapTempC}°C, puis garde un feu stable.`
-      : "N'augmente pas brutalement la température du fumoir. Laisse la cuisson suivre son rythme.",
+    title: isRibsCook ? 'La viande se rétracte sur l’os' : 'La cuisson ralentit',
+    explanation: isRibsCook
+      ? 'Sur les ribs, ce moment sert surtout à regarder la couleur, le retrait de viande sur l’os et à décider si un wrap est utile.'
+      : result?.wrapType !== 'none'
+        ? "La température peut ralentir. C'est normal. Le wrap, c'est emballer la viande pour accélérer la fin de cuisson et garder plus de jus."
+        : "La température peut ralentir ou presque stagner. C'est normal pendant le low & slow.",
+    action: isRibsCook
+      ? "Si la couleur te plaît, tu peux wrapper. Sinon laisse encore un peu prendre la fumée."
+      : result?.wrapType !== 'none'
+        ? `Emballe quand la couleur te plaît ou autour de ${result.wrapTempC}°C, puis garde un feu stable.`
+        : "N'augmente pas brutalement la température du fumoir. Laisse la cuisson suivre son rythme.",
+  }
+  if (step.id === 'wrap') return {
+    title: 'Wrap (emballage)',
+    explanation: isRibsCook
+      ? "Sur les ribs, le wrap reste facultatif. Il accélère la cuisson et donne souvent une texture plus fondante."
+      : "Le wrap aide à traverser la fin de cuisson plus régulièrement et à garder davantage de jus.",
+    action: isRibsCook
+      ? 'Emballe seulement si la couleur te plaît et si tu veux une texture plus souple.'
+      : `Emballe quand la bark te plaît ou autour de ${result?.wrapTempC || '?'}°C.`,
   }
   if (step.id === 'phase1') return {
-    title: 'Bark en formation',
-    explanation: "La bark, c'est la croûte / écorce de cuisson qui se forme avec la fumée et la chaleur.",
+    title: isRibsCook ? 'La couleur se forme' : 'Bark en formation',
+    explanation: isRibsCook
+      ? "La rack prend la fumée et sa couleur se construit. Sur les ribs, c'est un repère plus utile qu'une heure fixe."
+      : "La bark, c'est la croûte / écorce de cuisson qui se forme avec la fumée et la chaleur.",
     action: "Évite d'ouvrir le fumoir inutilement et garde une température régulière.",
   }
   if (step.id === 'phase3') return {
-    title: 'Finition / test de tendreté',
-    explanation: "On cherche le probe tender: la sonde doit entrer presque comme dans du beurre. C'est plus important que le chiffre exact.",
-    action: `Commence à tester régulièrement vers ${result?.targetTempC || '?'}°C et retire dès que la viande est tendre.`,
+    title: isRibsCook ? 'Flex test' : 'Finition / test de tendreté',
+    explanation: isRibsCook
+      ? "Soulève la rack: elle doit se courber franchement et commencer à fissurer légèrement en surface. C'est le vrai signal de fin."
+      : "On cherche le probe tender: la sonde doit entrer presque comme dans du beurre. C'est plus important que le chiffre exact.",
+    action: isRibsCook
+      ? 'Commence à vérifier la souplesse de la rack et le retrait sur l’os avant de servir.'
+      : `Commence à tester régulièrement vers ${result?.targetTempC || '?'}°C et retire dès que la viande est tendre.`,
   }
   return {
     title: step.label,
@@ -134,25 +174,26 @@ export default function Calc() {
   const { snack, showSnack } = useSnack()
   const [authCtaReason, setAuthCtaReason] = useState(null)
 
-  // ── Restauration depuis localStorage — persiste entre les navigations
-  const [meatKey,    setMeatKey]    = useState(() => { try { return JSON.parse(localStorage.getItem('pm_calc') || '{}').meatKey    || 'brisket'       } catch { return 'brisket'       } })
-  const [weight,     setWeight]     = useState(() => { try { return JSON.parse(localStorage.getItem('pm_calc') || '{}').weight     ?? 4               } catch { return 4               } })
-  const [thickness,  setThickness]  = useState(() => { try { return JSON.parse(localStorage.getItem('pm_calc') || '{}').thickness  || ''              } catch { return ''              } })
-  const [smokerTemp, setSmokerTemp] = useState(() => { try { return JSON.parse(localStorage.getItem('pm_calc') || '{}').smokerTemp ?? 110             } catch { return 110             } })
-  const [serveTime,  setServeTime]  = useState(() => { try { return JSON.parse(localStorage.getItem('pm_calc') || '{}').serveTime  || '19:00'         } catch { return '19:00'         } })
-  const [margin,     setMargin]     = useState(() => { try { return JSON.parse(localStorage.getItem('pm_calc') || '{}').margin     ?? 60              } catch { return 60              } })
-  const [smokerType, setSmokerType] = useState(() => { try { return JSON.parse(localStorage.getItem('pm_calc') || '{}').smokerType || 'pellet'        } catch { return 'pellet'        } })
-  const [wrapType,   setWrapType]   = useState(() => { try { return JSON.parse(localStorage.getItem('pm_calc') || '{}').wrapType   || 'butcher_paper' } catch { return 'butcher_paper' } })
-  const [marbling,   setMarbling]   = useState(() => { try { return JSON.parse(localStorage.getItem('pm_calc') || '{}').marbling   || 'medium'        } catch { return 'medium'        } })
-  const [startTemp,  setStartTemp]  = useState(() => { try { return JSON.parse(localStorage.getItem('pm_calc') || '{}').startTemp  ?? 4               } catch { return 4               } })
+  // PATCH: seul le brouillon de formulaire reste restauré depuis localStorage
+  const [meatKey,    setMeatKey]    = useState(() => getCalcDraft().meatKey || 'brisket')
+  const [weight,     setWeight]     = useState(() => getCalcDraft().weight ?? 4)
+  const [thickness,  setThickness]  = useState(() => getCalcDraft().thickness || '')
+  const [smokerTemp, setSmokerTemp] = useState(() => getCalcDraft().smokerTemp ?? 110)
+  const [serveTime,  setServeTime]  = useState(() => getCalcDraft().serveTime || '19:00')
+  const [margin,     setMargin]     = useState(() => getCalcDraft().margin ?? 60)
+  const [smokerType, setSmokerType] = useState(() => getCalcDraft().smokerType || 'pellet')
+  const [wrapType,   setWrapType]   = useState(() => getCalcDraft().wrapType || 'butcher_paper')
+  const [marbling,   setMarbling]   = useState(() => getCalcDraft().marbling || 'medium')
+  const [startTemp,  setStartTemp]  = useState(() => getCalcDraft().startTemp ?? 4)
   const [showAdvanced,   setShowAdvanced]   = useState(false)
   const [showRecal,      setShowRecal]      = useState(false)
   const [currentTempC,   setCurrentTempC]   = useState('')
   const [elapsedMin,     setElapsedMin]     = useState('')
   const [currentPitTemp, setCurrentPitTemp] = useState('')
   const [recalResult,    setRecalResult]    = useState(null)
-  const [result,   setResult]   = useState(() => { try { const r = localStorage.getItem('pm_calc_result');   return r ? JSON.parse(r) : null } catch { return null } })
-  const [timeline, setTimeline] = useState(() => { try { const t = localStorage.getItem('pm_calc_timeline'); return t ? JSON.parse(t) : []   } catch { return []   } })
+  // PATCH: le résultat n'est plus restauré depuis localStorage pour éviter d'en faire une base produit fragile
+  const [result,   setResult]   = useState(null)
+  const [timeline, setTimeline] = useState([])
   const [warnings, setWarnings] = useState([])
   const [loading,  setLoading]  = useState(false)
   const [saving,   setSaving]   = useState(false)
@@ -161,17 +202,6 @@ export default function Calc() {
   const profile = MEAT_PROFILES[meatKey]
   const meatData = MEATS[meatKey]
   const isLowSlow = profile?.method === 'lowslow'
-
-  // ── Sauvegarde position scroll + restauration au retour
-  useEffect(() => {
-    const saved = localStorage.getItem('pm_calc_scroll')
-    if (saved && result) {
-      setTimeout(() => window.scrollTo({ top: parseInt(saved), behavior: 'instant' }), 50)
-    }
-    const onScroll = () => localStorage.setItem('pm_calc_scroll', window.scrollY)
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [result])
 
   // ── Sauvegarde automatique des inputs dans localStorage
   useEffect(() => {
@@ -219,15 +249,11 @@ export default function Calc() {
         const serviceWindowStart = addMinutes(serve, -(prudentMin - probableMin))
         const serviceWindowEnd = addMinutes(serve, Math.max(optimisticMin - probableMin, 0))
 
-        let cursor = new Date(start)
-        const tl = calc.phases.map(phase => {
-          const startStr = formatTime(cursor)
-          if (phase.durationMin) cursor = addMinutes(cursor, phase.durationMin)
-          return { ...phase, startStr }
-        })
+        // PATCH: plus d'heures fixes par étape dans l'UI; on garde seulement les repères de cuisson
+        const tl = calc.phases.map(phase => ({ ...phase }))
         tl.push({
-          id: 'service', label: '🍽️ Service', startStr: serveTime, isService: true,
-          description: `Marge de sécurité incluse : ${formatDuration(safeMargin)}.`,
+          id: 'service', label: '🍽️ Service', isService: true,
+          description: `Sers dans la fenêtre conseillée. Marge de sécurité incluse : ${formatDuration(safeMargin)}.`,
         })
 
         const newResult = {
@@ -253,13 +279,6 @@ export default function Calc() {
         }
         setResult(newResult)
         setTimeline(tl)
-        // Sauvegarder le résultat dans localStorage
-        try {
-          localStorage.setItem('pm_calc_result', JSON.stringify(newResult))
-          localStorage.setItem('pm_calc_timeline', JSON.stringify(tl))
-        } catch {
-          // PATCH: persistance best effort; ne bloque jamais le calcul
-        }
         setLoading(false)
         setTimeout(() => document.getElementById('calc-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
       } catch (e) {
@@ -603,7 +622,7 @@ export default function Calc() {
             </div>
 
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
-              {result.targetTempC && (
+              {result.targetTempC && result.meatKey !== 'ribs_pork' && result.meatKey !== 'ribs_baby_back' && (
                 <span style={{ background: 'var(--orange-bg)', border: '1px solid var(--orange-border)', borderRadius: 50, padding: '4px 12px', fontSize: 11, fontFamily: 'DM Mono, monospace', color: 'var(--orange)', fontWeight: 600 }}>
                   Test de tendreté vers {result.targetTempC}°C
                 </span>
@@ -611,6 +630,11 @@ export default function Calc() {
               {result.wrapTempC && wrapType !== 'none' && (
                 <span style={{ background: 'rgba(96,165,250,0.1)', border: '1px solid rgba(96,165,250,0.2)', borderRadius: 50, padding: '4px 12px', fontSize: 11, fontFamily: 'DM Mono, monospace', color: 'var(--blue)' }}>
                   Wrap vers {result.wrapTempC}°C
+                </span>
+              )}
+              {(result.meatKey === 'ribs_pork' || result.meatKey === 'ribs_baby_back') && (
+                <span style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 50, padding: '4px 12px', fontSize: 11, fontFamily: 'DM Mono, monospace', color: 'var(--green)' }}>
+                  Flex test = repère principal de fin
                 </span>
               )}
             </div>
@@ -666,7 +690,7 @@ export default function Calc() {
           <div className="pm-card" style={{ marginBottom: 12 }}>
             <div className="pm-sec-label">📋 Étapes de cuisson</div>
             <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 12, lineHeight: 1.6 }}>
-              Suis les étapes dans l'ordre. Chaque bloc t'explique ce qui se passe et quoi faire.
+              Suis les étapes dans l'ordre. Ce sont des repères de cuisson, pas des horaires fixes à respecter.
             </div>
             <div style={{ display: 'flex', gap: 2, height: 6, borderRadius: 3, overflow: 'hidden', marginBottom: 16 }}>
               {timeline.filter(p => p.durationMin).map((p, i) => (
@@ -676,16 +700,15 @@ export default function Calc() {
             {timeline.map((step, i) => {
               const content = getTimelineStepContent(step, result)
               return (
-                <div key={i} style={{ display: 'grid', gridTemplateColumns: '52px 10px 1fr', gap: '0 10px', padding: '9px 0', position: 'relative' }}>
-                  {i < timeline.length - 1 && <div style={{ position: 'absolute', left: 56, top: 24, bottom: -9, width: 1, background: 'var(--border)' }} />}
-                  <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, color: step.isService ? 'var(--orange)' : 'var(--text3)', textAlign: 'right', paddingTop: 2, fontWeight: step.isService ? 700 : 400 }}>
-                    {step.startStr}
-                  </div>
+                <div key={i} style={{ display: 'grid', gridTemplateColumns: '10px 1fr', gap: '0 10px', padding: '9px 0', position: 'relative' }}>
+                  {i < timeline.length - 1 && <div style={{ position: 'absolute', left: 4, top: 24, bottom: -9, width: 1, background: 'var(--border)' }} />}
                   <div style={{ width: 8, height: 8, borderRadius: '50%', background: phaseColor(step), marginTop: 4, justifySelf: 'center', boxShadow: `0 0 6px ${phaseColor(step)}60` }} />
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
                       <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 13, color: 'var(--text)', lineHeight: 1.3 }}>{content.title}</div>
-                      {step.durationMin && <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, color: 'var(--text3)', flexShrink: 0 }}>{formatDuration(step.durationMin)}</span>}
+                      {step.durationMin
+                        ? <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, color: 'var(--text3)', flexShrink: 0 }}>Durée indicative : {formatDuration(step.durationMin)}</span>
+                        : <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, color: 'var(--text3)', flexShrink: 0 }}>Repère</span>}
                     </div>
                     <div style={{ fontSize: 12, color: 'var(--text2)', marginTop: 5, lineHeight: 1.6 }}>{content.explanation}</div>
                     <div style={{ marginTop: 6, padding: '7px 10px', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 11, color: 'var(--text3)', lineHeight: 1.6 }}>
@@ -693,7 +716,7 @@ export default function Calc() {
                     </div>
                     {step.targetTempNote && (
                       <div style={{ marginTop: 6, padding: '4px 10px', background: 'var(--orange-bg)', border: '1px solid var(--orange-border)', borderRadius: 8, fontSize: 11, color: 'var(--orange)', fontWeight: 600 }}>
-                        🌡️ {step.targetTempNote}
+                        🌡️ Repère utile : {step.targetTempNote}
                       </div>
                     )}
                     {step.isStall && (
@@ -827,19 +850,19 @@ export default function Calc() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             <button onClick={() => {
                 setResult(null); setWarnings([]); setRecalResult(null)
-                try { localStorage.removeItem('pm_calc_result'); localStorage.removeItem('pm_calc_timeline') } catch {
-                  // PATCH: nettoyage local best effort
-                }
                 window.scrollTo({ top: 0, behavior: 'smooth' })
               }} className="pm-btn-secondary">
               ↩ Nouveau calcul
             </button>
-            <button onClick={() => navigate('/app/session', {
-              state: {
+            <button onClick={() => {
+              // PATCH: la session se transmet par navigation + brouillon sessionStorage, pour limiter la fragilité du state seul
+              const sessionPayload = {
                 schedule: { ...result },
                 startedAt: new Date().toISOString(),
               }
-            })} style={{ width: '100%', padding: '14px', borderRadius: 50, border: 'none',
+              savePendingSession(sessionPayload)
+              navigate('/app/session', { state: sessionPayload })
+            }} style={{ width: '100%', padding: '14px', borderRadius: 50, border: 'none',
               background: 'linear-gradient(135deg,#22c55e,#16a34a)', color: '#fff',
               fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: 14, cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
