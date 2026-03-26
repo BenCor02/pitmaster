@@ -217,7 +217,7 @@ function getHeroCues(result) {
   if (!result?.cues) return []
   if (result.meatKey === 'ribs_pork' || result.meatKey === 'ribs_baby_back') {
     return [
-      { label: 'Repères visuels', value: 'Couleur, pullback, flex test' },
+      { label: 'Repères ribs', value: 'Couleur, pullback, flex test' },
       { label: 'Glaze', value: 'Optionnelle en toute fin' },
       { label: 'Repos', value: result.cues.restRange || 'Repos court' },
     ]
@@ -229,6 +229,16 @@ function getHeroCues(result) {
     { label: 'Probe tender', value: result.cues.probeTenderRange },
     { label: 'Repos', value: result.cues.restRange },
   ].filter(cue => cue.value)
+}
+
+// PATCH: petit label compact pour afficher la température utile à atteindre sur chaque étape
+function getStepTemperatureBadge(step, result) {
+  if (!result || result.meatKey === 'ribs_pork' || result.meatKey === 'ribs_baby_back') return null
+  if (step.id === 'stall') return result.cues?.stallRange || null
+  if (step.id === 'wrap') return result.cues?.wrapRange || null
+  if (step.id === 'probe') return result.cues?.probeTenderRange || result.cues?.probeStart || null
+  if (step.id === 'rest') return result.cues?.restRange || null
+  return null
 }
 
 export default function Calc() {
@@ -729,7 +739,6 @@ export default function Calc() {
             {timeline.map((step, i) => {
               const content = getTimelineStepContent(step, result)
               const guide = getStepGuide(content)
-              const isRibsCook = result?.meatKey === 'ribs_pork' || result?.meatKey === 'ribs_baby_back'
               return (
                 <div key={i} style={{ display: 'grid', gridTemplateColumns: '10px 1fr', gap: '0 10px', padding: '9px 0', position: 'relative' }}>
                   {i < timeline.length - 1 && <div style={{ position: 'absolute', left: 4, top: 24, bottom: -9, width: 1, background: 'var(--border)' }} />}
@@ -737,9 +746,11 @@ export default function Calc() {
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
                       <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 13, color: 'var(--text)', lineHeight: 1.3 }}>{guide.watch}</div>
-                      <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, color: 'var(--text3)', flexShrink: 0 }}>
-                        {isRibsCook ? 'Visuel' : 'Repère'}
-                      </span>
+                      {getStepTemperatureBadge(step, result) && (
+                        <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, color: 'var(--text3)', flexShrink: 0 }}>
+                          {getStepTemperatureBadge(step, result)}
+                        </span>
+                      )}
                     </div>
                     <div style={{ marginTop: 6, display: 'grid', gap: 6 }}>
                       <div style={{ padding: '7px 10px', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 11, color: 'var(--text3)', lineHeight: 1.6 }}>
@@ -821,9 +832,9 @@ export default function Calc() {
                       </div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
                         {[
-                          { l: 'Optimiste', v: recalResult.remainingOptimistic, c: 'var(--green)' },
-                          { l: 'Probable', v: recalResult.remainingMin, c: 'var(--orange)' },
-                          { l: 'Prudente', v: recalResult.remainingPrudent, c: 'var(--red)' },
+                          { l: 'Basse', v: recalResult.remainingOptimistic, c: 'var(--green)' },
+                          { l: 'Repère', v: recalResult.remainingMin, c: 'var(--orange)' },
+                          { l: 'Haute', v: recalResult.remainingPrudent, c: 'var(--red)' },
                         ].map(s => (
                           <div key={s.l} style={{ textAlign: 'center', background: 'var(--surface)', borderRadius: 10, padding: '10px 6px' }}>
                             <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>{s.l}</div>
