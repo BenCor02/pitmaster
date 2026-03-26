@@ -182,6 +182,25 @@ function getReadyWindowText(result) {
   return `Viande probablement prête entre ${result.serviceWindowStart} et ${result.serviceWindowEnd}`
 }
 
+// PATCH: le hero remonte seulement les vrais repères utiles du moteur final
+function getHeroCues(result) {
+  if (!result?.cues) return []
+  if (result.meatKey === 'ribs_pork' || result.meatKey === 'ribs_baby_back') {
+    return [
+      { label: 'Repères visuels', value: 'Couleur, pullback, flex test' },
+      { label: 'Glaze', value: 'Optionnelle en toute fin' },
+      { label: 'Repos', value: result.cues.restRange || 'Repos court' },
+    ]
+  }
+  return [
+    { label: 'Stall', value: result.cues.stallRange },
+    { label: 'Wrap', value: result.cues.wrapRange },
+    { label: 'Début tests', value: result.cues.probeStart },
+    { label: 'Probe tender', value: result.cues.probeTenderRange },
+    { label: 'Repos', value: result.cues.restRange },
+  ].filter(cue => cue.value)
+}
+
 export default function Calc() {
   const navigate = useNavigate()
   const { user } = useAuth()
@@ -361,12 +380,7 @@ export default function Calc() {
     setSharing(false)
   }
 
-  const phaseColor = p => {
-    if (p.isService) return 'var(--orange)'
-    if (p.isRest) return 'var(--blue)'
-    if (p.isStall) return 'var(--gold)'
-    return 'var(--orange)'
-  }
+  const phaseColor = p => p.isRest ? 'var(--blue)' : p.isStall ? 'var(--gold)' : 'var(--orange)'
 
   return (
     <div style={{ fontFamily: "'DM Sans', sans-serif" }}>
@@ -635,22 +649,13 @@ export default function Calc() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
-              {result.targetTempC && result.meatKey !== 'ribs_pork' && result.meatKey !== 'ribs_baby_back' && (
-                <span style={{ background: 'var(--orange-bg)', border: '1px solid var(--orange-border)', borderRadius: 50, padding: '4px 12px', fontSize: 11, fontFamily: 'DM Mono, monospace', color: 'var(--orange)', fontWeight: 600 }}>
-                  Test de tendreté vers {result.targetTempC}°C
-                </span>
-              )}
-              {result.wrapTempC && wrapType !== 'none' && (
-                <span style={{ background: 'rgba(96,165,250,0.1)', border: '1px solid rgba(96,165,250,0.2)', borderRadius: 50, padding: '4px 12px', fontSize: 11, fontFamily: 'DM Mono, monospace', color: 'var(--blue)' }}>
-                  Wrap vers {result.wrapTempC}°C
-                </span>
-              )}
-              {(result.meatKey === 'ribs_pork' || result.meatKey === 'ribs_baby_back') && (
-                <span style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 50, padding: '4px 12px', fontSize: 11, fontFamily: 'DM Mono, monospace', color: 'var(--green)' }}>
-                  Flex test = repère principal de fin
-                </span>
-              )}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              {getHeroCues(result).map(cue => (
+                <div key={cue.label} style={{ background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 12, padding: '10px 12px' }}>
+                  <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>{cue.label}</div>
+                  <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 700, fontSize: 12, color: 'var(--text)' }}>{cue.value}</div>
+                </div>
+              ))}
             </div>
           </div>
 
@@ -702,14 +707,9 @@ export default function Calc() {
 
           {/* TIMELINE */}
           <div className="pm-card" style={{ marginBottom: 12 }}>
-            <div className="pm-sec-label">📋 Étapes de cuisson</div>
+            <div className="pm-sec-label">📋 Repères de cuisson</div>
             <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 12, lineHeight: 1.6 }}>
-              Suis les étapes dans l'ordre. Ce sont des repères de cuisson, pas des horaires fixes à respecter.
-            </div>
-            <div style={{ display: 'flex', gap: 2, height: 6, borderRadius: 3, overflow: 'hidden', marginBottom: 16 }}>
-              {timeline.filter(p => p.durationMin).map((p, i) => (
-                <div key={i} style={{ flex: p.durationMin, background: phaseColor(p), opacity: p.isRest ? 0.5 : 1, minWidth: 3, borderRadius: 1 }} />
-              ))}
+              Ce bloc te dit quoi surveiller, ce que ça veut dire et quoi faire. Pas d’horaires fixes entre les étapes.
             </div>
             {timeline.map((step, i) => {
               const content = getTimelineStepContent(step, result)
@@ -722,11 +722,9 @@ export default function Calc() {
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
                       <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 13, color: 'var(--text)', lineHeight: 1.3 }}>{guide.watch}</div>
-                      {!isRibsCook && step.durationMin
-                        ? <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, color: 'var(--text3)', flexShrink: 0 }}>Durée indicative : {formatDuration(step.durationMin)}</span>
-                        : !isRibsCook
-                          ? <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, color: 'var(--text3)', flexShrink: 0 }}>Repère</span>
-                          : null}
+                      <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, color: 'var(--text3)', flexShrink: 0 }}>
+                        {isRibsCook ? 'Visuel' : 'Repère'}
+                      </span>
                     </div>
                     <div style={{ marginTop: 6, display: 'grid', gap: 6 }}>
                       <div style={{ padding: '7px 10px', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 11, color: 'var(--text3)', lineHeight: 1.6 }}>
@@ -736,9 +734,14 @@ export default function Calc() {
                         <strong style={{ color: 'var(--orange)' }}>Quoi faire :</strong> {guide.action}
                       </div>
                     </div>
-                    {step.targetTempNote && (!isRibsCook || step.id === 'glaze') && (
+                    {step.visualCueNote && (
+                      <div style={{ marginTop: 6, padding: '4px 10px', background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 8, fontSize: 11, color: 'var(--text2)', fontWeight: 600 }}>
+                        👀 Repère visuel : {step.visualCueNote}
+                      </div>
+                    )}
+                    {step.targetTempNote && (
                       <div style={{ marginTop: 6, padding: '4px 10px', background: 'var(--orange-bg)', border: '1px solid var(--orange-border)', borderRadius: 8, fontSize: 11, color: 'var(--orange)', fontWeight: 600 }}>
-                        🌡️ Repère utile : {step.targetTempNote}
+                        🌡️ Repère température : {step.targetTempNote}
                       </div>
                     )}
                     {step.isStall && (

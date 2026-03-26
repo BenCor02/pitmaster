@@ -5,8 +5,8 @@
  * PATCH: refonte chirurgicale selon les 9 points identifiés par ChatGPT
  * - wording plus clair pour débutant tout en gardant le vocabulaire pitmaster
  * - logique wrap alignée avec calculator.js (coefficients BASE_COEFFS)
- * - ETA plus robuste (basée sur elapsed réel)
- * - etaTimes = repères visuels, pas déclencheurs
+ * - ETA interne conservée seulement pour les ajustements, plus pour piloter l'UI
+ * - repères température et visuels affichés à la place des heures intermédiaires
  * - ton rassurant, premium, actionnable
  */
 
@@ -52,35 +52,6 @@ function clearPendingSession() {
     sessionStorage.removeItem('pm_active_session')
   } catch {
     // PATCH: nettoyage best effort
-  }
-}
-
-// PATCH: computeEtaTimes = repères de progression visuels uniquement
-// Ces heures sont des ESTIMATIONS, pas des déclencheurs automatiques
-// Le membre valide manuellement quand l'étape arrive réellement
-function computeEtaTimes(schedule, cookStartTime) {
-  const start = new Date(cookStartTime || new Date())
-  const p1 = schedule.phase1Min || 0
-  const st = schedule.stallMin  || 0
-  const p3 = schedule.phase3Min || 0
-  // PATCH: flow ribs plus visuel/mécanique, moins centré sonde
-  if (isRibsCook(schedule.meatKey)) {
-    return {
-      pit_stable: start,
-      bark_check: addMin(start, Math.round(p1 * 0.8)),
-      wrap:       addMin(start, p1),
-      flex_test:  addMin(start, p1 + st + Math.round(p3 * 0.75)),
-      // PATCH: glaze placée après le flex test, puis repos court
-      glaze:      addMin(start, p1 + st + p3),
-      rest:       addMin(start, p1 + st + p3 + 15),
-    }
-  }
-  return {
-    pit_stable: start,
-    stall:      addMin(start, p1),
-    wrap:       addMin(start, p1),
-    probe_test: addMin(start, p1 + st + Math.round(p3 * 0.85)),
-    rest:       addMin(start, p1 + st + p3),
   }
 }
 
@@ -180,14 +151,14 @@ function buildCheckpoints(schedule) {
       actionLabel: '✅ Fumoir stable — Lancer la cuisson',
       validated: false,
     },
-    {
-      id: 'stall',
-      emoji: '📊',
+      {
+        id: 'stall',
+        emoji: '📊',
       // PATCH: titre simple "La cuisson ralentit", sous-titre pitmaster "Stall"
       title: 'La cuisson ralentit',
       titlePitmaster: 'Stall (plateau évaporatif)',
       // PATCH: explication rassurante, cause réelle, durée indicative
-      explanation: "La température interne marque le pas — elle stagne ou remonte très lentement. C'est normal et attendu : la viande transpire, ce refroidissement par évaporation ralentit la montée en T°. Ça peut durer de 1 à 4h selon la taille de la pièce.",
+        explanation: `La température interne marque le pas — c'est normal. Repère utile : ${schedule.cues?.stallRange || `${schedule.stallStartC || 65}°C`} environ. Continue à juger aussi la couleur et la bark.`,
       action: 'temp_input',
       actionLabel: 'Valider et recalculer',
       field: { key: 'actualTemp', label: 'T° interne actuelle (°C)', placeholder: `Ex: ${schedule.stallStartC || 65}` },
@@ -199,7 +170,7 @@ function buildCheckpoints(schedule) {
       title: "Emballer la viande ?",
       titlePitmaster: 'Texas Crutch',
       // PATCH: explication plus concrète avec guide de décision
-      explanation: "Si la couleur de la viande te plaît et que l'écorce est bien formée, c'est le bon moment pour emballer. Le papier boucher laisse respirer et préserve mieux l'écorce. L'aluminium crée plus de vapeur et accélère davantage. Sans wrap = écorce maximale mais cuisson plus longue.",
+        explanation: `Si la couleur de la viande te plaît et que l'écorce est bien formée, c'est le bon moment pour emballer. Repère utile : ${schedule.cues?.wrapRange || 'zone de wrap'}. Le papier boucher laisse respirer et préserve mieux l'écorce. L'aluminium accélère davantage.`,
       action: 'wrap_select',
       actionLabel: 'Confirmer mon choix',
       options: [
@@ -215,7 +186,7 @@ function buildCheckpoints(schedule) {
       title: 'La viande est tendre ?',
       titlePitmaster: 'Probe Tender',
       // PATCH: instructions pratiques précises sur comment tester
-      explanation: "Pique la sonde dans la partie la plus épaisse, sans viser le gras ou la surface sèche. Elle doit entrer presque sans résistance — comme dans du beurre fondu. C'est plus fiable que la température exacte. Aaron Franklin dit : \"si tu dois forcer, ce n'est pas prêt.\"",
+        explanation: `Commence les tests vers ${schedule.cues?.probeStart || `${schedule.targetTempC || 90}°C`} puis cherche la vraie zone probe tender autour de ${schedule.cues?.probeTenderRange || `${schedule.targetTempC || 95}°C`}. La sonde doit glisser presque sans résistance.`,
       action: 'probe_result',
       actionLabel: 'Valider',
       validated: false,
@@ -226,7 +197,7 @@ function buildCheckpoints(schedule) {
       title: 'Lancer le repos',
       titlePitmaster: 'Rest / Hold (Cambro)',
       // PATCH: rôle du repos expliqué, durée mini, flexibilité si besoin d'attendre
-      explanation: "Le repos est une étape à part entière — pas facultative. Les fibres se détendent, les jus se redistribuent, la texture s'améliore. Durée minimale : 1h. Tu peux maintenir au chaud jusqu'à 3-4h en glacière (Cambro) sans problème. Emballe dans du papier boucher, puis entoure de serviettes.",
+        explanation: `Le repos est une étape à part entière. Repère utile : ${schedule.cues?.restRange || 'repos recommandé'}. Les fibres se détendent, les jus se redistribuent et le service devient plus simple.`,
       action: 'rest_start',
       actionLabel: '😴 Repos lancé',
       validated: false,
@@ -236,8 +207,8 @@ function buildCheckpoints(schedule) {
   return schedule.wrapType === 'none' ? cps.filter(c => c.id !== 'wrap') : cps
 }
 
-// ─── Barre de progression + repères horaires ─────────────────
-function ProgressBar({ checkpoints, currentIndex, etaTimes, isRibs }) {
+// ─── Barre de progression simple ─────────────────
+function ProgressBar({ checkpoints, currentIndex }) {
   return (
     <div style={{ marginBottom: 24 }}>
       {/* Pastilles de progression */}
@@ -264,12 +235,10 @@ function ProgressBar({ checkpoints, currentIndex, etaTimes, isRibs }) {
         })}
       </div>
 
-      {/* PATCH: repères horaires explicitement secondaires */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         {checkpoints.map((cp, i) => {
           if (cp.validated) return null
           const active = i === currentIndex
-          const eta    = etaTimes?.[cp.id]
           return (
             <div key={cp.id} style={{
               display: 'flex', alignItems: 'center', gap: 10,
@@ -286,24 +255,6 @@ function ProgressBar({ checkpoints, currentIndex, etaTimes, isRibs }) {
                 </div>
                 <div style={{ fontSize: 10, color: 'var(--text3)', marginTop: 2 }}>{cp.titlePitmaster}</div>
               </div>
-              {/* PATCH: étiquette "heure estimée" claire, présentée comme repère */}
-              {!isRibs && eta && (() => {
-                const etaDate = new Date(eta)
-                const diffMin = Math.round((etaDate - Date.now()) / 60000)
-                const diffStr = diffMin <= 0 ? 'bientôt' : diffMin < 60
-                  ? `dans ${diffMin}min`
-                  : `dans ${Math.floor(diffMin / 60)}h${String(diffMin % 60).padStart(2, '0')}`
-                return (
-                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <div style={{ fontFamily: "'DM Mono',monospace", fontSize: 14, fontWeight: 700, color: active ? 'var(--orange)' : 'var(--text2)' }}>
-                      ~{etaDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                    </div>
-                    <div style={{ fontSize: 9, color: 'var(--text3)', marginTop: 2 }}>
-                      {diffStr} · repère
-                    </div>
-                  </div>
-                )
-              })()}
             </div>
           )
         })}
@@ -390,13 +341,6 @@ function CheckpointCard({ cp, schedule, onValidate }) {
       <div style={{ background: 'var(--surface2)', borderRadius: 12, padding: '12px 14px', marginBottom: 18, fontSize: 13, color: 'var(--text2)', lineHeight: 1.7 }}>
         {cp.explanation}
       </div>
-
-      {/* PATCH: les repères horaires restent visibles mais clairement secondaires */}
-      {!isRibsCook(schedule?.meatKey) && schedule?.etaTimes?.[cp.id] && (
-        <div style={{ marginBottom: 14, fontSize: 11, color: 'var(--text3)', lineHeight: 1.6 }}>
-          Repère horaire seulement : vers {fmt(schedule.etaTimes[cp.id])}. Valide quand ça arrive vraiment sur ta cuisson.
-        </div>
-      )}
 
       {/* PATCH: conseil pit instable — s'affiche si le membre dit "pas encore" */}
       {showPitTip && cp.tipIfNo && (
@@ -590,7 +534,6 @@ export default function CookSession() {
   const [elapsed,       setElapsed]       = useState(0)
   const [cookStarted,   setCookStarted]   = useState(() => Boolean(location.state?.startedAt || pendingSession?.startedAt))
   const [cookStartTime, setCookStartTime] = useState(() => location.state?.startedAt || pendingSession?.startedAt || null)
-  const [etaTimes,      setEtaTimes]      = useState(null)
   const [restTimer,     setRestTimer]     = useState(null)
   const [log,           setLog]           = useState([])
   const timerRef = useRef(null)
@@ -608,9 +551,6 @@ export default function CookSession() {
     if (currentIndex >= checkpoints.length && checkpoints.length > 0) clearPendingSession()
   }, [currentIndex, checkpoints.length])
 
-  // PATCH: expose les repères ETA au checkpoint actif sans en faire des déclencheurs automatiques
-  const scheduleWithEtaTimes = etaTimes ? { ...schedule, etaTimes } : schedule
-
   // PATCH: persistance transitoire de session pour ne pas dépendre seulement du state de navigation
   useEffect(() => {
     if (!schedule) return
@@ -623,12 +563,11 @@ export default function CookSession() {
         results,
         eta,
         elapsed,
-        etaTimes,
         restTimer,
         log,
       },
     })
-  }, [schedule, cookStartTime, checkpoints, currentIndex, results, eta, elapsed, etaTimes, restTimer, log])
+  }, [schedule, cookStartTime, checkpoints, currentIndex, results, eta, elapsed, restTimer, log])
 
   // PATCH: restauration légère si la page est rechargée au milieu d'une session
   useEffect(() => {
@@ -639,7 +578,6 @@ export default function CookSession() {
     if (progress.results) setResults(progress.results)
     if (progress.eta) setEta(progress.eta)
     if (Number.isFinite(progress.elapsed)) setElapsed(progress.elapsed)
-    if (progress.etaTimes) setEtaTimes(progress.etaTimes)
     if (progress.restTimer) setRestTimer(progress.restTimer)
     if (Array.isArray(progress.log)) setLog(progress.log)
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -667,7 +605,6 @@ export default function CookSession() {
       const start = nowIso
       setCookStarted(true)
       setCookStartTime(start)
-      setEtaTimes(computeEtaTimes(schedule, start))
       applyEtaSnapshot(schedule.cookMin || 0, schedule.totalMin || ((schedule.cookMin || 0) + (schedule.restMin || 0)))
       message = `Cuisson lancée à ${fmt(start)}`
     }
@@ -682,14 +619,6 @@ export default function CookSession() {
       } else {
         message = `T° ${userResponse.actualTemp}°C — rythme ${Math.round(r.speedRatio * 100)}% de la normale`
       }
-      // PATCH: recalculer etaTimes depuis maintenant avec les nouvelles durées
-      const now = new Date()
-      setEtaTimes(t => ({
-        ...t,
-        wrap:       addMin(now, Math.round(r.remainingCookMin * 0.15)),
-        probe_test: addMin(now, Math.round(r.remainingCookMin * 0.9)),
-        rest:       addMin(now, r.remainingCookMin),
-      }))
     }
 
     // PATCH: ribs — checkpoint visuel avant wrap, sans logique sonde
@@ -819,28 +748,6 @@ export default function CookSession() {
   const isFinished = currentIndex >= checkpoints.length
   const ribsSession = isRibsCook(schedule.meatKey)
 
-  // PATCH: calcul ETA cohérent; on soustrait uniquement le temps écoulé depuis le dernier snapshot ETA
-  const etaReferenceAt = eta?.updatedAt
-    ? new Date(eta.updatedAt)
-    : cookStartTime
-      ? new Date(cookStartTime)
-      : null
-  const elapsedSinceEtaSnapshot = etaReferenceAt
-    ? Math.max(Math.round((Date.now() - etaReferenceAt.getTime()) / 60000), 0)
-    : 0
-  const baseRemainingCookMin = eta?.remainingCookMin ?? schedule.cookMin ?? 0
-  const baseRemainingTotalMin = eta?.remainingTotalMin ?? schedule.totalMin ?? ((schedule.cookMin || 0) + (schedule.restMin || 0))
-  const restRemainingMin = restTimer
-    ? Math.max(Math.round((new Date(restTimer.endTime).getTime() - Date.now()) / 60000), 0)
-    : null
-  const remainingCookMin = restTimer
-    ? 0
-    : Math.max(baseRemainingCookMin - elapsedSinceEtaSnapshot, 0)
-  const remainingTotalMin = restTimer
-    ? restRemainingMin
-    : Math.max(baseRemainingTotalMin - elapsedSinceEtaSnapshot, remainingCookMin)
-  const etaService = fmt(addMin(new Date(), remainingTotalMin))
-
   return (
     <div style={{ fontFamily: "'DM Sans',sans-serif" }}>
       <style>{`
@@ -891,29 +798,60 @@ export default function CookSession() {
           <div style={{ fontSize: 12, color: 'var(--text3)', lineHeight: 1.7 }}>
             Les ribs ne se pilotent pas à la minute près. Valide chaque étape quand le rack te donne le bon signal visuel.
           </div>
-        </div>
-      ) : (
-        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16, padding: '16px 20px', marginBottom: 20, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Écoulé</div>
-            <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 20, color: 'var(--text)' }}>{fmtDur(elapsed)}</div>
-          </div>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Restant</div>
-            <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 20, color: 'var(--orange)' }}>
-              {fmtDur(remainingTotalMin)}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 12 }}>
+            <div style={{ background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 12, padding: '10px 12px' }}>
+              <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Départ estimé</div>
+              <div style={{ fontFamily: "'DM Mono',monospace", fontWeight: 700, fontSize: 12, color: 'var(--text)' }}>{schedule.startTime || '—'}</div>
+            </div>
+            <div style={{ background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 12, padding: '10px 12px' }}>
+              <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Fenêtre service</div>
+              <div style={{ fontFamily: "'DM Mono',monospace", fontWeight: 700, fontSize: 12, color: 'var(--text)' }}>{schedule.serviceWindowStart} → {schedule.serviceWindowEnd}</div>
             </div>
           </div>
-          <div style={{ textAlign: 'center' }}>
-            {/* PATCH: libellé "Service ~" pour indiquer que c'est une estimation */}
-            <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Service ~</div>
-            <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 20, color: '#22c55e' }}>{etaService}</div>
+        </div>
+      ) : (
+        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16, padding: '16px 20px', marginBottom: 20 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
+            <div style={{ background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 12, padding: '10px 12px' }}>
+              <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Départ estimé</div>
+              <div style={{ fontFamily: "'DM Mono',monospace", fontWeight: 700, fontSize: 12, color: 'var(--text)' }}>{schedule.startTime || '—'}</div>
+            </div>
+            <div style={{ background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 12, padding: '10px 12px' }}>
+              <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Fenêtre service</div>
+              <div style={{ fontFamily: "'DM Mono',monospace", fontWeight: 700, fontSize: 12, color: 'var(--text)' }}>{schedule.serviceWindowStart} → {schedule.serviceWindowEnd}</div>
+            </div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            {schedule.cues?.stallRange && (
+              <div style={{ background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 12, padding: '10px 12px' }}>
+                <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Stall</div>
+                <div style={{ fontFamily: "'DM Mono',monospace", fontWeight: 700, fontSize: 12, color: 'var(--text)' }}>{schedule.cues.stallRange}</div>
+              </div>
+            )}
+            {schedule.cues?.wrapRange && (
+              <div style={{ background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 12, padding: '10px 12px' }}>
+                <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Wrap</div>
+                <div style={{ fontFamily: "'DM Mono',monospace", fontWeight: 700, fontSize: 12, color: 'var(--text)' }}>{schedule.cues.wrapRange}</div>
+              </div>
+            )}
+            {schedule.cues?.probeStart && (
+              <div style={{ background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 12, padding: '10px 12px' }}>
+                <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Début probe</div>
+                <div style={{ fontFamily: "'DM Mono',monospace", fontWeight: 700, fontSize: 12, color: 'var(--text)' }}>{schedule.cues.probeStart}</div>
+              </div>
+            )}
+            {schedule.cues?.probeTenderRange && (
+              <div style={{ background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 12, padding: '10px 12px' }}>
+                <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Probe tender</div>
+                <div style={{ fontFamily: "'DM Mono',monospace", fontWeight: 700, fontSize: 12, color: 'var(--text)' }}>{schedule.cues.probeTenderRange}</div>
+              </div>
+            )}
           </div>
         </div>
       )}
 
       {/* ── PROGRESSION */}
-      <ProgressBar checkpoints={checkpoints} currentIndex={currentIndex} etaTimes={etaTimes} isRibs={ribsSession} />
+      <ProgressBar checkpoints={checkpoints} currentIndex={currentIndex} />
 
       {/* ── ÉTAPES VALIDÉES */}
       {checkpoints.slice(0, currentIndex).map(cp => (
@@ -925,7 +863,7 @@ export default function CookSession() {
         <div className="fade-up">
           <CheckpointCard
             cp={checkpoints[currentIndex]}
-            schedule={scheduleWithEtaTimes}
+            schedule={schedule}
             onValidate={handleValidate}
           />
         </div>

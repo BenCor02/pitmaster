@@ -138,6 +138,8 @@ export const PHASE_BASES = {
   brisket: {
     label:'Brisket', baseMinPerLb:80,
     stallStartC:65, targetC:95, wrapTempC:74,
+    // PATCH: repères température exposés au front, sans prétendre piloter la viande à la minute près
+    wrapRangeC:[70,75], probeStartC:90, probeTenderRangeC:[92,97], restRangeMin:[60,180],
     collagenTarget:420, rest:120, restMax:300, variancePct:20,
     // PATCH: proportions simples, pilotées d'abord par les repères terrain
     p1:0.42, st:0.20, p3:0.38,
@@ -145,18 +147,21 @@ export const PHASE_BASES = {
   ribs_beef: {
     label:'Beef Ribs', baseMinPerLb:70,
     stallStartC:66, targetC:96, wrapTempC:74,
+    wrapRangeC:[70,75], probeStartC:91, probeTenderRangeC:[93,97], restRangeMin:[45,120],
     collagenTarget:360, rest:60, restMax:120, variancePct:15,
     p1:0.44, st:0.18, p3:0.38,
   },
   paleron: {
     label:'Paleron / Chuck', baseMinPerLb:65,
     stallStartC:64, targetC:93, wrapTempC:72,
+    wrapRangeC:[70,74], probeStartC:90, probeTenderRangeC:[91,96], restRangeMin:[45,120],
     collagenTarget:340, rest:60, restMax:180, variancePct:20,
     p1:0.40, st:0.22, p3:0.38,
   },
   plat_de_cote: {
     label:'Plat de Côte', baseMinPerLb:65,
     stallStartC:65, targetC:93, wrapTempC:73,
+    wrapRangeC:[70,74], probeStartC:90, probeTenderRangeC:[91,96], restRangeMin:[45,120],
     collagenTarget:340, rest:60, restMax:120, variancePct:20,
     p1:0.40, st:0.22, p3:0.38,
   },
@@ -164,18 +169,21 @@ export const PHASE_BASES = {
   pork_shoulder: {
     label:'Épaule de porc (Pulled Pork)', baseMinPerLb:75,
     stallStartC:65, targetC:95, wrapTempC:68,
+    wrapRangeC:[68,74], probeStartC:91, probeTenderRangeC:[93,97], restRangeMin:[60,180],
     collagenTarget:360, rest:90, restMax:180, variancePct:18,
     p1:0.40, st:0.22, p3:0.38,
   },
   ribs_pork: {
     label:'Spare Ribs', baseMinFixed:330,
     stallStartC:63, targetC:null, wrapTempC:null,
+    restRangeMin:[10,20],
     collagenTarget:80, rest:20, restMax:60, variancePct:15,
     p1:0.56, st:0.16, p3:0.28,
   },
   ribs_baby_back: {
     label:'Baby Back Ribs', baseMinFixed:270,
     stallStartC:63, targetC:null, wrapTempC:null,
+    restRangeMin:[10,15],
     collagenTarget:60, rest:15, restMax:45, variancePct:12,
     p1:0.54, st:0.14, p3:0.32,
   },
@@ -183,6 +191,7 @@ export const PHASE_BASES = {
   lamb_shoulder: {
     label:"Épaule d'agneau", baseMinPerLb:68,
     stallStartC:64, targetC:90, wrapTempC:75,
+    wrapRangeC:[72,76], probeStartC:86, probeTenderRangeC:[88,92], restRangeMin:[30,60],
     collagenTarget:260, rest:45, restMax:90, variancePct:16,
     p1:0.40, st:0.20, p3:0.40,
   },
@@ -212,6 +221,12 @@ function pitTempF(tempC) {
 
 function isRibsCook(meatKey) {
   return meatKey === 'ribs_pork' || meatKey === 'ribs_baby_back'
+}
+
+// PATCH: formate des plages lisibles côté UI sans exposer de pseudo-précision horaire
+function formatRange(range, unit = '°C') {
+  if (!Array.isArray(range) || range.length < 2) return null
+  return `${range[0]}${unit} – ${range[1]}${unit}`
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -340,6 +355,37 @@ export function calculateLowSlow(meatKey, weightKg, options = {}, approvedAdjust
     collagenRequired: m.collagenTarget,
     collagenOk:    collagenFinal >= m.collagenTarget,
 
+    // PATCH: nouveaux repères "coach BBQ" destinés au front principal
+    cues: isRibsCook(meatKey)
+      ? {
+          style: 'visual',
+          stallRange: null,
+          wrapRange: null,
+          probeStart: null,
+          probeTenderRange: null,
+          restRange: formatRange(m.restRangeMin, ' min'),
+          visuals: [
+            'Couleur bark bien formée',
+            'Retrait sur l’os (pullback)',
+            'Flex test',
+            'Glaze optionnelle',
+            'Repos court',
+          ],
+        }
+      : {
+          style: 'temperature_and_visual',
+          stallRange: formatRange([m.stallStartC, m.stallStartC + 10]),
+          wrapRange: formatRange(m.wrapRangeC ?? [Math.max((m.wrapTempC ?? 72) - 2, 60), m.wrapTempC ?? 75]),
+          probeStart: m.probeStartC ? `${m.probeStartC}°C` : null,
+          probeTenderRange: formatRange(m.probeTenderRangeC ?? [Math.max((m.targetC ?? 95) - 3, 88), Math.min((m.targetC ?? 95) + 2, 98)]),
+          restRange: formatRange(m.restRangeMin ?? [Math.max(m.rest - 30, 15), m.restMax ?? m.rest], ' min'),
+          visuals: [
+            'Couleur / bark',
+            wrapType !== 'none' ? 'Wrap quand la couleur plaît' : 'Stall normal',
+            'La sonde doit glisser presque comme dans du beurre',
+          ],
+        },
+
     coeffs: {
       cT:+cT.toFixed(3),
       cP:+cP.toFixed(3),
@@ -358,72 +404,58 @@ export function calculateLowSlow(meatKey, weightKg, options = {}, approvedAdjust
 // ─────────────────────────────────────────────────────────────
 
 export function buildTimeline(calc, smokerTempC) {
-  const { meatKey, phase1Min, stallMin, phase3Min, restMin, wrapTempC, wrapType } = calc
-  const targetTempC = toFiniteNumber(calc.targetTempC ?? calc.targetC, null)
+  const { meatKey, wrapType } = calc
+  const m = PHASE_BASES[meatKey]
   const safeSmokerTempC = clamp(toFiniteNumber(smokerTempC ?? calc.smokerTempC, 120), 80, 180)
-  const safePhase1Min = normalizeDuration(phase1Min, 0)
-  const safeStallMin = normalizeDuration(stallMin, 0)
-  const safePhase3Min = normalizeDuration(phase3Min, 0)
-  const safeRestMin = normalizeDuration(restMin, 0)
   const phases = []
 
-  // PATCH: timeline dédiée ribs = visuelle et mécanique, pas mini-brisket
+  // PATCH: buildTimeline devient une liste de repères de cuisson, pas une timeline horaire
   if (isRibsCook(meatKey)) {
     phases.push({
-      id:'phase1', label:'Bark en formation',
-      durationMin: safePhase1Min,
-      description: `Fumoir à ${safeSmokerTempC}°C stable. Laisse la couleur se construire et surveille le début de pullback sur les os.`,
-      targetTempNote: wrapType !== 'none' ? 'Quand la couleur te plaît, tu peux emballer pour assouplir la fin de cuisson.' : 'Laisse continuer jusqu’à une belle couleur et un léger retrait sur l’os.',
+      id:'phase1', label:'Couleur / fumée',
+      description: `Fumoir à ${safeSmokerTempC}°C stable. Laisse la couleur se construire et la rack prendre la fumée.`,
+      visualCueNote: 'Cherche une belle couleur bark, sèche et appétissante.',
       checkpoint: 'bark_check',
     })
 
-    if (safeStallMin > 0) {
-      phases.push({
-        id:'stall', label:'Pullback / rétractation',
-        durationMin: safeStallMin, isStall: true,
-        description: wrapType !== 'none'
-          ? `Le rythme peut ralentir un peu. Sur les ribs, ce repère sert surtout à observer la couleur, le retrait sur l'os et décider si le wrap reste utile.`
-          : `Le rythme ralentit parfois légèrement, mais sur les ribs on se fie surtout à la couleur, au retrait sur l’os et à la souplesse du rack.`,
-        targetTempNote: wrapType !== 'none' ? 'Wrap (emballage) si la couleur et la texture te conviennent.' : 'Continue à nu si tu veux une bark plus marquée.',
-        wrapAt: wrapTempC,
-        checkpoint: wrapType === 'none' ? 'bark_check' : 'wrap_confirm',
-      })
-    }
+    phases.push({
+      id:'stall', label:'Retrait sur l’os',
+      description: wrapType !== 'none'
+        ? `Quand la viande commence à se retirer sur l’os et que la couleur te plaît, tu peux choisir de wrapper.`
+        : `Surveille surtout le retrait sur l’os et la couleur. Pas besoin de courir après un chiffre.`,
+      visualCueNote: 'Le pullback devient visible sur plusieurs os.',
+      checkpoint: wrapType === 'none' ? 'bark_check' : 'wrap_confirm',
+    })
 
-    // PATCH: étape wrap dédiée pour aider le front à afficher un flow ribs plus humain
     if (wrapType !== 'none') {
       phases.push({
         id:'wrap', label:'Wrap (facultatif)',
-        durationMin: 0,
         description: `Emballe seulement si la couleur te plaît et si tu veux une texture plus fondante. Le papier reste plus respirant, l'alu accélère davantage.`,
-        targetTempNote: 'Décision surtout visuelle : couleur, bark et retrait sur l’os.',
+        visualCueNote: 'Décision surtout visuelle : couleur, bark et retrait sur l’os.',
         checkpoint: 'wrap_confirm',
       })
     }
 
     phases.push({
-      id:'phase3', label:'Flex test / détachement',
-      durationMin: safePhase3Min,
+      id:'phase3', label:'Flex test',
       description: `Cherche un rack souple qui plie nettement avec une légère fissure en surface. Le flex test et le retrait sur l’os comptent plus qu’une sonde ou un chiffre exact.`,
-      targetTempNote: 'Vérifie la souplesse du rack et le retrait de viande sur l’os avant de servir.',
-      // PATCH: ribs = checkpoint dédié flex_test, plus de recyclage implicite du probe test
+      visualCueNote: 'Quand tu soulèves la rack, elle doit se courber franchement.',
       checkpoint: 'flex_test',
     })
 
     phases.push({
       id:'glaze', label:'Glaze / sauce de finition',
-      // PATCH: glaze ribs = finition optionnelle, courte et non structurante
-      durationMin: 0,
       description: `Si tu veux des ribs brillantes et légèrement collantes, ajoute une fine couche de sauce en toute fin de cuisson seulement.`,
-      targetTempNote: 'Remets 10 à 20 min pour faire prendre, en surveillant bien le sucre.',
+      visualCueNote: 'Optionnelle : fine couche seulement, puis surveille la caramélisation.',
       checkpoint: 'glaze',
       isOptional: true,
     })
 
     phases.push({
       id:'repos', label:'Repos court / service',
-      durationMin: safeRestMin, isRest: true,
+      isRest: true,
       description: `Laisse reposer quelques minutes pour stabiliser les jus, puis tranche et sers pendant que la texture est encore idéale.`,
+      targetTempNote: `Repos conseillé : ${formatRange(m.restRangeMin, ' min')}.`,
     })
 
     return phases
@@ -431,48 +463,44 @@ export function buildTimeline(calc, smokerTempC) {
 
   phases.push({
     id:'phase1', label:'Bark en formation',
-    durationMin: safePhase1Min,
     description: `Fumoir à ${safeSmokerTempC}°C stable. Laisse la bark se former et évite d’ouvrir inutilement.`,
-    targetTempNote: wrapTempC ? `Commence à penser au wrap quand la couleur te plaît, souvent autour de ${wrapTempC}°C.` : null,
+    visualCueNote: 'Cherche une belle couleur bark avant toute décision de wrap.',
     checkpoint: 'stall_check',
   })
 
-  if (safeStallMin > 0) {
-    phases.push({
-      id:'stall', label:`La cuisson ralentit`,
-      durationMin: safeStallMin, isStall: true,
-      description: wrapType !== 'none'
-        ? `La montée en température ralentit, c’est normal. Le wrap aide à limiter l’évaporation et à rendre la fin de cuisson plus régulière.`
-        : `La viande ralentit car l’évaporation refroidit sa surface. Ne panique pas et évite de surcorriger le fumoir.`,
-      targetTempNote: wrapTempC ? `Le bon moment dépend surtout de la couleur et de la bark, pas d’une minute précise.` : null,
-      wrapAt: wrapTempC,
-      checkpoint: 'wrap_confirm',
-    })
-  }
+  phases.push({
+    id:'stall', label:`Stall / ralentissement`,
+    isStall: true,
+    description: wrapType !== 'none'
+      ? `La montée en température ralentit, c’est normal. Continue à juger la viande sur sa couleur et sa texture.`
+      : `La viande ralentit car l’évaporation refroidit sa surface. Ne panique pas : c’est un passage normal.`,
+    targetTempNote: `Repère stall : ${formatRange([m.stallStartC, m.stallStartC + 10])}.`,
+    checkpoint: 'stall_check',
+  })
 
   if (wrapType !== 'none') {
     phases.push({
       id:'wrap', label:'Wrap (emballage)',
-      durationMin: 0,
-      // PATCH: étape wrap explicite pour refléter le consensus pitmaster "couleur puis wrap"
       description: `Emballe quand la bark te plaît. Papier boucher = plus respirant, aluminium = plus rapide et plus humide.`,
-      targetTempNote: wrapTempC ? `Souvent autour de ${wrapTempC}°C, mais la couleur reste le vrai signal.` : 'Décision guidée d’abord par l’aspect de la viande.',
+      targetTempNote: `Repère wrap : ${formatRange(m.wrapRangeC ?? [Math.max((m.wrapTempC ?? 72) - 2, 60), m.wrapTempC ?? 75])}.`,
+      visualCueNote: 'La couleur reste le vrai signal de départ du wrap.',
       checkpoint: 'wrap_confirm',
     })
   }
 
   phases.push({
     id:'phase3', label:'Finition / test de tendreté',
-    durationMin: safePhase3Min,
     description: `La viande entre dans la vraie zone de tendreté. La sonde doit glisser presque comme dans du beurre, plus important que le chiffre exact.`,
-    targetTempNote: targetTempC ? `Commence les tests de sonde vers ${targetTempC}°C.` : 'Commence les tests de sonde régulièrement en fin de cuisson.',
+    targetTempNote: `Début des tests : ${m.probeStartC}°C · Probe tender : ${formatRange(m.probeTenderRangeC)}.`,
+    visualCueNote: 'La sonde doit glisser presque sans résistance.',
     checkpoint: 'probe_test',
   })
 
   phases.push({
     id:'repos', label:'Rest / Hold (repos)',
-    durationMin: safeRestMin, isRest: true,
+    isRest: true,
     description: `Repos ou maintien au chaud : les jus se redistribuent et le service devient plus facile. Sur brisket, shoulder et chuck, cette étape compte vraiment.`,
+    targetTempNote: `Repos conseillé : ${formatRange(m.restRangeMin ?? [Math.max(m.rest - 30, 15), m.restMax ?? m.rest], ' min')}.`,
   })
 
   return phases
