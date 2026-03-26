@@ -86,7 +86,7 @@ const SectionHeader = ({ eyebrow, title, sub }) => (
       {title}
     </h2>
     {sub && (
-      <p style={{ fontSize:14, color:'#4a3a2e', marginTop:14, lineHeight:1.7, maxWidth:500, margin:'14px auto 0' }}>
+      <p style={{ fontSize:14, color:'#8a7a6a', marginTop:14, lineHeight:1.7, maxWidth:500, margin:'14px auto 0' }}>
         {sub}
       </p>
     )}
@@ -135,10 +135,10 @@ export default function Landing() {
           🔥 Charbon & Flamme
         </div>
         <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-          <button onClick={() => navigate('/pricing')} style={{ padding:'7px 16px', borderRadius:8, border:'none', background:'transparent', color:'#5a4a3a', fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:700, cursor:'pointer' }}>
+          <button onClick={() => navigate('/pricing')} style={{ padding:'7px 16px', borderRadius:8, border:'none', background:'transparent', color:'#8a7a6a', fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:700, cursor:'pointer' }}>
             Tarifs
           </button>
-          <button onClick={go} style={{ padding:'7px 16px', borderRadius:8, border:'1px solid #2a2218', background:'transparent', color:'#7a6a5a', fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:700, cursor:'pointer' }}>
+          <button onClick={go} style={{ padding:'7px 16px', borderRadius:8, border:'1px solid #2a2218', background:'transparent', color:'#9a8a7a', fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:700, cursor:'pointer' }}>
             Connexion
           </button>
           <button onClick={go} className="hover-btn" style={{ padding:'7px 18px', borderRadius:8, border:'none', background:'linear-gradient(135deg,#f48c06,#d44e00)', color:'#fff', fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:700, cursor:'pointer' }}>
@@ -168,7 +168,7 @@ export default function Landing() {
             <span style={{ color:'#e85d04' }}>Pas par chance — par calcul.</span>
           </h1>
 
-          <p className="fu fu2" style={{ fontSize:17, color:'#6a5a4a', lineHeight:1.8, maxWidth:500, margin:'0 auto 36px' }}>
+          <p className="fu fu2" style={{ fontSize:17, color:'#8a7a6a', lineHeight:1.8, maxWidth:500, margin:'0 auto 36px' }}>
             Charbon & Flamme calcule à la minute près quand lancer ta cuisson pour que tout arrive à table en même temps. Algorithme calibré sur la science réelle du BBQ.
           </p>
 
@@ -176,12 +176,12 @@ export default function Landing() {
             <button onClick={go} className="hover-btn" style={{ padding:'15px 32px', borderRadius:12, border:'none', background:'linear-gradient(135deg,#f48c06,#d44e00)', color:'#fff', fontFamily:"'Syne',sans-serif", fontSize:15, fontWeight:700, cursor:'pointer', boxShadow:'0 4px 20px rgba(232,93,4,0.3)' }}>
               🔥 Commencer gratuitement
             </button>
-            <button onClick={() => navigate('/pricing')} style={{ padding:'15px 26px', borderRadius:12, border:'1px solid #2a2218', background:'transparent', color:'#5a4a3a', fontFamily:"'Syne',sans-serif", fontSize:15, fontWeight:700, cursor:'pointer' }}>
+            <button onClick={() => navigate('/pricing')} style={{ padding:'15px 26px', borderRadius:12, border:'1px solid #2a2218', background:'transparent', color:'#8a7a6a', fontFamily:"'Syne',sans-serif", fontSize:15, fontWeight:700, cursor:'pointer' }}>
               Voir les tarifs →
             </button>
           </div>
 
-          <div className="fu fu4" style={{ fontSize:11, color:'#3a2e24', letterSpacing:'0.5px' }}>
+          <div className="fu fu4" style={{ fontSize:11, color:'#8a7a6a', letterSpacing:'0.5px' }}>
             Gratuit pour toujours · Pas de carte bancaire · Prêt en 30 secondes
           </div>
         </div>
@@ -190,13 +190,13 @@ export default function Landing() {
       {/* ── DEMO CARD ──────────────────────────────────────── */}
       <div style={{ padding:'0 24px 80px' }}>
         <div style={{ maxWidth:600, margin:'0 auto', background:'#0c0a08', border:'1px solid #1e1a14', borderRadius:20, padding:'32px', boxShadow:'0 24px 60px rgba(0,0,0,0.6)' }}>
-          <div style={{ fontSize:11, fontWeight:700, letterSpacing:'2px', textTransform:'uppercase', color:'#3a2e24', marginBottom:8, textAlign:'center' }}>
+          <div style={{ fontSize:11, fontWeight:700, letterSpacing:'2px', textTransform:'uppercase', color:'#8a7a6a', marginBottom:8, textAlign:'center' }}>
             Lance ta cuisson à
           </div>
           <div style={{ fontFamily:"'Syne',sans-serif", fontSize:80, fontWeight:800, lineHeight:1, color:'#e85d04', letterSpacing:'-4px', textAlign:'center', marginBottom:10 }}>
             05:47
           </div>
-          <div style={{ fontSize:13, color:'#3a2e24', textAlign:'center', marginBottom:20 }}>
+          <div style={{ fontSize:13, color:'#8a7a6a', textAlign:'center', marginBottom:20 }}>
             Brisket 5.4kg · Offset 120°C · Service 19h00
           </div>
           <div style={{ display:'flex', flexWrap:'wrap', gap:6, justifyContent:'center', marginBottom:18 }}>
@@ -211,15 +211,15 @@ export default function Landing() {
                 padding:'4px 12px', borderRadius:6, fontSize:11,
                 fontFamily:"'DM Mono',monospace", fontWeight:600,
                 background: b.active ? 'rgba(232,93,4,0.1)' : '#111009',
-                border: `1px solid ${b.active ? 'rgba(232,93,4,0.3)' : '#1e1a14'}`,
-                color: b.active ? '#e85d04' : '#3a2e24',
+                border: `1px solid ${b.active ? 'rgba(232,93,4,0.3)' : '#2e2820'}`,
+                color: b.active ? '#e85d04' : '#6a5a4a',
               }}>{b.t}</span>
             ))}
           </div>
           <div style={{ background:'rgba(232,93,4,0.05)', border:'1px solid rgba(232,93,4,0.1)', borderRadius:10, padding:'12px 16px', textAlign:'center' }}>
-            <span style={{ fontSize:12, color:'#5a4a3a' }}>Fenêtre de service : </span>
+            <span style={{ fontSize:12, color:'#8a7a6a' }}>Fenêtre de service : </span>
             <strong style={{ color:'#e85d04', fontFamily:"'DM Mono',monospace", fontSize:13 }}>17h53 → 19h00</strong>
-            <span style={{ fontSize:12, color:'#3a2e24' }}> · Marge incluse</span>
+            <span style={{ fontSize:12, color:'#8a7a6a' }}> · Marge incluse</span>
           </div>
         </div>
       </div>
@@ -228,17 +228,17 @@ export default function Landing() {
       <Section dark>
         <SectionHeader
           eyebrow="Tu connais ce moment"
-          title={<>Le BBQ c'est 15h de maîtrise.<br /><span style={{ color:'#3a2e24' }}>Pas de hasard.</span></>}
+          title={<>Le BBQ c'est 15h de maîtrise.<br /><span style={{ color:'#8a7a6a' }}>Pas de hasard.</span></>}
         />
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))', gap:12, maxWidth:720, margin:'0 auto' }}>
           {PAINS.map((p,i) => (
             <div key={i} style={{ background:'#080706', border:'1px solid #181410', borderRadius:14, padding:'20px' }}>
               <div style={{ fontSize:22, marginBottom:10 }}>{p.icon}</div>
-              <p style={{ margin:0, fontSize:13, color:'#5a4a3a', lineHeight:1.7 }}>{p.text}</p>
+              <p style={{ margin:0, fontSize:13, color:'#8a7a6a', lineHeight:1.7 }}>{p.text}</p>
             </div>
           ))}
         </div>
-        <p style={{ textAlign:'center', fontSize:14, color:'#5a4a3a', lineHeight:1.7, maxWidth:480, margin:'36px auto 0' }}>
+        <p style={{ textAlign:'center', fontSize:14, color:'#8a7a6a', lineHeight:1.7, maxWidth:480, margin:'36px auto 0' }}>
           Charbon & Flamme résout exactement ces problèmes — avec un algorithme construit sur la physique réelle du BBQ.
         </p>
       </Section>
@@ -247,7 +247,7 @@ export default function Landing() {
       <Section>
         <SectionHeader
           eyebrow="Ce que tu obtiens"
-          title={<>Un vrai assistant pitmaster.<br /><span style={{ color:'#3a2e24' }}>Pas une simple minuterie.</span></>}
+          title={<>Un vrai assistant pitmaster.<br /><span style={{ color:'#8a7a6a' }}>Pas une simple minuterie.</span></>}
         />
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(290px,1fr))', gap:12 }}>
           {FEATURES.map((f,i) => (
@@ -257,7 +257,7 @@ export default function Landing() {
                 <Badge label={f.badge} />
               </div>
               <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:14, color:'#c4b4a0', marginBottom:8 }}>{f.title}</div>
-              <div style={{ fontSize:13, color:'#4a3a2e', lineHeight:1.7 }}>{f.desc}</div>
+              <div style={{ fontSize:13, color:'#8a7a6a', lineHeight:1.7 }}>{f.desc}</div>
             </div>
           ))}
         </div>
@@ -267,14 +267,14 @@ export default function Landing() {
       <Section dark>
         <SectionHeader
           eyebrow="Pour qui"
-          title={<>Fait pour les gens sérieux.<br /><span style={{ color:'#3a2e24' }}>Accessible à tous.</span></>}
+          title={<>Fait pour les gens sérieux.<br /><span style={{ color:'#8a7a6a' }}>Accessible à tous.</span></>}
         />
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))', gap:12 }}>
           {FOR_WHO.map((w,i) => (
             <div key={i} className="hover-card" style={{ background:'#080706', border:'1px solid #181410', borderRadius:16, padding:'24px', textAlign:'center' }}>
               <div style={{ fontSize:34, marginBottom:14 }}>{w.icon}</div>
               <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:14, color:'#c4b4a0', marginBottom:8 }}>{w.who}</div>
-              <div style={{ fontSize:12, color:'#4a3a2e', lineHeight:1.65 }}>{w.desc}</div>
+              <div style={{ fontSize:12, color:'#8a7a6a', lineHeight:1.65 }}>{w.desc}</div>
             </div>
           ))}
         </div>
@@ -292,13 +292,13 @@ export default function Landing() {
                   {s.num}
                 </div>
                 {i < STEPS.length-1 && (
-                  <div style={{ width:1, flex:1, background:'#1e1a14', margin:'6px 0' }} />
+                  <div style={{ width:1, flex:1, background:'#2e2820', margin:'6px 0' }} />
                 )}
               </div>
               {/* Texte */}
               <div style={{ paddingTop:10, paddingBottom: i < STEPS.length-1 ? 28 : 0 }}>
                 <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:15, color:'#c4b4a0', marginBottom:6 }}>{s.title}</div>
-                <div style={{ fontSize:13, color:'#4a3a2e', lineHeight:1.7 }}>{s.desc}</div>
+                <div style={{ fontSize:13, color:'#8a7a6a', lineHeight:1.7 }}>{s.desc}</div>
               </div>
             </div>
           ))}
@@ -335,13 +335,13 @@ export default function Landing() {
             Ta prochaine cuisson.<br />
             <span style={{ color:'#e85d04' }}>Calculée. Maîtrisée. Parfaite.</span>
           </h2>
-          <p style={{ fontSize:15, color:'#4a3a2e', lineHeight:1.75, marginBottom:36 }}>
+          <p style={{ fontSize:15, color:'#8a7a6a', lineHeight:1.75, marginBottom:36 }}>
             Rejoins les pitmasters qui ne laissent plus rien au hasard.
           </p>
           <button onClick={go} className="hover-btn" style={{ padding:'17px 44px', borderRadius:12, border:'none', background:'linear-gradient(135deg,#f48c06,#d44e00)', color:'#fff', fontFamily:"'Syne',sans-serif", fontSize:16, fontWeight:700, cursor:'pointer', boxShadow:'0 6px 24px rgba(232,93,4,0.3)', display:'inline-block', marginBottom:14 }}>
             🔥 Commencer gratuitement
           </button>
-          <div style={{ fontSize:11, color:'#2e2418' }}>
+          <div style={{ fontSize:11, color:'#8a7a6a' }}>
             Gratuit pour toujours · Pas de carte bancaire · 30 secondes pour démarrer
           </div>
         </div>
@@ -354,15 +354,15 @@ export default function Landing() {
         </div>
         <div style={{ display:'flex', gap:20 }}>
           {['Tarifs','CGU','Confidentialité','Contact'].map(l => (
-            <span key={l} style={{ fontSize:12, color:'#2e2418', cursor:'pointer', transition:'color 0.15s' }}
+            <span key={l} style={{ fontSize:12, color:'#8a7a6a', cursor:'pointer', transition:'color 0.15s' }}
               onMouseEnter={e => e.currentTarget.style.color='#5a4a3a'}
-              onMouseLeave={e => e.currentTarget.style.color='#2e2418'}
+              onMouseLeave={e => e.currentTarget.style.color='#5a4a3a'}
               onClick={() => l==='Tarifs' && navigate('/pricing')}>
               {l}
             </span>
           ))}
         </div>
-        <div style={{ fontSize:11, color:'#1e1a14' }}>© 2026 Charbon & Flamme</div>
+        <div style={{ fontSize:11, color:'#8a7a6a' }}>© 2026 Charbon & Flamme</div>
       </footer>
     </div>
   )
