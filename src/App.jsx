@@ -16,6 +16,8 @@ import Onboarding from './pages/Onboarding'
 import TimerPage from './pages/Timer'
 import CookSession from './pages/CookSession'
 import Quantity from './pages/Quantity'
+import Profile from './pages/Profile'
+import Billing from './pages/Billing'
 import AdminLayout from './pages/Admin/Layout'
 import AdminDashboard from './pages/Admin/Dashboard'
 import AdminMembers from './pages/Admin/Members'
@@ -85,6 +87,8 @@ export default function App() {
         <Route path="reference" element={<Placeholder name="Référence" />} />
         <Route path="history"  element={<History />} />
         <Route path="ask"      element={<AskAI />} />
+        <Route path="profile"  element={<Profile />} />
+        <Route path="billing"  element={<Billing />} />
       </Route>
 
       {/* ADMIN */}

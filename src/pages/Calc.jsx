@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useCalcLimit } from '../hooks/useCalcLimit'
 import { PaywallCalc, CalcBanner } from '../components/Paywall'
+import { ResultBlur } from '../components/ResultBlur'
 import { MEAT_IMAGES } from '../lib/images'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
@@ -137,6 +138,7 @@ export default function Calc() {
   const { user } = useAuth()
   const { canCalc, remaining, isPro, increment, statusMessage } = useCalcLimit()
   const [showPaywall, setShowPaywall] = useState(false)
+  const [showBlur,    setShowBlur]    = useState(false)  // résultat flouté avant auth
   const { snack, showSnack } = useSnack()
 
   // ── Restauration depuis localStorage — persiste entre les navigations
@@ -192,7 +194,7 @@ export default function Calc() {
   async function calculate() {
     setLoading(true)
     setRecalResult(null)
-    setTimeout(() => {
+    setTimeout(async () => {
       try {
         const safeWeight = Math.max(toFloat(weight, 1), 0.1)
         const safeSmokerTemp = toInt(smokerTemp, 110)
@@ -246,7 +248,16 @@ export default function Calc() {
           probableMin, optimisticMin, prudentMin,
         }
         setResult(newResult)
-        increment() // compteur calculs gratuits (fire & forget)
+        // Si non connecté → afficher résultat flouté pour inciter à l'inscription
+        if (!user) {
+          setShowBlur(true)
+        } else {
+          // Incrémenter côté serveur (atomique, infalsifiable)
+        const quotaResult = await increment()
+        if (quotaResult && !quotaResult.allowed) {
+          setShowPaywall(true)
+        }
+        }
         setTimeline(tl)
         // Sauvegarder le résultat dans localStorage
         try {
@@ -741,6 +752,15 @@ export default function Calc() {
               ↩ Nouveau calcul
             </button>
           </div>
+
+          {/* RÉSULTAT FLOUTÉ — incitation à l'inscription */}
+          {showBlur && result && (
+            <ResultBlur
+              launchTime={result.startTime}
+              onAuth={() => navigate('/auth', { state: { from: '/app', calcResult: result.startTime } })}
+              onClose={() => setShowBlur(false)}
+            />
+          )}
 
           {isLowSlow && (
             <button onClick={() => navigate('/session', {
