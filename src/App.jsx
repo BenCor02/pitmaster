@@ -9,6 +9,8 @@ import Party from './pages/Party'
 import AskAI from './pages/AskAI'
 import Cold from './pages/Cold'
 import Landing from './pages/Landing'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 import Pricing from './pages/Pricing'
 import Onboarding from './pages/Onboarding'
 import TimerPage from './pages/Timer'
@@ -33,6 +35,31 @@ const Placeholder = ({ name }) => (
 )
 
 function PrivateRoute({ children }) {
+  const { user, profile, loading } = useAuth()
+  if (loading) return (
+    <div style={{ minHeight:'100vh', background:'#080706', display:'flex', alignItems:'center', justifyContent:'center' }}>
+      <div style={{ fontFamily:"'Syne',sans-serif", fontSize:14, color:'#4a3a2e' }}>Chargement...</div>
+    </div>
+  )
+  if (!user) return <Navigate to="/" replace />
+  if (profile?.account_status === 'suspended') return (
+    <div style={{ minHeight:'100vh', background:'#080706', display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
+      <div style={{ textAlign:'center', maxWidth:400 }}>
+        <div style={{ fontSize:44, marginBottom:16 }}>🔒</div>
+        <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:20, color:'#fff', marginBottom:8 }}>Compte suspendu</div>
+        <div style={{ fontSize:13, color:'#6a5a4a' }}>Contacte le support pour plus d'informations.</div>
+      </div>
+    </div>
+  )
+  return children
+}
+
+function AdminRoute({ children }) {
+  const { user, isAdmin, loading } = useAuth()
+  if (loading) return null
+  if (!user || !isAdmin) return <Navigate to="/app" replace />
+  return children
+}) {
   const { user, loading, checkingAdmin } = useAuth()
   if (loading || checkingAdmin) return (
     <div style={{ minHeight:'100vh', background:'#080706', display:'flex', alignItems:'center', justifyContent:'center' }}>
@@ -61,11 +88,13 @@ export default function App() {
       {/* PUBLIQUES */}
       <Route path="/"           element={<Landing />} />
       <Route path="/pricing"    element={<Pricing />} />
-      <Route path="/auth"       element={user ? <Navigate to="/app" replace /> : <Auth />} />
+      <Route path="/auth"            element={user ? <Navigate to="/app" replace /> : <Auth />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password"  element={<ResetPassword />} />
       <Route path="/onboarding" element={user ? <Onboarding /> : <Navigate to="/auth" replace />} />
 
       {/* APP PRINCIPALE */}
-      <Route path="/app" element={<PrivateRoute><Layout /></PrivateRoute>}>
+      <Route path="/app" element={<Layout />}>
         <Route index         element={<Calc />} />
         <Route path="party"    element={<Party />} />
         <Route path="journal"  element={<Journal />} />

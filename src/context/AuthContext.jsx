@@ -1,68 +1,88 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+/**
+ * AuthContext — Charbon & Flamme
+ * Phase 1 : profil complet + rôles + last_seen
+ */
+
+import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 
 const AuthContext = createContext({})
+export const useAuth = () => useContext(AuthContext)
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)
+  const [user,    setUser]    = useState(null)
+  const [profile, setProfile] = useState(null)
+  const [roles,   setRoles]   = useState([])
   const [loading, setLoading] = useState(true)
-  const [isAdmin, setIsAdmin] = useState(false)
-  const [checkingAdmin, setCheckingAdmin] = useState(true)
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        checkAdmin(session.user.id)
-      } else {
-        setCheckingAdmin(false)
+  const loadProfile = useCallback(async (userId) => {
+    if (!userId) { setProfile(null); setRoles([]); return }
+    try {
+      const { data } = await supabase.rpc('get_my_profile')
+      if (data && !data.error) {
+        setProfile(data)
+        setRoles(data.roles || [])
+        // Mettre à jour last_seen
+        await supabase
+          .from('profiles')
+          .update({ last_seen_at: new Date().toISOString() })
+          .eq('id', userId)
       }
-      setLoading(false)
-    })
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        checkAdmin(session.user.id)
-      } else {
-        setIsAdmin(false)
-        setCheckingAdmin(false)
-      }
-    })
-
-    return () => subscription.unsubscribe()
+    } catch (e) {
+      console.error('loadProfile error', e)
+    }
   }, [])
 
-  async function checkAdmin(userId) {
-    setCheckingAdmin(true)
-    const { data } = await supabase
-      .from('admins')
-      .select('user_id')
-      .eq('user_id', userId)
-      .single()
-    setIsAdmin(!!data)
-    setCheckingAdmin(false)
-  }
+  useEffect(() => {
+    // Session initiale
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null)
+      loadProfile(session?.user?.id).finally(() => setLoading(false))
+    })
 
-  async function signIn(email, password) {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    return { error }
-  }
+    // Écouter les changements auth
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        setUser(session?.user ?? null)
+        await loadProfile(session?.user?.id)
+        setLoading(false)
+      }
+    )
+    return () => subscription.unsubscribe()
+  }, [loadProfile])
 
-  async function signUp(email, password) {
-    const { error } = await supabase.auth.signUp({ email, password })
-    return { error }
-  }
+  // Helpers rôles
+  const isAdmin   = roles.includes('admin')
+  const isEditor  = roles.includes('editor') || roles.includes('admin')
+  const isSupport = roles.includes('support') || roles.includes('admin')
+  const isPro     = profile?.plan_code !== 'free'
 
   async function signOut() {
     await supabase.auth.signOut()
+    setUser(null)
+    setProfile(null)
+    setRoles([])
+  }
+
+  async function updateProfile(updates) {
+    if (!user) return
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', user.id)
+      .select()
+      .single()
+    if (!error && data) setProfile(prev => ({ ...prev, ...data }))
+    return { data, error }
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, isAdmin, checkingAdmin, signIn, signUp, signOut }}>
-      {!loading && children}
+    <AuthContext.Provider value={{
+      user, profile, roles, loading,
+      isAdmin, isEditor, isSupport, isPro,
+      signOut, updateProfile, reloadProfile: () => loadProfile(user?.id),
+    }}>
+      {children}
     </AuthContext.Provider>
   )
 }
-
-export const useAuth = () => useContext(AuthContext)
