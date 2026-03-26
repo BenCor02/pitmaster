@@ -19,8 +19,8 @@
 // LOIS PHYSIQUES
 // ─────────────────────────────────────────────────────────────
 
-// PATCH: facteur d'épaisseur demandé par le produit final
-const thicknessF = (cm) => Math.pow(cm / 5, 0.45)
+// PATCH: facteur taille fusionné demandé — l'épaisseur ajuste légèrement, sans doubler le poids
+const thicknessF = (cm) => Math.pow(cm / 5, 0.4)
 const KG_TO_LB = 2.20462
 
 // PATCH: helpers défensifs pour garder des entrées et durées cohérentes
@@ -136,7 +136,8 @@ export const BASE_COEFFS = {
 export const PHASE_BASES = {
   // ── BŒUF ────────────────────────────────────────────────
   brisket: {
-    label:'Brisket', baseMinPerLb:80,
+    // PATCH: base pitmaster dominante en min/lb, sans sur-accumulation de contraintes
+    label:'Brisket', baseMinPerLb:60,
     stallStartC:65, targetC:95, wrapTempC:74,
     // PATCH: repères température exposés au front, sans prétendre piloter la viande à la minute près
     wrapRangeC:[70,75], probeStartC:90, probeTenderRangeC:[92,97], restRangeMin:[60,180],
@@ -145,21 +146,21 @@ export const PHASE_BASES = {
     p1:0.42, st:0.20, p3:0.38,
   },
   ribs_beef: {
-    label:'Beef Ribs', baseMinPerLb:70,
+    label:'Beef Ribs', baseMinPerLb:55,
     stallStartC:68, targetC:96, wrapTempC:76,
     wrapRangeC:[74,80], probeStartC:92, probeTenderRangeC:[93,98], restRangeMin:[30,90],
     collagenTarget:360, rest:60, restMax:120, variancePct:15,
     p1:0.44, st:0.18, p3:0.38,
   },
   paleron: {
-    label:'Paleron / Chuck', baseMinPerLb:65,
+    label:'Paleron / Chuck', baseMinPerLb:60,
     stallStartC:64, targetC:93, wrapTempC:72,
     wrapRangeC:[68,75], probeStartC:[88,90], probeTenderRangeC:[92,97], restRangeMin:[45,90],
     collagenTarget:340, rest:60, restMax:180, variancePct:20,
     p1:0.40, st:0.22, p3:0.38,
   },
   plat_de_cote: {
-    label:'Plat de Côte', baseMinPerLb:65,
+    label:'Plat de Côte', baseMinPerLb:58,
     stallStartC:65, targetC:93, wrapTempC:73,
     wrapRangeC:[70,75], probeStartC:[88,90], probeTenderRangeC:[92,97], restRangeMin:[45,90],
     collagenTarget:340, rest:60, restMax:120, variancePct:20,
@@ -167,21 +168,21 @@ export const PHASE_BASES = {
   },
   // ── PORC ────────────────────────────────────────────────
   pork_shoulder: {
-    label:'Épaule de porc (Pulled Pork)', baseMinPerLb:75,
+    label:'Épaule de porc (Pulled Pork)', baseMinPerLb:55,
     stallStartC:65, targetC:95, wrapTempC:68,
     wrapRangeC:[68,74], probeStartC:90, probeTenderRangeC:[92,96], restRangeMin:[45,120],
     collagenTarget:360, rest:90, restMax:180, variancePct:18,
     p1:0.40, st:0.22, p3:0.38,
   },
   ribs_pork: {
-    label:'Spare Ribs', baseMinFixed:330,
+    label:'Spare Ribs', baseMinPerLb:28,
     stallStartC:63, targetC:null, wrapTempC:null,
     restRangeMin:[10,20],
     collagenTarget:80, rest:20, restMax:60, variancePct:15,
     p1:0.56, st:0.16, p3:0.28,
   },
   ribs_baby_back: {
-    label:'Baby Back Ribs', baseMinFixed:270,
+    label:'Baby Back Ribs', baseMinPerLb:26,
     stallStartC:63, targetC:null, wrapTempC:null,
     restRangeMin:[10,15],
     collagenTarget:60, rest:15, restMax:45, variancePct:12,
@@ -189,7 +190,7 @@ export const PHASE_BASES = {
   },
   // ── AGNEAU ──────────────────────────────────────────────
   lamb_shoulder: {
-    label:"Épaule d'agneau", baseMinPerLb:68,
+    label:"Épaule d'agneau", baseMinPerLb:50,
     stallStartC:68, targetC:92, wrapTempC:75,
     wrapRangeC:[74,77], probeStartC:[88,90], probeTenderRangeC:[90,96], restRangeMin:[30,60],
     collagenTarget:260, rest:45, restMax:90, variancePct:16,
@@ -302,22 +303,38 @@ export function calculateLowSlow(meatKey, weightKg, options = {}, approvedAdjust
   const safeSmokerTempC = clamp(toFiniteNumber(smokerTempC, 120), 80, 180)
   const weightLb = safeWeightKg * KG_TO_LB
 
-  // PATCH: formule principale demandée par le produit
-  const baseCookMin = m.baseMinFixed ?? (weightLb * toFiniteNumber(m.baseMinPerLb, 70))
-  const cT = safeFactor(thicknessF(thicknessCm), 1.0, 0.70, 1.55)
-  const cP = safeFactor(getTempFactor(safeSmokerTempC), 1.0, 0.80, 1.20)
-  const cS = safeFactor(BASE_COEFFS.smoker[smokerType] ?? 1.0, 1.0, 0.90, 1.05)
-  const cWr = safeFactor(BASE_COEFFS.wrap[wrapType] ?? 1.0, 1.0, 0.84, 1.00)
-  const cM = safeFactor(BASE_COEFFS.marbling[marbling] ?? 1.0, 1.0, 0.94, 1.05)
+  // PATCH: nouvelle formule pitmaster-first
+  const baseCookMin = weightLb * toFiniteNumber(m.baseMinPerLb, 55)
 
-  // PATCH: l'eau reste un ajustement très secondaire, pas un pilier du modèle
-  const cWater = waterPan ? 1.02 : 1.0
+  // PATCH: facteur taille fusionné — plus de double lecture poids + épaisseur
+  const sizeReferenceCm = isRibsCook(meatKey) ? 3.5 : meatKey === 'brisket' ? 9 : 7
+  const cSize = safeFactor(thicknessF((thicknessCm / sizeReferenceCm) * 5), 1.0, 0.85, 1.20)
 
-  // PATCH: on garde un hook d'ajustement admin global sans casser la nouvelle formule
+  // PATCH: facteur stall composite = température + wrap + smoker (+ eau très léger), borné pour éviter les 20h+
+  const stallBase = safeFactor(getTempFactor(safeSmokerTempC), 1.0, 0.88, 1.15)
+  const wrapEffect = safeFactor(BASE_COEFFS.wrap[wrapType] ?? 1.0, 1.0, 0.85, 1.00)
+  const smokerEffect = safeFactor(BASE_COEFFS.smoker[smokerType] ?? 1.0, 1.0, 0.93, 1.03)
+  const airflowEffect = waterPan ? 1.02 : 1.0
+  const cStall = safeFactor(stallBase * wrapEffect * smokerEffect * airflowEffect, 1.0, 0.85, 1.20)
+
+  // PATCH: finition légère seulement — plus de finishFactor indépendant agressif
+  const meatFinishBase = isRibsCook(meatKey)
+    ? 0.98
+    : meatKey === 'brisket'
+      ? 1.03
+      : meatKey === 'pork_shoulder'
+        ? 1.00
+        : meatKey === 'ribs_beef'
+          ? 1.02
+          : 1.01
+  const marblingEffect = safeFactor(BASE_COEFFS.marbling[marbling] ?? 1.0, 1.0, 0.95, 1.05)
+  const cFinish = safeFactor(meatFinishBase * marblingEffect, 1.0, 0.95, 1.10)
+
+  // PATCH: hook admin conservé, mais borné pour ne pas casser la calibration terrain
   const adj = approvedAdjustments
-  const adjG = safeFactor(adj.global ?? 1.0, 1.0, 0.85, 1.15)
+  const adjG = safeFactor(adj.global ?? 1.0, 1.0, 0.90, 1.10)
 
-  const cookBaseAdjusted = baseCookMin * cT * cP * cS * cWr * cM * cWater * adjG
+  const cookBaseAdjusted = baseCookMin * cSize * cStall * cFinish * adjG
   const cookMin = normalizeDuration(cookBaseAdjusted, baseCookMin, 1)
 
   let phase1Min = normalizeDuration(cookMin * toFiniteNumber(m.p1, 0.40), 0, 1)
@@ -329,7 +346,7 @@ export function calculateLowSlow(meatKey, weightKg, options = {}, approvedAdjust
   const restMin = clamp(normalizeDuration(restBase, m.rest, 0), 0, m.restMax ?? Math.max(m.rest, 240))
   const totalMin = cookMin + restMin
 
-  // PATCH: le score collagène reste backend seulement, sans rallonger artificiellement la cuisson
+  // PATCH: le score collagène reste backend seulement, sans extension agressive de cuisson
   const collagenFinal = m.targetC
     ? calcCollagenScore(phase1Min, stallMin, phase3Min, m.stallStartC, m.targetC)
     : 0
@@ -401,12 +418,13 @@ export function calculateLowSlow(meatKey, weightKg, options = {}, approvedAdjust
     restRecommendation: formatRange(m.restRangeMin ?? [Math.max(m.rest - 30, 15), m.restMax ?? m.rest], ' min'),
 
     coeffs: {
-      cT:+cT.toFixed(3),
-      cP:+cP.toFixed(3),
-      cS:+cS.toFixed(3),
-      cWr:+cWr.toFixed(3),
-      cM:+cM.toFixed(3),
-      cWater:+cWater.toFixed(3),
+      // PATCH: expose la nouvelle formule composite pour debug/calibration backend
+      cSize:+cSize.toFixed(3),
+      cStall:+cStall.toFixed(3),
+      cFinish:+cFinish.toFixed(3),
+      stallBase:+stallBase.toFixed(3),
+      wrapEffect:+wrapEffect.toFixed(3),
+      smokerEffect:+smokerEffect.toFixed(3),
       baseCookMin: normalizeDuration(baseCookMin, 0),
       weightLb:+weightLb.toFixed(2),
     },
