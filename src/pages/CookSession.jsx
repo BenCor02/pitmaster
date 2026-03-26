@@ -151,9 +151,9 @@ function buildCheckpoints(schedule) {
       actionLabel: '✅ Fumoir stable — Lancer la cuisson',
       validated: false,
     },
-      {
-        id: 'stall',
-        emoji: '📊',
+    {
+      id: 'stall',
+      emoji: '📊',
       // PATCH: titre simple "La cuisson ralentit", sous-titre pitmaster "Stall"
       title: 'La cuisson ralentit',
       titlePitmaster: 'Stall (plateau évaporatif)',
@@ -167,8 +167,8 @@ function buildCheckpoints(schedule) {
     {
       id: 'wrap',
       emoji: '🌯',
-      title: "Emballer la viande ?",
-      titlePitmaster: 'Texas Crutch',
+      title: schedule.meatKey === 'paleron' || schedule.meatKey === 'plat_de_cote' ? 'Couvrir la finition ?' : "Emballer la viande ?",
+      titlePitmaster: schedule.meatKey === 'paleron' || schedule.meatKey === 'plat_de_cote' ? 'Wrap / finition couverte' : 'Texas Crutch',
       // PATCH: explication plus concrète avec guide de décision
         explanation: `Si la couleur de la viande te plaît et que l'écorce est bien formée, c'est le bon moment pour emballer. Repère utile : ${schedule.cues?.wrapRange || 'zone de wrap'}. Le papier boucher laisse respirer et préserve mieux l'écorce. L'aluminium accélère davantage.`,
       action: 'wrap_select',
@@ -183,10 +183,14 @@ function buildCheckpoints(schedule) {
     {
       id: 'probe_test',
       emoji: '🔍',
-      title: 'La viande est tendre ?',
-      titlePitmaster: 'Probe Tender',
+      title: schedule.meatKey === 'pork_shoulder' ? 'La viande s’effiloche bien ?' : 'La viande est tendre ?',
+      titlePitmaster: schedule.meatKey === 'pork_shoulder' ? 'Test d’effilochage / tendreté' : 'Probe Tender',
       // PATCH: instructions pratiques précises sur comment tester
-        explanation: `Commence les tests vers ${schedule.cues?.probeStart || `${schedule.targetTempC || 90}°C`} puis cherche la vraie zone probe tender autour de ${schedule.cues?.probeTenderRange || `${schedule.targetTempC || 95}°C`}. La sonde doit glisser presque sans résistance.`,
+      explanation: schedule.meatKey === 'lamb_shoulder'
+        ? `Commence à tester vers ${schedule.cues?.probeStart || '88°C'} puis ajuste selon la texture et le résultat voulu. Sur l’agneau, le bon point dépend plus du rendu recherché que d’un chiffre unique.`
+        : schedule.meatKey === 'pork_shoulder'
+          ? `Commence à tester vers ${schedule.cues?.probeStart || '90°C'}, puis cherche une viande souple qui s’effiloche proprement. La température aide, mais la texture décide.`
+          : `Commence les tests vers ${schedule.cues?.probeStart || `${schedule.targetTempC || 90}°C`} puis cherche la vraie zone probe tender autour de ${schedule.cues?.probeTenderRange || `${schedule.targetTempC || 95}°C`}. La sonde doit glisser presque sans résistance.`,
       action: 'probe_result',
       actionLabel: 'Valider',
       validated: false,
@@ -368,10 +372,10 @@ function CheckpointCard({ cp, schedule, onValidate }) {
             </button>
           ))}
           {/* PATCH: bouton "revalider" si pit instable */}
-          {showPitTip && (
-            <button onClick={() => { setPitOk(null); setShowPitTip(false) }}
-              style={{ gridColumn: '1/-1', padding: '10px', borderRadius: 50, border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text3)', fontFamily: "'Syne',sans-serif", fontWeight: 600, fontSize: 12, cursor: 'pointer', marginTop: 4 }}>
-              🔄 Revalider dans 15min
+      {showPitTip && (
+        <button onClick={() => { setPitOk(null); setShowPitTip(false) }}
+          style={{ gridColumn: '1/-1', padding: '10px', borderRadius: 50, border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text3)', fontFamily: "'Syne',sans-serif", fontWeight: 600, fontSize: 12, cursor: 'pointer', marginTop: 4 }}>
+              🔄 Revalider un peu plus tard
             </button>
           )}
         </div>

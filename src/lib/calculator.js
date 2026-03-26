@@ -146,22 +146,22 @@ export const PHASE_BASES = {
   },
   ribs_beef: {
     label:'Beef Ribs', baseMinPerLb:70,
-    stallStartC:66, targetC:96, wrapTempC:74,
-    wrapRangeC:[70,75], probeStartC:91, probeTenderRangeC:[93,97], restRangeMin:[45,120],
+    stallStartC:68, targetC:96, wrapTempC:76,
+    wrapRangeC:[74,80], probeStartC:92, probeTenderRangeC:[93,98], restRangeMin:[30,90],
     collagenTarget:360, rest:60, restMax:120, variancePct:15,
     p1:0.44, st:0.18, p3:0.38,
   },
   paleron: {
     label:'Paleron / Chuck', baseMinPerLb:65,
     stallStartC:64, targetC:93, wrapTempC:72,
-    wrapRangeC:[70,74], probeStartC:90, probeTenderRangeC:[91,96], restRangeMin:[45,120],
+    wrapRangeC:[68,75], probeStartC:[88,90], probeTenderRangeC:[92,97], restRangeMin:[45,90],
     collagenTarget:340, rest:60, restMax:180, variancePct:20,
     p1:0.40, st:0.22, p3:0.38,
   },
   plat_de_cote: {
     label:'Plat de Côte', baseMinPerLb:65,
     stallStartC:65, targetC:93, wrapTempC:73,
-    wrapRangeC:[70,74], probeStartC:90, probeTenderRangeC:[91,96], restRangeMin:[45,120],
+    wrapRangeC:[70,75], probeStartC:[88,90], probeTenderRangeC:[92,97], restRangeMin:[45,90],
     collagenTarget:340, rest:60, restMax:120, variancePct:20,
     p1:0.40, st:0.22, p3:0.38,
   },
@@ -169,7 +169,7 @@ export const PHASE_BASES = {
   pork_shoulder: {
     label:'Épaule de porc (Pulled Pork)', baseMinPerLb:75,
     stallStartC:65, targetC:95, wrapTempC:68,
-    wrapRangeC:[68,74], probeStartC:91, probeTenderRangeC:[93,97], restRangeMin:[60,180],
+    wrapRangeC:[68,74], probeStartC:90, probeTenderRangeC:[92,96], restRangeMin:[45,120],
     collagenTarget:360, rest:90, restMax:180, variancePct:18,
     p1:0.40, st:0.22, p3:0.38,
   },
@@ -190,8 +190,8 @@ export const PHASE_BASES = {
   // ── AGNEAU ──────────────────────────────────────────────
   lamb_shoulder: {
     label:"Épaule d'agneau", baseMinPerLb:68,
-    stallStartC:64, targetC:90, wrapTempC:75,
-    wrapRangeC:[72,76], probeStartC:86, probeTenderRangeC:[88,92], restRangeMin:[30,60],
+    stallStartC:68, targetC:92, wrapTempC:75,
+    wrapRangeC:[74,77], probeStartC:[88,90], probeTenderRangeC:[90,96], restRangeMin:[30,60],
     collagenTarget:260, rest:45, restMax:90, variancePct:16,
     p1:0.40, st:0.20, p3:0.40,
   },
@@ -227,6 +227,13 @@ function isRibsCook(meatKey) {
 function formatRange(range, unit = '°C') {
   if (!Array.isArray(range) || range.length < 2) return null
   return `${range[0]}${unit} – ${range[1]}${unit}`
+}
+
+// PATCH: gère aussi les repères ponctuels et les plages dans le même champ
+function formatSingleOrRange(value, unit = '°C') {
+  if (Array.isArray(value)) return formatRange(value, unit)
+  if (value === null || value === undefined) return null
+  return `${value}${unit}`
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -331,7 +338,7 @@ export function calculateLowSlow(meatKey, weightKg, options = {}, approvedAdjust
   const optimisticMin = normalizeDuration(totalMin * (1 - variancePct / 100), totalMin, restMin)
   const prudentMin = normalizeDuration(totalMin * (1 + variancePct / 100), totalMin, totalMin)
 
-  return {
+  const result = {
     meatKey, meatLabel: m.label, weightKg: safeWeightKg,
     thicknessCm, smokerTempC: safeSmokerTempC, smokerType, wrapType, marbling, waterPan,
 
@@ -376,7 +383,7 @@ export function calculateLowSlow(meatKey, weightKg, options = {}, approvedAdjust
           style: 'temperature_and_visual',
           stallRange: formatRange([m.stallStartC, m.stallStartC + 10]),
           wrapRange: formatRange(m.wrapRangeC ?? [Math.max((m.wrapTempC ?? 72) - 2, 60), m.wrapTempC ?? 75]),
-          probeStart: m.probeStartC ? `${m.probeStartC}°C` : null,
+          probeStart: formatSingleOrRange(m.probeStartC ?? Math.max((m.targetC ?? 95) - 5, 88)),
           probeTenderRange: formatRange(m.probeTenderRangeC ?? [Math.max((m.targetC ?? 95) - 3, 88), Math.min((m.targetC ?? 95) + 2, 98)]),
           restRange: formatRange(m.restRangeMin ?? [Math.max(m.rest - 30, 15), m.restMax ?? m.rest], ' min'),
           visuals: [
@@ -385,6 +392,13 @@ export function calculateLowSlow(meatKey, weightKg, options = {}, approvedAdjust
             'La sonde doit glisser presque comme dans du beurre',
           ],
         },
+
+    // PATCH: structure simple destinée au front "coach BBQ"
+    stallRangeC: isRibsCook(meatKey) ? null : [m.stallStartC, m.stallStartC + 10],
+    wrapRangeC: isRibsCook(meatKey) ? null : (m.wrapRangeC ?? null),
+    probeStartC: isRibsCook(meatKey) ? null : (m.probeStartC ?? null),
+    probeTenderRangeC: isRibsCook(meatKey) ? null : (m.probeTenderRangeC ?? null),
+    restRecommendation: formatRange(m.restRangeMin ?? [Math.max(m.rest - 30, 15), m.restMax ?? m.rest], ' min'),
 
     coeffs: {
       cT:+cT.toFixed(3),
@@ -397,6 +411,10 @@ export function calculateLowSlow(meatKey, weightKg, options = {}, approvedAdjust
       weightLb:+weightLb.toFixed(2),
     },
   }
+
+  // PATCH: steps métier exposés directement par le moteur pour le front "coach BBQ"
+  result.steps = buildTimeline(result, safeSmokerTempC)
+  return result
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -412,14 +430,14 @@ export function buildTimeline(calc, smokerTempC) {
   // PATCH: buildTimeline devient une liste de repères de cuisson, pas une timeline horaire
   if (isRibsCook(meatKey)) {
     phases.push({
-      id:'phase1', label:'Couleur / fumée',
+      id:'bark', label:'Couleur / bark',
       description: `Fumoir à ${safeSmokerTempC}°C stable. Laisse la couleur se construire et la rack prendre la fumée.`,
       visualCueNote: 'Cherche une belle couleur bark, sèche et appétissante.',
       checkpoint: 'bark_check',
     })
 
     phases.push({
-      id:'stall', label:'Retrait sur l’os',
+      id:'pullback', label:'Pullback / retrait sur l’os',
       description: wrapType !== 'none'
         ? `Quand la viande commence à se retirer sur l’os et que la couleur te plaît, tu peux choisir de wrapper.`
         : `Surveille surtout le retrait sur l’os et la couleur. Pas besoin de courir après un chiffre.`,
@@ -437,7 +455,7 @@ export function buildTimeline(calc, smokerTempC) {
     }
 
     phases.push({
-      id:'phase3', label:'Flex test',
+      id:'flex', label:'Flex test',
       description: `Cherche un rack souple qui plie nettement avec une légère fissure en surface. Le flex test et le retrait sur l’os comptent plus qu’une sonde ou un chiffre exact.`,
       visualCueNote: 'Quand tu soulèves la rack, elle doit se courber franchement.',
       checkpoint: 'flex_test',
@@ -462,7 +480,7 @@ export function buildTimeline(calc, smokerTempC) {
   }
 
   phases.push({
-    id:'phase1', label:'Bark en formation',
+    id:'bark', label: meatKey === 'paleron' || meatKey === 'plat_de_cote' || meatKey === 'lamb_shoulder' ? 'Couleur / fumée' : meatKey === 'pork_shoulder' ? 'Bark / fumée' : 'Bark en formation',
     description: `Fumoir à ${safeSmokerTempC}°C stable. Laisse la bark se former et évite d’ouvrir inutilement.`,
     visualCueNote: 'Cherche une belle couleur bark avant toute décision de wrap.',
     checkpoint: 'stall_check',
@@ -480,8 +498,10 @@ export function buildTimeline(calc, smokerTempC) {
 
   if (wrapType !== 'none') {
     phases.push({
-      id:'wrap', label:'Wrap (emballage)',
-      description: `Emballe quand la bark te plaît. Papier boucher = plus respirant, aluminium = plus rapide et plus humide.`,
+      id:'wrap', label: meatKey === 'paleron' || meatKey === 'plat_de_cote' ? 'Wrap / finition couverte' : 'Wrap (emballage)',
+      description: meatKey === 'paleron' || meatKey === 'plat_de_cote'
+        ? `Couvre ou emballe quand la couleur te plaît. Sur ces pièces, une finition plus couverte est fréquente pour aller chercher la tendreté.`
+        : `Emballe quand la bark te plaît. Papier boucher = plus respirant, aluminium = plus rapide et plus humide.`,
       targetTempNote: `Repère wrap : ${formatRange(m.wrapRangeC ?? [Math.max((m.wrapTempC ?? 72) - 2, 60), m.wrapTempC ?? 75])}.`,
       visualCueNote: 'La couleur reste le vrai signal de départ du wrap.',
       checkpoint: 'wrap_confirm',
@@ -489,15 +509,29 @@ export function buildTimeline(calc, smokerTempC) {
   }
 
   phases.push({
-    id:'phase3', label:'Finition / test de tendreté',
-    description: `La viande entre dans la vraie zone de tendreté. La sonde doit glisser presque comme dans du beurre, plus important que le chiffre exact.`,
-    targetTempNote: `Début des tests : ${m.probeStartC}°C · Probe tender : ${formatRange(m.probeTenderRangeC)}.`,
-    visualCueNote: 'La sonde doit glisser presque sans résistance.',
+    id:'probe', label:
+      meatKey === 'pork_shoulder' ? 'Test d’effilochage / tendreté'
+      : meatKey === 'ribs_beef' ? 'Probe tender'
+      : meatKey === 'lamb_shoulder' ? 'Test de tendreté'
+      : 'Test de tendreté',
+    description:
+      meatKey === 'pork_shoulder'
+        ? `La viande doit devenir souple et commencer à bien s’effilocher. La température aide, mais la texture reste le vrai signal.`
+        : meatKey === 'lamb_shoulder'
+          ? `Commence à tester selon la texture et le résultat voulu. Sur l’agneau, la bonne fin dépend plus du rendu recherché que d’un chiffre unique.`
+          : `La viande entre dans la vraie zone de tendreté. La sonde doit glisser presque comme dans du beurre, plus important que le chiffre exact.`,
+    targetTempNote: `Début des tests : ${formatSingleOrRange(m.probeStartC)} · Zone finale : ${formatRange(m.probeTenderRangeC)}.`,
+    visualCueNote:
+      meatKey === 'pork_shoulder'
+        ? 'Cherche une texture souple qui s’effiloche proprement.'
+        : meatKey === 'lamb_shoulder'
+          ? 'Commence à tester, puis ajuste selon la texture et le résultat voulu.'
+          : 'La sonde doit glisser presque sans résistance.',
     checkpoint: 'probe_test',
   })
 
   phases.push({
-    id:'repos', label:'Rest / Hold (repos)',
+    id:'rest', label: meatKey === 'pork_shoulder' ? 'Repos' : 'Repos / Hold',
     isRest: true,
     description: `Repos ou maintien au chaud : les jus se redistribuent et le service devient plus facile. Sur brisket, shoulder et chuck, cette étape compte vraiment.`,
     targetTempNote: `Repos conseillé : ${formatRange(m.restRangeMin ?? [Math.max(m.rest - 30, 15), m.restMax ?? m.rest], ' min')}.`,

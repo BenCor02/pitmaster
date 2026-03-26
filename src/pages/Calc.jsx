@@ -108,6 +108,10 @@ function buildServeDate(serveTime) {
 
 function getTimelineStepContent(step, result) {
   const isRibsCook = result?.meatKey === 'ribs_pork' || result?.meatKey === 'ribs_baby_back'
+  const isShoulder = result?.meatKey === 'pork_shoulder'
+  const isChuckLike = result?.meatKey === 'paleron' || result?.meatKey === 'plat_de_cote'
+  const isLamb = result?.meatKey === 'lamb_shoulder'
+  const isBeefRibs = result?.meatKey === 'ribs_beef'
   if (step.isService) return {
     title: isRibsCook ? 'Service' : 'Service',
     explanation: 'La cuisson est terminée et la viande est dans sa bonne fenêtre de service.',
@@ -135,24 +139,37 @@ function getTimelineStepContent(step, result) {
     title: isRibsCook ? 'Wrap (facultatif)' : 'Wrap (emballage)',
     explanation: isRibsCook
       ? "Sur les ribs, le wrap reste facultatif. Il accélère la cuisson et donne souvent une texture plus fondante."
-      : "Le wrap aide à traverser la fin de cuisson plus régulièrement et à garder davantage de jus.",
+      : isChuckLike
+        ? "Sur le chuck et le plat de côte, une finition plus couverte aide souvent à aller chercher la tendreté sans dessécher."
+        : "Le wrap aide à traverser la fin de cuisson plus régulièrement et à garder davantage de jus.",
     action: isRibsCook
       ? 'Emballe seulement si la couleur te plaît et si tu veux une texture plus souple.'
-      : `Emballe quand la bark te plaît ou autour de ${result?.wrapTempC || '?'}°C.`,
+      : isChuckLike
+        ? 'Couvre ou emballe quand la couleur te plaît, puis laisse finir tranquillement vers la tendreté.'
+        : `Emballe quand la bark te plaît ou dans la bonne zone de température.`,
   }
   if (step.id === 'glaze') return {
     title: 'Glaze / sauce de finition',
     explanation: 'Si tu veux des ribs brillantes et légèrement collantes, c’est le bon moment pour ajouter une fine couche de sauce.',
     action: 'Badigeonne légèrement, puis remets 10 à 20 min pour faire prendre.',
   }
-  if (step.id === 'phase1') return {
+  if (step.id === 'bark') return {
     title: isRibsCook ? 'Couleur / fumée' : 'Bark en formation',
     explanation: isRibsCook
       ? "La rack prend la fumée et sa couleur se construit. Sur les ribs, c'est un repère plus utile qu'une heure fixe."
-      : "La bark, c'est la croûte / écorce de cuisson qui se forme avec la fumée et la chaleur.",
+      : isShoulder
+        ? "Dans cette première partie, la viande prend la fumée et construit sa bark. C’est là que le goût barbecue se joue vraiment."
+        : isChuckLike || isLamb
+          ? "La viande prend la fumée et sa couleur se construit. On cherche surtout une belle surface avant la finition."
+          : "La bark, c'est la croûte / écorce de cuisson qui se forme avec la fumée et la chaleur.",
     action: "Évite d'ouvrir le fumoir inutilement et garde une température régulière.",
   }
-  if (step.id === 'phase3') return {
+  if (step.id === 'pullback') return {
+    title: 'Pullback / retrait sur l’os',
+    explanation: "La viande commence à se rétracter sur les os. C’est un vrai signal terrain sur les ribs.",
+    action: 'Si la couleur te plaît déjà, tu peux wrapper. Sinon laisse encore prendre un peu.',
+  }
+  if (step.id === 'flex') return {
     title: isRibsCook ? 'Flex test' : 'Finition / test de tendreté',
     explanation: isRibsCook
       ? "Soulève la rack: elle doit se courber franchement et commencer à fissurer légèrement en surface. C'est le vrai signal de fin."
@@ -160,6 +177,19 @@ function getTimelineStepContent(step, result) {
     action: isRibsCook
       ? 'Commence à vérifier la souplesse de la rack et le retrait sur l’os avant de servir.'
       : `Commence à tester régulièrement vers ${result?.targetTempC || '?'}°C et retire dès que la viande est tendre.`,
+  }
+  if (step.id === 'probe') return {
+    title: isShoulder ? 'Test d’effilochage / tendreté' : isBeefRibs ? 'Probe tender' : 'Test de tendreté',
+    explanation: isShoulder
+      ? "La température est un repère, mais la vraie fin se juge surtout à la texture. La viande doit devenir souple et bien s’effilocher."
+      : isLamb
+        ? "Commence à tester selon la texture et le résultat voulu. Sur l’agneau, la bonne fin reste un peu plus souple qu’une grosse pièce de bœuf."
+        : "La sonde doit entrer presque sans résistance. Le chiffre aide, mais la sensation reste le vrai verdict.",
+    action: isShoulder
+      ? 'Commence à tester dans la bonne zone, puis retire quand la viande s’effiloche proprement.'
+      : isLamb
+        ? 'Commence à tester, puis ajuste selon la texture et le résultat voulu.'
+        : 'Commence à tester dans la bonne zone de température et retire dès que ça glisse.',
   }
   return {
     title: step.label,
@@ -626,25 +656,10 @@ export default function Calc() {
               <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 18, color: 'var(--text)', marginBottom: 6, textAlign: 'center' }}>
                 {getReadyWindowText(result)}
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 12 }}>
-                {[
-                  { label: 'Rapide', min: result.optimisticMin, color: 'var(--green)' },
-                  { label: 'Probable', min: result.probableMin, color: 'var(--orange)' },
-                  { label: 'Large', min: result.prudentMin, color: 'var(--red)' },
-                ].map(s => (
-                  <div key={s.label} style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>{s.label}</div>
-                    <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 16, color: s.color }}>{formatDuration(s.min)}</div>
-                  </div>
-                ))}
-              </div>
-              <div style={{ paddingTop: 10, borderTop: '1px solid var(--border)' }}>
-                <div style={{ fontSize: 10, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 6 }}>Fenêtre de service conseillée</div>
-                <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 13, color: 'var(--text)', fontWeight: 700 }}>
+              <div style={{ paddingTop: 6 }}>
+                <div style={{ fontSize: 10, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 6, textAlign: 'center' }}>Fenêtre de service</div>
+                <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 15, color: 'var(--text)', fontWeight: 700, textAlign: 'center' }}>
                   {result.serviceWindowStart} → {result.serviceWindowEnd}
-                </div>
-                <div style={{ fontSize: 10, color: 'var(--text3)', marginTop: 6, lineHeight: 1.5 }}>
-                  Marge de sécurité incluse : {formatDuration(result.marginMin)}
                 </div>
               </div>
             </div>
@@ -659,7 +674,7 @@ export default function Calc() {
             </div>
           </div>
 
-          {/* PATCH: actions rapides acquisition / usage réel */}
+          {/* PATCH: actions secondaires, après les repères de cuisson */}
           <div className="pm-card" style={{ marginBottom: 12 }}>
             <div className="pm-sec-label">⚡ Actions rapides</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
