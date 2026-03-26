@@ -315,6 +315,9 @@ export default function Calc() {
         const prudentMin = Number.isFinite(calc.prudentMin) ? calc.prudentMin : probableMin
 
         const start = addMinutes(serve, -probableMin)
+        // PATCH: expose une lecture simple "fin cuisson" puis "prêt après repos"
+        const estimatedCookDoneAt = addMinutes(start, calc.cookMin || 0)
+        const estimatedReadyAt = addMinutes(start, calc.totalMin || probableMin)
         const serviceWindowStart = addMinutes(serve, -(prudentMin - probableMin))
         const serviceWindowEnd = addMinutes(serve, Math.max(optimisticMin - probableMin, 0))
 
@@ -330,6 +333,8 @@ export default function Calc() {
           weightKg: safeWeight,
           smokerTempC: safeSmokerTemp,
           startTime: formatTime(start),
+          cookDoneTime: formatTime(estimatedCookDoneAt),
+          readyAfterRestTime: formatTime(estimatedReadyAt),
           serve: serveTime,
           serviceWindowStart: formatTime(serviceWindowStart),
           serviceWindowEnd: formatTime(serviceWindowEnd),
@@ -649,6 +654,16 @@ export default function Calc() {
             <div style={{ background: 'var(--surface2)', borderRadius: 14, padding: '14px', marginBottom: 12 }}>
               <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 18, color: 'var(--text)', marginBottom: 6, textAlign: 'center' }}>
                 {getReadyWindowText(result)}
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 12, marginBottom: 12 }}>
+                <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '10px 12px', textAlign: 'center' }}>
+                  <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Fin cuisson</div>
+                  <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 700, fontSize: 14, color: 'var(--text)' }}>{result.cookDoneTime}</div>
+                </div>
+                <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '10px 12px', textAlign: 'center' }}>
+                  <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Prêt après repos</div>
+                  <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 700, fontSize: 14, color: 'var(--text)' }}>{result.readyAfterRestTime}</div>
+                </div>
               </div>
               <div style={{ paddingTop: 6 }}>
                 <div style={{ fontSize: 10, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 6, textAlign: 'center' }}>Fenêtre de service</div>
