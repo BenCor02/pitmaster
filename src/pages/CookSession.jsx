@@ -14,6 +14,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { recalibrate, formatDuration } from '../lib/calculator'
 import { MEAT_IMAGES, SMOKER_IMAGE } from '../lib/images'
+import { useAuth } from '../context/AuthContext'
 
 // Coefficients wrap locaux — alignés avec BASE_COEFFS de calculator.js
 // PATCH: alignement avec les coefficients terrain actuels du moteur
@@ -495,6 +496,7 @@ function ValidatedStep({ cp, result }) {
 export default function CookSession() {
   const location = useLocation()
   const navigate = useNavigate()
+  const { user } = useAuth()
 
   const schedule  = location.state?.schedule
 
@@ -791,6 +793,32 @@ export default function CookSession() {
         </div>
       )}
 
+      {/* PATCH: CTA d'inscription après session terminée */}
+      {isFinished && !user && (
+        <div style={{ background:'linear-gradient(180deg,var(--surface),var(--orange-bg))', border:'1px solid var(--orange-border)', borderRadius:16, padding:'18px 20px', marginBottom:16 }}>
+          <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:18, color:'var(--text)', marginBottom:8 }}>
+            Créer un compte pour garder cette cuisson
+          </div>
+          <div style={{ fontSize:12, color:'var(--text2)', lineHeight:1.7, marginBottom:12 }}>
+            Retrouve ce planning plus tard, garde tes cuissons passées et construis ton historique pour progresser d’une session à l’autre.
+          </div>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+            <button
+              onClick={() => navigate('/auth', { state: { from: '/app/session', reason: 'session-finished' } })}
+              style={{ padding:'13px', borderRadius:50, border:'none', background:'linear-gradient(135deg,#f48c06,#d44e00)', color:'#fff', fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:13, cursor:'pointer' }}
+            >
+              Créer un compte
+            </button>
+            <button
+              onClick={() => navigate('/auth', { state: { from: '/app/session', reason: 'resume-history' } })}
+              style={{ padding:'13px', borderRadius:50, border:'1px solid var(--border)', background:'var(--surface2)', color:'var(--text2)', fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:13, cursor:'pointer' }}
+            >
+              Se connecter
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ── JOURNAL */}
       {log.length > 0 && (
         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16, padding: 18, marginTop: 8 }}>
@@ -803,6 +831,24 @@ export default function CookSession() {
               <span style={{ fontSize: 12, color: 'var(--text2)', lineHeight: 1.6 }}>{e.message}</span>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* PATCH: rappel doux avant de quitter une session en cours */}
+      {!isFinished && !user && log.length > 0 && (
+        <div style={{ background:'var(--surface)', border:'1px solid var(--border)', borderRadius:16, padding:'16px 18px', marginTop:16 }}>
+          <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:15, color:'var(--text)', marginBottom:6 }}>
+            Reprendre cette cuisson plus tard ?
+          </div>
+          <div style={{ fontSize:12, color:'var(--text3)', lineHeight:1.7, marginBottom:10 }}>
+            Connecte-toi pour retrouver tes sessions en cours et ton historique depuis n’importe quel appareil.
+          </div>
+          <button
+            onClick={() => navigate('/auth', { state: { from: '/app/session', reason: 'resume-session' } })}
+            style={{ width:'100%', padding:'12px', borderRadius:50, border:'1px solid var(--orange-border)', background:'var(--orange-bg)', color:'var(--orange)', fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:13, cursor:'pointer' }}
+          >
+            Se connecter pour retrouver cette session
+          </button>
         </div>
       )}
 

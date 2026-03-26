@@ -132,6 +132,7 @@ export default function Calc() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { snack, showSnack } = useSnack()
+  const [authCtaReason, setAuthCtaReason] = useState(null)
 
   // ── Restauration depuis localStorage — persiste entre les navigations
   const [meatKey,    setMeatKey]    = useState(() => { try { return JSON.parse(localStorage.getItem('pm_calc') || '{}').meatKey    || 'brisket'       } catch { return 'brisket'       } })
@@ -281,32 +282,11 @@ export default function Calc() {
 
   async function saveSession() {
     if (!result) return
-    // PATCH: l'outil reste pleinement utile sans compte; fallback local si anonyme
+    // PATCH: sauvegarde historique réservée aux membres, sans bloquer l'usage gratuit
     if (!user) {
-      try {
-        const existing = JSON.parse(localStorage.getItem('pm_saved_sessions') || '[]')
-        const localSession = {
-          id: `local_${Date.now()}`,
-          savedAt: new Date().toISOString(),
-          meatKey: result.meatKey,
-          meatName: meatData?.name,
-          startTime: result.startTime,
-          serveTime: result.serve,
-          summary: {
-            smokerTempC: result.smokerTempC,
-            weightKg: result.weightKg,
-            cookMin: result.cookMin,
-            totalMin: result.totalMin,
-          },
-          result,
-          timeline,
-        }
-        localStorage.setItem('pm_saved_sessions', JSON.stringify([localSession, ...existing].slice(0, 20)))
-        showSnack('✓ Planning enregistré sur cet appareil')
-      } catch {
-        // PATCH: fallback UX si l'enregistrement local échoue
-        showSnack('Planning prêt. Lance la session de cuisson pour continuer.', 'info')
-      }
+      setAuthCtaReason('save')
+      showSnack('Crée un compte pour sauvegarder cette cuisson et la retrouver plus tard.', 'info')
+      setTimeout(() => document.getElementById('calc-auth-cta')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80)
       return
     }
     setSaving(true)
@@ -381,6 +361,9 @@ export default function Calc() {
           </span>
           <span style={{ padding: '4px 10px', borderRadius: 50, background: 'var(--surface)', border: '1px solid var(--border)', fontSize: 11, color: 'var(--text3)' }}>
             Planning partageable
+          </span>
+          <span style={{ padding: '4px 10px', borderRadius: 50, background: 'var(--surface)', border: '1px solid var(--border)', fontSize: 11, color: 'var(--text3)' }}>
+            Compte utile pour sauvegarder l’historique
           </span>
         </div>
       </div>
@@ -641,15 +624,41 @@ export default function Calc() {
                 {sharing ? '⏳...' : '📤 Partager'}
               </button>
               <button onClick={saveSession} disabled={saving} className="pm-btn-primary">
-                {saving ? '⏳...' : user ? '☁️ Sauvegarder' : '💾 Enregistrer'}
+                {saving ? '⏳...' : user ? '☁️ Sauvegarder' : '🔐 Sauvegarder'}
               </button>
             </div>
             {!user && (
               <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text3)', lineHeight: 1.6 }}>
-                En mode invité, le planning est conservé sur cet appareil. Tu peux créer un compte plus tard si tu veux synchroniser tes sessions.
+                Tu peux utiliser l’outil sans compte. Pour garder tes plannings, ton historique et reprendre plus tard, il faut créer un compte.
               </div>
             )}
           </div>
+
+          {/* PATCH: CTA d'inscription non agressif après calcul réussi */}
+          {!user && (
+            <div id="calc-auth-cta" className="pm-card" style={{ marginBottom: 12, border: '1px solid var(--orange-border)', background: 'linear-gradient(180deg,var(--surface),var(--orange-bg))' }}>
+              <div className="pm-sec-label">🔐 Garder ce planning</div>
+              <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 18, color: 'var(--text)', marginBottom: 8 }}>
+                {authCtaReason === 'save'
+                  ? 'Créer un compte pour sauvegarder cette cuisson'
+                  : 'Connecte-toi pour retrouver tes cuissons'}
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--text2)', lineHeight: 1.7, marginBottom: 12 }}>
+                Retrouve tes anciennes cuissons, reprends un planning plus tard et garde une trace de tes essais pour progresser d’une session à l’autre.
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                <button onClick={() => navigate('/auth', { state: { from: '/app', reason: 'save-planning' } })} className="pm-btn-primary">
+                  Créer un compte
+                </button>
+                <button onClick={() => navigate('/auth', { state: { from: '/app', reason: 'login-history' } })} className="pm-btn-secondary">
+                  Se connecter
+                </button>
+              </div>
+              <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text3)', lineHeight: 1.6 }}>
+                Le calculateur et la session restent libres d’accès. Le compte sert surtout à sauvegarder et retrouver tes données.
+              </div>
+            </div>
+          )}
 
 
 

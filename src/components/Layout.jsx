@@ -118,6 +118,21 @@ export default function Layout() {
               </div>
             </NavLink>
           )}
+          {/* PATCH: accès compte visible sans rendre l'auth obligatoire */}
+          {!user && (
+            <NavLink to="/auth" style={{ textDecoration:'none', display:'block', marginBottom:8 }}>
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:10, padding:'10px 14px', borderRadius:14, background:'linear-gradient(180deg,var(--surface2),var(--surface))', border:'1px solid var(--orange-border)', cursor:'pointer', transition:'all 0.15s' }}>
+                <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                  <span style={{ fontSize:14 }}>🔐</span>
+                  <div>
+                    <div style={{ fontSize:13, fontWeight:700, color:'var(--orange)', fontFamily:'Syne,sans-serif' }}>Connexion</div>
+                    <div style={{ fontSize:10, color:'var(--text3)', marginTop:2 }}>Sauvegarder et retrouver tes cuissons</div>
+                  </div>
+                </div>
+                <span style={{ fontSize:12, color:'var(--orange)' }}>→</span>
+              </div>
+            </NavLink>
+          )}
           <div style={{ display:'flex', alignItems:'center', gap:10, padding:'6px 4px' }}>
             <div style={{ width:34, height:34, borderRadius:'50%', background:'var(--orange)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:13, color:'#fff', flexShrink:0 }}>
               {username[0]?.toUpperCase()}
@@ -157,8 +172,24 @@ export default function Layout() {
             <span style={{ color:'var(--border2)', fontSize:16 }}>/</span>
             <span style={{ fontSize:13, fontWeight:600, color:'var(--text2)' }}>{currentPage?.label}</span>
           </div>
-          <div style={{ background:'var(--surface2)', border:'1px solid var(--border)', borderRadius:50, padding:'8px 18px', display:'flex', alignItems:'center', gap:8, color:'var(--text3)', fontSize:13, minWidth:180 }}>
-            <span>🔍</span><span>Rechercher...</span>
+          <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+            <div style={{ background:'var(--surface2)', border:'1px solid var(--border)', borderRadius:50, padding:'8px 18px', display:'flex', alignItems:'center', gap:8, color:'var(--text3)', fontSize:13, minWidth:180 }}>
+              <span>🔍</span><span>Rechercher...</span>
+            </div>
+            {/* PATCH: bouton connexion/compte visible dans le header desktop */}
+            {user ? (
+              <NavLink to="/app/profile" style={{ textDecoration:'none' }}>
+                <div style={{ padding:'9px 16px', borderRadius:50, border:'1px solid var(--orange-border)', background:'var(--orange-bg)', color:'var(--orange)', fontFamily:'Syne,sans-serif', fontSize:12, fontWeight:700 }}>
+                  Mon compte
+                </div>
+              </NavLink>
+            ) : (
+              <NavLink to="/auth" style={{ textDecoration:'none' }}>
+                <div style={{ padding:'9px 16px', borderRadius:50, border:'1px solid var(--orange-border)', background:'linear-gradient(135deg,#1a120b,#17110b)', color:'var(--orange)', fontFamily:'Syne,sans-serif', fontSize:12, fontWeight:700 }}>
+                  Se connecter
+                </div>
+              </NavLink>
+            )}
           </div>
         </header>
 
@@ -175,6 +206,10 @@ export default function Layout() {
           </div>
           <div style={{ display:'flex', gap:8 }}>
             {isAdmin && <NavLink to="/admin"><button style={mBtn}>👑</button></NavLink>}
+            {/* PATCH: accès compte explicite et visible sur mobile */}
+            <NavLink to={user ? '/app/profile' : '/auth'}>
+              <button style={mBtn}>{user ? '👤' : '🔐'}</button>
+            </NavLink>
             {user ? <button onClick={signOut} style={mBtn}>⏏</button> : null}
           </div>
         </header>
