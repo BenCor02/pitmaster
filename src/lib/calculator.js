@@ -137,11 +137,13 @@ export const PHASE_BASES = {
   // ── BŒUF ────────────────────────────────────────────────
   brisket: {
     // PATCH: base pitmaster dominante en min/lb, sans sur-accumulation de contraintes
-    label:'Brisket', baseMinPerLb:60,
+    // PATCH: brisket recalibrée à la baisse pour ramener la médiane terrain autour de 15h sur un 7kg à 120°C
+    label:'Brisket', baseMinPerLb:54,
     stallStartC:65, targetC:95, wrapTempC:74,
     // PATCH: repères température exposés au front, sans prétendre piloter la viande à la minute près
     wrapRangeC:[70,75], probeStartC:90, probeTenderRangeC:[92,97], restRangeMin:[60,180],
-    collagenTarget:420, rest:120, restMax:300, variancePct:20,
+    // PATCH: repos plus modéré par défaut, variance resserrée pour éviter une médiane artificiellement trop haute
+    collagenTarget:420, rest:75, restMax:300, variancePct:10,
     // PATCH: proportions simples, pilotées d'abord par les repères terrain
     p1:0.42, st:0.20, p3:0.38,
   },
@@ -307,21 +309,34 @@ export function calculateLowSlow(meatKey, weightKg, options = {}, approvedAdjust
   const baseCookMin = weightLb * toFiniteNumber(m.baseMinPerLb, 55)
 
   // PATCH: facteur taille fusionné — plus de double lecture poids + épaisseur
-  const sizeReferenceCm = isRibsCook(meatKey) ? 3.5 : meatKey === 'brisket' ? 9 : 7
-  const cSize = safeFactor(thicknessF((thicknessCm / sizeReferenceCm) * 5), 1.0, 0.85, 1.20)
+  // PATCH: brisket moins sensible en plafond à l'épaisseur pour éviter l'addition implicite taille + stall
+  const sizeReferenceCm = isRibsCook(meatKey) ? 3.5 : meatKey === 'brisket' ? 9.5 : 7
+  const cSize = safeFactor(
+    thicknessF((thicknessCm / sizeReferenceCm) * 5),
+    1.0,
+    0.85,
+    meatKey === 'brisket' ? 1.10 : 1.20
+  )
 
   // PATCH: facteur stall composite = température + wrap + smoker (+ eau très léger), borné pour éviter les 20h+
   const stallBase = safeFactor(getTempFactor(safeSmokerTempC), 1.0, 0.88, 1.15)
   const wrapEffect = safeFactor(BASE_COEFFS.wrap[wrapType] ?? 1.0, 1.0, 0.85, 1.00)
   const smokerEffect = safeFactor(BASE_COEFFS.smoker[smokerType] ?? 1.0, 1.0, 0.93, 1.03)
   const airflowEffect = waterPan ? 1.02 : 1.0
-  const cStall = safeFactor(stallBase * wrapEffect * smokerEffect * airflowEffect, 1.0, 0.85, 1.20)
+  // PATCH: stall composite plus fortement borné sur brisket pour éviter les dérives >17h en valeur centrale
+  const cStall = safeFactor(
+    stallBase * wrapEffect * smokerEffect * airflowEffect,
+    1.0,
+    0.85,
+    meatKey === 'brisket' ? 1.10 : 1.20
+  )
 
   // PATCH: finition légère seulement — plus de finishFactor indépendant agressif
   const meatFinishBase = isRibsCook(meatKey)
     ? 0.98
     : meatKey === 'brisket'
-      ? 1.03
+      // PATCH: la brisket garde une finition un peu exigeante, mais plus de surcouche systématique
+      ? 1.00
       : meatKey === 'pork_shoulder'
         ? 1.00
         : meatKey === 'ribs_beef'
