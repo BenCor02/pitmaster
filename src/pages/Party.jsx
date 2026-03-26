@@ -24,7 +24,6 @@ export default function Party() {
   const [partyName, setPartyName] = useState('')
   const [serveTime, setServeTime] = useState('19:00')
   const [smokerTemp, setSmokerTemp] = useState(110)
-  const [margin, setMargin] = useState(60)
   const [meatList, setMeatList] = useState([])
   const [selectedMeat, setSelectedMeat] = useState('brisket')
   const [selectedWeight, setSelectedWeight] = useState(2)
@@ -66,8 +65,8 @@ export default function Party() {
 
         const computed = meatList.map(m => {
           const calc = calculateCookTime(m.key, m.weight, null, smokerTemp, 'shred', true)
-          const totalWithMargin = calc.totalMin + margin
-          const startDate = addMinutes(serve, -totalWithMargin)
+          // PATCH: retire la marge de sécurité explicite pour garder un planning plus simple et cohérent
+          const startDate = addMinutes(serve, -calc.totalMin)
 
           // Construire la timeline horaire
           let cursor = new Date(startDate)
@@ -82,7 +81,7 @@ export default function Party() {
             ...m,
             cookMin: calc.cookMin,
             restMin: calc.restMin,
-            totalMin: calc.totalMin + margin,
+            totalMin: calc.totalMin,
             startDate,
             startStr: formatTime(startDate),
             targetTempC: calc.targetTempC,
@@ -91,7 +90,7 @@ export default function Party() {
           }
         }).sort((a, b) => a.startDate - b.startDate)
 
-        setResult({ computed, serveStr: serveTime, smokerTemp, margin })
+        setResult({ computed, serveStr: serveTime, smokerTemp })
         setLoading(false)
         setTimeout(() => document.getElementById('party-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
       } catch(e) {
@@ -143,20 +142,9 @@ export default function Party() {
         <input className="pm-input" type="text" value={partyName} onChange={e => setPartyName(e.target.value)} placeholder="BBQ du 14 juillet, Anniversaire..." />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-        <div className="pm-card">
-          <label className="pm-field-label">Service à</label>
-          <input className="pm-input" type="time" value={serveTime} onChange={e => setServeTime(e.target.value)} />
-        </div>
-        <div className="pm-card">
-          <label className="pm-field-label">Marge</label>
-          <select className="pm-input" value={margin} onChange={e => setMargin(parseInt(e.target.value))}>
-            <option value={30}>+30 min</option>
-            <option value={60}>+1h</option>
-            <option value={90}>+1h30</option>
-            <option value={120}>+2h</option>
-          </select>
-        </div>
+      <div className="pm-card">
+        <label className="pm-field-label">Service à</label>
+        <input className="pm-input" type="time" value={serveTime} onChange={e => setServeTime(e.target.value)} />
       </div>
 
       <div className="pm-card">
@@ -249,7 +237,6 @@ export default function Party() {
             </div>
             <div style={{ display:'flex', gap:8, justifyContent:'center', marginTop:12, flexWrap:'wrap' }}>
               <span style={{ background:'var(--surface2)', border:'1px solid var(--border)', borderRadius:50, padding:'4px 12px', fontSize:11, fontFamily:'DM Mono, monospace', color:'var(--text2)' }}>{result.smokerTemp}°C fumoir</span>
-              <span style={{ background:'var(--surface2)', border:'1px solid var(--border)', borderRadius:50, padding:'4px 12px', fontSize:11, fontFamily:'DM Mono, monospace', color:'var(--text2)' }}>+{formatDuration(result.margin)} marge</span>
             </div>
           </div>
 
