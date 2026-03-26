@@ -109,17 +109,17 @@ function buildServeDate(serveTime) {
 function getTimelineStepContent(step, result) {
   const isRibsCook = result?.meatKey === 'ribs_pork' || result?.meatKey === 'ribs_baby_back'
   if (step.isService) return {
-    title: 'Service',
+    title: isRibsCook ? 'Phase 5 · Service' : 'Service',
     explanation: 'La cuisson est terminée et la viande est dans sa bonne fenêtre de service.',
     action: 'Sers pendant qu’elle est encore bien chaude et avec la texture voulue.',
   }
   if (step.isRest) return {
-    title: 'Rest / Hold (repos)',
+    title: isRibsCook ? 'Phase 4 · Repos' : 'Rest / Hold (repos)',
     explanation: 'Le repos aide les jus à se répartir et rend le service plus simple.',
     action: isRibsCook ? 'Laisse reposer quelques minutes avant de couper et servir.' : 'Laisse reposer au chaud avant de trancher ou effilocher.',
   }
   if (step.isStall) return {
-    title: isRibsCook ? 'La viande se rétracte sur l’os' : 'La cuisson ralentit',
+    title: isRibsCook ? 'Phase 2 · Retrait sur l’os' : 'La cuisson ralentit',
     explanation: isRibsCook
       ? 'Sur les ribs, ce moment sert surtout à regarder la couleur, le retrait de viande sur l’os et à décider si un wrap est utile.'
       : result?.wrapType !== 'none'
@@ -132,7 +132,7 @@ function getTimelineStepContent(step, result) {
         : "N'augmente pas brutalement la température du fumoir. Laisse la cuisson suivre son rythme.",
   }
   if (step.id === 'wrap') return {
-    title: 'Wrap (emballage)',
+    title: isRibsCook ? 'Wrap (facultatif)' : 'Wrap (emballage)',
     explanation: isRibsCook
       ? "Sur les ribs, le wrap reste facultatif. Il accélère la cuisson et donne souvent une texture plus fondante."
       : "Le wrap aide à traverser la fin de cuisson plus régulièrement et à garder davantage de jus.",
@@ -141,14 +141,14 @@ function getTimelineStepContent(step, result) {
       : `Emballe quand la bark te plaît ou autour de ${result?.wrapTempC || '?'}°C.`,
   }
   if (step.id === 'phase1') return {
-    title: isRibsCook ? 'La couleur se forme' : 'Bark en formation',
+    title: isRibsCook ? 'Phase 1 · Couleur / fumée' : 'Bark en formation',
     explanation: isRibsCook
       ? "La rack prend la fumée et sa couleur se construit. Sur les ribs, c'est un repère plus utile qu'une heure fixe."
       : "La bark, c'est la croûte / écorce de cuisson qui se forme avec la fumée et la chaleur.",
     action: "Évite d'ouvrir le fumoir inutilement et garde une température régulière.",
   }
   if (step.id === 'phase3') return {
-    title: isRibsCook ? 'Flex test' : 'Finition / test de tendreté',
+    title: isRibsCook ? 'Phase 3 · Flex test' : 'Finition / test de tendreté',
     explanation: isRibsCook
       ? "Soulève la rack: elle doit se courber franchement et commencer à fissurer légèrement en surface. C'est le vrai signal de fin."
       : "On cherche le probe tender: la sonde doit entrer presque comme dans du beurre. C'est plus important que le chiffre exact.",
@@ -709,6 +709,7 @@ export default function Calc() {
             {timeline.map((step, i) => {
               const content = getTimelineStepContent(step, result)
               const guide = getStepGuide(content)
+              const isRibsCook = result?.meatKey === 'ribs_pork' || result?.meatKey === 'ribs_baby_back'
               return (
                 <div key={i} style={{ display: 'grid', gridTemplateColumns: '10px 1fr', gap: '0 10px', padding: '9px 0', position: 'relative' }}>
                   {i < timeline.length - 1 && <div style={{ position: 'absolute', left: 4, top: 24, bottom: -9, width: 1, background: 'var(--border)' }} />}
@@ -716,9 +717,11 @@ export default function Calc() {
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
                       <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 13, color: 'var(--text)', lineHeight: 1.3 }}>{guide.watch}</div>
-                      {step.durationMin
+                      {!isRibsCook && step.durationMin
                         ? <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, color: 'var(--text3)', flexShrink: 0 }}>Durée indicative : {formatDuration(step.durationMin)}</span>
-                        : <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, color: 'var(--text3)', flexShrink: 0 }}>Repère</span>}
+                        : !isRibsCook
+                          ? <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, color: 'var(--text3)', flexShrink: 0 }}>Repère</span>
+                          : null}
                     </div>
                     <div style={{ marginTop: 6, display: 'grid', gap: 6 }}>
                       <div style={{ padding: '7px 10px', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 11, color: 'var(--text3)', lineHeight: 1.6 }}>
@@ -728,7 +731,7 @@ export default function Calc() {
                         <strong style={{ color: 'var(--orange)' }}>Quoi faire :</strong> {guide.action}
                       </div>
                     </div>
-                    {step.targetTempNote && (
+                    {step.targetTempNote && !isRibsCook && (
                       <div style={{ marginTop: 6, padding: '4px 10px', background: 'var(--orange-bg)', border: '1px solid var(--orange-border)', borderRadius: 8, fontSize: 11, color: 'var(--orange)', fontWeight: 600 }}>
                         🌡️ Repère utile : {step.targetTempNote}
                       </div>

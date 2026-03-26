@@ -220,7 +220,7 @@ function buildCheckpoints(schedule) {
 }
 
 // ─── Barre de progression + repères horaires ─────────────────
-function ProgressBar({ checkpoints, currentIndex, etaTimes }) {
+function ProgressBar({ checkpoints, currentIndex, etaTimes, isRibs }) {
   return (
     <div style={{ marginBottom: 24 }}>
       {/* Pastilles de progression */}
@@ -270,7 +270,7 @@ function ProgressBar({ checkpoints, currentIndex, etaTimes }) {
                 <div style={{ fontSize: 10, color: 'var(--text3)', marginTop: 2 }}>{cp.titlePitmaster}</div>
               </div>
               {/* PATCH: étiquette "heure estimée" claire, présentée comme repère */}
-              {eta && (() => {
+              {!isRibs && eta && (() => {
                 const etaDate = new Date(eta)
                 const diffMin = Math.round((etaDate - Date.now()) / 60000)
                 const diffStr = diffMin <= 0 ? 'bientôt' : diffMin < 60
@@ -370,7 +370,7 @@ function CheckpointCard({ cp, schedule, onValidate }) {
       </div>
 
       {/* PATCH: les repères horaires restent visibles mais clairement secondaires */}
-      {schedule?.etaTimes?.[cp.id] && (
+      {!isRibsCook(schedule?.meatKey) && schedule?.etaTimes?.[cp.id] && (
         <div style={{ marginBottom: 14, fontSize: 11, color: 'var(--text3)', lineHeight: 1.6 }}>
           Repère horaire seulement : vers {fmt(schedule.etaTimes[cp.id])}. Valide quand ça arrive vraiment sur ta cuisson.
         </div>
@@ -765,6 +765,7 @@ export default function CookSession() {
   }
 
   const isFinished = currentIndex >= checkpoints.length
+  const ribsSession = isRibsCook(schedule.meatKey)
 
   // PATCH: calcul ETA cohérent; on soustrait uniquement le temps écoulé depuis le dernier snapshot ETA
   const etaReferenceAt = eta?.updatedAt
@@ -826,27 +827,41 @@ export default function CookSession() {
         </div>
       </div>
 
-      {/* ── BLOC ETA */}
-      <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16, padding: '16px 20px', marginBottom: 20, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Écoulé</div>
-          <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 20, color: 'var(--text)' }}>{fmtDur(elapsed)}</div>
-        </div>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Restant</div>
-          <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 20, color: 'var(--orange)' }}>
-            {fmtDur(remainingTotalMin)}
+      {/* PATCH: ribs = cuisson visuelle, pas pilotée étape par étape par des chiffres */}
+      {ribsSession ? (
+        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16, padding: '16px 20px', marginBottom: 20 }}>
+          <div style={{ fontSize: 10, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 6 }}>
+            Cuisson visuelle
+          </div>
+          <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 22, color: 'var(--text)', marginBottom: 8 }}>
+            Suis surtout la couleur, le retrait sur l’os et le flex test
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--text3)', lineHeight: 1.7 }}>
+            Les ribs ne se pilotent pas à la minute près. Valide chaque étape quand le rack te donne le bon signal visuel.
           </div>
         </div>
-        <div style={{ textAlign: 'center' }}>
-          {/* PATCH: libellé "Service ~" pour indiquer que c'est une estimation */}
-          <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Service ~</div>
-          <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 20, color: '#22c55e' }}>{etaService}</div>
+      ) : (
+        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16, padding: '16px 20px', marginBottom: 20, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Écoulé</div>
+            <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 20, color: 'var(--text)' }}>{fmtDur(elapsed)}</div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Restant</div>
+            <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 20, color: 'var(--orange)' }}>
+              {fmtDur(remainingTotalMin)}
+            </div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            {/* PATCH: libellé "Service ~" pour indiquer que c'est une estimation */}
+            <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Service ~</div>
+            <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 20, color: '#22c55e' }}>{etaService}</div>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ── PROGRESSION */}
-      <ProgressBar checkpoints={checkpoints} currentIndex={currentIndex} etaTimes={etaTimes} />
+      <ProgressBar checkpoints={checkpoints} currentIndex={currentIndex} etaTimes={etaTimes} isRibs={ribsSession} />
 
       {/* ── ÉTAPES VALIDÉES */}
       {checkpoints.slice(0, currentIndex).map(cp => (
