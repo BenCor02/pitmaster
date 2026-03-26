@@ -80,7 +80,7 @@ export default function AdminLayout() {
 
         {/* FOOTER */}
         <div style={{ padding:'12px 8px', borderTop:'1px solid #181410' }}>
-          <button onClick={() => navigate('/')} style={{ width:'100%', padding:'8px 10px', borderRadius:8, border:'1px solid #1e1a14', background:'transparent', color:'#5a4a40', fontFamily:"'Syne', sans-serif", fontSize:12, fontWeight:700, cursor:'pointer', marginBottom:6, display:'flex', alignItems:'center', gap:8, transition:'all 0.15s' }}
+          <button onClick={() => navigate('/app')} style={{ width:'100%', padding:'8px 10px', borderRadius:8, border:'1px solid #1e1a14', background:'transparent', color:'#5a4a40', fontFamily:"'Syne', sans-serif", fontSize:12, fontWeight:700, cursor:'pointer', marginBottom:6, display:'flex', alignItems:'center', gap:8, transition:'all 0.15s' }}
             onMouseEnter={e => { e.currentTarget.style.background='rgba(255,255,255,0.03)'; e.currentTarget.style.color='#d4c4b0' }}
             onMouseLeave={e => { e.currentTarget.style.background='transparent'; e.currentTarget.style.color='#5a4a40' }}>
             ← Retour à l&apos;app

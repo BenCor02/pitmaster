@@ -112,9 +112,9 @@ export default function Pricing() {
 
   function handleCTA(planKey) {
     if (!user) { navigate('/auth'); return }
-    if (planKey === 'free') { navigate('/'); return }
+    if (planKey === 'free') { navigate('/app'); return }
     // TODO: Stripe checkout
-    navigate('/') // Temporaire avant intégration Stripe
+    navigate('/app') // Temporaire avant intégration Stripe
   }
 
   return (
@@ -123,12 +123,12 @@ export default function Pricing() {
 
       {/* NAV */}
       <nav style={{ height:54, borderBottom:'1px solid #181410', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 32px', position:'sticky', top:0, background:'rgba(8,7,6,0.95)', backdropFilter:'blur(20px)', zIndex:50 }}>
-        <div onClick={() => navigate('/')} style={{ cursor:'pointer', fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:18, background:'linear-gradient(135deg,#f48c06,#e85d04)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
+        <div onClick={() => navigate('/app')} style={{ cursor:'pointer', fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:18, background:'linear-gradient(135deg,#f48c06,#e85d04)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
           🔥 PitMaster
         </div>
         <div style={{ display:'flex', gap:10 }}>
           {user ? (
-            <button onClick={() => navigate('/')} style={{ padding:'7px 16px', borderRadius:8, border:'1px solid #1e1a14', background:'transparent', color:'#8a7060', fontFamily:'Syne,sans-serif', fontSize:12, fontWeight:700, cursor:'pointer' }}>
+            <button onClick={() => navigate('/app')} style={{ padding:'7px 16px', borderRadius:8, border:'1px solid #1e1a14', background:'transparent', color:'#8a7060', fontFamily:'Syne,sans-serif', fontSize:12, fontWeight:700, cursor:'pointer' }}>
               ← Retour à l'app
             </button>
           ) : (

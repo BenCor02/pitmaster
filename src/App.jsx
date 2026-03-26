@@ -39,7 +39,7 @@ function PrivateRoute({ children }) {
       <div style={{ width:24, height:24, border:'2px solid var(--orange)', borderTopColor:'transparent', borderRadius:'50%', animation:'spin 0.7s linear infinite' }} />
     </div>
   )
-  return user ? children : <Navigate to="/landing" replace />
+  return user ? children : <Navigate to="/" replace />
 }
 
 function AdminRoute({ children }) {
@@ -49,8 +49,8 @@ function AdminRoute({ children }) {
       <div style={{ width:24, height:24, border:'2px solid var(--orange)', borderTopColor:'transparent', borderRadius:'50%', animation:'spin 0.7s linear infinite' }} />
     </div>
   )
-  if (!user) return <Navigate to="/landing" replace />
-  if (!isAdmin) return <Navigate to="/" replace />
+  if (!user) return <Navigate to="/" replace />
+  if (!isAdmin) return <Navigate to="/app" replace />
   return children
 }
 
@@ -59,13 +59,13 @@ export default function App() {
   return (
     <Routes>
       {/* PUBLIQUES */}
-      <Route path="/landing"    element={<Landing />} />
+      <Route path="/"           element={<Landing />} />
       <Route path="/pricing"    element={<Pricing />} />
-      <Route path="/auth"       element={user ? <Navigate to="/" replace /> : <Auth />} />
+      <Route path="/auth"       element={user ? <Navigate to="/app" replace /> : <Auth />} />
       <Route path="/onboarding" element={user ? <Onboarding /> : <Navigate to="/auth" replace />} />
 
       {/* APP PRINCIPALE */}
-      <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
+      <Route path="/app" element={<PrivateRoute><Layout /></PrivateRoute>}>
         <Route index         element={<Calc />} />
         <Route path="party"    element={<Party />} />
         <Route path="journal"  element={<Journal />} />
@@ -89,7 +89,7 @@ export default function App() {
         <Route path="algorithm"  element={<AdminAlgorithm />} />
       </Route>
 
-      <Route path="*" element={<Navigate to="/landing" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }

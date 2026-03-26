@@ -79,14 +79,14 @@ export default function Onboarding() {
         ...answers,
       }, { onConflict: 'user_id' })
       setSaving(false)
-      navigate('/')
+      navigate('/app')
     } else {
       setStep(s => s + 1)
     }
   }
 
   function skip() {
-    navigate('/')
+    navigate('/app')
   }
 
   return (

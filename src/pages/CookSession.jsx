@@ -513,7 +513,7 @@ export default function CookSession() {
         <p style={{ color: 'var(--text3)', fontSize: 13, marginBottom: 24, lineHeight: 1.7 }}>
           Lance un calcul depuis le Calculateur BBQ,<br />puis clique sur "🔴 Lancer la session".
         </p>
-        <button onClick={() => navigate('/')} style={{ padding: '12px 28px', borderRadius: 50, border: 'none', background: 'linear-gradient(135deg,#f48c06,#d44e00)', color: '#fff', fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
+        <button onClick={() => navigate('/app')} style={{ padding: '12px 28px', borderRadius: 50, border: 'none', background: 'linear-gradient(135deg,#f48c06,#d44e00)', color: '#fff', fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>
           ← Aller au Calculateur
         </button>
       </div>
@@ -655,7 +655,7 @@ export default function CookSession() {
       )}
 
       {/* ── TERMINER */}
-      <button onClick={() => navigate('/')} style={{ width: '100%', padding: '14px', borderRadius: 50, border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text3)', fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: 13, cursor: 'pointer', marginTop: 16 }}>
+      <button onClick={() => navigate('/app')} style={{ width: '100%', padding: '14px', borderRadius: 50, border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text3)', fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: 13, cursor: 'pointer', marginTop: 16 }}>
         ↩ Terminer la session
       </button>
     </div>
