@@ -459,7 +459,8 @@ export function buildTimeline(calc, smokerTempC) {
       durationMin: safePhase3Min,
       description: `Cherche un rack souple qui plie nettement avec une légère fissure en surface. Le flex test et le retrait sur l’os comptent plus qu’une sonde ou un chiffre exact.`,
       targetTempNote: 'Vérifie la souplesse du rack et le retrait de viande sur l’os avant de servir.',
-      checkpoint: 'probe_test',
+      // PATCH: ribs = checkpoint dédié flex_test, plus de recyclage implicite du probe test
+      checkpoint: 'flex_test',
     })
 
     phases.push({
@@ -475,19 +476,30 @@ export function buildTimeline(calc, smokerTempC) {
     id:'phase1', label:'Bark en formation',
     durationMin: safePhase1Min,
     description: `Fumoir à ${safeSmokerTempC}°C stable. Laisse la bark se former et évite d’ouvrir inutilement.`,
-    targetTempNote: wrapTempC ? `Objectif : ${wrapTempC}°C interne pour préparer le wrap.` : null,
+    targetTempNote: wrapTempC ? `Commence à penser au wrap quand la couleur te plaît, souvent autour de ${wrapTempC}°C.` : null,
     checkpoint: 'stall_check',
   })
 
   if (safeStallMin > 0) {
     phases.push({
-      id:'stall', label:`Stall (ralentissement normal)`,
+      id:'stall', label:`La cuisson ralentit`,
       durationMin: safeStallMin, isStall: true,
       description: wrapType !== 'none'
         ? `La montée en température ralentit, c’est normal. Le wrap aide à limiter l’évaporation et à rendre la fin de cuisson plus régulière.`
         : `La viande ralentit car l’évaporation refroidit sa surface. Ne panique pas et évite de surcorriger le fumoir.`,
-      targetTempNote: wrapTempC ? `Wrapper à ${wrapTempC}°C` : null,
+      targetTempNote: wrapTempC ? `Le bon moment dépend surtout de la couleur et de la bark, pas d’une minute précise.` : null,
       wrapAt: wrapTempC,
+      checkpoint: 'wrap_confirm',
+    })
+  }
+
+  if (wrapType !== 'none') {
+    phases.push({
+      id:'wrap', label:'Wrap (emballage)',
+      durationMin: 0,
+      // PATCH: étape wrap explicite pour refléter le consensus pitmaster "couleur puis wrap"
+      description: `Emballe quand la bark te plaît. Papier boucher = plus respirant, aluminium = plus rapide et plus humide.`,
+      targetTempNote: wrapTempC ? `Souvent autour de ${wrapTempC}°C, mais la couleur reste le vrai signal.` : 'Décision guidée d’abord par l’aspect de la viande.',
       checkpoint: 'wrap_confirm',
     })
   }

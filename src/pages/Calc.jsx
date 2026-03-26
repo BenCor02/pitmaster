@@ -110,13 +110,13 @@ function getTimelineStepContent(step, result) {
   const isRibsCook = result?.meatKey === 'ribs_pork' || result?.meatKey === 'ribs_baby_back'
   if (step.isService) return {
     title: 'Service',
-    explanation: 'La cuisson, le repos et la marge sont terminés.',
-    action: 'Tranche, effiloche ou sers pendant que la viande est encore bien chaude.',
+    explanation: 'La cuisson est terminée et la viande est dans sa bonne fenêtre de service.',
+    action: 'Sers pendant qu’elle est encore bien chaude et avec la texture voulue.',
   }
   if (step.isRest) return {
     title: 'Rest / Hold (repos)',
-    explanation: 'Le repos aide les jus à se répartir et rend le service plus facile.',
-    action: 'Laisse reposer au chaud avant de trancher ou effilocher.',
+    explanation: 'Le repos aide les jus à se répartir et rend le service plus simple.',
+    action: isRibsCook ? 'Laisse reposer quelques minutes avant de couper et servir.' : 'Laisse reposer au chaud avant de trancher ou effilocher.',
   }
   if (step.isStall) return {
     title: isRibsCook ? 'La viande se rétracte sur l’os' : 'La cuisson ralentit',
@@ -160,6 +160,15 @@ function getTimelineStepContent(step, result) {
     title: step.label,
     explanation: step.description,
     action: 'Suis cette étape tranquillement et garde le fumoir stable.',
+  }
+}
+
+// PATCH: la timeline front répond explicitement à "quoi regarder / quoi comprendre / quoi faire"
+function getStepGuide(content) {
+  return {
+    watch: content.title,
+    meaning: content.explanation,
+    action: content.action,
   }
 }
 
@@ -699,20 +708,25 @@ export default function Calc() {
             </div>
             {timeline.map((step, i) => {
               const content = getTimelineStepContent(step, result)
+              const guide = getStepGuide(content)
               return (
                 <div key={i} style={{ display: 'grid', gridTemplateColumns: '10px 1fr', gap: '0 10px', padding: '9px 0', position: 'relative' }}>
                   {i < timeline.length - 1 && <div style={{ position: 'absolute', left: 4, top: 24, bottom: -9, width: 1, background: 'var(--border)' }} />}
                   <div style={{ width: 8, height: 8, borderRadius: '50%', background: phaseColor(step), marginTop: 4, justifySelf: 'center', boxShadow: `0 0 6px ${phaseColor(step)}60` }} />
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
-                      <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 13, color: 'var(--text)', lineHeight: 1.3 }}>{content.title}</div>
+                      <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 13, color: 'var(--text)', lineHeight: 1.3 }}>{guide.watch}</div>
                       {step.durationMin
                         ? <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, color: 'var(--text3)', flexShrink: 0 }}>Durée indicative : {formatDuration(step.durationMin)}</span>
                         : <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, color: 'var(--text3)', flexShrink: 0 }}>Repère</span>}
                     </div>
-                    <div style={{ fontSize: 12, color: 'var(--text2)', marginTop: 5, lineHeight: 1.6 }}>{content.explanation}</div>
-                    <div style={{ marginTop: 6, padding: '7px 10px', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 11, color: 'var(--text3)', lineHeight: 1.6 }}>
-                      <strong style={{ color: 'var(--orange)' }}>Action :</strong> {content.action}
+                    <div style={{ marginTop: 6, display: 'grid', gap: 6 }}>
+                      <div style={{ padding: '7px 10px', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 11, color: 'var(--text3)', lineHeight: 1.6 }}>
+                        <strong style={{ color: 'var(--text2)' }}>Ce que ça veut dire :</strong> {guide.meaning}
+                      </div>
+                      <div style={{ padding: '7px 10px', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 11, color: 'var(--text3)', lineHeight: 1.6 }}>
+                        <strong style={{ color: 'var(--orange)' }}>Quoi faire :</strong> {guide.action}
+                      </div>
                     </div>
                     {step.targetTempNote && (
                       <div style={{ marginTop: 6, padding: '4px 10px', background: 'var(--orange-bg)', border: '1px solid var(--orange-border)', borderRadius: 8, fontSize: 11, color: 'var(--orange)', fontWeight: 600 }}>

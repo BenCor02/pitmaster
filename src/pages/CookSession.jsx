@@ -145,7 +145,7 @@ function buildCheckpoints(schedule) {
         validated: false,
       },
     ]
-
+    // PATCH: ribs sans wrap = on garde quand même un flow clair bark -> pullback -> flex -> repos
     return schedule.wrapType === 'none' ? cps.filter(c => c.id !== 'wrap') : cps
   }
 
@@ -247,7 +247,7 @@ function ProgressBar({ checkpoints, currentIndex, etaTimes }) {
         })}
       </div>
 
-      {/* Liste des étapes à venir avec repères horaires */}
+      {/* PATCH: repères horaires explicitement secondaires */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         {checkpoints.map((cp, i) => {
           if (cp.validated) return null
@@ -282,7 +282,7 @@ function ProgressBar({ checkpoints, currentIndex, etaTimes }) {
                       ~{etaDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                     </div>
                     <div style={{ fontSize: 9, color: 'var(--text3)', marginTop: 2 }}>
-                      {diffStr} · estimation
+                      {diffStr} · repère
                     </div>
                   </div>
                 )
@@ -368,6 +368,13 @@ function CheckpointCard({ cp, schedule, onValidate }) {
       <div style={{ background: 'var(--surface2)', borderRadius: 12, padding: '12px 14px', marginBottom: 18, fontSize: 13, color: 'var(--text2)', lineHeight: 1.7 }}>
         {cp.explanation}
       </div>
+
+      {/* PATCH: les repères horaires restent visibles mais clairement secondaires */}
+      {schedule?.etaTimes?.[cp.id] && (
+        <div style={{ marginBottom: 14, fontSize: 11, color: 'var(--text3)', lineHeight: 1.6 }}>
+          Repère horaire seulement : vers {fmt(schedule.etaTimes[cp.id])}. Valide quand ça arrive vraiment sur ta cuisson.
+        </div>
+      )}
 
       {/* PATCH: conseil pit instable — s'affiche si le membre dit "pas encore" */}
       {showPitTip && cp.tipIfNo && (
@@ -560,6 +567,9 @@ export default function CookSession() {
   useEffect(() => {
     if (currentIndex >= checkpoints.length && checkpoints.length > 0) clearPendingSession()
   }, [currentIndex, checkpoints.length])
+
+  // PATCH: expose les repères ETA au checkpoint actif sans en faire des déclencheurs automatiques
+  const scheduleWithEtaTimes = etaTimes ? { ...schedule, etaTimes } : schedule
 
   // PATCH: persistance transitoire de session pour ne pas dépendre seulement du state de navigation
   useEffect(() => {
@@ -848,7 +858,7 @@ export default function CookSession() {
         <div className="fade-up">
           <CheckpointCard
             cp={checkpoints[currentIndex]}
-            schedule={schedule}
+            schedule={scheduleWithEtaTimes}
             onValidate={handleValidate}
           />
         </div>
