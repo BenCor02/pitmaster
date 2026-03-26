@@ -335,7 +335,8 @@ export default function Calc() {
           startTime: formatTime(start),
           cookDoneTime: formatTime(estimatedCookDoneAt),
           readyAfterRestTime: formatTime(estimatedReadyAt),
-          serve: serveTime,
+          // PATCH: l'heure de service affichée suit aussi l'arrondi utilisateur global
+          serve: formatTime(serve),
           serviceWindowStart: formatTime(serviceWindowStart),
           serviceWindowEnd: formatTime(serviceWindowEnd),
           probableMin, optimisticMin, prudentMin,

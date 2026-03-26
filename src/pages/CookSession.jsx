@@ -12,7 +12,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { recalibrate, formatDuration } from '../lib/calculator'
+import { recalibrate, formatDuration, formatDisplayTimeRounded } from '../lib/calculator'
 import { MEAT_IMAGES, SMOKER_IMAGE } from '../lib/images'
 import { useAuth } from '../context/AuthContext'
 
@@ -22,7 +22,8 @@ const WRAP_COEFFS = { none: 1.00, butcher_paper: 0.78, foil: 0.58, foil_boat: 0.
 
 // ─── Utilitaires ─────────────────────────────────────────────
 const addMin = (date, m) => new Date(new Date(date).getTime() + m * 60000)
-const fmt    = (d) => new Date(d).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+// PATCH: toutes les heures visibles suivent maintenant le même arrondi BBQ à 30 minutes
+const fmt    = (d) => formatDisplayTimeRounded(d)
 const fmtDur = (m) => formatDuration(Math.max(0, Math.round(m)))
 const isRibsCook = (meatKey) => meatKey === 'ribs_pork' || meatKey === 'ribs_baby_back'
 

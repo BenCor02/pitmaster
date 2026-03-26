@@ -786,10 +786,32 @@ export function addMinutes(date, minutes) {
   return new Date(safeDate.getTime() + toFiniteNumber(minutes, 0) * 60000)
 }
 
+// PATCH: helper centralisé d'affichage utilisateur, arrondi au palier de 30 minutes le plus proche
+export function roundToNearestHalfHour(date) {
+  const safeDate = date instanceof Date && Number.isFinite(date.getTime()) ? new Date(date.getTime()) : new Date()
+  const rounded = new Date(safeDate)
+  const minutes = rounded.getMinutes()
+
+  if (minutes <= 14) rounded.setMinutes(0, 0, 0)
+  else if (minutes <= 44) rounded.setMinutes(30, 0, 0)
+  else {
+    rounded.setHours(rounded.getHours() + 1, 0, 0, 0)
+  }
+
+  return rounded
+}
+
+// PATCH: format d'affichage humain pour le BBQ : 19h ou 19h30, jamais 19:07
+export function formatDisplayTimeRounded(date) {
+  const rounded = roundToNearestHalfHour(date)
+  const hours = rounded.getHours()
+  const minutes = rounded.getMinutes()
+  return minutes === 0 ? `${hours}h` : `${hours}h30`
+}
+
 export function formatTime(date) {
-  // PATCH: évite les crashs UI sur date invalide
-  const safeDate = date instanceof Date && Number.isFinite(date.getTime()) ? date : new Date()
-  return safeDate.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'})
+  // PATCH: compatibilité ascendante — formatTime sert désormais l'affichage arrondi utilisateur
+  return formatDisplayTimeRounded(date)
 }
 
 export function carryover(weightKg) {
