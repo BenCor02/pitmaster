@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
+import { useCalcLimit } from '../hooks/useCalcLimit'
+import { PaywallCalc, CalcBanner } from '../components/Paywall'
 import { MEAT_IMAGES } from '../lib/images'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
@@ -133,6 +135,8 @@ function getTendernessStatus(result) {
 export default function Calc() {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { canCalc, remaining, isPro, increment, statusMessage } = useCalcLimit()
+  const [showPaywall, setShowPaywall] = useState(false)
   const { snack, showSnack } = useSnack()
 
   // ── Restauration depuis localStorage — persiste entre les navigations
@@ -185,7 +189,7 @@ export default function Calc() {
     } catch {}
   }, [meatKey, weight, thickness, smokerTemp, serveTime, margin, smokerType, wrapType, marbling, startTemp])
 
-  function calculate() {
+  async function calculate() {
     setLoading(true)
     setRecalResult(null)
     setTimeout(() => {
@@ -242,6 +246,7 @@ export default function Calc() {
           probableMin, optimisticMin, prudentMin,
         }
         setResult(newResult)
+        await increment() // compteur calculs gratuits
         setTimeline(tl)
         // Sauvegarder le résultat dans localStorage
         try {
@@ -305,6 +310,12 @@ export default function Calc() {
           Assistant cuisson · Étapes claires · Recalage en cours de cuisson
         </p>
       </div>
+
+      {/* PAYWALL CALCULS */}
+      {showPaywall && <PaywallCalc remaining={remaining} onClose={() => setShowPaywall(false)} />}
+
+      {/* BANDEAU COMPTEUR */}
+      <CalcBanner remaining={remaining} isPro={isPro} />
 
       {/* VIANDE + PHOTO */}
       <div className="pm-card" style={{ padding: 0, overflow: 'hidden' }}>

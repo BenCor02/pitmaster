@@ -118,14 +118,14 @@ export default function Landing() {
 
         <div style={{ position:'relative', zIndex:2, maxWidth:700 }}>
           <div className="fu" style={{ display:'inline-block', background:'rgba(232,93,4,0.07)', border:'1px solid rgba(232,93,4,0.14)', borderRadius:20, padding:'5px 16px', fontSize:11, fontWeight:700, color:'#c87040', fontFamily:"'Syne',sans-serif", letterSpacing:'2px', textTransform:'uppercase', marginBottom:24 }}>
-            Calculateur BBQ professionnel
+            5 calculs gratuits · Pas de carte bancaire
           </div>
           <h1 className="fu fu1" style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:'clamp(34px,6.5vw,60px)', color:'#fff', letterSpacing:'-2px', lineHeight:1.05, marginBottom:20 }}>
             Ton brisket arrive parfait.<br />
             <span style={{ color:'#e85d04', animation:'flicker 5s 3s ease-in-out infinite' }}>Pas par chance — par calcul.</span>
           </h1>
           <p className="fu fu2" style={{ fontSize:17, color:'#8a7a6a', lineHeight:1.8, maxWidth:500, margin:'0 auto 36px' }}>
-            Charbon &amp; Flamme calcule à la minute près quand lancer ta cuisson. Algorithme calibré sur la science réelle du BBQ — pas des règles approximatives.
+            Charbon &amp; Flamme calcule à la minute près quand lancer ta cuisson. 5 calculs gratuits par mois — puis Pro pour illimité.
           </p>
           <div className="fu fu3" style={{ display:'flex', gap:10, justifyContent:'center', flexWrap:'wrap', marginBottom:14 }}>
             <button onClick={go} className="hbtn" style={{ padding:'15px 32px', borderRadius:12, border:'none', background:'linear-gradient(135deg,#f48c06,#d44e00)', color:'#fff', fontFamily:"'Syne',sans-serif", fontSize:15, fontWeight:700, cursor:'pointer', boxShadow:'0 4px 20px rgba(232,93,4,0.28)' }}>
@@ -136,7 +136,7 @@ export default function Landing() {
             </button>
           </div>
           <div className="fu fu4" style={{ fontSize:11, color:'#4a3a2e', letterSpacing:'0.5px' }}>
-            Gratuit pour toujours · Pas de carte bancaire · Prêt en 30 secondes
+            5 calculs gratuits/mois · Pas de carte bancaire · Prêt en 30 secondes
           </div>
         </div>
       </div>
@@ -370,13 +370,13 @@ export default function Landing() {
             <span style={{ color:'#e85d04' }}>Calculée. Maîtrisée. Parfaite.</span>
           </h2>
           <p style={{ fontSize:15, color:'#6a5a4a', lineHeight:1.75, marginBottom:36 }}>
-            Rejoins les pitmasters qui ne laissent plus rien au hasard.
+            5 calculs gratuits par mois pour commencer. Passe en Pro pour illimité.
           </p>
           <button onClick={go} className="hbtn" style={{ padding:'17px 44px', borderRadius:12, border:'none', background:'linear-gradient(135deg,#f48c06,#d44e00)', color:'#fff', fontFamily:"'Syne',sans-serif", fontSize:16, fontWeight:700, cursor:'pointer', boxShadow:'0 6px 24px rgba(232,93,4,0.28)', display:'inline-block', marginBottom:14 }}>
             🔥 Commencer gratuitement
           </button>
           <div style={{ fontSize:11, color:'#4a3a2e' }}>
-            Gratuit pour toujours · Pas de carte bancaire · 30 secondes pour démarrer
+            5 calculs gratuits/mois · Pro à 4.99€/mois · Sans engagement
           </div>
         </div>
       </div>
