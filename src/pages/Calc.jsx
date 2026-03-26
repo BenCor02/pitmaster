@@ -253,7 +253,6 @@ export default function Calc() {
   const [thickness,  setThickness]  = useState(() => getCalcDraft().thickness || '')
   const [smokerTemp, setSmokerTemp] = useState(() => getCalcDraft().smokerTemp ?? 110)
   const [serveTime,  setServeTime]  = useState(() => getCalcDraft().serveTime || '19:00')
-  const [margin,     setMargin]     = useState(() => getCalcDraft().margin ?? 60)
   const [smokerType, setSmokerType] = useState(() => getCalcDraft().smokerType || 'pellet')
   const [wrapType,   setWrapType]   = useState(() => getCalcDraft().wrapType || 'butcher_paper')
   const [marbling,   setMarbling]   = useState(() => getCalcDraft().marbling || 'medium')
@@ -281,12 +280,12 @@ export default function Calc() {
     try {
       localStorage.setItem('pm_calc', JSON.stringify({
         meatKey, weight, thickness, smokerTemp, serveTime,
-        margin, smokerType, wrapType, marbling, startTemp,
+        smokerType, wrapType, marbling, startTemp,
       }))
     } catch {
       // PATCH: persistance best effort seulement
     }
-  }, [meatKey, weight, thickness, smokerTemp, serveTime, margin, smokerType, wrapType, marbling, startTemp])
+  }, [meatKey, weight, thickness, smokerTemp, serveTime, smokerType, wrapType, marbling, startTemp])
 
   async function calculate() {
     setLoading(true)
@@ -297,8 +296,6 @@ export default function Calc() {
         const safeSmokerTemp = toInt(smokerTemp, 110)
         const safeStartTemp = toInt(startTemp, 4)
         const safeThickness = thickness === '' ? null : toFloat(thickness, null)
-        const safeMargin = Math.max(toInt(margin, 60), 0)
-
         const w = validateInput(meatKey, safeWeight, safeSmokerTemp)
         setWarnings(w)
 
@@ -317,8 +314,7 @@ export default function Calc() {
         const optimisticMin = Number.isFinite(calc.optimisticMin) ? calc.optimisticMin : probableMin
         const prudentMin = Number.isFinite(calc.prudentMin) ? calc.prudentMin : probableMin
 
-        const totalWithMargin = probableMin + safeMargin
-        const start = addMinutes(serve, -totalWithMargin)
+        const start = addMinutes(serve, -probableMin)
         const serviceWindowStart = addMinutes(serve, -(prudentMin - probableMin))
         const serviceWindowEnd = addMinutes(serve, Math.max(optimisticMin - probableMin, 0))
 
@@ -326,7 +322,7 @@ export default function Calc() {
         const tl = calc.phases.map(phase => ({ ...phase }))
         tl.push({
           id: 'service', label: '🍽️ Service', isService: true,
-          description: `Sers dans la fenêtre conseillée. Marge de sécurité incluse : ${formatDuration(safeMargin)}.`,
+          description: `Sers dans la fenêtre conseillée.`,
         })
 
         const newResult = {
@@ -335,7 +331,6 @@ export default function Calc() {
           smokerTempC: safeSmokerTemp,
           startTime: formatTime(start),
           serve: serveTime,
-          marginMin: safeMargin,
           serviceWindowStart: formatTime(serviceWindowStart),
           serviceWindowEnd: formatTime(serviceWindowEnd),
           probableMin, optimisticMin, prudentMin,
@@ -529,22 +524,11 @@ export default function Calc() {
         </div>
       </div>
 
-      {/* SERVICE & MARGE */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-        <div className="pm-card">
-          <label className="pm-field-label">Service à</label>
-          <input type="time" className="pm-input" value={serveTime}
-            onChange={e => { setServeTime(e.target.value) }} />
-        </div>
-        <div className="pm-card">
-          <label className="pm-field-label">Marge sécurité</label>
-          <select className="pm-input" value={margin} onChange={e => { setMargin(toInt(e.target.value, 60)) }}>
-            <option value={30}>+30 min</option>
-            <option value={60}>+1h ✓</option>
-            <option value={90}>+1h30</option>
-            <option value={120}>+2h</option>
-          </select>
-        </div>
+      {/* SERVICE */}
+      <div className="pm-card">
+        <label className="pm-field-label">Service à</label>
+        <input type="time" className="pm-input" value={serveTime}
+          onChange={e => { setServeTime(e.target.value) }} />
       </div>
 
       {/* WRAP */}
