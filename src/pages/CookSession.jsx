@@ -70,7 +70,9 @@ function computeEtaTimes(schedule, cookStartTime) {
       bark_check: addMin(start, Math.round(p1 * 0.8)),
       wrap:       addMin(start, p1),
       flex_test:  addMin(start, p1 + st + Math.round(p3 * 0.75)),
-      rest:       addMin(start, p1 + st + p3),
+      // PATCH: glaze placée après le flex test, puis repos court
+      glaze:      addMin(start, p1 + st + p3),
+      rest:       addMin(start, p1 + st + p3 + 15),
     }
   }
   return {
@@ -132,6 +134,21 @@ function buildCheckpoints(schedule) {
         explanation: "Prends le rack au tiers avec des pinces: il doit plier nettement et commencer à fissurer en surface. Tu peux aussi regarder le retrait de viande sur les os. Sur les ribs, c'est plus utile qu'un probe test classique.",
         action: 'flex_result',
         actionLabel: 'Valider',
+        validated: false,
+      },
+      {
+        id: 'glaze',
+        emoji: '🍯',
+        title: 'Tu veux glacer les ribs ?',
+        titlePitmaster: 'Glaze / sauce de finition',
+        // PATCH: glaze ribs = option courte de finition, jamais une grosse phase obligatoire
+        explanation: "Si tu veux une finition brillante et légèrement collante, ajoute une fine couche de sauce maintenant seulement. Remets ensuite juste le temps de la faire prendre.",
+        action: 'glaze_choice',
+        actionLabel: 'Confirmer',
+        options: [
+          { id: 'light_glaze', label: '🍯 Oui, légère glaze', desc: 'Fine couche puis retour bref au smoker' },
+          { id: 'skip_glaze', label: '🌶️ Non, je les laisse dry', desc: 'Passe directement au repos' },
+        ],
         validated: false,
       },
       {
@@ -299,6 +316,7 @@ function ProgressBar({ checkpoints, currentIndex, etaTimes, isRibs }) {
 function CheckpointCard({ cp, schedule, onValidate }) {
   const [tempInput,  setTempInput]  = useState('')
   const [wrapChoice, setWrapChoice] = useState(schedule.wrapType || 'butcher_paper')
+  const [glazeChoice, setGlazeChoice] = useState('skip_glaze')
   const [probeOk,    setProbeOk]    = useState(null)
   const [barkOk,     setBarkOk]     = useState(null)
   const [flexOk,     setFlexOk]     = useState(null)
@@ -319,6 +337,9 @@ function CheckpointCard({ cp, schedule, onValidate }) {
     }
     if (cp.action === 'wrap_select') {
       onValidate(cp.id, { wrapType: wrapChoice })
+    }
+    if (cp.action === 'glaze_choice') {
+      onValidate(cp.id, { glazeChoice })
     }
     if (cp.action === 'probe_result') {
       if (probeOk === null) return
@@ -341,6 +362,7 @@ function CheckpointCard({ cp, schedule, onValidate }) {
     (cp.action === 'pit_confirm'  && pitOk !== null && pitOk) ||
     (cp.action === 'temp_input'   && tempInput !== '')        ||
     (cp.action === 'wrap_select')                             ||
+    (cp.action === 'glaze_choice')                            ||
     (cp.action === 'probe_result' && probeOk !== null)        ||
     (cp.action === 'bark_result'  && barkOk !== null)         ||
     (cp.action === 'flex_result'  && flexOk !== null)         ||
@@ -436,6 +458,24 @@ function CheckpointCard({ cp, schedule, onValidate }) {
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             }}>
               <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: 13, color: wrapChoice === opt.id ? 'var(--orange)' : 'var(--text)' }}>
+                {opt.label}
+              </span>
+              <span style={{ fontSize: 11, color: 'var(--text3)' }}>{opt.desc}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {cp.action === 'glaze_choice' && (
+        <div style={{ display: 'grid', gap: 8, marginBottom: 16 }}>
+          {cp.options.map(opt => (
+            <button key={opt.id} onClick={() => setGlazeChoice(opt.id)} style={{
+              padding: '12px 16px', borderRadius: 12, cursor: 'pointer', textAlign: 'left',
+              border: `2px solid ${glazeChoice === opt.id ? 'var(--orange)' : 'var(--border)'}`,
+              background: glazeChoice === opt.id ? 'var(--orange-bg)' : 'var(--surface2)',
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            }}>
+              <span style={{ fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: 13, color: glazeChoice === opt.id ? 'var(--orange)' : 'var(--text)' }}>
                 {opt.label}
               </span>
               <span style={{ fontSize: 11, color: 'var(--text3)' }}>{opt.desc}</span>
@@ -715,8 +755,9 @@ export default function CookSession() {
     // PATCH: ribs — flex test / retrait sur l'os en checkpoint principal
     if (id === 'flex_test') {
       if (userResponse.flexOk) {
-        message = '🎉 Flex test validé — les ribs peuvent sortir du fumoir.'
-        currentEta.message = 'Cuisson terminée'
+        // PATCH: avec glaze optionnelle ensuite, le flex test valide la finition imminente plutôt qu'une sortie immédiate
+        message = '🎉 Flex test validé — les ribs sont prêtes pour la finition.'
+        currentEta.message = 'Ribs prêtes pour la finition'
         applyEtaSnapshot(0, schedule.restMin || 15)
       } else {
         const extra = 15
@@ -726,6 +767,17 @@ export default function CookSession() {
         setEta(currentEta)
         setResults(r => ({ ...r, [id]: { message, payload: userResponse, capturedAt: new Date().toISOString() } }))
         return
+      }
+    }
+
+    if (id === 'glaze') {
+      if (userResponse.glazeChoice === 'light_glaze') {
+        const extra = 15
+        // PATCH: fine glaze = petite rallonge réaliste, sans rigidifier le flow
+        message = 'Ajoute une fine couche de sauce et laisse prendre encore 10 à 20 min en surveillant bien la caramélisation.'
+        applyEtaSnapshot((currentEta.remainingCookMin || 0) + extra, (currentEta.remainingTotalMin || 0) + extra)
+      } else {
+        message = 'Pas de sauce ajoutée — passe directement au repos.'
       }
     }
 

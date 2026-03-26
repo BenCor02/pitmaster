@@ -109,17 +109,17 @@ function buildServeDate(serveTime) {
 function getTimelineStepContent(step, result) {
   const isRibsCook = result?.meatKey === 'ribs_pork' || result?.meatKey === 'ribs_baby_back'
   if (step.isService) return {
-    title: isRibsCook ? 'Phase 5 · Service' : 'Service',
+    title: isRibsCook ? 'Service' : 'Service',
     explanation: 'La cuisson est terminée et la viande est dans sa bonne fenêtre de service.',
     action: 'Sers pendant qu’elle est encore bien chaude et avec la texture voulue.',
   }
   if (step.isRest) return {
-    title: isRibsCook ? 'Phase 4 · Repos' : 'Rest / Hold (repos)',
+    title: isRibsCook ? 'Repos' : 'Rest / Hold (repos)',
     explanation: 'Le repos aide les jus à se répartir et rend le service plus simple.',
     action: isRibsCook ? 'Laisse reposer quelques minutes avant de couper et servir.' : 'Laisse reposer au chaud avant de trancher ou effilocher.',
   }
   if (step.isStall) return {
-    title: isRibsCook ? 'Phase 2 · Retrait sur l’os' : 'La cuisson ralentit',
+    title: isRibsCook ? 'Retrait sur l’os' : 'La cuisson ralentit',
     explanation: isRibsCook
       ? 'Sur les ribs, ce moment sert surtout à regarder la couleur, le retrait de viande sur l’os et à décider si un wrap est utile.'
       : result?.wrapType !== 'none'
@@ -140,15 +140,20 @@ function getTimelineStepContent(step, result) {
       ? 'Emballe seulement si la couleur te plaît et si tu veux une texture plus souple.'
       : `Emballe quand la bark te plaît ou autour de ${result?.wrapTempC || '?'}°C.`,
   }
+  if (step.id === 'glaze') return {
+    title: 'Glaze / sauce de finition',
+    explanation: 'Si tu veux des ribs brillantes et légèrement collantes, c’est le bon moment pour ajouter une fine couche de sauce.',
+    action: 'Badigeonne légèrement, puis remets 10 à 20 min pour faire prendre.',
+  }
   if (step.id === 'phase1') return {
-    title: isRibsCook ? 'Phase 1 · Couleur / fumée' : 'Bark en formation',
+    title: isRibsCook ? 'Couleur / fumée' : 'Bark en formation',
     explanation: isRibsCook
       ? "La rack prend la fumée et sa couleur se construit. Sur les ribs, c'est un repère plus utile qu'une heure fixe."
       : "La bark, c'est la croûte / écorce de cuisson qui se forme avec la fumée et la chaleur.",
     action: "Évite d'ouvrir le fumoir inutilement et garde une température régulière.",
   }
   if (step.id === 'phase3') return {
-    title: isRibsCook ? 'Phase 3 · Flex test' : 'Finition / test de tendreté',
+    title: isRibsCook ? 'Flex test' : 'Finition / test de tendreté',
     explanation: isRibsCook
       ? "Soulève la rack: elle doit se courber franchement et commencer à fissurer légèrement en surface. C'est le vrai signal de fin."
       : "On cherche le probe tender: la sonde doit entrer presque comme dans du beurre. C'est plus important que le chiffre exact.",
@@ -731,7 +736,7 @@ export default function Calc() {
                         <strong style={{ color: 'var(--orange)' }}>Quoi faire :</strong> {guide.action}
                       </div>
                     </div>
-                    {step.targetTempNote && !isRibsCook && (
+                    {step.targetTempNote && (!isRibsCook || step.id === 'glaze') && (
                       <div style={{ marginTop: 6, padding: '4px 10px', background: 'var(--orange-bg)', border: '1px solid var(--orange-border)', borderRadius: 8, fontSize: 11, color: 'var(--orange)', fontWeight: 600 }}>
                         🌡️ Repère utile : {step.targetTempNote}
                       </div>

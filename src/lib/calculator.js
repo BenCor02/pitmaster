@@ -411,6 +411,16 @@ export function buildTimeline(calc, smokerTempC) {
     })
 
     phases.push({
+      id:'glaze', label:'Glaze / sauce de finition',
+      // PATCH: glaze ribs = finition optionnelle, courte et non structurante
+      durationMin: 0,
+      description: `Si tu veux des ribs brillantes et légèrement collantes, ajoute une fine couche de sauce en toute fin de cuisson seulement.`,
+      targetTempNote: 'Remets 10 à 20 min pour faire prendre, en surveillant bien le sucre.',
+      checkpoint: 'glaze',
+      isOptional: true,
+    })
+
+    phases.push({
       id:'repos', label:'Repos court / service',
       durationMin: safeRestMin, isRest: true,
       description: `Laisse reposer quelques minutes pour stabiliser les jus, puis tranche et sers pendant que la texture est encore idéale.`,
