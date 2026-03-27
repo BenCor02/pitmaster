@@ -761,10 +761,12 @@ export default function CookSession() {
         .fade-up { animation: fadeUp 0.25s ease both }
       `}</style>
 
-      {/* ── HEADER avec photo viande */}
-      <div style={{ marginBottom: 20, borderRadius: 20, overflow: 'hidden', position: 'relative', border: '1px solid var(--border)' }}>
+      {/* PATCH: header session renforcé pour une lecture plus claire et plus premium */}
+      <div className="pm-hero-shell" style={{ marginBottom: 20, padding: 0 }}>
+        {/* ── HEADER avec photo viande */}
+        <div style={{ borderRadius: 24, overflow: 'hidden', position: 'relative', border: '1px solid var(--border)' }}>
         {/* Photo viande ou ambiance fumoir */}
-        <div style={{ height: 140, position: 'relative' }}>
+        <div style={{ height: 156, position: 'relative' }}>
           <img
             src={MEAT_IMAGES[schedule.meatKey] || SMOKER_IMAGE}
             alt={schedule.meatLabel}
@@ -787,6 +789,15 @@ export default function CookSession() {
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>
               {schedule.weightKg}kg · {schedule.smokerTempC}°C · {schedule.smokerType}
             </div>
+          </div>
+        </div>
+        </div>
+        <div style={{ padding:'14px 18px 18px' }}>
+          <div className="pm-kicker" style={{ marginBottom: 10 }}>
+            {cookStarted ? 'Cuisson en cours' : 'Session prête'}
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.7 }}>
+            Une seule étape active à la fois. Valide les vrais signaux terrain, puis laisse l’app t’aider à garder le cap sans te surcharger.
           </div>
         </div>
       </div>

@@ -428,9 +428,51 @@ export default function Calc() {
       <style>{`@keyframes spin{to{transform:rotate(360deg)}} @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}} .fade-up{animation:fadeUp 0.22s ease both}`}</style>
       <Snack snack={snack} />
 
-      <div style={{ marginBottom: 24 }}>
-        <h1>Calculateur <span style={{ color: 'var(--orange)' }}>BBQ</span></h1>
-        <p style={{ fontSize: 11, color: 'var(--text3)', marginTop: 4, letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 600 }}>
+      {/* PATCH: nouvelle entrée de page plus visuelle et plus claire */}
+      <div className="pm-hero-shell" style={{ marginBottom: 18 }}>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))', gap:16, alignItems:'stretch' }}>
+          <div>
+            <div className="pm-kicker" style={{ marginBottom: 14 }}>Coach Pitmaster</div>
+            <h1 style={{ fontSize:'clamp(30px,5vw,44px)', lineHeight:1.02, marginBottom:10 }}>
+              Réussis ta cuisson<br />
+              <span style={{ color:'var(--orange)' }}>sans te perdre dans la théorie</span>
+            </h1>
+            <p style={{ fontSize:14, maxWidth:520, color:'var(--text2)' }}>
+              Heure de départ, fenêtre de service, repères température et signaux terrain. L’app te guide comme un vrai coach BBQ, pas comme une feuille Excel.
+            </p>
+            <div className="pm-grid-2" style={{ marginTop: 16 }}>
+              <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid var(--border)', borderRadius:18, padding:'12px 14px' }}>
+                <div style={{ fontSize:10, color:'var(--text3)', textTransform:'uppercase', marginBottom:4 }}>Ce que tu obtiens</div>
+                <div style={{ fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:15, color:'var(--text)' }}>Départ clair, service crédible</div>
+              </div>
+              <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid var(--border)', borderRadius:18, padding:'12px 14px' }}>
+                <div style={{ fontSize:10, color:'var(--text3)', textTransform:'uppercase', marginBottom:4 }}>Lecture rapide</div>
+                <div style={{ fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:15, color:'var(--text)' }}>Repères utiles, jargon expliqué</div>
+              </div>
+            </div>
+          </div>
+          <div style={{ position:'relative', minHeight:220, borderRadius:24, overflow:'hidden', border:'1px solid var(--border)' }}>
+            <img
+              src={MEAT_IMAGES[meatKey] || MEAT_IMAGES.brisket}
+              alt={meatData?.full || 'BBQ'}
+              style={{ width:'100%', height:'100%', objectFit:'cover', display:'block', filter:'saturate(1.05) contrast(1.04)' }}
+            />
+            <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(8,6,5,0.96) 0%, rgba(8,6,5,0.35) 56%, rgba(8,6,5,0.1) 100%)' }} />
+            <div style={{ position:'absolute', left:16, right:16, bottom:16 }}>
+              <div className="pm-kicker" style={{ marginBottom: 10 }}>{meatData?.full || 'Cuisson low & slow'}</div>
+              <div style={{ fontFamily:'Syne, sans-serif', fontSize:26, fontWeight:800, color:'var(--text)', lineHeight:1.05, marginBottom:6 }}>
+                {smokerTemp}°C · {wrapType === 'none' ? 'Sans wrap' : wrapType === 'foil' ? 'Wrap alu' : 'Wrap papier'}
+              </div>
+              <div style={{ fontSize:12, color:'rgba(255,247,240,0.72)', lineHeight:1.6 }}>
+                Mobile-first, simple à suivre, crédible pour le terrain.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ marginBottom: 20 }}>
+        <p style={{ fontSize: 11, color: 'var(--text3)', marginTop: 4, letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 700 }}>
           Assistant cuisson · Étapes claires · Recalage en cours de cuisson
         </p>
       </div>

@@ -82,22 +82,22 @@ export default function Landing() {
   const go = () => navigate('/app')
 
   return (
-    <div style={{ background:'#080706', fontFamily:"'DM Sans',sans-serif", overflowX:'hidden', color:'#d4c4b0' }}>
+    <div style={{ background:'radial-gradient(circle at top, rgba(255,123,50,0.10), transparent 22%), linear-gradient(180deg,#110d09 0%, #090705 100%)', fontFamily:"'DM Sans',sans-serif", overflowX:'hidden', color:'var(--text2)' }}>
       <style>{css}</style>
 
       {/* ── NAV ─────────────────────────────────────────────── */}
-      <nav style={{ height:56, position:'sticky', top:0, zIndex:100, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 28px', background:scrolled?'rgba(6,5,4,0.97)':'transparent', borderBottom:scrolled?'1px solid #1a1610':'1px solid transparent', backdropFilter:scrolled?'blur(16px)':'none', transition:'all 0.3s' }}>
-        <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:17, background:'linear-gradient(135deg,#f48c06,#e85d04)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
+      <nav style={{ height:64, position:'sticky', top:0, zIndex:100, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 28px', background:scrolled?'rgba(10,7,5,0.84)':'transparent', borderBottom:scrolled?'1px solid rgba(255,255,255,0.07)':'1px solid transparent', backdropFilter:scrolled?'blur(18px)':'none', transition:'all 0.3s' }}>
+        <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:18, background:'linear-gradient(135deg,var(--orange-light),var(--orange-deep))', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
           🔥 Charbon &amp; Flamme
         </div>
         <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-          <button onClick={() => navigate('/auth')} style={{ padding:'6px 14px', borderRadius:8, border:'1px solid #2a2218', background:'transparent', color:'#8a7a6a', fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:700, cursor:'pointer' }}>Connexion</button>
-          <button onClick={go} className="hbtn" style={{ padding:'7px 18px', borderRadius:8, border:'none', background:'linear-gradient(135deg,#f48c06,#d44e00)', color:'#fff', fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:700, cursor:'pointer' }}>Ouvrir l’outil</button>
+          <button onClick={() => navigate('/auth')} style={{ padding:'9px 16px', borderRadius:999, border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.03)', color:'var(--text2)', fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:700, cursor:'pointer' }}>Connexion</button>
+          <button onClick={go} className="hbtn" style={{ padding:'10px 18px', borderRadius:999, border:'none', background:'linear-gradient(135deg,var(--orange-light),var(--orange-deep))', color:'#fff', fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:700, cursor:'pointer', boxShadow:'0 12px 24px rgba(216,90,27,0.24)' }}>Ouvrir l’outil</button>
         </div>
       </nav>
 
       {/* ── HERO ─────────────────────────────────────────────── */}
-      <div style={{ position:'relative', minHeight:580, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'90px 24px 70px', textAlign:'center', overflow:'hidden' }}>
+      <div style={{ position:'relative', minHeight:620, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'96px 24px 74px', textAlign:'center', overflow:'hidden' }}>
         {/* Photo fond */}
         <div style={{ position:'absolute', inset:0, zIndex:0 }}>
           <img src={HERO_IMAGE} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', opacity:0.14 }} loading="eager" />
@@ -117,25 +117,25 @@ export default function Landing() {
         <div style={{ position:'absolute', top:'30%', left:'50%', transform:'translate(-50%,-50%)', width:500, height:300, background:'radial-gradient(ellipse,rgba(232,93,4,0.09),transparent 70%)', animation:'pulse 4s ease-in-out infinite', zIndex:1, pointerEvents:'none' }} />
 
         <div style={{ position:'relative', zIndex:2, maxWidth:700 }}>
-          <div className="fu" style={{ display:'inline-block', background:'rgba(232,93,4,0.07)', border:'1px solid rgba(232,93,4,0.14)', borderRadius:20, padding:'5px 16px', fontSize:11, fontWeight:700, color:'#c87040', fontFamily:"'Syne',sans-serif", letterSpacing:'2px', textTransform:'uppercase', marginBottom:24 }}>
+          <div className="fu" style={{ display:'inline-block', background:'rgba(255,123,50,0.08)', border:'1px solid rgba(255,123,50,0.18)', borderRadius:999, padding:'7px 16px', fontSize:11, fontWeight:700, color:'var(--orange-light)', fontFamily:"'Syne',sans-serif", letterSpacing:'2px', textTransform:'uppercase', marginBottom:24 }}>
             Gratuit · Sans inscription obligatoire
           </div>
-          <h1 className="fu fu1" style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:'clamp(34px,6.5vw,60px)', color:'#fff', letterSpacing:'-2px', lineHeight:1.05, marginBottom:20 }}>
+          <h1 className="fu fu1" style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:'clamp(38px,6.5vw,68px)', color:'#fff', letterSpacing:'-2.4px', lineHeight:1.02, marginBottom:20 }}>
             Ton brisket arrive parfait.<br />
-            <span style={{ color:'#e85d04', animation:'flicker 5s 3s ease-in-out infinite' }}>Pas par chance — par calcul.</span>
+            <span style={{ color:'var(--orange)', animation:'flicker 5s 3s ease-in-out infinite' }}>Pas par chance — par calcul.</span>
           </h1>
-          <p className="fu fu2" style={{ fontSize:17, color:'#8a7a6a', lineHeight:1.8, maxWidth:500, margin:'0 auto 36px' }}>
+          <p className="fu fu2" style={{ fontSize:18, color:'var(--text2)', lineHeight:1.8, maxWidth:560, margin:'0 auto 36px' }}>
             Charbon &amp; Flamme te dit quand démarrer, quoi faire à chaque étape et quand tester la viande, sans te noyer dans la théorie.
           </p>
           <div className="fu fu3" style={{ display:'flex', gap:10, justifyContent:'center', flexWrap:'wrap', marginBottom:14 }}>
-            <button onClick={go} className="hbtn" style={{ padding:'15px 32px', borderRadius:12, border:'none', background:'linear-gradient(135deg,#f48c06,#d44e00)', color:'#fff', fontFamily:"'Syne',sans-serif", fontSize:15, fontWeight:700, cursor:'pointer', boxShadow:'0 4px 20px rgba(232,93,4,0.28)' }}>
+            <button onClick={go} className="hbtn" style={{ padding:'15px 32px', borderRadius:16, border:'none', background:'linear-gradient(135deg,var(--orange-light),var(--orange-deep))', color:'#fff', fontFamily:"'Syne',sans-serif", fontSize:15, fontWeight:700, cursor:'pointer', boxShadow:'0 10px 26px rgba(216,90,27,0.28)' }}>
               🔥 Lancer un planning
             </button>
-            <button onClick={() => navigate('/auth')} style={{ padding:'15px 26px', borderRadius:12, border:'1px solid #2a2218', background:'transparent', color:'#5a4a3a', fontFamily:"'Syne',sans-serif", fontSize:15, fontWeight:700, cursor:'pointer' }}>
+            <button onClick={() => navigate('/auth')} style={{ padding:'15px 26px', borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.02)', color:'var(--text2)', fontFamily:"'Syne',sans-serif", fontSize:15, fontWeight:700, cursor:'pointer' }}>
               Connexion optionnelle
             </button>
           </div>
-          <div className="fu fu4" style={{ fontSize:11, color:'#4a3a2e', letterSpacing:'0.5px' }}>
+          <div className="fu fu4" style={{ fontSize:11, color:'var(--text3)', letterSpacing:'0.5px' }}>
             Outil gratuit · Mobile-first · Prêt en moins d'une minute
           </div>
         </div>
@@ -143,40 +143,24 @@ export default function Landing() {
 
       {/* ── DEMO CARD ─────────────────────────────────────────── */}
       <div style={{ padding:'0 24px 80px', maxWidth:640, margin:'0 auto' }}>
-        <div style={{ background:'#0c0a08', border:'1px solid #1e1a14', borderRadius:20, padding:'32px', boxShadow:'0 24px 60px rgba(0,0,0,0.6)' }}>
+        <div style={{ background:'linear-gradient(180deg, rgba(35,25,19,0.96), rgba(16,12,9,0.98))', border:'1px solid rgba(255,255,255,0.08)', borderRadius:28, padding:'32px', boxShadow:'0 24px 60px rgba(0,0,0,0.42)' }}>
           <div style={{ fontSize:11, fontWeight:700, letterSpacing:'2px', textTransform:'uppercase', color:'#4a3a2e', marginBottom:8, textAlign:'center' }}>Lance ta cuisson à</div>
-          <div style={{ fontFamily:"'Syne',sans-serif", fontSize:80, fontWeight:800, lineHeight:1, color:'#e85d04', letterSpacing:'-4px', textAlign:'center', marginBottom:10 }}>05:47</div>
-          <div style={{ fontSize:13, color:'#5a4a3a', textAlign:'center', marginBottom:20 }}>Brisket 5.4kg · Offset 120°C · Service 19h00</div>
-          {/* Timeline phases */}
-          <div style={{ display:'flex', gap:2, marginBottom:8, borderRadius:6, overflow:'hidden', height:8 }}>
+          <div style={{ fontFamily:"'Syne',sans-serif", fontSize:84, fontWeight:800, lineHeight:1, color:'var(--orange)', letterSpacing:'-4px', textAlign:'center', marginBottom:10 }}>6h</div>
+          <div style={{ fontSize:13, color:'var(--text3)', textAlign:'center', marginBottom:20 }}>Brisket 5.4kg · Offset 120°C · Service 19h</div>
+          <div style={{ display:'flex', flexWrap:'wrap', gap:8, justifyContent:'center', marginBottom:20 }}>
             {[
-              { flex:2.8, op:0.25, label:'Bark' },
-              { flex:2.5, op:0.45, label:'Stall' },
-              { flex:4.2, op:0.65, label:'Finition' },
-              { flex:1.5, op:1,    label:'Repos' },
-            ].map((p,i) => (
-              <div key={i} style={{ flex:p.flex, background:`rgba(232,93,4,${p.op})`, height:'100%' }} />
-            ))}
-          </div>
-          <div style={{ display:'flex', justifyContent:'space-between', fontSize:9, color:'#3a2e24', fontFamily:"'DM Mono',monospace", marginBottom:20 }}>
-            {['Bark','Stall','Finition','Repos'].map(l => <span key={l}>{l}</span>)}
-          </div>
-          {/* Badges */}
-          <div style={{ display:'flex', flexWrap:'wrap', gap:6, justifyContent:'center', marginBottom:20 }}>
-            {[
-              { t:'Bark ~2h48',          active:false },
-              { t:'Stall ~2h30',         active:false },
+              { t:'Stall 65–75°C',       active:false },
               { t:'Wrap papier boucher', active:true  },
-              { t:'Test de tendreté ~95°C',  active:false },
-              { t:'Repos 1h30',          active:false },
+              { t:'Début tests 90°C',    active:false },
+              { t:'Probe tender 92–97°C', active:false },
+              { t:'Repos 1h à 3h',       active:false },
             ].map((b,i) => (
-              <span key={i} style={{ padding:'4px 12px', borderRadius:6, fontSize:11, fontFamily:"'DM Mono',monospace", fontWeight:600, background:b.active?'rgba(232,93,4,0.1)':'#111009', border:`1px solid ${b.active?'rgba(232,93,4,0.3)':'#1e1a14'}`, color:b.active?'#e85d04':'#4a3a2e' }}>{b.t}</span>
+              <span key={i} style={{ padding:'6px 12px', borderRadius:999, fontSize:11, fontFamily:"'DM Mono',monospace", fontWeight:600, background:b.active?'rgba(255,123,50,0.1)':'rgba(255,255,255,0.03)', border:`1px solid ${b.active?'rgba(255,123,50,0.24)':'rgba(255,255,255,0.08)'}`, color:b.active?'var(--orange)':'var(--text3)' }}>{b.t}</span>
             ))}
           </div>
-          <div style={{ background:'rgba(232,93,4,0.05)', border:'1px solid rgba(232,93,4,0.1)', borderRadius:10, padding:'12px 16px', textAlign:'center' }}>
-            <span style={{ fontSize:12, color:'#6a5a4a' }}>Fenêtre de service : </span>
-            <strong style={{ color:'#e85d04', fontFamily:"'DM Mono',monospace", fontSize:13 }}>17h53 → 19h00</strong>
-            <span style={{ fontSize:12, color:'#4a3a2e' }}> · Marge incluse</span>
+          <div style={{ background:'rgba(255,123,50,0.05)', border:'1px solid rgba(255,123,50,0.1)', borderRadius:14, padding:'12px 16px', textAlign:'center' }}>
+            <span style={{ fontSize:12, color:'var(--text3)' }}>Fenêtre de service : </span>
+            <strong style={{ color:'var(--orange)', fontFamily:"'DM Mono',monospace", fontSize:13 }}>18h → 19h30</strong>
           </div>
         </div>
       </div>
