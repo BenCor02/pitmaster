@@ -7,6 +7,7 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 
 const REDIRECT = `${window.location.origin}/app`
 
@@ -14,6 +15,7 @@ export default function Auth() {
   const navigate  = useNavigate()
   const location  = useLocation()
   const from      = location.state?.from || '/app'
+  const { user, signOut, profile } = useAuth()
 
   const [mode,     setMode]     = useState('login') // login | signup
   const [email,    setEmail]    = useState('')
@@ -57,6 +59,19 @@ export default function Auth() {
     }
   }
 
+  async function handleSignOut() {
+    setError(null)
+    setLoading('email')
+    try {
+      await signOut()
+      navigate('/auth', { replace: true })
+    } catch (err) {
+      setError(err?.message || 'Impossible de se déconnecter')
+    } finally {
+      setLoading(null)
+    }
+  }
+
   const S = {
     page:  { minHeight:'100vh', background:'#080706', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'24px', fontFamily:"'DM Sans',sans-serif" },
     card:  { background:'#171410', border:'1px solid #1e1a14', borderRadius:20, padding:32, width:'100%', maxWidth:400, position:'relative', overflow:'hidden' },
@@ -78,6 +93,45 @@ export default function Auth() {
       </div>
     </div>
   )
+
+  if (user) {
+    return (
+      <div style={S.page}>
+        <div style={{ marginBottom:28, textAlign:'center' }}>
+          <div onClick={() => navigate('/')} style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:20, background:'linear-gradient(135deg,#f48c06,#e85d04)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text', cursor:'pointer', marginBottom:6 }}>
+            🔥 Charbon &amp; Flamme
+          </div>
+        </div>
+
+        <div style={{ ...S.card, textAlign:'center' }}>
+          <div style={{ position:'absolute', top:0, left:0, right:0, height:2, background:'linear-gradient(90deg,transparent,#e85d04,transparent)' }} />
+          <div style={{ fontSize:42, marginBottom:14 }}>👋</div>
+          <h2 style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:20, color:'#fff', marginBottom:8 }}>
+            Déjà connecté
+          </h2>
+          <p style={{ fontSize:13, color:'#7a6a5a', lineHeight:1.7, marginBottom:10 }}>
+            Compte actif :
+          </p>
+          <div style={{ fontSize:14, color:'#d4c4b0', marginBottom:6 }}>{user.email}</div>
+          <div style={{ fontSize:12, color:'#5a4a3a', marginBottom:22 }}>
+            Rôle : {profile?.role || 'member'}
+          </div>
+
+          {error && <div style={{ fontSize:12, color:'#f87171', marginBottom:12, padding:'8px 12px', background:'rgba(248,113,113,0.08)', borderRadius:8 }}>{error}</div>}
+
+          <button onClick={() => navigate(from, { replace: true })} style={{ ...S.btn, background:'linear-gradient(135deg,#f48c06,#d44e00)', color:'#fff', boxShadow:'0 4px 16px rgba(232,93,4,0.25)' }}>
+            Continuer
+          </button>
+          <button onClick={() => navigate('/app/profile')} style={{ ...S.btn, background:'transparent', border:'1px solid #2a2218', color:'#d4c4b0' }}>
+            Ouvrir mon profil
+          </button>
+          <button onClick={handleSignOut} disabled={!!loading} style={{ ...S.btn, background:'rgba(248,113,113,0.06)', border:'1px solid rgba(248,113,113,0.22)', color:'#f87171', marginBottom:0, opacity:loading ? 0.7 : 1 }}>
+            {loading ? '...' : 'Se déconnecter et changer de compte'}
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div style={S.page}>
