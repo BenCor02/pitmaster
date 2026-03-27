@@ -140,9 +140,14 @@ export function AuthProvider({ children }) {
   }, [loadProfile])
 
   // Helpers rôles
-  const isAdmin   = roles.includes('super_admin') || roles.includes('admin')
-  const isEditor  = roles.includes('editor') || roles.includes('super_admin') || roles.includes('admin')
-  const isSupport = roles.includes('support') || roles.includes('super_admin') || roles.includes('admin')
+  const roleSet = new Set([
+    ...(Array.isArray(roles) ? roles : []),
+    ...(profile?.role ? [profile.role] : []),
+  ])
+
+  const isAdmin   = roleSet.has('super_admin') || roleSet.has('admin')
+  const isEditor  = roleSet.has('editor') || roleSet.has('super_admin') || roleSet.has('admin')
+  const isSupport = roleSet.has('support') || roleSet.has('super_admin') || roleSet.has('admin')
   const isPro     = profile?.plan_code !== 'free'
 
   async function signOut() {
