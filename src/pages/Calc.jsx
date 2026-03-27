@@ -51,43 +51,6 @@ const MARBLING_TYPES = [
 
 const DEFAULT_METHOD = 'low_and_slow'
 
-const PITMASTER_CONTENT = [
-  {
-    title: 'Conseils Pitmaster',
-    items: [
-      'Le stall n’est pas un retard. C’est une phase normale qu’il faut accompagner.',
-      'Une bonne bark dépend surtout de la stabilité du pit et de la patience.',
-      'Le repos fait partie de la cuisson. Il protège la texture au service.',
-    ],
-  },
-  {
-    title: 'Guides liés',
-    items: [
-      'Temps cuisson brisket',
-      'Temps cuisson ribs',
-      'Température pulled pork',
-    ],
-  },
-]
-
-const AFFILIATE_PRODUCTS = [
-  {
-    title: 'Thermomètre',
-    note: 'Lecture fiable de la température interne et du pit.',
-    badge: 'Recommandé',
-  },
-  {
-    title: 'Fumoir',
-    note: 'Choisir le bon modèle selon ton style de cuisson et ton budget.',
-    badge: 'Guide achat',
-  },
-  {
-    title: 'Pellet',
-    note: 'Le bon combustible selon la viande et l’intensité de fumée recherchée.',
-    badge: 'Consommable',
-  },
-]
-
 const toFloat = (value, fallback = 0) => {
   const n = parseFloat(value)
   return Number.isFinite(n) ? n : fallback
@@ -157,6 +120,23 @@ function buildServeDate(serveTime) {
   )
   if (serve.getTime() <= now.getTime()) serve.setDate(serve.getDate() + 1)
   return serve
+}
+
+// PATCH: petits intertitres pour guider le parcours sans surcharger l'écran
+function renderSectionEyebrow(index, title, subtitle) {
+  return (
+    <div style={{ marginBottom: 10 }}>
+      <div className="pm-kicker" style={{ marginBottom: 8 }}>{index}</div>
+      <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 22, color: 'var(--text)', lineHeight: 1.05 }}>
+        {title}
+      </div>
+      {subtitle ? (
+        <div style={{ marginTop: 6, fontSize: 12, color: 'var(--text3)', lineHeight: 1.6 }}>
+          {subtitle}
+        </div>
+      ) : null}
+    </div>
+  )
 }
 
 function getTimelineStepContent(step, result) {
@@ -357,7 +337,6 @@ export default function Calc() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { snack, showSnack } = useSnack()
-  const [authCtaReason, setAuthCtaReason] = useState(null)
 
   // PATCH: seul le brouillon de formulaire reste restauré depuis localStorage
   const [meatKey,    setMeatKey]    = useState(() => getCalcDraft().meatKey || 'brisket')
@@ -535,9 +514,8 @@ export default function Calc() {
     if (!result) return
     // PATCH: sauvegarde historique réservée aux membres, sans bloquer l'usage gratuit
     if (!user) {
-      setAuthCtaReason('save')
       showSnack('Crée un compte pour sauvegarder cette cuisson et la retrouver plus tard.', 'info')
-      setTimeout(() => document.getElementById('calc-auth-cta')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80)
+      navigate('/auth', { state: { from: '/app', reason: 'save-planning' } })
       return
     }
     setSaving(true)
@@ -634,31 +612,59 @@ export default function Calc() {
           <div>
             <div className="pm-kicker" style={{ marginBottom: 14 }}>Calculateur BBQ Pitmaster</div>
             <h1 style={{ fontSize:'clamp(30px,5vw,44px)', lineHeight:1.02, marginBottom:10 }}>
-              Temps de cuisson précis
+              Lance ta cuisson
               <br />
-              <span style={{ color:'var(--ember)' }}>pour brisket, ribs, pulled pork</span>
+              <span style={{ color:'var(--ember)' }}>sans te perdre dans l’outil</span>
             </h1>
             <p style={{ fontSize:14, maxWidth:520, color:'var(--text2)' }}>
-              Le calculateur gratuit te donne une heure de départ crédible, une fenêtre de service et les repères terrain qui comptent vraiment pendant la cuisson.
+              Choisis la viande, règle ton fumoir, puis récupère un plan clair avec les vrais repères pitmaster. Rien de compliqué, rien d’inutile.
             </p>
             <div className="pm-grid-2" style={{ marginTop: 16 }}>
-              <div style={{ background:'rgba(255,255,255,0.52)', border:'1px solid rgba(42,33,27,0.08)', borderRadius:18, padding:'12px 14px' }}>
-                <div style={{ fontSize:10, color:'var(--text3)', textTransform:'uppercase', marginBottom:4 }}>Lecture immédiate</div>
-                <div style={{ fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:15, color:'var(--text)' }}>Depart net, service credible</div>
+              <div className="pm-glow-pill">
+                <div style={{ width: 36, height: 36, borderRadius: 12, background:'rgba(232,69,11,0.14)', border:'1px solid rgba(232,69,11,0.18)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16 }}>🔥</div>
+                <div>
+                  <div style={{ fontSize:10, color:'var(--text3)', textTransform:'uppercase', marginBottom:4 }}>Lecture immédiate</div>
+                  <div style={{ fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:15, color:'var(--text)' }}>Départ net, service crédible</div>
+                </div>
               </div>
-              <div style={{ background:'rgba(255,255,255,0.52)', border:'1px solid rgba(42,33,27,0.08)', borderRadius:18, padding:'12px 14px' }}>
-                <div style={{ fontSize:10, color:'var(--text3)', textTransform:'uppercase', marginBottom:4 }}>Retour utilisateur</div>
-                <div style={{ fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:15, color:'var(--text)' }}>Sauvegarde, partage, consultation mobile</div>
+              <div className="pm-glow-pill">
+                <div style={{ width: 36, height: 36, borderRadius: 12, background:'rgba(245,166,35,0.10)', border:'1px solid rgba(245,166,35,0.18)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16 }}>🧭</div>
+                <div>
+                  <div style={{ fontSize:10, color:'var(--text3)', textTransform:'uppercase', marginBottom:4 }}>Parcours simple</div>
+                  <div style={{ fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:15, color:'var(--text)' }}>Choisir, régler, calculer, cuire</div>
+                </div>
               </div>
             </div>
+            <div style={{ marginTop: 16, display:'flex', gap:8, flexWrap:'wrap' }}>
+              {[
+                'Brisket',
+                'Ribs',
+                'Pulled pork',
+                'Volaille',
+              ].map(item => (
+                <span key={item} style={{ padding:'6px 10px', borderRadius:999, border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.03)', fontSize:11, color:'var(--text2)', fontWeight:600 }}>
+                  {item}
+                </span>
+              ))}
+            </div>
           </div>
-          <div style={{ position:'relative', minHeight:220, borderRadius:24, overflow:'hidden', border:'1px solid rgba(42,33,27,0.08)' }}>
+          <div style={{ position:'relative', minHeight:220, borderRadius:24, overflow:'hidden', border:'1px solid rgba(255,255,255,0.08)' }}>
             <img
               src={MEAT_IMAGES[meatKey] || MEAT_IMAGES.brisket}
               alt={meatData?.full || 'BBQ'}
               style={{ width:'100%', height:'100%', objectFit:'cover', display:'block', filter:'saturate(.96) contrast(1.06)' }}
             />
-            <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(28,22,18,0.76) 0%, rgba(28,22,18,0.12) 56%, rgba(28,22,18,0.08) 100%)' }} />
+            <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(8,8,8,0.82) 0%, rgba(16,12,10,0.14) 56%, rgba(16,12,10,0.08) 100%)' }} />
+            <div style={{ position:'absolute', top:14, right:14, display:'grid', gap:8 }}>
+              <div style={{ padding:'8px 10px', borderRadius:14, background:'rgba(8,8,8,0.64)', border:'1px solid rgba(255,255,255,0.08)', backdropFilter:'blur(10px)' }}>
+                <div style={{ fontSize:9, color:'rgba(255,255,255,0.62)', textTransform:'uppercase', marginBottom:3 }}>Fumoir</div>
+                <div style={{ fontFamily:'DM Mono, monospace', fontWeight:700, fontSize:12, color:'#fff' }}>{smokerType}</div>
+              </div>
+              <div style={{ padding:'8px 10px', borderRadius:14, background:'rgba(8,8,8,0.64)', border:'1px solid rgba(255,255,255,0.08)', backdropFilter:'blur(10px)' }}>
+                <div style={{ fontSize:9, color:'rgba(255,255,255,0.62)', textTransform:'uppercase', marginBottom:3 }}>Service</div>
+                <div style={{ fontFamily:'DM Mono, monospace', fontWeight:700, fontSize:12, color:'#fff' }}>{serveTime.replace(':', 'h')}</div>
+              </div>
+            </div>
             <div style={{ position:'absolute', left:16, right:16, bottom:16 }}>
               <div className="pm-kicker" style={{ marginBottom: 10 }}>{meatData?.full || 'Cuisson low & slow'}</div>
               <div style={{ fontFamily:'Syne, sans-serif', fontSize:26, fontWeight:800, color:'#fff', lineHeight:1.05, marginBottom:6 }}>
@@ -674,32 +680,12 @@ export default function Calc() {
 
       <div style={{ marginBottom: 20 }}>
         <p style={{ fontSize: 11, color: 'var(--text3)', marginTop: 4, letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 700 }}>
-          Outil gratuit · SEO utility-first · Étapes claires · Recalage en cours de cuisson
+          Outil mobile-first · plan simple · repères terrain · design pitmaster
         </p>
       </div>
 
-      {/* PATCH: positionnement acquisition gratuit, sans inscription obligatoire */}
-      <div className="pm-card" style={{ marginBottom: 12, background: 'linear-gradient(180deg,rgba(255,252,247,0.96),rgba(247,240,233,0.98))' }}>
-        <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 16, color: 'var(--text)', marginBottom: 6 }}>
-          Gratuit, immédiat, pensé pour la vraie cuisson
-        </div>
-        <div style={{ fontSize: 12, color: 'var(--text2)', lineHeight: 1.7 }}>
-          Entre ton heure de service, lance le planning, puis utilise la session de cuisson pour valider les étapes au bon moment.
-        </div>
-        <div style={{ marginTop: 10, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          <span style={{ padding: '4px 10px', borderRadius: 50, background: 'var(--orange-bg)', border: '1px solid var(--orange-border)', fontSize: 11, color: 'var(--orange)', fontWeight: 700 }}>
-            Sans inscription obligatoire
-          </span>
-          <span style={{ padding: '4px 10px', borderRadius: 50, background: 'rgba(255,255,255,0.8)', border: '1px solid var(--border)', fontSize: 11, color: 'var(--text3)' }}>
-            Planning partageable
-          </span>
-          <span style={{ padding: '4px 10px', borderRadius: 50, background: 'rgba(255,255,255,0.8)', border: '1px solid var(--border)', fontSize: 11, color: 'var(--text3)' }}>
-            Compte utile pour sauvegarder l’historique
-          </span>
-        </div>
-      </div>
-
       {/* VIANDE + PHOTO */}
+      {renderSectionEyebrow('01', 'Choisis ta pièce', 'Commence par la viande. L’outil adapte ensuite la méthode, les repères et la roadmap.')}
       <div className="pm-card" style={{ padding: 0, overflow: 'hidden' }}>
         {/* Photo de la viande sélectionnée */}
         {MEAT_IMAGES[meatKey] && (
@@ -718,8 +704,8 @@ export default function Calc() {
                 {MEATS[meatKey]?.full}
               </div>
               {profile && (
-                <span style={{ display: 'inline-block', marginTop: 4, padding: '2px 8px', borderRadius: 50, background: 'rgba(232,93,4,0.85)', fontSize: 10, fontWeight: 700, color: '#fff', letterSpacing: '1px' }}>
-                  🔥 LOW & SLOW
+                <span style={{ display: 'inline-block', marginTop: 4, padding: '2px 8px', borderRadius: 50, background: 'rgba(232,69,11,0.88)', fontSize: 10, fontWeight: 700, color: '#fff', letterSpacing: '1px' }}>
+                  🔥 {cookMethod === 'hot_and_fast' ? 'HOT & FAST' : 'LOW & SLOW'}
                 </span>
               )}
             </div>
@@ -745,14 +731,15 @@ export default function Calc() {
       </div>
 
       {/* POIDS & ÉPAISSEUR */}
+      {renderSectionEyebrow('02', 'Règle ta cuisson', 'Poids, méthode, température et options utiles. Le reste doit rester simple.')}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
         <div className="pm-card">
           <label className="pm-field-label">Poids (kg)</label>
           <input type="number" className="pm-input" value={weight} min="0.5" max="20" step="0.5"
             onChange={e => { setWeight(toFloat(e.target.value, 0)) }} />
-          {(meatKey === 'ribs_pork' || meatKey === 'ribs_baby_back') && cookMethod === 'texas_crutch' && (
+          {(meatKey === 'ribs_pork' || meatKey === 'ribs_baby_back') && (
             <div style={{ fontSize: 10, color: 'var(--text3)', marginTop: 5, lineHeight: 1.5 }}>
-              Sur cette méthode fixe, le type de rack compte plus que le poids exact.
+              Sur les ribs, le type de rack et le rendu voulu comptent souvent plus que le poids exact.
             </div>
           )}
         </div>
@@ -969,6 +956,7 @@ export default function Calc() {
       )}
 
       {/* BOUTON CALCULER */}
+      {renderSectionEyebrow('03', 'Calcule ton plan', 'Un clic pour obtenir l’heure de départ, la fenêtre de service et les grands repères de cuisson.')}
       <button onClick={calculate} disabled={loading} className="pm-btn-primary"
         style={{ width: '100%', padding: '14px', marginBottom: 24, fontSize: 14 }}>
         {loading
@@ -1000,8 +988,9 @@ export default function Calc() {
           )}
 
           {/* HERO */}
-          <div style={{ background: 'linear-gradient(180deg, rgba(255,252,247,0.98), rgba(245,238,231,0.98))', border: '1px solid rgba(42,33,27,0.08)', borderRadius: 24, padding: '22px 20px', marginBottom: 12, position: 'relative', overflow: 'hidden', boxShadow: 'var(--shadow-soft)' }}>
+          <div style={{ background: 'linear-gradient(180deg, rgba(24,24,24,0.98), rgba(12,12,12,0.98))', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: '22px 20px', marginBottom: 12, position: 'relative', overflow: 'hidden', boxShadow: 'var(--shadow-soft)' }}>
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'var(--orange)', borderRadius: '20px 20px 0 0' }} />
+            <div style={{ position:'absolute', inset:'auto -60px -60px auto', width:180, height:180, borderRadius:'50%', background:'radial-gradient(circle, rgba(232,69,11,0.18), transparent 68%)', pointerEvents:'none' }} />
             <div style={{ textAlign: 'center', marginBottom: 16 }}>
               <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '1px' }}>Lancer le préchauffage</div>
               <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 72, fontWeight: 800, lineHeight: 1, color: 'var(--ember)', letterSpacing: '-3px' }}>{result.startTime}</div>
@@ -1010,20 +999,20 @@ export default function Calc() {
               </div>
             </div>
 
-            <div style={{ background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(42,33,27,0.08)', borderRadius: 18, padding: '14px', marginBottom: 12 }}>
+            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: '14px', marginBottom: 12 }}>
               <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 18, color: 'var(--text)', marginBottom: 6, textAlign: 'center' }}>
                 {getReadyWindowText(result)}
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 12, marginBottom: 12 }}>
-                <div style={{ background: 'rgba(255,255,255,0.82)', border: '1px solid rgba(42,33,27,0.08)', borderRadius: 12, padding: '10px 12px', textAlign: 'center' }}>
+                <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '10px 12px', textAlign: 'center' }}>
                   <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Viande sur fumoir</div>
                   <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 700, fontSize: 14, color: 'var(--text)' }}>{result.meatOnSmokerTime}</div>
                 </div>
-                <div style={{ background: 'rgba(255,255,255,0.82)', border: '1px solid rgba(42,33,27,0.08)', borderRadius: 12, padding: '10px 12px', textAlign: 'center' }}>
+                <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '10px 12px', textAlign: 'center' }}>
                   <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Fin cuisson</div>
                   <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 700, fontSize: 14, color: 'var(--text)' }}>{result.cookDoneTime}</div>
                 </div>
-                <div style={{ background: 'rgba(255,255,255,0.82)', border: '1px solid rgba(42,33,27,0.08)', borderRadius: 12, padding: '10px 12px', textAlign: 'center' }}>
+                <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '10px 12px', textAlign: 'center' }}>
                   <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Prêt après repos</div>
                   <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 700, fontSize: 14, color: 'var(--text)' }}>{result.readyAfterRestTime}</div>
                 </div>
@@ -1037,12 +1026,12 @@ export default function Calc() {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-              <div style={{ background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(42,33,27,0.08)', borderRadius: 12, padding: '10px 12px' }}>
+              <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '10px 12px' }}>
                 <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Méthode</div>
                 <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 700, fontSize: 12, color: 'var(--text)' }}>{result.methodVariantLabel || result.methodLabel}</div>
               </div>
               {getHeroCues(result, displayUnit).map(cue => (
-                <div key={cue.label} style={{ background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(42,33,27,0.08)', borderRadius: 12, padding: '10px 12px' }}>
+                <div key={cue.label} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '10px 12px' }}>
                   <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>{cue.label}</div>
                   <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 700, fontSize: 12, color: 'var(--text)' }}>{cue.value}</div>
                 </div>
@@ -1054,7 +1043,7 @@ export default function Calc() {
                 ['Repos', formatDuration(result.restMin)],
                 ['Total', formatDuration(result.totalMin)],
               ].map(([label, value]) => (
-                <div key={label} style={{ background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(42,33,27,0.08)', borderRadius: 12, padding: '10px 12px', textAlign: 'center' }}>
+                <div key={label} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '10px 12px', textAlign: 'center' }}>
                   <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>{label}</div>
                   <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 700, fontSize: 12, color: 'var(--text)' }}>{value}</div>
                 </div>
@@ -1083,56 +1072,33 @@ export default function Calc() {
             )}
           </div>
 
-          {/* PATCH: CTA d'inscription non agressif après calcul réussi */}
-          {!user && (
-            <div id="calc-auth-cta" className="pm-card" style={{ marginBottom: 12, border: '1px solid var(--orange-border)', background: 'linear-gradient(180deg,var(--surface),var(--orange-bg))' }}>
-              <div className="pm-sec-label">🔐 Garder ce planning</div>
-              <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 18, color: 'var(--text)', marginBottom: 8 }}>
-                {authCtaReason === 'save'
-                  ? 'Créer un compte pour sauvegarder cette cuisson'
-                  : 'Connecte-toi pour retrouver tes cuissons'}
-              </div>
-              <div style={{ fontSize: 12, color: 'var(--text2)', lineHeight: 1.7, marginBottom: 12 }}>
-                Retrouve tes anciennes cuissons, reprends un planning plus tard et garde une trace de tes essais pour progresser d’une session à l’autre.
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                <button onClick={() => navigate('/auth', { state: { from: '/app', reason: 'save-planning' } })} className="pm-btn-primary">
-                  Créer un compte
-                </button>
-                <button onClick={() => navigate('/auth', { state: { from: '/app', reason: 'login-history' } })} className="pm-btn-secondary">
-                  Se connecter
-                </button>
-              </div>
-              <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text3)', lineHeight: 1.6 }}>
-                Le calculateur et la session restent libres d’accès. Le compte sert surtout à sauvegarder et retrouver tes données.
-              </div>
-            </div>
-          )}
-
-
 
           {/* PATCH: roadmap visuelle branchée sur la méthode choisie */}
-          <div className="pm-card" style={{ marginBottom: 12 }}>
+          <div className="pm-roadmap-shell" style={{ marginBottom: 12 }}>
             <div className="pm-sec-label">🗺️ Roadmap cuisson</div>
-            <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 12, lineHeight: 1.6 }}>
+            <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 12, lineHeight: 1.6, padding:'0 18px 0 18px' }}>
               Une feuille de route simple pour savoir quoi faire du préchauffage au service.
             </div>
             {roadmap.map((step, i) => (
-              <div key={step.id} style={{ display: 'grid', gridTemplateColumns: '28px 1fr', gap: 10, padding: '10px 0', position: 'relative' }}>
-                {i < roadmap.length - 1 && <div style={{ position: 'absolute', left: 13, top: 30, bottom: -10, width: 2, background: 'rgba(232,93,4,0.18)' }} />}
-                <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--orange-bg)', border: '1px solid var(--orange-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>
+              <div key={step.id} className="pm-roadmap-step" style={{ display: 'grid', gridTemplateColumns: '36px 1fr', gap: 12 }}>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(180deg, rgba(232,69,11,0.22), rgba(232,69,11,0.08))', border: '1px solid var(--orange-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, boxShadow:'0 0 20px rgba(232,69,11,0.12)' }}>
                   {step.icon}
                 </div>
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
-                    <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>{step.title}</div>
+                    <div>
+                      <div style={{ fontSize:9, color:'var(--text4)', textTransform:'uppercase', letterSpacing:'1.2px', marginBottom:4 }}>
+                        Étape {String(i + 1).padStart(2, '0')}
+                      </div>
+                      <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 15, color: 'var(--text)' }}>{step.title}</div>
+                    </div>
                     {step.time && (
-                      <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, fontWeight: 700, color: 'var(--orange)', whiteSpace: 'nowrap' }}>
+                      <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, fontWeight: 700, color: 'var(--ember)', whiteSpace: 'nowrap', padding:'6px 8px', borderRadius:999, background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)' }}>
                         {step.time}
                       </div>
                     )}
                   </div>
-                  <div style={{ marginTop: 6, fontSize: 11, color: 'var(--text3)', lineHeight: 1.6 }}>
+                  <div style={{ marginTop: 8, fontSize: 12, color: 'var(--text2)', lineHeight: 1.6 }}>
                     {step.caption}
                   </div>
                 </div>
@@ -1332,57 +1298,6 @@ export default function Calc() {
           </div>
         </div>
       )}
-
-      <div style={{ marginTop: 24 }}>
-        <div className="pm-sec-label">Conseils Pitmaster</div>
-        <div className="calc-seo-grid" style={{ marginBottom: 12 }}>
-          {PITMASTER_CONTENT[0].items.map((item, index) => (
-            <div key={item} className="pm-card" style={{ marginBottom: 0 }}>
-              <div style={{ fontSize: 10, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 8 }}>Conseil {String(index + 1).padStart(2, '0')}</div>
-              <div style={{ color: 'var(--text2)', lineHeight: 1.7 }}>{item}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div style={{ marginTop: 8 }}>
-        <div className="pm-sec-label">Matériel recommandé</div>
-        <div style={{ marginBottom: 10, display: 'inline-flex', padding: '5px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: 'var(--text2)', fontSize: 11, fontWeight: 600 }}>
-          Matériel recommandé par pitmasters
-        </div>
-        <div className="calc-seo-grid" style={{ marginBottom: 12 }}>
-          {AFFILIATE_PRODUCTS.map((product) => (
-            <div key={product.title} className="pm-card" style={{ marginBottom: 0 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                <div className="pm-kicker">{product.badge}</div>
-              </div>
-              <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--text)', marginBottom: 8 }}>{product.title}</div>
-              <div style={{ color: 'var(--text2)', lineHeight: 1.7, marginBottom: 14 }}>{product.note}</div>
-              <button onClick={() => showSnack('Bloc affiliation à connecter', 'info')} className="pm-btn-secondary" style={{ width: 'auto' }}>
-                Voir la sélection
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div style={{ marginTop: 8, marginBottom: 40 }}>
-        <div className="pm-sec-label">Guides liés</div>
-        <div className="calc-seo-grid">
-          {PITMASTER_CONTENT[1].items.map((item) => (
-            <button
-              key={item}
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="pm-card"
-              style={{ marginBottom: 0, textAlign: 'left', cursor: 'pointer' }}
-            >
-              <div style={{ fontSize: 10, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 8 }}>Guide SEO</div>
-              <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 800, color: 'var(--text)', marginBottom: 8 }}>{item}</div>
-              <div style={{ color: 'var(--text2)', lineHeight: 1.7 }}>Contenu connexe pour approfondir la cuisson et revenir sur l’outil plus tard.</div>
-            </button>
-          ))}
-        </div>
-      </div>
 
       <div className="calc-sticky-cta">
         <button onClick={calculate} disabled={loading} className="pm-btn-primary" style={{ width: '100%', padding: '15px 20px' }}>
