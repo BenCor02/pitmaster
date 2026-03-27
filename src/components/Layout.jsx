@@ -44,12 +44,12 @@ const css = `
   }
 
   .nav-link { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 16px; margin-bottom: 5px; cursor: pointer; transition: all 0.18s; text-decoration: none; border:1px solid transparent; }
-  .nav-link:hover { background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.06); transform: translateX(2px); }
-  .nav-link.active { background: linear-gradient(135deg, rgba(240,122,47,0.16), rgba(240,122,47,0.06)); border-color: var(--orange-border); box-shadow: inset 0 1px 0 rgba(255,255,255,0.04); }
-  .nav-icon { width: 28px; height: 28px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.6px; color: var(--text3); background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; }
+  .nav-link:hover { background: rgba(255,255,255,0.7); border-color: rgba(42,33,27,0.08); transform: translateX(2px); }
+  .nav-link.active { background: linear-gradient(135deg, rgba(240,122,47,0.14), rgba(240,122,47,0.04)); border-color: var(--orange-border); box-shadow: inset 0 1px 0 rgba(255,255,255,0.4); }
+  .nav-icon { width: 28px; height: 28px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.6px; color: var(--text3); background: rgba(255,255,255,0.72); border: 1px solid rgba(42,33,27,0.08); flex-shrink: 0; }
   .nav-link.active .nav-icon { color: var(--ember); border-color: rgba(240,122,47,0.18); background: rgba(240,122,47,0.08); }
 
-  .nav-label-active  { color: #fff3ea; font-weight: 700; font-family: 'DM Sans',sans-serif; font-size: 14px; }
+  .nav-label-active  { color: var(--text); font-weight: 700; font-family: 'DM Sans',sans-serif; font-size: 14px; }
   .nav-label-default { color: var(--text2); font-weight: 500; font-family: 'DM Sans',sans-serif; font-size: 14px; }
 
   @keyframes slideUp { from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1} }
@@ -71,16 +71,16 @@ export default function Layout() {
     <div style={{ display:'flex', minHeight:'100vh', background:'var(--bg)', fontFamily:"'DM Sans',sans-serif", position:'relative' }}>
       <style>{css}</style>
       {/* PATCH: fond atmosphérique global pour donner plus de profondeur à l’app */}
-      <div style={{ position:'fixed', inset:0, pointerEvents:'none', background:'radial-gradient(circle at top right, rgba(240,122,47,0.08), transparent 22%), radial-gradient(circle at 12% 18%, rgba(240,170,43,0.04), transparent 18%)' }} />
+      <div style={{ position:'fixed', inset:0, pointerEvents:'none', background:'radial-gradient(circle at top right, rgba(240,122,47,0.05), transparent 22%), radial-gradient(circle at 12% 18%, rgba(255,255,255,0.36), transparent 18%)' }} />
 
       {/* ═══ SIDEBAR ═══ */}
       <aside className="pm-sb" style={{
         width: 264, flexShrink: 0,
-        background: 'linear-gradient(180deg, rgba(19,16,14,0.98), rgba(14,11,9,0.98))',
-        borderRight: '1px solid rgba(255,255,255,0.06)',
+        background: 'linear-gradient(180deg, rgba(255,255,255,0.92), rgba(245,242,238,0.98))',
+        borderRight: '1px solid rgba(42,33,27,0.08)',
         flexDirection: 'column',
         position: 'fixed', inset: '0 auto 0 0', zIndex: 40,
-        boxShadow: '20px 0 40px rgba(0,0,0,0.18)',
+        boxShadow: '20px 0 40px rgba(72,49,31,0.08)',
       }}>
         {/* LOGO */}
         <div style={{ padding:'24px 18px 18px', borderBottom:'1px solid var(--border)' }}>
@@ -91,7 +91,7 @@ export default function Layout() {
                 <div style={{ fontSize:10, color:'var(--text3)', fontWeight:600, marginTop:3, letterSpacing:'1.2px', textTransform:'uppercase' }}>{siteTagline}</div>
               </div>
             </div>
-          <div style={{ marginTop:14, padding:'10px 12px', borderRadius:16, background:'rgba(240,122,47,0.06)', border:'1px solid rgba(240,122,47,0.12)' }}>
+          <div style={{ marginTop:14, padding:'10px 12px', borderRadius:16, background:'rgba(240,122,47,0.05)', border:'1px solid rgba(240,122,47,0.1)' }}>
             <div style={{ fontSize:10, color:'var(--text3)', textTransform:'uppercase', letterSpacing:'1.2px', marginBottom:4 }}>Pitmaster brief</div>
             <div style={{ fontSize:12, color:'var(--text2)', lineHeight:1.6 }}>
               Heure de départ, fenêtre de service et repères terrain. Rien de plus.
@@ -172,7 +172,7 @@ export default function Layout() {
 
         {/* DESKTOP TOPBAR */}
         <header className="pm-tb" style={{
-          height:60, background:'rgba(14,10,8,0.78)', backdropFilter:'blur(20px)',
+          height:60, background:'rgba(250,249,247,0.82)', backdropFilter:'blur(20px)',
           borderBottom:'1px solid var(--border)',
           alignItems:'center', justifyContent:'space-between',
           padding:'0 44px', position:'sticky', top:0, zIndex:30, gap:16,
@@ -183,7 +183,7 @@ export default function Layout() {
             <span style={{ fontSize:13, fontWeight:600, color:'var(--text2)' }}>{currentPage?.label}</span>
           </div>
           <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-            <div style={{ background:'rgba(39,29,22,0.9)', border:'1px solid var(--border)', borderRadius:50, padding:'9px 18px', display:'flex', alignItems:'center', gap:8, color:'var(--text3)', fontSize:13, minWidth:180 }}>
+            <div style={{ background:'rgba(255,255,255,0.72)', border:'1px solid var(--border)', borderRadius:50, padding:'9px 18px', display:'flex', alignItems:'center', gap:8, color:'var(--text3)', fontSize:13, minWidth:180 }}>
               <span>🔍</span><span>Rechercher...</span>
             </div>
             {/* PATCH: bouton connexion/compte visible dans le header desktop */}
@@ -195,7 +195,7 @@ export default function Layout() {
               </NavLink>
             ) : (
               <NavLink to="/auth" style={{ textDecoration:'none' }}>
-                <div style={{ padding:'9px 16px', borderRadius:50, border:'1px solid var(--orange-border)', background:'linear-gradient(135deg,#1a120b,#17110b)', color:'var(--orange)', fontFamily:'Syne,sans-serif', fontSize:12, fontWeight:700 }}>
+                <div style={{ padding:'9px 16px', borderRadius:50, border:'1px solid var(--orange-border)', background:'rgba(255,255,255,0.78)', color:'var(--orange)', fontFamily:'Syne,sans-serif', fontSize:12, fontWeight:700 }}>
                   Se connecter
                 </div>
               </NavLink>
@@ -205,7 +205,7 @@ export default function Layout() {
 
         {/* MOBILE TOPBAR */}
         <header className="pm-mb" style={{
-          height:58, background:'rgba(14,10,8,0.82)', backdropFilter:'blur(20px)',
+          height:58, background:'rgba(250,249,247,0.88)', backdropFilter:'blur(20px)',
           borderBottom:'1px solid var(--border)',
           alignItems:'center', justifyContent:'space-between',
           padding:'0 16px', position:'sticky', top:0, zIndex:30,
@@ -232,7 +232,7 @@ export default function Layout() {
         {/* MOBILE BOTTOM NAV */}
         <nav className="pm-bn" style={{
           position:'fixed', bottom:0, left:0, right:0, zIndex:50,
-          background:'rgba(14,10,8,0.90)', backdropFilter:'blur(20px)',
+          background:'rgba(250,249,247,0.94)', backdropFilter:'blur(20px)',
           borderTop:'1px solid var(--border)',
           height:64, alignItems:'center',
           paddingBottom:'env(safe-area-inset-bottom,0)',
