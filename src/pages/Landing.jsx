@@ -1,387 +1,454 @@
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useState, useEffect } from 'react'
-import { HERO_IMAGE, MEAT_IMAGES } from '../lib/images'
+import { HERO_IMAGE, MEAT_IMAGES, SMOKER_IMAGE } from '../lib/images'
 
 const css = `
-  @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-  @keyframes flicker{0%,100%{opacity:1}45%{opacity:0.85}50%{opacity:0.95}}
-  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
-  @keyframes smoke{0%{transform:translateY(0) scaleX(1);opacity:0.5}100%{transform:translateY(-70px) scaleX(2);opacity:0}}
-  .fu{animation:fadeUp 0.55s ease both}
-  .fu1{animation-delay:0.08s}
-  .fu2{animation-delay:0.18s}
-  .fu3{animation-delay:0.3s}
-  .fu4{animation-delay:0.42s}
-  .hcard{transition:border-color 0.2s,transform 0.2s}
-  .hcard:hover{transform:translateY(-2px);border-color:rgba(232,93,4,0.3)!important}
-  .hmeat{transition:transform 0.2s,border-color 0.2s}
-  .hmeat:hover{transform:scale(1.03);border-color:rgba(232,93,4,0.4)!important}
-  .hbtn{transition:opacity 0.15s,transform 0.15s}
-  .hbtn:hover{opacity:0.9;transform:translateY(-1px)}
-  *{box-sizing:border-box}
+  @keyframes heroRise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes emberPulse { 0%, 100% { opacity: .45; transform: scale(1); } 50% { opacity: .85; transform: scale(1.05); } }
+  @keyframes drift { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(0, -10px, 0); } }
+  .landing-hero-item { animation: heroRise .6s ease both; }
+  .landing-hero-item:nth-child(2) { animation-delay: .08s; }
+  .landing-hero-item:nth-child(3) { animation-delay: .16s; }
+  .landing-hero-item:nth-child(4) { animation-delay: .24s; }
+  .landing-link { color: inherit; text-decoration: none; }
+  .landing-stat { border-left: 1px solid rgba(255,255,255,0.08); padding-left: 18px; }
+  .landing-number { font-family: 'Syne', sans-serif; font-size: clamp(32px, 6vw, 82px); font-weight: 800; line-height: .94; letter-spacing: -2px; color: var(--text); }
+  .landing-divider { width: 100%; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); }
+  .landing-kv { display: grid; grid-template-columns: 1.1fr .9fr; gap: 24px; }
+  .landing-meat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  .landing-proof-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+  .landing-editorial-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .landing-glow { animation: emberPulse 6s ease-in-out infinite; }
+  .landing-smoke { animation: drift 7s ease-in-out infinite; }
+  .landing-outline:hover { border-color: rgba(240,122,47,0.28) !important; }
+  .landing-photo:hover img { transform: scale(1.04); }
+  @media (max-width: 980px) {
+    .landing-kv, .landing-editorial-grid, .landing-proof-grid { grid-template-columns: 1fr; }
+    .landing-meat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .landing-stat { border-left: none; border-top: 1px solid rgba(255,255,255,0.08); padding-left: 0; padding-top: 16px; }
+  }
+  @media (max-width: 700px) {
+    .landing-meat-grid { grid-template-columns: 1fr; }
+  }
 `
 
-const PAINS = [
-  { icon:'⏰', text:'Tu ne sais jamais vraiment à quelle heure lancer la cuisson.' },
-  { icon:'🤷', text:"Le stall te surprend à chaque fois — et tu peux pas t'y préparer." },
-  { icon:'😰', text:"Tes invités arrivent, la viande n'est pas prête. Encore." },
-  { icon:'📱', text:'Tu jonglles entre 3 apps, des notes, et tes souvenirs de la dernière fois.' },
+const DECISIONS = [
+  {
+    label: 'Heure de départ',
+    title: 'Le bon démarrage, pas une intuition',
+    body: 'Tu poses ton heure de service. L’app tranche quand allumer, quand lancer la pièce et combien de marge garder.',
+  },
+  {
+    label: 'Fenêtre crédible',
+    title: 'Une vraie lecture du service',
+    body: 'On ne te vend pas une heure magique. On te donne une fenêtre réaliste avec cuisson, repos et variabilité terrain.',
+  },
+  {
+    label: 'Repères pitmaster',
+    title: 'Des signaux utiles pendant la cook',
+    body: 'Stall, bark, wrap, probe tender, flex test: le jargon est traduit en décisions concrètes au bon moment.',
+  },
 ]
 
-const FEATURES = [
-  { icon:'🧮', title:'Calculateur BBQ gratuit',     badge:'Utilisable tout de suite', desc:"Entre ton heure de service. Charbon & Flamme te dit quand démarrer, quelle marge garder et à quel moment surveiller les étapes clés." },
-  { icon:'📡', title:'Session de cuisson guidée',   badge:'Temps réel',            desc:"Valide les checkpoints au vrai moment de ta cuisson — pit stable, stall, wrap, test de tendreté ou flex test pour les ribs. L'ETA se recalcule à chaque étape." },
-  { icon:'🎯', title:'Fenêtre de service claire',   badge:'Anti-stress',           desc:"L'outil ne te donne pas une heure magique. Il te donne une fenêtre crédible avec repos et marge de sécurité déjà intégrés." },
-  { icon:'🔥', title:'Vocabulaire pitmaster expliqué', badge:'Débutant friendly',  desc:"Bark, stall, wrap, probe tender, hold: les bons mots sont là, mais toujours traduits en langage simple et utile." },
-  { icon:'🍖', title:'Flow adapté selon la viande', badge:'Terrain réel',          desc:"Brisket, pulled pork, chuck, beef ribs ou pork ribs: les étapes et les conseils changent selon la logique réelle de la cuisson." },
-  { icon:'📤', title:'Pensé pour être partagé',     badge:'Acquisition',           desc:"Lance un planning, partage-le facilement et reviens pendant la cuisson pour recalculer sans friction ni compte obligatoire." },
+const WORKFLOW = [
+  'Tu annonces quand tu veux servir.',
+  'Le planning calcule départ, cuisson et repos.',
+  'Pendant la cook, tu lis les vrais repères terrain.',
+  'Tu sers dans une fenêtre propre, plus sereinement.',
 ]
 
-const STEPS = [
-  { num:'01', title:"Tu entres ton heure de service",  desc:"Tu dis simplement quand tu veux servir. L'outil calcule l'heure de départ recommandée." },
-  { num:'02', title:"Le planning se construit",        desc:"Température fumoir, marge, repos et étapes clés sont assemblés dans un plan simple à suivre." },
-  { num:'03', title:"Tu valides ce qui arrive vraiment", desc:"Pendant la cuisson, tu confirmes les checkpoints réels. L'ETA se recalcule selon ce qui se passe sur ton fumoir." },
-  { num:'04', title:"Tu sers plus sereinement",        desc:"La viande est prête dans une vraie fenêtre de service, avec le bon moment pour tester, retirer et laisser reposer." },
+const MEATS = [
+  { key: 'brisket', name: 'Brisket', note: 'Longue cuisson, bark et probe tender.' },
+  { key: 'pork_shoulder', name: 'Pulled Pork', note: 'Hold souple, service généreux.' },
+  { key: 'ribs_beef', name: 'Beef Ribs', note: 'Texture fondante, finition précise.' },
+  { key: 'ribs_pork', name: 'Spare Ribs', note: 'Couleur, pullback et flex test.' },
 ]
-
-const FOR_WHO = [
-  { icon:'🏡', who:'Backyard pitmasters',       desc:"Tu cuisines le weekend, tu veux bien faire, tu n'as pas le temps de tout calculer à la main." },
-  { icon:'🏆', who:'Compétiteurs BBQ',           desc:"Tu as besoin d'une heure de service précise, d'une fenêtre sécurisée, et d'un historique de tes cooks." },
-  { icon:'🍽️', who:'Restaurateurs & traiteurs', desc:"Tu prépares pour du monde, tu ne peux pas te permettre d'être en retard." },
-  { icon:'🔥', who:'Passionnés qui progressent', desc:"Tu veux comprendre pourquoi le stall dure 4h, pourquoi le butcher paper change tout." },
-]
-
-const MEATS_LIST = [
-  { key:'brisket',        label:'Brisket',       time:'10-13h' },
-  { key:'pork_shoulder',  label:'Pulled Pork',   time:'8-12h'  },
-  { key:'ribs_pork',      label:'Spare Ribs',    time:'5-6h'   },
-  { key:'ribs_beef',      label:'Beef Ribs',     time:'7-9h'   },
-  { key:'ribs_baby_back', label:'Baby Back',     time:'4-5h'   },
-  { key:'paleron',        label:'Paleron',       time:'8-11h'  },
-  { key:'plat_de_cote',   label:'Plat de Côte',  time:'9-12h'  },
-  { key:'lamb_shoulder',  label:'Épaule Agneau', time:'6-8h'   },
-]
-
-const Badge = ({ label }) => (
-  <span style={{ display:'inline-block', padding:'3px 10px', borderRadius:20, background:'rgba(232,93,4,0.07)', border:'1px solid rgba(232,93,4,0.15)', fontSize:10, fontWeight:700, color:'#e85d04', fontFamily:"'Syne',sans-serif", letterSpacing:'0.5px', whiteSpace:'nowrap' }}>
-    {label}
-  </span>
-)
 
 export default function Landing() {
-  const navigate  = useNavigate()
+  const navigate = useNavigate()
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 40)
-    window.addEventListener('scroll', h, { passive:true })
-    return () => window.removeEventListener('scroll', h)
+    const onScroll = () => setScrolled(window.scrollY > 24)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // PATCH: acquisition first — l'utilisateur doit pouvoir utiliser l'outil immédiatement
-  const go = () => navigate('/app')
+  const openApp = () => navigate('/app')
 
   return (
-    <div style={{ background:'radial-gradient(circle at top, rgba(255,123,50,0.10), transparent 22%), linear-gradient(180deg,#110d09 0%, #090705 100%)', fontFamily:"'DM Sans',sans-serif", overflowX:'hidden', color:'var(--text2)' }}>
+    <div style={{ background: 'var(--bg)', color: 'var(--text)', overflowX: 'hidden' }}>
       <style>{css}</style>
 
-      {/* ── NAV ─────────────────────────────────────────────── */}
-      <nav style={{ height:64, position:'sticky', top:0, zIndex:100, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 28px', background:scrolled?'rgba(10,7,5,0.84)':'transparent', borderBottom:scrolled?'1px solid rgba(255,255,255,0.07)':'1px solid transparent', backdropFilter:scrolled?'blur(18px)':'none', transition:'all 0.3s' }}>
-        <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:18, background:'linear-gradient(135deg,var(--orange-light),var(--orange-deep))', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
-          🔥 Charbon &amp; Flamme
-        </div>
-        <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-          <button onClick={() => navigate('/auth')} style={{ padding:'9px 16px', borderRadius:999, border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.03)', color:'var(--text2)', fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:700, cursor:'pointer' }}>Connexion</button>
-          <button onClick={go} className="hbtn" style={{ padding:'10px 18px', borderRadius:999, border:'none', background:'linear-gradient(135deg,var(--orange-light),var(--orange-deep))', color:'#fff', fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:700, cursor:'pointer', boxShadow:'0 12px 24px rgba(216,90,27,0.24)' }}>Ouvrir l’outil</button>
+      <nav
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 60,
+          height: 72,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 22px',
+          background: scrolled ? 'rgba(10,9,8,0.82)' : 'transparent',
+          borderBottom: scrolled ? '1px solid rgba(255,255,255,0.08)' : '1px solid transparent',
+          backdropFilter: scrolled ? 'blur(18px)' : 'none',
+          transition: 'all .25s ease',
+        }}
+      >
+        <button
+          onClick={() => navigate('/')}
+          style={{
+            background: 'none',
+            border: 'none',
+            padding: 0,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            color: 'var(--text)',
+          }}
+        >
+          <div
+            style={{
+              width: 42,
+              height: 42,
+              borderRadius: 14,
+              display: 'grid',
+              placeItems: 'center',
+              background: 'linear-gradient(180deg, rgba(255,159,97,0.95), rgba(197,83,25,0.95))',
+              boxShadow: '0 12px 28px rgba(197,83,25,0.28)',
+              fontFamily: 'Syne, sans-serif',
+              fontSize: 15,
+              fontWeight: 800,
+              color: '#fff',
+            }}
+          >
+            CF
+          </div>
+          <div style={{ textAlign: 'left' }}>
+            <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 16, fontWeight: 800, lineHeight: 1 }}>Charbon &amp; Flamme</div>
+            <div className="pm-eyebrow" style={{ marginTop: 3 }}>pitmaster planning app</div>
+          </div>
+        </button>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <button
+            onClick={() => navigate('/auth')}
+            style={{
+              border: '1px solid rgba(255,255,255,0.08)',
+              background: 'rgba(255,255,255,0.02)',
+              color: 'var(--text2)',
+              borderRadius: 999,
+              padding: '11px 16px',
+              fontSize: 12,
+              fontWeight: 700,
+              cursor: 'pointer',
+            }}
+          >
+            Connexion
+          </button>
+          <button onClick={openApp} className="pm-btn-primary" style={{ width: 'auto', padding: '12px 18px', fontSize: 12 }}>
+            Ouvrir l&apos;app
+          </button>
         </div>
       </nav>
 
-      {/* ── HERO ─────────────────────────────────────────────── */}
-      <div style={{ position:'relative', minHeight:620, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'96px 24px 74px', textAlign:'center', overflow:'hidden' }}>
-        {/* Photo fond */}
-        <div style={{ position:'absolute', inset:0, zIndex:0 }}>
-          <img src={HERO_IMAGE} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', opacity:0.14 }} loading="eager" />
-          <div style={{ position:'absolute', inset:0, background:'linear-gradient(to bottom, rgba(8,7,6,0.5) 0%, rgba(8,7,6,0.82) 70%, #080706 100%)' }} />
+      <section
+        style={{
+          position: 'relative',
+          minHeight: 'calc(100svh - 72px)',
+          display: 'flex',
+          alignItems: 'stretch',
+          padding: '0 0 42px',
+        }}
+      >
+        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+          <img
+            src={HERO_IMAGE}
+            alt=""
+            style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.26, filter: 'saturate(.82) contrast(1.05)' }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(90deg, rgba(10,9,8,0.94) 0%, rgba(10,9,8,0.78) 38%, rgba(10,9,8,0.54) 66%, rgba(10,9,8,0.82) 100%)',
+            }}
+          />
+          <div
+            className="landing-glow"
+            style={{
+              position: 'absolute',
+              left: '52%',
+              top: '50%',
+              width: 520,
+              height: 520,
+              transform: 'translate(-50%, -50%)',
+              background: 'radial-gradient(circle, rgba(240,122,47,0.18), transparent 62%)',
+              pointerEvents: 'none',
+            }}
+          />
+          <div
+            className="landing-smoke"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'radial-gradient(circle at 70% 30%, rgba(255,255,255,0.05), transparent 24%), radial-gradient(circle at 64% 18%, rgba(255,255,255,0.03), transparent 18%)',
+              pointerEvents: 'none',
+            }}
+          />
         </div>
-        {/* Flamme SVG */}
-        <svg style={{ position:'absolute', bottom:0, left:'50%', transform:'translateX(-50%)', opacity:0.05, pointerEvents:'none' }} width="400" height="220" viewBox="0 0 400 220">
-          <path d="M200 220 C130 180 100 130 140 85 C155 65 170 72 178 55 C186 38 182 20 190 5 C202 32 196 58 210 75 C218 85 228 80 235 62 C248 35 242 15 255 0 C268 32 260 65 265 88 C272 110 285 95 292 78 C308 112 315 145 290 178 C272 200 240 215 200 220Z" fill="#e85d04" />
-        </svg>
-        {/* Fumée */}
-        <div style={{ position:'absolute', bottom:30, left:'50%', transform:'translateX(-50%)', pointerEvents:'none', display:'flex', gap:24 }}>
-          {[0, 0.7, 1.4].map((d,i) => (
-            <div key={i} style={{ width:3, height:i===1?45:55, background:'linear-gradient(to top,rgba(200,112,50,0.25),transparent)', animation:`smoke ${2.8+i*0.5}s ${d}s ease-in-out infinite` }} />
-          ))}
-        </div>
-        {/* Glow */}
-        <div style={{ position:'absolute', top:'30%', left:'50%', transform:'translate(-50%,-50%)', width:500, height:300, background:'radial-gradient(ellipse,rgba(232,93,4,0.09),transparent 70%)', animation:'pulse 4s ease-in-out infinite', zIndex:1, pointerEvents:'none' }} />
 
-        <div style={{ position:'relative', zIndex:2, maxWidth:700 }}>
-          <div className="fu" style={{ display:'inline-block', background:'rgba(255,123,50,0.08)', border:'1px solid rgba(255,123,50,0.18)', borderRadius:999, padding:'7px 16px', fontSize:11, fontWeight:700, color:'var(--orange-light)', fontFamily:"'Syne',sans-serif", letterSpacing:'2px', textTransform:'uppercase', marginBottom:24 }}>
-            Gratuit · Sans inscription obligatoire
+        <div
+          className="pm-shell"
+          style={{
+            position: 'relative',
+            zIndex: 1,
+            width: '100%',
+            display: 'grid',
+            gridTemplateColumns: 'minmax(0, 620px) minmax(0, 1fr)',
+            gap: 24,
+            alignItems: 'end',
+            padding: '44px 24px 0',
+          }}
+        >
+          <div style={{ paddingBottom: 10 }}>
+            <div className="landing-hero-item pm-kicker" style={{ marginBottom: 18 }}>
+              cook plan premium, clair, pitmaster
+            </div>
+            <div className="landing-hero-item" style={{ marginBottom: 14 }}>
+              <div className="pm-eyebrow" style={{ marginBottom: 10 }}>charbon &amp; flamme</div>
+              <h1 style={{ fontSize: 'clamp(44px, 7vw, 102px)', lineHeight: 0.92, letterSpacing: '-3.8px', maxWidth: 760 }}>
+                Le feu se respecte.<br />
+                <span style={{ color: 'var(--ember)' }}>Le service se calcule.</span>
+              </h1>
+            </div>
+            <p className="landing-hero-item pm-section-copy" style={{ maxWidth: 520, marginBottom: 28 }}>
+              Une app pensée comme un vrai assistant pitmaster: heure de départ, fenêtre de service, étapes de cuisson et repères utiles, sans bruit ni folklore inutile.
+            </p>
+            <div className="landing-hero-item" style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 26 }}>
+              <button onClick={openApp} className="pm-btn-primary" style={{ width: 'auto', padding: '16px 28px', fontSize: 14 }}>
+                Lancer un planning
+              </button>
+              <button onClick={() => navigate('/auth')} className="pm-btn-secondary" style={{ width: 'auto', padding: '15px 22px', fontSize: 14 }}>
+                Créer un compte
+              </button>
+            </div>
+            <div className="landing-hero-item" style={{ display: 'flex', flexWrap: 'wrap', gap: 24, color: 'var(--text3)', fontSize: 12 }}>
+              <span>Gratuit pour démarrer</span>
+              <span>Mobile-first en cuisson</span>
+              <span>Conçu pour le low &amp; slow</span>
+            </div>
           </div>
-          <h1 className="fu fu1" style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:'clamp(38px,6.5vw,68px)', color:'#fff', letterSpacing:'-2.4px', lineHeight:1.02, marginBottom:20 }}>
-            Ton brisket arrive parfait.<br />
-            <span style={{ color:'var(--orange)', animation:'flicker 5s 3s ease-in-out infinite' }}>Pas par chance — par calcul.</span>
-          </h1>
-          <p className="fu fu2" style={{ fontSize:18, color:'var(--text2)', lineHeight:1.8, maxWidth:560, margin:'0 auto 36px' }}>
-            Charbon &amp; Flamme te dit quand démarrer, quoi faire à chaque étape et quand tester la viande, sans te noyer dans la théorie.
-          </p>
-          <div className="fu fu3" style={{ display:'flex', gap:10, justifyContent:'center', flexWrap:'wrap', marginBottom:14 }}>
-            <button onClick={go} className="hbtn" style={{ padding:'15px 32px', borderRadius:16, border:'none', background:'linear-gradient(135deg,var(--orange-light),var(--orange-deep))', color:'#fff', fontFamily:"'Syne',sans-serif", fontSize:15, fontWeight:700, cursor:'pointer', boxShadow:'0 10px 26px rgba(216,90,27,0.28)' }}>
-              🔥 Lancer un planning
-            </button>
-            <button onClick={() => navigate('/auth')} style={{ padding:'15px 26px', borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.02)', color:'var(--text2)', fontFamily:"'Syne',sans-serif", fontSize:15, fontWeight:700, cursor:'pointer' }}>
-              Connexion optionnelle
-            </button>
-          </div>
-          <div className="fu fu4" style={{ fontSize:11, color:'var(--text3)', letterSpacing:'0.5px' }}>
-            Outil gratuit · Mobile-first · Prêt en moins d'une minute
-          </div>
-        </div>
-      </div>
 
-      {/* ── DEMO CARD ─────────────────────────────────────────── */}
-      <div style={{ padding:'0 24px 80px', maxWidth:640, margin:'0 auto' }}>
-        <div style={{ background:'linear-gradient(180deg, rgba(35,25,19,0.96), rgba(16,12,9,0.98))', border:'1px solid rgba(255,255,255,0.08)', borderRadius:28, padding:'32px', boxShadow:'0 24px 60px rgba(0,0,0,0.42)' }}>
-          <div style={{ fontSize:11, fontWeight:700, letterSpacing:'2px', textTransform:'uppercase', color:'#4a3a2e', marginBottom:8, textAlign:'center' }}>Lance ta cuisson à</div>
-          <div style={{ fontFamily:"'Syne',sans-serif", fontSize:84, fontWeight:800, lineHeight:1, color:'var(--orange)', letterSpacing:'-4px', textAlign:'center', marginBottom:10 }}>6h</div>
-          <div style={{ fontSize:13, color:'var(--text3)', textAlign:'center', marginBottom:20 }}>Brisket 5.4kg · Offset 120°C · Service 19h</div>
-          <div style={{ display:'flex', flexWrap:'wrap', gap:8, justifyContent:'center', marginBottom:20 }}>
-            {[
-              { t:'Stall 65–75°C',       active:false },
-              { t:'Wrap papier boucher', active:true  },
-              { t:'Début tests 90°C',    active:false },
-              { t:'Probe tender 92–97°C', active:false },
-              { t:'Repos 1h à 3h',       active:false },
-            ].map((b,i) => (
-              <span key={i} style={{ padding:'6px 12px', borderRadius:999, fontSize:11, fontFamily:"'DM Mono',monospace", fontWeight:600, background:b.active?'rgba(255,123,50,0.1)':'rgba(255,255,255,0.03)', border:`1px solid ${b.active?'rgba(255,123,50,0.24)':'rgba(255,255,255,0.08)'}`, color:b.active?'var(--orange)':'var(--text3)' }}>{b.t}</span>
-            ))}
-          </div>
-          <div style={{ background:'rgba(255,123,50,0.05)', border:'1px solid rgba(255,123,50,0.1)', borderRadius:14, padding:'12px 16px', textAlign:'center' }}>
-            <span style={{ fontSize:12, color:'var(--text3)' }}>Fenêtre de service : </span>
-            <strong style={{ color:'var(--orange)', fontFamily:"'DM Mono',monospace", fontSize:13 }}>18h → 19h30</strong>
-          </div>
-        </div>
-      </div>
-
-      {/* ── SCIENCE + GRAPHIQUE ───────────────────────────────── */}
-      <div style={{ background:'#050403', borderTop:'1px solid #111009', borderBottom:'1px solid #111009', padding:'70px 24px' }}>
-        <div style={{ maxWidth:900, margin:'0 auto' }}>
-          <div style={{ textAlign:'center', marginBottom:48 }}>
-            <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:11, color:'#e85d04', letterSpacing:'2.5px', textTransform:'uppercase', marginBottom:12 }}>Ce que l’outil prend en compte</div>
-            <h2 style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:'clamp(24px,4vw,36px)', color:'#fff', letterSpacing:'-1px', lineHeight:1.1 }}>
-              Pas une règle grossière.<br /><span style={{ color:'#4a3a2e' }}>Un planning crédible pour le terrain.</span>
-            </h2>
-          </div>
-          {/* Courbe température SVG */}
-          <div style={{ background:'#0c0a08', border:'1px solid #1e1a14', borderRadius:16, padding:'28px', marginBottom:20 }}>
-            <div style={{ fontSize:11, color:'#3a2e24', marginBottom:16, fontFamily:"'DM Mono',monospace", letterSpacing:'1px' }}>COURBE DE CUISSON — BRISKET 5KG @ 120°C</div>
-            <svg width="100%" viewBox="0 0 560 185" style={{ overflow:'visible' }}>
-              <defs>
-                <linearGradient id="tg" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#e85d04" stopOpacity="0.25"/>
-                  <stop offset="100%" stopColor="#e85d04" stopOpacity="0"/>
-                </linearGradient>
-              </defs>
-              {/* Grille */}
-              {[30,75,120,150].map(y => (
-                <line key={y} x1="30" y1={y} x2="540" y2={y} stroke="#1a1610" strokeWidth="0.5"/>
-              ))}
-              {/* Labels Y */}
-              <text x="0" y="33" fill="#3a2e24" fontSize="10" fontFamily="DM Mono">95°C</text>
-              <text x="0" y="78" fill="#3a2e24" fontSize="10" fontFamily="DM Mono">74°C</text>
-              <text x="0" y="123" fill="#3a2e24" fontSize="10" fontFamily="DM Mono">65°C</text>
-              {/* Zones */}
-              <rect x="30" y="0" width="105" height="160" fill="rgba(232,93,4,0.03)"/>
-              <rect x="135" y="0" width="140" height="160" fill="rgba(232,93,4,0.05)"/>
-              <rect x="275" y="0" width="230" height="160" fill="rgba(232,93,4,0.03)"/>
-              {/* Aire sous la courbe */}
-              <path d="M35,155 C80,143 112,128 135,120 C145,117 155,117 165,117 C205,117 215,117 275,119 C295,119 310,88 340,57 C368,30 425,29 505,28 L505,160 L35,160Z" fill="url(#tg)"/>
-              {/* Courbe */}
-              <path d="M35,155 C80,143 112,128 135,120 C145,117 155,117 165,117 C205,117 215,117 275,119 C295,119 310,88 340,57 C368,30 425,29 505,28" fill="none" stroke="#e85d04" strokeWidth="2" strokeLinecap="round"/>
-              {/* Points clés */}
-              <circle cx="205" cy="117" r="5" fill="#e85d04"/>
-              <text x="212" y="111" fill="#e85d04" fontSize="10" fontFamily="Syne" fontWeight="700">Stall</text>
-              <circle cx="275" cy="119" r="5" fill="#f48c06"/>
-              <text x="282" y="113" fill="#f48c06" fontSize="10" fontFamily="Syne" fontWeight="700">Wrap</text>
-              <circle cx="480" cy="29" r="5" fill="#22c55e"/>
-              <text x="432" y="23" fill="#22c55e" fontSize="10" fontFamily="Syne" fontWeight="700">Probe tender</text>
-              {/* Labels phases */}
-              <text x="82" y="178" fill="#3a2e24" fontSize="9" fontFamily="DM Mono" textAnchor="middle">Bark</text>
-              <text x="205" y="178" fill="#3a2e24" fontSize="9" fontFamily="DM Mono" textAnchor="middle">Stall</text>
-              <text x="390" y="178" fill="#3a2e24" fontSize="9" fontFamily="DM Mono" textAnchor="middle">Finition</text>
-            </svg>
-          </div>
-          {/* 3 stats */}
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12 }}>
-            {[
-              { n:'8',   l:'viandes calibrées' },
-              { n:'13',  l:'variables de calcul' },
-              { n:'±15', l:'min de précision' },
-            ].map((s,i) => (
-              <div key={i} style={{ background:'#0c0a08', border:'1px solid #1e1a14', borderRadius:14, padding:'20px', textAlign:'center' }}>
-                <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:36, color:'#e85d04', letterSpacing:'-1px' }}>{s.n}</div>
-                <div style={{ fontSize:12, color:'#6a5a4a', marginTop:4 }}>{s.l}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ── DOULEUR ───────────────────────────────────────────── */}
-      <div style={{ padding:'70px 24px' }}>
-        <div style={{ maxWidth:720, margin:'0 auto' }}>
-          <div style={{ textAlign:'center', marginBottom:44 }}>
-            <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:11, color:'#e85d04', letterSpacing:'2.5px', textTransform:'uppercase', marginBottom:12 }}>Tu connais ce moment</div>
-            <h2 style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:'clamp(24px,4vw,36px)', color:'#fff', letterSpacing:'-1px', lineHeight:1.1 }}>
-              Le BBQ c'est 15h de maîtrise.<br /><span style={{ color:'#4a3a2e' }}>Pas de hasard.</span>
-            </h2>
-          </div>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))', gap:12 }}>
-            {PAINS.map((p,i) => (
-              <div key={i} style={{ background:'#0a0806', border:'1px solid #181410', borderRadius:14, padding:'20px', display:'flex', gap:14 }}>
-                <span style={{ fontSize:22, flexShrink:0 }}>{p.icon}</span>
-                <p style={{ margin:0, fontSize:13, color:'#7a6a5a', lineHeight:1.7 }}>{p.text}</p>
-              </div>
-            ))}
-          </div>
-          <p style={{ textAlign:'center', fontSize:14, color:'#6a5a4a', lineHeight:1.75, maxWidth:480, margin:'32px auto 0' }}>
-            Charbon &amp; Flamme résout exactement ces problèmes avec un assistant cuisson simple, crédible et pensé pour le terrain.
-          </p>
-        </div>
-      </div>
-
-      {/* ── FEATURES ──────────────────────────────────────────── */}
-      <div style={{ background:'#050403', borderTop:'1px solid #111009', borderBottom:'1px solid #111009', padding:'70px 24px' }}>
-        <div style={{ maxWidth:1040, margin:'0 auto' }}>
-          <div style={{ textAlign:'center', marginBottom:48 }}>
-            <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:11, color:'#e85d04', letterSpacing:'2.5px', textTransform:'uppercase', marginBottom:12 }}>Ce que tu obtiens</div>
-            <h2 style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:'clamp(24px,4vw,38px)', color:'#fff', letterSpacing:'-1px' }}>
-              Un vrai assistant pitmaster.<br /><span style={{ color:'#4a3a2e' }}>Pas une simple minuterie.</span>
-            </h2>
-          </div>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(290px,1fr))', gap:12 }}>
-            {FEATURES.map((f,i) => (
-              <div key={i} className="hcard" style={{ background:'#0c0a08', border:'1px solid #1e1a14', borderRadius:16, padding:'24px' }}>
-                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
-                  <span style={{ fontSize:28 }}>{f.icon}</span>
-                  <Badge label={f.badge} />
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
+            <div
+              style={{
+                width: 'min(100%, 470px)',
+                padding: '24px 0 0',
+                display: 'grid',
+                gap: 16,
+              }}
+            >
+              <div className="landing-divider" />
+              <div style={{ display: 'grid', gap: 16 }}>
+                <div className="landing-stat">
+                  <div className="pm-eyebrow" style={{ marginBottom: 8 }}>heure de départ</div>
+                  <div className="landing-number">06h</div>
+                  <p style={{ maxWidth: 260, marginTop: 10 }}>Pour un brisket servi à 19h, avec marge et repos intégrés.</p>
                 </div>
-                <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:14, color:'#c4b4a0', marginBottom:8 }}>{f.title}</div>
-                <div style={{ fontSize:13, color:'#7a6a5a', lineHeight:1.7 }}>{f.desc}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ── POUR QUI ──────────────────────────────────────────── */}
-      <div style={{ padding:'70px 24px' }}>
-        <div style={{ maxWidth:960, margin:'0 auto' }}>
-          <div style={{ textAlign:'center', marginBottom:44 }}>
-            <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:11, color:'#e85d04', letterSpacing:'2.5px', textTransform:'uppercase', marginBottom:12 }}>Pour qui</div>
-            <h2 style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:'clamp(24px,4vw,36px)', color:'#fff', letterSpacing:'-1px' }}>
-              Fait pour les gens sérieux.<br /><span style={{ color:'#4a3a2e' }}>Accessible à tous.</span>
-            </h2>
-          </div>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))', gap:12 }}>
-            {FOR_WHO.map((w,i) => (
-              <div key={i} className="hcard" style={{ background:'#0a0806', border:'1px solid #181410', borderRadius:16, padding:'24px', textAlign:'center' }}>
-                <div style={{ fontSize:34, marginBottom:14 }}>{w.icon}</div>
-                <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:14, color:'#c4b4a0', marginBottom:8 }}>{w.who}</div>
-                <div style={{ fontSize:12, color:'#7a6a5a', lineHeight:1.65 }}>{w.desc}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ── COMMENT ÇA MARCHE ─────────────────────────────────── */}
-      <div style={{ background:'#050403', borderTop:'1px solid #111009', borderBottom:'1px solid #111009', padding:'70px 24px' }}>
-        <div style={{ maxWidth:560, margin:'0 auto' }}>
-          <div style={{ textAlign:'center', marginBottom:48 }}>
-            <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:11, color:'#e85d04', letterSpacing:'2.5px', textTransform:'uppercase', marginBottom:12 }}>En pratique</div>
-            <h2 style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:'clamp(24px,4vw,34px)', color:'#fff', letterSpacing:'-1px' }}>4 étapes. Zéro stress.</h2>
-          </div>
-          {STEPS.map((s,i) => (
-            <div key={i} style={{ display:'flex', gap:20 }}>
-              <div style={{ display:'flex', flexDirection:'column', alignItems:'center', width:44, flexShrink:0 }}>
-                <div style={{ width:44, height:44, borderRadius:12, background:'linear-gradient(135deg,#1e1208,#2a1a08)', border:'1px solid rgba(232,93,4,0.2)', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:13, color:'#e85d04', flexShrink:0 }}>
-                  {s.num}
+                <div className="landing-stat">
+                  <div className="pm-eyebrow" style={{ marginBottom: 8 }}>service window</div>
+                  <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 30, color: 'var(--ember)', lineHeight: 1.1 }}>18h00 → 19h30</div>
+                  <p style={{ maxWidth: 260, marginTop: 10 }}>Une lecture réaliste de la fin de cuisson, pas une promesse fragile.</p>
                 </div>
-                {i < STEPS.length-1 && <div style={{ width:1, flex:1, background:'#1e1a14', margin:'6px 0' }} />}
-              </div>
-              <div style={{ paddingTop:10, paddingBottom:i < STEPS.length-1 ? 28 : 0 }}>
-                <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:15, color:'#c4b4a0', marginBottom:6 }}>{s.title}</div>
-                <div style={{ fontSize:13, color:'#7a6a5a', lineHeight:1.7 }}>{s.desc}</div>
+                <div className="landing-stat">
+                  <div className="pm-eyebrow" style={{ marginBottom: 8 }}>terrain</div>
+                  <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 26, fontWeight: 800, lineHeight: 1.1 }}>stall, wrap, probe tender</div>
+                  <p style={{ maxWidth: 280, marginTop: 10 }}>Le vocabulaire pitmaster devient actionnable et lisible pendant la cook.</p>
+                </div>
               </div>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── VIANDES ───────────────────────────────────────────── */}
-      <div style={{ padding:'70px 24px' }}>
-        <div style={{ maxWidth:920, margin:'0 auto' }}>
-          <div style={{ textAlign:'center', marginBottom:40 }}>
-            <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:11, color:'#e85d04', letterSpacing:'2.5px', textTransform:'uppercase', marginBottom:12 }}>Le catalogue</div>
-            <h2 style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:'clamp(22px,3.5vw,32px)', color:'#fff', letterSpacing:'-0.5px', marginBottom:8 }}>8 pièces low &amp; slow</h2>
-            <p style={{ fontSize:13, color:'#6a5a4a' }}>Chaque viande a son propre comportement. L'outil adapte les étapes pour rester crédible en vraie cuisson.</p>
           </div>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(195px,1fr))', gap:10 }}>
-            {MEATS_LIST.map(m => (
-              <div key={m.key} onClick={go} className="hmeat" style={{ borderRadius:14, overflow:'hidden', position:'relative', height:148, cursor:'pointer', border:'1px solid #1e1a14' }}>
-                <img src={MEAT_IMAGES[m.key]} alt={m.label} style={{ width:'100%', height:'100%', objectFit:'cover' }} loading="lazy" />
-                <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(0,0,0,0.88) 0%, transparent 55%)' }} />
-                <div style={{ position:'absolute', bottom:12, left:14 }}>
-                  <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:13, color:'#fff' }}>{m.label}</div>
-                  <div style={{ fontFamily:"'DM Mono',monospace", fontSize:10, color:'rgba(255,255,255,0.35)', marginTop:2 }}>{m.time}</div>
-                </div>
+        </div>
+      </section>
+
+      <section style={{ padding: '34px 24px 90px' }}>
+        <div className="pm-shell">
+          <div className="landing-kv">
+            <div>
+              <div className="pm-eyebrow" style={{ marginBottom: 12 }}>ce que l&apos;app décide pour toi</div>
+              <h2 className="pm-section-title" style={{ maxWidth: 700, marginBottom: 18 }}>
+                Moins d&apos;effets.<br />
+                Plus de maîtrise.
+              </h2>
+            </div>
+            <p className="pm-section-copy" style={{ justifySelf: 'end' }}>
+              Le problème du BBQ n&apos;est pas le manque de passion. C&apos;est l&apos;excès d&apos;incertitude. Le redesign recentre tout sur trois décisions critiques: quand démarrer, quoi surveiller, quand servir.
+            </p>
+          </div>
+
+          <div className="landing-proof-grid" style={{ marginTop: 42 }}>
+            {DECISIONS.map((item) => (
+              <div key={item.label} style={{ paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+                <div className="pm-eyebrow" style={{ marginBottom: 12, color: 'var(--ember)' }}>{item.label}</div>
+                <h3 style={{ fontSize: 24, lineHeight: 1.08, marginBottom: 12, color: 'var(--text)' }}>{item.title}</h3>
+                <p style={{ color: 'var(--text2)', maxWidth: 340 }}>{item.body}</p>
               </div>
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* ── CTA FINAL ─────────────────────────────────────────── */}
-      <div style={{ background:'#050403', borderTop:'1px solid #111009', padding:'100px 24px', textAlign:'center', position:'relative', overflow:'hidden' }}>
-        <div style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-50%,-50%)', width:600, height:400, background:'radial-gradient(ellipse,rgba(232,93,4,0.07),transparent 70%)', pointerEvents:'none', animation:'pulse 5s ease-in-out infinite' }} />
-        <div style={{ position:'relative', zIndex:1, maxWidth:540, margin:'0 auto' }}>
-          <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:11, color:'#e85d04', letterSpacing:'2.5px', textTransform:'uppercase', marginBottom:18 }}>Prêt ?</div>
-          <h2 style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:'clamp(28px,5vw,48px)', color:'#fff', letterSpacing:'-1.5px', lineHeight:1.08, marginBottom:18 }}>
-            Ta prochaine cuisson.<br />
-            <span style={{ color:'#e85d04' }}>Calculée. Maîtrisée. Parfaite.</span>
-          </h2>
-          <p style={{ fontSize:15, color:'#6a5a4a', lineHeight:1.75, marginBottom:36 }}>
-            Ouvre l'outil, lance ton planning, puis utilise la session de cuisson pour suivre les étapes sans stress.
-          </p>
-          <button onClick={go} className="hbtn" style={{ padding:'17px 44px', borderRadius:12, border:'none', background:'linear-gradient(135deg,#f48c06,#d44e00)', color:'#fff', fontFamily:"'Syne',sans-serif", fontSize:16, fontWeight:700, cursor:'pointer', boxShadow:'0 6px 24px rgba(232,93,4,0.28)', display:'inline-block', marginBottom:14 }}>
-            🔥 Ouvrir le calculateur
-          </button>
-          <div style={{ fontSize:11, color:'#4a3a2e' }}>
-            Gratuit · Session interactive · Partage facile
+      <section style={{ padding: '0 24px 90px' }}>
+        <div className="pm-shell landing-editorial-grid">
+          <div
+            style={{
+              position: 'relative',
+              minHeight: 520,
+              borderRadius: 30,
+              overflow: 'hidden',
+              border: '1px solid rgba(255,255,255,0.08)',
+              background: 'var(--bg-elev)',
+            }}
+          >
+            <img
+              src={SMOKER_IMAGE}
+              alt=""
+              style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.56, filter: 'saturate(.75) contrast(1.06)' }}
+            />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,9,8,0.92), rgba(10,9,8,0.28) 55%, rgba(10,9,8,0.7))' }} />
+            <div className="pm-dot-grid" style={{ position: 'absolute', inset: 0, opacity: 0.12 }} />
+            <div style={{ position: 'absolute', left: 22, right: 22, bottom: 24 }}>
+              <div className="pm-kicker" style={{ marginBottom: 12 }}>workflow pitmaster</div>
+              <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 32, fontWeight: 800, lineHeight: 1, marginBottom: 10 }}>
+                L&apos;app accompagne la cuisson.<br />
+                Elle ne concurrence pas ton instinct.
+              </div>
+              <p style={{ maxWidth: 420 }}>
+                Le design laisse respirer l&apos;essentiel: le plan, les repères, les timings, puis la décision de service.
+              </p>
+            </div>
+          </div>
+
+          <div style={{ alignSelf: 'center' }}>
+            <div className="pm-eyebrow" style={{ marginBottom: 12 }}>comment ca marche</div>
+            <h2 className="pm-section-title" style={{ marginBottom: 18 }}>
+              Une lecture claire du low &amp; slow.
+            </h2>
+            <p className="pm-section-copy" style={{ marginBottom: 28 }}>
+              Le ton devient plus premium parce que l&apos;interface arrête de sur-expliquer. Chaque bloc doit aider a cuire, pas a remplir la page.
+            </p>
+            <div>
+              {WORKFLOW.map((step, index) => (
+                <div key={step} style={{ display: 'grid', gridTemplateColumns: '52px 1fr', gap: 16, padding: '16px 0', borderTop: index === 0 ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(255,255,255,0.05)' }}>
+                  <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: 'var(--ember)' }}>{String(index + 1).padStart(2, '0')}</div>
+                  <p style={{ fontSize: 16, color: 'var(--text)', lineHeight: 1.55 }}>{step}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* ── FOOTER ────────────────────────────────────────────── */}
-      <footer style={{ borderTop:'1px solid #141210', padding:'22px 32px', display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:12 }}>
-        <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:15, background:'linear-gradient(135deg,#f48c06,#e85d04)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
-          🔥 Charbon &amp; Flamme
+      <section style={{ padding: '0 24px 96px' }}>
+        <div className="pm-shell">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', gap: 24, flexWrap: 'wrap', marginBottom: 26 }}>
+            <div>
+              <div className="pm-eyebrow" style={{ marginBottom: 12 }}>viandes et signatures</div>
+              <h2 className="pm-section-title" style={{ maxWidth: 760 }}>
+                Une esthétique plus premium,<br />
+                mais toujours tres barbecue.
+              </h2>
+            </div>
+            <p className="pm-section-copy" style={{ maxWidth: 420 }}>
+              L&apos;identité s&apos;appuie sur la matière: viande, braise, acier, fumee. Pas sur des widgets génériques ou des cartes répétitives.
+            </p>
+          </div>
+
+          <div className="landing-meat-grid">
+            {MEATS.map((meat) => (
+              <button
+                key={meat.key}
+                onClick={openApp}
+                className="landing-outline landing-photo"
+                style={{
+                  textAlign: 'left',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  background: 'linear-gradient(180deg, rgba(28,22,18,0.82), rgba(16,13,11,0.9))',
+                  borderRadius: 24,
+                  overflow: 'hidden',
+                  cursor: 'pointer',
+                  color: 'var(--text)',
+                  transition: 'border-color .18s ease',
+                }}
+              >
+                <div style={{ height: 240, overflow: 'hidden', position: 'relative' }}>
+                  <img
+                    src={MEAT_IMAGES[meat.key]}
+                    alt={meat.name}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform .35s ease' }}
+                    loading="lazy"
+                  />
+                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,9,8,0.9), rgba(10,9,8,0.08) 58%)' }} />
+                </div>
+                <div style={{ padding: '18px 18px 20px' }}>
+                  <div className="pm-eyebrow" style={{ marginBottom: 8, color: 'var(--ember)' }}>piece</div>
+                  <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, lineHeight: 1, marginBottom: 10 }}>{meat.name}</div>
+                  <p style={{ color: 'var(--text2)' }}>{meat.note}</p>
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
-        <div style={{ display:'flex', gap:20 }}>
-          {['Calculateur','CGU','Confidentialité','Contact'].map(l => (
-            <span key={l} style={{ fontSize:12, color:'#4a3a2e', cursor:'pointer', transition:'color 0.15s' }}
-              onMouseEnter={e => e.currentTarget.style.color='#8a7a6a'}
-              onMouseLeave={e => e.currentTarget.style.color='#4a3a2e'}
-              onClick={() => l==='Calculateur' && navigate('/app')}>
-              {l}
-            </span>
-          ))}
+      </section>
+
+      <section style={{ padding: '0 24px 120px' }}>
+        <div
+          className="pm-shell"
+          style={{
+            position: 'relative',
+            overflow: 'hidden',
+            borderRadius: 32,
+            border: '1px solid rgba(255,255,255,0.08)',
+            background: 'linear-gradient(135deg, rgba(27,21,18,0.95), rgba(16,13,11,0.98))',
+            padding: '34px 24px',
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              right: -40,
+              top: -70,
+              width: 280,
+              height: 280,
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(240,122,47,0.18), transparent 66%)',
+              pointerEvents: 'none',
+            }}
+          />
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <div className="pm-eyebrow" style={{ marginBottom: 14 }}>prochaine etape</div>
+            <h2 className="pm-section-title" style={{ maxWidth: 760, marginBottom: 18 }}>
+              Une app plus claire, plus premium,
+              <br />
+              plus pitmaster.
+            </h2>
+            <p className="pm-section-copy" style={{ maxWidth: 620, marginBottom: 24 }}>
+              Le redesign retire le bruit, renforce la hiérarchie et donne plus de place aux vraies décisions de cuisson. L&apos;outil devient plus crédible visuellement sans perdre sa chaleur.
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+              <button onClick={openApp} className="pm-btn-primary" style={{ width: 'auto', padding: '16px 26px' }}>
+                Ouvrir le calculateur
+              </button>
+              <button onClick={() => navigate('/auth')} className="pm-btn-secondary" style={{ width: 'auto', padding: '15px 22px' }}>
+                Sauvegarder mes cuissons
+              </button>
+            </div>
+          </div>
         </div>
-        <div style={{ fontSize:11, color:'#2a2218' }}>© 2026 Charbon &amp; Flamme</div>
-      </footer>
+      </section>
     </div>
   )
 }

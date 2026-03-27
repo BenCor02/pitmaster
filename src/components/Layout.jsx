@@ -5,27 +5,26 @@ import { useState } from 'react'
 
 const NAV = [
   { section: 'CUISSON', items: [
-    // PATCH: liens absolus alignés avec les routes réelles sous /app
-    { path: '/app', icon: '🥩', label: 'Calculateur', end: true },
-    { path: '/app/party', icon: '🎉', label: 'Cook Party' },
-    { path: '/app/cold', icon: '❄️', label: 'Fumage à froid' },
-    { path: '/app/session', icon: '🔴', label: 'Session active' },
-    { path: '/app/timer', icon: '⏱️', label: 'Minuteur' },
+    { path: '/app', icon: 'PL', label: 'Calculateur', end: true },
+    { path: '/app/party', icon: 'CP', label: 'Cook Party' },
+    { path: '/app/cold', icon: 'CF', label: 'Fumage à froid' },
+    { path: '/app/session', icon: 'SV', label: 'Session active' },
+    { path: '/app/timer', icon: 'TM', label: 'Minuteur' },
   ]},
   { section: 'OUTILS', items: [
-    { path: '/app/quantity', icon: '⚖️', label: 'Quantités' },
-    { path: '/app/reference', icon: '📚', label: 'Référence' },
-    { path: '/app/journal', icon: '📓', label: 'Journal' },
-    { path: '/app/history', icon: '📖', label: 'Historique' },
-    { path: '/app/ask', icon: '🤖', label: 'Ask the Pitmaster' },
+    { path: '/app/quantity', icon: 'QT', label: 'Quantités' },
+    { path: '/app/reference', icon: 'RF', label: 'Référence' },
+    { path: '/app/journal', icon: 'JR', label: 'Journal' },
+    { path: '/app/history', icon: 'HS', label: 'Historique' },
+    { path: '/app/ask', icon: 'AI', label: 'Ask the Pitmaster' },
   ]},
 ]
 
 const MOBILE_NAV = [
-  { path: '/app', icon: '🥩', label: 'Cuisson', end: true },
-  { path: '/app/party', icon: '🎉', label: 'Party' },
-  { path: '/app/journal', icon: '📓', label: 'Journal' },
-  { path: '/app/cold', icon: '❄️', label: 'Froid' },
+  { path: '/app', icon: 'PL', label: 'Cuisson', end: true },
+  { path: '/app/party', icon: 'CP', label: 'Party' },
+  { path: '/app/journal', icon: 'JR', label: 'Journal' },
+  { path: '/app/cold', icon: 'CF', label: 'Froid' },
 ]
 
 const css = `
@@ -44,9 +43,11 @@ const css = `
     .pm-pg { padding: 20px 16px 88px !important; max-width: 100% !important; }
   }
 
-  .nav-link { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-radius: 16px; margin-bottom: 5px; cursor: pointer; transition: all 0.18s; text-decoration: none; border:1px solid transparent; }
-  .nav-link:hover { background: rgba(255,255,255,0.03); border-color: var(--border); transform: translateX(2px); }
-  .nav-link.active { background: linear-gradient(135deg, rgba(255,123,50,0.18), rgba(255,123,50,0.08)); border-color: var(--orange-border); box-shadow: inset 0 1px 0 rgba(255,255,255,0.04); }
+  .nav-link { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 16px; margin-bottom: 5px; cursor: pointer; transition: all 0.18s; text-decoration: none; border:1px solid transparent; }
+  .nav-link:hover { background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.06); transform: translateX(2px); }
+  .nav-link.active { background: linear-gradient(135deg, rgba(240,122,47,0.16), rgba(240,122,47,0.06)); border-color: var(--orange-border); box-shadow: inset 0 1px 0 rgba(255,255,255,0.04); }
+  .nav-icon { width: 28px; height: 28px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.6px; color: var(--text3); background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); flex-shrink: 0; }
+  .nav-link.active .nav-icon { color: var(--ember); border-color: rgba(240,122,47,0.18); background: rgba(240,122,47,0.08); }
 
   .nav-label-active  { color: #fff3ea; font-weight: 700; font-family: 'DM Sans',sans-serif; font-size: 14px; }
   .nav-label-default { color: var(--text2); font-weight: 500; font-family: 'DM Sans',sans-serif; font-size: 14px; }
@@ -70,13 +71,13 @@ export default function Layout() {
     <div style={{ display:'flex', minHeight:'100vh', background:'var(--bg)', fontFamily:"'DM Sans',sans-serif", position:'relative' }}>
       <style>{css}</style>
       {/* PATCH: fond atmosphérique global pour donner plus de profondeur à l’app */}
-      <div style={{ position:'fixed', inset:0, pointerEvents:'none', background:'radial-gradient(circle at top right, rgba(255,123,50,0.08), transparent 22%), radial-gradient(circle at 12% 18%, rgba(240,170,43,0.04), transparent 18%)' }} />
+      <div style={{ position:'fixed', inset:0, pointerEvents:'none', background:'radial-gradient(circle at top right, rgba(240,122,47,0.08), transparent 22%), radial-gradient(circle at 12% 18%, rgba(240,170,43,0.04), transparent 18%)' }} />
 
       {/* ═══ SIDEBAR ═══ */}
       <aside className="pm-sb" style={{
         width: 264, flexShrink: 0,
-        background: 'linear-gradient(180deg, rgba(24,17,13,0.98), rgba(14,10,8,0.98))',
-        borderRight: '1px solid var(--border)',
+        background: 'linear-gradient(180deg, rgba(19,16,14,0.98), rgba(14,11,9,0.98))',
+        borderRight: '1px solid rgba(255,255,255,0.06)',
         flexDirection: 'column',
         position: 'fixed', inset: '0 auto 0 0', zIndex: 40,
         boxShadow: '20px 0 40px rgba(0,0,0,0.18)',
@@ -84,14 +85,14 @@ export default function Layout() {
         {/* LOGO */}
         <div style={{ padding:'24px 18px 18px', borderBottom:'1px solid var(--border)' }}>
           <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-            <div style={{ width:42, height:42, borderRadius:16, background:'linear-gradient(180deg,var(--orange-light),var(--orange-deep))', display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, flexShrink:0, boxShadow:'0 10px 24px rgba(216,90,27,0.32)' }}>🔥</div>
-            <div>
-              <div style={{ fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:17, color:'var(--text)', letterSpacing:'-0.3px', lineHeight:1.1 }}>{siteName}</div>
-              <div style={{ fontSize:10, color:'var(--text3)', fontWeight:600, marginTop:3, letterSpacing:'1.2px', textTransform:'uppercase' }}>{siteTagline}</div>
+              <div style={{ width:42, height:42, borderRadius:16, background:'linear-gradient(180deg,var(--orange-light),var(--orange-deep))', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Syne,sans-serif', fontSize:14, fontWeight:800, flexShrink:0, boxShadow:'0 10px 24px rgba(197,83,25,0.32)', color:'#fff' }}>CF</div>
+              <div>
+                <div style={{ fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:17, color:'var(--text)', letterSpacing:'-0.3px', lineHeight:1.1 }}>{siteName}</div>
+                <div style={{ fontSize:10, color:'var(--text3)', fontWeight:600, marginTop:3, letterSpacing:'1.2px', textTransform:'uppercase' }}>{siteTagline}</div>
+              </div>
             </div>
-          </div>
-          <div style={{ marginTop:14, padding:'10px 12px', borderRadius:16, background:'rgba(255,123,50,0.06)', border:'1px solid rgba(255,123,50,0.12)' }}>
-            <div style={{ fontSize:10, color:'var(--text3)', textTransform:'uppercase', letterSpacing:'1.2px', marginBottom:4 }}>Coach BBQ</div>
+          <div style={{ marginTop:14, padding:'10px 12px', borderRadius:16, background:'rgba(240,122,47,0.06)', border:'1px solid rgba(240,122,47,0.12)' }}>
+            <div style={{ fontSize:10, color:'var(--text3)', textTransform:'uppercase', letterSpacing:'1.2px', marginBottom:4 }}>Pitmaster brief</div>
             <div style={{ fontSize:12, color:'var(--text2)', lineHeight:1.6 }}>
               Heure de départ, fenêtre de service et repères terrain. Rien de plus.
             </div>
@@ -108,7 +109,7 @@ export default function Layout() {
               {items.map(item => (
                 <NavLink key={item.path} to={item.path} end={item.end} className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
                   {({ isActive }) => (<>
-                    <span style={{ fontSize:16, width:22, textAlign:'center', flexShrink:0 }}>{item.icon}</span>
+                    <span className="nav-icon">{item.icon}</span>
                     <span className={isActive ? 'nav-label-active' : 'nav-label-default'}>{item.label}</span>
                   </>)}
                 </NavLink>
@@ -210,7 +211,7 @@ export default function Layout() {
           padding:'0 16px', position:'sticky', top:0, zIndex:30,
         }}>
           <div style={{ display:'flex', alignItems:'center', gap:9 }}>
-            <div style={{ width:34, height:34, borderRadius:13, background:'linear-gradient(180deg,var(--orange-light),var(--orange-deep))', display:'flex', alignItems:'center', justifyContent:'center', fontSize:17, boxShadow:'0 8px 18px rgba(216,90,27,0.28)' }}>🔥</div>
+            <div style={{ width:34, height:34, borderRadius:13, background:'linear-gradient(180deg,var(--orange-light),var(--orange-deep))', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Syne,sans-serif', fontSize:12, fontWeight:800, boxShadow:'0 8px 18px rgba(197,83,25,0.28)', color:'#fff' }}>CF</div>
             <span style={{ fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:17, color:'var(--text)' }}>{siteName}</span>
           </div>
           <div style={{ display:'flex', gap:8 }}>
@@ -240,7 +241,7 @@ export default function Layout() {
             <NavLink key={item.path} to={item.path} end={item.end} style={{ flex:1, textDecoration:'none' }}>
               {({ isActive }) => (
                 <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:3, padding:'6px 4px' }}>
-                  <div style={{ width:36, height:36, borderRadius:12, background: isActive ? 'var(--orange)' : 'transparent', display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, transition:'all 0.2s' }}>{item.icon}</div>
+                  <div style={{ width:36, height:36, borderRadius:12, background: isActive ? 'rgba(240,122,47,0.14)' : 'transparent', border: isActive ? '1px solid rgba(240,122,47,0.18)' : '1px solid transparent', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'DM Mono, monospace', fontSize:11, fontWeight:700, color: isActive ? 'var(--ember)' : 'var(--text3)', transition:'all 0.2s' }}>{item.icon}</div>
                   <span style={{ fontSize:9, fontWeight:700, letterSpacing:'0.5px', textTransform:'uppercase', color: isActive ? 'var(--orange)' : 'var(--text3)', transition:'color 0.2s' }}>{item.label}</span>
                 </div>
               )}

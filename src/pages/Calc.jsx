@@ -428,43 +428,44 @@ export default function Calc() {
       <style>{`@keyframes spin{to{transform:rotate(360deg)}} @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}} .fade-up{animation:fadeUp 0.22s ease both}`}</style>
       <Snack snack={snack} />
 
-      {/* PATCH: nouvelle entrée de page plus visuelle et plus claire */}
+      {/* Entrée produit: plus éditoriale, mais orientée usage */}
       <div className="pm-hero-shell" style={{ marginBottom: 18 }}>
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))', gap:16, alignItems:'stretch' }}>
           <div>
-            <div className="pm-kicker" style={{ marginBottom: 14 }}>Coach Pitmaster</div>
+            <div className="pm-kicker" style={{ marginBottom: 14 }}>Pitmaster planning</div>
             <h1 style={{ fontSize:'clamp(30px,5vw,44px)', lineHeight:1.02, marginBottom:10 }}>
-              Réussis ta cuisson<br />
-              <span style={{ color:'var(--orange)' }}>sans te perdre dans la théorie</span>
+              Pilote ta cuisson
+              <br />
+              <span style={{ color:'var(--ember)' }}>comme un vrai service</span>
             </h1>
             <p style={{ fontSize:14, maxWidth:520, color:'var(--text2)' }}>
-              Heure de départ, fenêtre de service, repères température et signaux terrain. L’app te guide comme un vrai coach BBQ, pas comme une feuille Excel.
+              Départ, fenêtre de service, repères de texture et signaux terrain. L&apos;app garde l&apos;essentiel visible pour que tu puisses cuire, ajuster et servir sans t&apos;éparpiller.
             </p>
             <div className="pm-grid-2" style={{ marginTop: 16 }}>
-              <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid var(--border)', borderRadius:18, padding:'12px 14px' }}>
-                <div style={{ fontSize:10, color:'var(--text3)', textTransform:'uppercase', marginBottom:4 }}>Ce que tu obtiens</div>
-                <div style={{ fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:15, color:'var(--text)' }}>Départ clair, service crédible</div>
+              <div style={{ background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.06)', borderRadius:18, padding:'12px 14px' }}>
+                <div style={{ fontSize:10, color:'var(--text3)', textTransform:'uppercase', marginBottom:4 }}>Ce que tu lis</div>
+                <div style={{ fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:15, color:'var(--text)' }}>Départ net, service crédible</div>
               </div>
-              <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid var(--border)', borderRadius:18, padding:'12px 14px' }}>
-                <div style={{ fontSize:10, color:'var(--text3)', textTransform:'uppercase', marginBottom:4 }}>Lecture rapide</div>
-                <div style={{ fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:15, color:'var(--text)' }}>Repères utiles, jargon expliqué</div>
+              <div style={{ background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.06)', borderRadius:18, padding:'12px 14px' }}>
+                <div style={{ fontSize:10, color:'var(--text3)', textTransform:'uppercase', marginBottom:4 }}>Ce qui compte</div>
+                <div style={{ fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:15, color:'var(--text)' }}>Repères utiles, jargon traduit</div>
               </div>
             </div>
           </div>
-          <div style={{ position:'relative', minHeight:220, borderRadius:24, overflow:'hidden', border:'1px solid var(--border)' }}>
+          <div style={{ position:'relative', minHeight:220, borderRadius:24, overflow:'hidden', border:'1px solid rgba(255,255,255,0.06)' }}>
             <img
               src={MEAT_IMAGES[meatKey] || MEAT_IMAGES.brisket}
               alt={meatData?.full || 'BBQ'}
-              style={{ width:'100%', height:'100%', objectFit:'cover', display:'block', filter:'saturate(1.05) contrast(1.04)' }}
+              style={{ width:'100%', height:'100%', objectFit:'cover', display:'block', filter:'saturate(.96) contrast(1.06)' }}
             />
-            <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(8,6,5,0.96) 0%, rgba(8,6,5,0.35) 56%, rgba(8,6,5,0.1) 100%)' }} />
+            <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(8,6,5,0.96) 0%, rgba(8,6,5,0.28) 56%, rgba(8,6,5,0.18) 100%)' }} />
             <div style={{ position:'absolute', left:16, right:16, bottom:16 }}>
               <div className="pm-kicker" style={{ marginBottom: 10 }}>{meatData?.full || 'Cuisson low & slow'}</div>
               <div style={{ fontFamily:'Syne, sans-serif', fontSize:26, fontWeight:800, color:'var(--text)', lineHeight:1.05, marginBottom:6 }}>
                 {smokerTemp}°C · {wrapType === 'none' ? 'Sans wrap' : wrapType === 'foil' ? 'Wrap alu' : 'Wrap papier'}
               </div>
               <div style={{ fontSize:12, color:'rgba(255,247,240,0.72)', lineHeight:1.6 }}>
-                Mobile-first, simple à suivre, crédible pour le terrain.
+                Lecture compacte, pensée pour la vraie cuisson.
               </div>
             </div>
           </div>
@@ -684,26 +685,26 @@ export default function Calc() {
           )}
 
           {/* HERO */}
-          <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 20, padding: '22px 20px', marginBottom: 12, position: 'relative', overflow: 'hidden' }}>
+          <div style={{ background: 'linear-gradient(180deg, rgba(28,22,18,0.9), rgba(18,15,12,0.96))', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 24, padding: '22px 20px', marginBottom: 12, position: 'relative', overflow: 'hidden', boxShadow: 'var(--shadow-soft)' }}>
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'var(--orange)', borderRadius: '20px 20px 0 0' }} />
             <div style={{ textAlign: 'center', marginBottom: 16 }}>
               <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '1px' }}>Heure de départ recommandée</div>
-              <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 72, fontWeight: 800, lineHeight: 1, color: 'var(--orange)', letterSpacing: '-3px' }}>{result.startTime}</div>
+              <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 72, fontWeight: 800, lineHeight: 1, color: 'var(--ember)', letterSpacing: '-3px' }}>{result.startTime}</div>
               <div style={{ fontSize: 13, color: 'var(--text2)', marginTop: 10, lineHeight: 1.6 }}>
                 Pour servir à {result.serve}, démarre la cuisson à {result.startTime}.
               </div>
             </div>
 
-            <div style={{ background: 'var(--surface2)', borderRadius: 14, padding: '14px', marginBottom: 12 }}>
+            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 18, padding: '14px', marginBottom: 12 }}>
               <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 18, color: 'var(--text)', marginBottom: 6, textAlign: 'center' }}>
                 {getReadyWindowText(result)}
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 12, marginBottom: 12 }}>
-                <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '10px 12px', textAlign: 'center' }}>
+                <div style={{ background: 'rgba(0,0,0,0.16)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '10px 12px', textAlign: 'center' }}>
                   <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Fin cuisson</div>
                   <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 700, fontSize: 14, color: 'var(--text)' }}>{result.cookDoneTime}</div>
                 </div>
-                <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '10px 12px', textAlign: 'center' }}>
+                <div style={{ background: 'rgba(0,0,0,0.16)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '10px 12px', textAlign: 'center' }}>
                   <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Prêt après repos</div>
                   <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 700, fontSize: 14, color: 'var(--text)' }}>{result.readyAfterRestTime}</div>
                 </div>
@@ -718,7 +719,7 @@ export default function Calc() {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               {getHeroCues(result).map(cue => (
-                <div key={cue.label} style={{ background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 12, padding: '10px 12px' }}>
+                <div key={cue.label} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '10px 12px' }}>
                   <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>{cue.label}</div>
                   <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 700, fontSize: 12, color: 'var(--text)' }}>{cue.value}</div>
                 </div>
