@@ -33,11 +33,28 @@ const css = `
 `
 
 export default function AdminLayout() {
-  const { user, signOut, isAdmin } = useAuth()
+  const { user, signOut, isAdmin, profile } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
 
-  if (!isAdmin) return null
+  if (!isAdmin) {
+    return (
+      <div style={{ minHeight:'100vh', background:'#080706', display:'flex', alignItems:'center', justifyContent:'center', padding:24, color:'#f5f1ea', fontFamily:"'DM Sans', sans-serif" }}>
+        <div style={{ maxWidth:420, width:'100%', background:'#14110f', border:'1px solid #241d18', borderRadius:16, padding:24 }}>
+          <div style={{ fontFamily:"'Syne', sans-serif", fontWeight:800, fontSize:24, marginBottom:10 }}>Admin indisponible</div>
+          <div style={{ color:'#b7aea4', lineHeight:1.7, marginBottom:14 }}>
+            Le compte connecté n’a pas de rôle admin actif.
+          </div>
+          <div style={{ color:'#8a7060', fontSize:13, marginBottom:18 }}>
+            Rôle détecté : {profile?.role || 'member'}
+          </div>
+          <button onClick={() => navigate('/app')} style={{ minHeight:44, padding:'0 18px', borderRadius:12, border:'1px solid #2b2b2b', background:'#161616', color:'#f5f1ea', fontWeight:700, cursor:'pointer' }}>
+            Retour à l’app
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   const currentPage = location.pathname.split('/').pop() || 'Dashboard'
 

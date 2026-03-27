@@ -17,21 +17,86 @@ export function AuthProvider({ children }) {
   const [roles,   setRoles]   = useState([])
   const [loading, setLoading] = useState(true)
 
-  const loadProfile = useCallback(async (userId) => {
+  const loadProfile = useCallback(async (authUser) => {
+    const userId = authUser?.id
     if (!userId) { setProfile(null); setRoles([]); return }
     try {
+      let nextProfile = null
+
       const { data } = await supabase.rpc('get_my_profile')
       if (data && !data.error) {
-        setProfile(data)
-        setRoles(data.roles || [])
-        // Mettre à jour last_seen
-        await supabase
-          .from('profiles')
-          .update({ last_seen_at: new Date().toISOString() })
-          .eq('id', userId)
+        nextProfile = data
       }
+
+      // PATCH: fallback robuste pour les comptes existants avant la migration profiles/roles
+      if (!nextProfile) {
+        const { data: directProfile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .maybeSingle()
+
+        if (directProfile) {
+          nextProfile = {
+            ...directProfile,
+            roles: directProfile.role ? [directProfile.role] : [],
+          }
+        }
+      }
+
+      // PATCH: si le profil n'existe pas encore, on le crée côté app pour éviter un admin noir sur les anciens comptes
+      if (!nextProfile) {
+        const fallbackProfile = {
+          id: userId,
+          email: authUser.email || null,
+          first_name: authUser.user_metadata?.first_name || '',
+          last_name: authUser.user_metadata?.last_name || '',
+          role: 'member',
+          roles: ['member'],
+          status: 'active',
+          account_status: 'active',
+          plan_code: 'free',
+          last_seen_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        }
+
+        const { data: insertedProfile } = await supabase
+          .from('profiles')
+          .upsert({
+            id: fallbackProfile.id,
+            email: fallbackProfile.email,
+            first_name: fallbackProfile.first_name,
+            last_name: fallbackProfile.last_name,
+            role: fallbackProfile.role,
+            status: fallbackProfile.status,
+            account_status: fallbackProfile.account_status,
+            plan_code: fallbackProfile.plan_code,
+            last_seen_at: fallbackProfile.last_seen_at,
+          })
+          .select()
+          .single()
+
+        if (insertedProfile) {
+          nextProfile = {
+            ...insertedProfile,
+            roles: insertedProfile.role ? [insertedProfile.role] : ['member'],
+          }
+        } else {
+          nextProfile = fallbackProfile
+        }
+      }
+
+      setProfile(nextProfile)
+      setRoles(nextProfile.roles || (nextProfile.role ? [nextProfile.role] : []))
+
+      await supabase
+        .from('profiles')
+        .update({ last_seen_at: new Date().toISOString() })
+        .eq('id', userId)
     } catch (e) {
       console.error('loadProfile error', e)
+      setProfile(null)
+      setRoles([])
     }
   }, [])
 
@@ -39,14 +104,14 @@ export function AuthProvider({ children }) {
     // Session initiale
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
-      loadProfile(session?.user?.id).finally(() => setLoading(false))
+      loadProfile(session?.user ?? null).finally(() => setLoading(false))
     })
 
     // Écouter les changements auth
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         setUser(session?.user ?? null)
-        await loadProfile(session?.user?.id)
+        await loadProfile(session?.user ?? null)
         setLoading(false)
       }
     )
@@ -82,7 +147,7 @@ export function AuthProvider({ children }) {
     <AuthContext.Provider value={{
       user, profile, roles, loading,
       isAdmin, isEditor, isSupport, isPro,
-      signOut, updateProfile, reloadProfile: () => loadProfile(user?.id),
+      signOut, updateProfile, reloadProfile: () => loadProfile(user),
     }}>
       {children}
     </AuthContext.Provider>
