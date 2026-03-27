@@ -15,6 +15,9 @@ const css = `
   .link-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .material-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
   .guide-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  .landing-split { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: center; }
+  .landing-footer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .hero-media { min-height: 520px; }
   .hero-panel { animation: panelFloat 8s ease-in-out infinite; }
   .hero-glow { animation: glowPulse 7s ease-in-out infinite; }
   .landing-topnav { display:flex; align-items:center; gap:18px; flex-wrap:wrap; }
@@ -25,14 +28,16 @@ const css = `
   .lift { transition: transform .24s ease, border-color .24s ease, box-shadow .24s ease; }
   .lift:hover { transform: translateY(-3px); border-color: rgba(240,122,47,0.22) !important; box-shadow: 0 24px 52px rgba(0,0,0,0.28); }
   @media (max-width: 1080px) {
-    .hero-grid, .feature-grid, .material-grid { grid-template-columns: 1fr; }
+    .hero-grid, .feature-grid, .material-grid, .landing-split, .landing-footer-grid { grid-template-columns: 1fr; }
     .guide-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .hero-media { min-height: 440px; }
   }
   @media (max-width: 720px) {
     .link-grid, .guide-strip { grid-template-columns: 1fr; }
     .landing-topnav { gap: 10px; justify-content: flex-end; }
     .landing-topnav > button:not(.landing-cta) { display:none; }
     .landing-shell-pad { padding: 20px 16px 44px; }
+    .hero-media { min-height: 360px; }
   }
 `
 
@@ -250,7 +255,7 @@ export default function Landing() {
 
             <div style={{ padding: 12 }}>
               <div className="hero-panel premium-card" style={{ overflow: 'hidden' }}>
-                <div style={{ position: 'relative', minHeight: 520 }}>
+                <div className="hero-media" style={{ position: 'relative' }}>
                   <img src={SMOKER_IMAGE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'saturate(.84) contrast(1.04)' }} />
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(23,18,15,0.9), rgba(23,18,15,0.06) 56%)' }} />
                   <div style={{ position: 'absolute', top: 18, left: 18, right: 18, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -318,7 +323,7 @@ export default function Landing() {
 
       <section id="calculateur" style={{ padding: '0 24px 58px' }}>
         <div className="pm-shell premium-card" style={{ padding: 26 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, alignItems: 'center' }}>
+          <div className="landing-split">
             <div>
               <div className="pm-eyebrow" style={{ marginBottom: 10, color:'var(--text3)' }}>Le calculateur</div>
               <h2 className="pm-section-title" style={{ fontSize: 'clamp(34px, 4.8vw, 58px)', marginBottom: 14 }}>
@@ -463,7 +468,7 @@ export default function Landing() {
 
       <footer style={{ borderTop: '1px solid rgba(255,255,255,0.08)', padding: '28px 24px 48px' }}>
         <div className="pm-shell">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+          <div className="landing-footer-grid">
             <div>
               <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, fontWeight: 800, marginBottom: 8 }}>Charbon &amp; Flamme</div>
               <p className="pm-section-copy" style={{ maxWidth: 420 }}>

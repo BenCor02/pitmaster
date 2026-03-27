@@ -17,6 +17,10 @@ export const MEAT_IMAGES = {
   paleron:       U('photo-1546964124-0cce460f38ef', 800, 500), // chuck roast beef
   plat_de_cote:  U('photo-1607532941433-304659e8198a', 800, 500), // short ribs beef
   lamb_shoulder: U('photo-1504674900247-0877df9cc836', 800, 500),
+  // PATCH: visuels ajoutés pour éviter les cartes vides sur la landing et dans l'app
+  whole_chicken: U('photo-1518492104633-130d0cc84637', 800, 500),
+  chicken_pieces: U('photo-1527477396000-e27163b481c2', 800, 500),
+  lamb_leg: U('photo-1544025162-d76694265947', 800, 500),
 }
 
 // ── Landing / Hero ────────────────────────────────────────────
