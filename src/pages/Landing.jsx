@@ -17,11 +17,18 @@ const css = `
   .guide-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
   .landing-split { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: center; }
   .landing-footer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .landing-section { padding: 0 24px 58px; }
+  .landing-section-tight { padding: 0 24px 42px; }
   .hero-media { min-height: 520px; }
   .hero-panel { animation: panelFloat 8s ease-in-out infinite; }
   .hero-glow { animation: glowPulse 7s ease-in-out infinite; }
   .landing-topnav { display:flex; align-items:center; gap:18px; flex-wrap:wrap; }
   .landing-shell-pad { padding: 34px 24px 62px; }
+  .landing-brand-sub { display:block; }
+  .landing-hero-copy { max-width: 560px; font-size: 18px; color: rgba(255,245,235,0.76); line-height: 1.7; margin-bottom: 26px; }
+  .landing-hero-title { font-size: clamp(46px, 8vw, 96px); line-height: .92; letter-spacing: -4px; color: #fff5eb; max-width: 820px; }
+  .landing-hero-content { padding: 28px 16px 18px 20px; }
+  .landing-cook-card { height: 240px; }
   /* PATCH: landing alignée sur le thème dark premium de l'app */
   .premium-card { background: linear-gradient(180deg, rgba(26,26,26,0.96), rgba(16,16,16,0.98)); border: 1px solid rgba(255,255,255,0.08); border-radius: 28px; box-shadow: 0 18px 44px rgba(0,0,0,0.24); }
   .dark-card { background: linear-gradient(180deg, rgba(23,18,15,0.96), rgba(15,12,10,0.98)); border: 1px solid rgba(255,255,255,0.08); border-radius: 30px; box-shadow: 0 22px 54px rgba(25,18,14,0.32); }
@@ -36,8 +43,15 @@ const css = `
     .link-grid, .guide-strip { grid-template-columns: 1fr; }
     .landing-topnav { gap: 10px; justify-content: flex-end; }
     .landing-topnav > button:not(.landing-cta) { display:none; }
+    .landing-brand-sub { display:none; }
     .landing-shell-pad { padding: 20px 16px 44px; }
+    .landing-section { padding: 0 16px 42px; }
+    .landing-section-tight { padding: 0 16px 32px; }
     .hero-media { min-height: 360px; }
+    .landing-hero-content { padding: 18px 4px 10px 4px; }
+    .landing-hero-title { font-size: 38px; line-height: .96; letter-spacing: -2px; }
+    .landing-hero-copy { font-size: 15px; line-height: 1.6; margin-bottom: 20px; }
+    .landing-cook-card { height: 210px; }
   }
 `
 
@@ -189,9 +203,9 @@ export default function Landing() {
           <div style={{ width: 44, height: 44, borderRadius: 14, display: 'grid', placeItems: 'center', background: 'linear-gradient(180deg,var(--orange-light),var(--orange-deep))', color: '#fff', boxShadow: '0 16px 34px rgba(197,83,25,0.22)', fontFamily: 'Syne, sans-serif', fontSize: 14, fontWeight: 800 }}>
             CF
           </div>
-          <div style={{ textAlign: 'left' }}>
+          <div style={{ textAlign: 'left', minWidth: 0 }}>
             <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 16, fontWeight: 800, lineHeight: 1 }}>Charbon &amp; Flamme</div>
-            <div className="pm-eyebrow" style={{ marginTop: 3, color:'var(--text3)' }}>planifier sa cuisson bbq</div>
+            <div className="pm-eyebrow landing-brand-sub" style={{ marginTop: 3, color:'var(--text3)' }}>planifier sa cuisson bbq</div>
           </div>
         </button>
 
@@ -216,16 +230,16 @@ export default function Landing() {
         <div className="pm-shell dark-card" style={{ padding: 18, position: 'relative', overflow: 'hidden' }}>
           <div className="hero-glow" style={{ position: 'absolute', right: -80, top: -60, width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(circle, rgba(240,122,47,0.28), transparent 68%)', pointerEvents: 'none' }} />
           <div className="hero-grid" style={{ position: 'relative', zIndex: 1 }}>
-            <div style={{ padding: '28px 16px 18px 20px' }}>
+            <div className="landing-hero-content">
               <div className="hero-item pm-kicker" style={{ marginBottom: 18 }}>brisket · ribs · pulled pork · agneau</div>
               <div className="hero-item" style={{ marginBottom: 14 }}>
-                <h1 style={{ fontSize: 'clamp(46px, 8vw, 96px)', lineHeight: 0.92, letterSpacing: '-4px', color: '#fff5eb', maxWidth: 820 }}>
+                <h1 className="landing-hero-title">
                   À quelle heure
                   <br />
                   <span style={{ color: 'var(--ember)' }}>lancer ton BBQ ?</span>
                 </h1>
               </div>
-              <p className="hero-item" style={{ maxWidth: 560, fontSize: 18, color: 'rgba(255,245,235,0.76)', lineHeight: 1.7, marginBottom: 26 }}>
+              <p className="hero-item landing-hero-copy">
                 Entre ta viande, son poids et ton heure de service. On te dit quand allumer le fumoir, quand poser la viande et quelle fenêtre viser pour servir à temps.
               </p>
               <div className="hero-item" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 22 }}>
@@ -300,7 +314,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <section style={{ padding: '0 24px 42px' }}>
+      <section className="landing-section-tight">
         <div className="pm-shell premium-card" style={{ padding: 22 }}>
           <div style={{ display: 'grid', gap: 12 }}>
             <div className="pm-kicker">Pourquoi c’est utile</div>
@@ -321,7 +335,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <section id="calculateur" style={{ padding: '0 24px 58px' }}>
+      <section id="calculateur" className="landing-section">
         <div className="pm-shell premium-card" style={{ padding: 26 }}>
           <div className="landing-split">
             <div>
@@ -364,7 +378,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <section style={{ padding: '0 24px 58px' }}>
+      <section className="landing-section">
         <div className="pm-shell feature-grid">
           {BENEFITS.map(({ title, copy }) => (
             <div key={title} style={{ paddingTop: 18, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
@@ -375,7 +389,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <section id="cuissons" style={{ padding: '0 24px 58px' }}>
+      <section id="cuissons" className="landing-section">
         <div className="pm-shell">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', gap: 24, flexWrap: 'wrap', marginBottom: 18 }}>
             <div>
@@ -395,7 +409,7 @@ export default function Landing() {
                 className="dark-card lift"
                 style={{ overflow: 'hidden', cursor: 'pointer', textAlign: 'left', color: 'inherit', padding: 0 }}
               >
-                <div style={{ position: 'relative', height: 240 }}>
+                <div className="landing-cook-card" style={{ position: 'relative' }}>
                   <img src={MEAT_IMAGES[item.key]} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover', filter:'saturate(.92) contrast(1.02)' }} />
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(23,18,15,0.9), rgba(23,18,15,0.08) 60%)' }} />
                   <div style={{ position: 'absolute', left: 16, right: 16, bottom: 16 }}>
@@ -410,7 +424,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <section id="comment-ca-marche" style={{ padding: '0 24px 58px' }}>
+      <section id="comment-ca-marche" className="landing-section">
         <div className="pm-shell premium-card" style={{ padding: 26 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', gap: 24, flexWrap: 'wrap', marginBottom: 18 }}>
             <div>
@@ -440,7 +454,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <section id="guides" style={{ padding: '0 24px 58px' }}>
+      <section id="guides" className="landing-section">
         <div className="pm-shell">
           <div className="premium-card" style={{ padding: 24 }}>
             <div className="pm-eyebrow" style={{ marginBottom: 10, color:'var(--text3)' }}>À garder en tête</div>
@@ -466,7 +480,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <footer style={{ borderTop: '1px solid rgba(255,255,255,0.08)', padding: '28px 24px 48px' }}>
+      <footer style={{ borderTop: '1px solid rgba(255,255,255,0.08)', padding: '28px 16px 48px' }}>
         <div className="pm-shell">
           <div className="landing-footer-grid">
             <div>
