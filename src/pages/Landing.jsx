@@ -6,6 +6,7 @@ const css = `
   @keyframes heroEnter { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes panelFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
   @keyframes glowPulse { 0%, 100% { opacity: .45; transform: scale(1); } 50% { opacity: .85; transform: scale(1.04); } }
+  @keyframes emberSweep { 0% { transform: translateX(-14px); opacity: .16; } 100% { transform: translateX(14px); opacity: .32; } }
   .hero-item { animation: heroEnter .65s ease both; }
   .hero-item:nth-child(2) { animation-delay: .08s; }
   .hero-item:nth-child(3) { animation-delay: .16s; }
@@ -26,14 +27,21 @@ const css = `
   .landing-shell-pad { padding: 34px 24px 62px; }
   .landing-brand-sub { display:block; }
   .landing-hero-copy { max-width: 560px; font-size: 18px; color: rgba(255,245,235,0.76); line-height: 1.7; margin-bottom: 26px; }
-  .landing-hero-title { font-size: clamp(46px, 8vw, 96px); line-height: .92; letter-spacing: -4px; color: #fff5eb; max-width: 820px; }
+  .landing-hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(60px, 9vw, 124px); line-height: .88; letter-spacing: 0.02em; color: #fff5eb; max-width: 820px; text-shadow: 0 10px 30px rgba(0,0,0,0.34); }
   .landing-hero-content { padding: 28px 16px 18px 20px; }
   .landing-cook-card { height: 240px; }
-  /* PATCH: landing alignée sur le thème dark premium de l'app */
-  .premium-card { background: linear-gradient(180deg, rgba(26,26,26,0.96), rgba(16,16,16,0.98)); border: 1px solid rgba(255,255,255,0.08); border-radius: 28px; box-shadow: 0 18px 44px rgba(0,0,0,0.24); }
-  .dark-card { background: linear-gradient(180deg, rgba(23,18,15,0.96), rgba(15,12,10,0.98)); border: 1px solid rgba(255,255,255,0.08); border-radius: 30px; box-shadow: 0 22px 54px rgba(25,18,14,0.32); }
+  .landing-hero-shell { position: relative; background: radial-gradient(circle at top right, rgba(255,90,54,0.22), transparent 24%), linear-gradient(180deg, rgba(22,22,22,0.92), rgba(10,10,10,0.98)); border: 1px solid rgba(255,255,255,0.08); border-radius: 36px; box-shadow: 0 30px 90px rgba(0,0,0,0.42); overflow: hidden; }
+  .landing-hero-shell::before { content: ""; position: absolute; inset: 0; background: linear-gradient(120deg, transparent 0%, rgba(255,90,54,0.05) 46%, transparent 100%); mix-blend-mode: screen; animation: emberSweep 6s ease-in-out infinite alternate; pointer-events: none; }
+  .premium-card { background: linear-gradient(180deg, rgba(24,24,24,0.98), rgba(14,14,14,0.99)); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; box-shadow: 0 18px 44px rgba(0,0,0,0.24); position: relative; overflow: hidden; }
+  .premium-card::before { content: ""; position: absolute; inset: 0 auto auto 0; width: 100%; height: 1px; background: linear-gradient(90deg, rgba(255,90,54,0.34), transparent 60%); pointer-events: none; }
+  .dark-card { background: linear-gradient(180deg, rgba(18,18,18,0.98), rgba(9,9,9,1)); border: 1px solid rgba(255,255,255,0.08); border-radius: 30px; box-shadow: 0 22px 54px rgba(25,18,14,0.32); position: relative; overflow: hidden; }
+  .dark-card::before { content: ""; position: absolute; inset: 0 auto auto 0; width: 100%; height: 1px; background: linear-gradient(90deg, rgba(255,90,54,0.30), transparent 52%); pointer-events: none; }
+  .landing-metal-card { background: linear-gradient(180deg, rgba(28,28,28,0.98), rgba(14,14,14,1)); border: 1px solid rgba(255,255,255,0.10); border-radius: 18px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 18px 32px rgba(0,0,0,0.24); position: relative; overflow: hidden; }
+  .landing-metal-card::after { content: ""; position: absolute; inset: auto 0 0 0; height: 2px; background: linear-gradient(90deg, rgba(255,90,54,0.75), rgba(255,176,103,0.36), transparent 80%); }
+  .landing-steel-rule { height: 1px; width: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent); }
+  .landing-fire-chip { padding: 8px 12px; border-radius: 12px; background: linear-gradient(180deg, rgba(255,90,54,0.12), rgba(255,90,54,0.04)); border: 1px solid rgba(255,90,54,0.18); color: #f5f1ea; font-size: 12px; font-weight: 700; letter-spacing: .02em; }
   .lift { transition: transform .24s ease, border-color .24s ease, box-shadow .24s ease; }
-  .lift:hover { transform: translateY(-3px); border-color: rgba(240,122,47,0.22) !important; box-shadow: 0 24px 52px rgba(0,0,0,0.28); }
+  .lift:hover { transform: translateY(-3px); border-color: rgba(255,90,54,0.26) !important; box-shadow: 0 24px 52px rgba(0,0,0,0.30); }
   @media (max-width: 1080px) {
     .hero-grid, .feature-grid, .material-grid, .landing-split, .landing-footer-grid { grid-template-columns: 1fr; }
     .guide-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -49,7 +57,7 @@ const css = `
     .landing-section-tight { padding: 0 16px 32px; }
     .hero-media { min-height: 360px; }
     .landing-hero-content { padding: 18px 4px 10px 4px; }
-    .landing-hero-title { font-size: 38px; line-height: .96; letter-spacing: -2px; }
+    .landing-hero-title { font-size: 58px; line-height: .92; }
     .landing-hero-copy { font-size: 15px; line-height: 1.6; margin-bottom: 20px; }
     .landing-cook-card { height: 210px; }
   }
@@ -233,36 +241,44 @@ export default function Landing() {
       </header>
 
       <section className="landing-shell-pad">
-        <div className="pm-shell dark-card" style={{ padding: 18, position: 'relative', overflow: 'hidden' }}>
+        <div className="pm-shell landing-hero-shell" style={{ padding: 18, position: 'relative' }}>
           <div className="hero-glow" style={{ position: 'absolute', right: -80, top: -60, width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(circle, rgba(240,122,47,0.28), transparent 68%)', pointerEvents: 'none' }} />
           <div className="hero-grid" style={{ position: 'relative', zIndex: 1 }}>
             <div className="landing-hero-content">
-              <div className="hero-item pm-kicker" style={{ marginBottom: 18 }}>brisket · ribs · pulled pork · agneau</div>
+              <div className="hero-item pm-kicker" style={{ marginBottom: 18 }}>charbon · braise · cuisson lente · service à l’heure</div>
               <div className="hero-item" style={{ marginBottom: 14 }}>
                 <h1 className="landing-hero-title">
-                  À quelle heure
+                  PLANIFIE
                   <br />
-                  <span style={{ color: 'var(--ember)' }}>lancer ton BBQ ?</span>
+                  TON SERVICE
+                  <br />
+                  <span style={{ color: 'var(--ember)' }}>COMME UN PITMASTER.</span>
                 </h1>
               </div>
               <p className="hero-item landing-hero-copy">
-                Entre ta viande, son poids et ton heure de service. On te dit quand allumer le fumoir, quand poser la viande et quelle fenêtre viser pour servir à temps.
+                Brisket, ribs, pulled pork, paleron. Entre ta viande, ton poids et ton heure de service. On te dit quand allumer le fumoir et quand lancer la cuisson pour servir au bon moment.
               </p>
               <div className="hero-item" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 22 }}>
-                <button onClick={() => openCalculator()} className="pm-btn-primary" style={{ width: 'auto', padding: '16px 28px', fontSize: 15 }}>
-                  Calculer ma cuisson
+                <button onClick={() => openCalculator()} className="pm-btn-primary" style={{ width: 'auto', padding: '16px 28px', fontSize: 15, minWidth: 220 }}>
+                  Lancer le calculateur
                 </button>
-                <button onClick={() => scrollToSection('comment-ca-marche')} className="pm-btn-secondary" style={{ width: 'auto', padding: '15px 20px', fontSize: 15, background: 'rgba(255,255,255,0.06)', color: '#fff5eb', border: '1px solid rgba(255,255,255,0.12)' }}>
-                  Voir comment ça marche
+                <button onClick={() => scrollToSection('comment-ca-marche')} className="pm-btn-secondary" style={{ width: 'auto', padding: '15px 20px', fontSize: 15 }}>
+                  Voir le principe
                 </button>
               </div>
+              <div className="hero-item" style={{ display:'flex', gap:10, flexWrap:'wrap', marginBottom: 18 }}>
+                {['À quelle heure lancer ?', 'Quand wrapper ?', 'Combien de repos prévoir ?'].map((item) => (
+                  <span key={item} className="landing-fire-chip">{item}</span>
+                ))}
+              </div>
+              <div className="landing-steel-rule hero-item" style={{ marginBottom: 18 }} />
               <div className="hero-item feature-grid" style={{ marginTop: 8 }}>
                 {[
                   ['Départ', '06h00', <ClockIcon key="clock" />],
                   ['Service', '18h00 → 19h30', <FireIcon key="fire" />],
                   ['Fumoir', '110°C stables', <GaugeIcon key="gauge" />],
                 ].map(([label, value, icon]) => (
-                  <div key={label} style={{ padding: '14px 14px 16px', borderRadius: 22, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <div key={label} className="landing-metal-card" style={{ padding: '14px 14px 16px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                       <IconFrame dark>{icon}</IconFrame>
                       <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.56)' }}>{label}</div>
@@ -274,7 +290,7 @@ export default function Landing() {
             </div>
 
             <div style={{ padding: 12 }}>
-              <div className="hero-panel premium-card" style={{ overflow: 'hidden' }}>
+              <div className="hero-panel premium-card" style={{ overflow: 'hidden', borderRadius: 30 }}>
                 <div className="hero-media" style={{ position: 'relative' }}>
                   <img
                     src={heroVisual}
@@ -290,9 +306,9 @@ export default function Landing() {
                     }}
                     style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'saturate(.84) contrast(1.04)' }}
                   />
-                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(23,18,15,0.9), rgba(23,18,15,0.06) 56%)' }} />
+                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(12,8,7,0.96), rgba(12,8,7,0.08) 56%)' }} />
                   <div style={{ position: 'absolute', top: 18, left: 18, right: 18, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div className="pm-kicker">resultat premium</div>
+                    <div className="pm-kicker">service sous contrôle</div>
                     <div style={{ display: 'inline-flex', gap: 6 }}>
                       {[0, 1, 2].map((dot) => (
                         <span key={dot} style={{ width: 8, height: 8, borderRadius: '50%', background: dot === 0 ? 'var(--orange)' : 'rgba(255,255,255,0.34)' }} />
@@ -300,18 +316,18 @@ export default function Landing() {
                     </div>
                   </div>
                   <div style={{ position: 'absolute', left: 18, right: 18, bottom: 18 }}>
-                    <div style={{ padding: '18px 18px 16px', borderRadius: 24, background: 'rgba(20,16,13,0.8)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(18px)' }}>
+                    <div className="landing-metal-card" style={{ padding: '18px 18px 16px', borderRadius: 24, background: 'rgba(18,16,15,0.82)', backdropFilter: 'blur(18px)' }}>
                       <div style={{ display: 'grid', gap: 12 }}>
                         <div>
-                          <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.56)', marginBottom: 6 }}>heure de lancement</div>
+                          <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.56)', marginBottom: 6 }}>allume le fumoir à</div>
                           <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 'clamp(40px, 6vw, 64px)', fontWeight: 800, lineHeight: .92, color: '#fff5eb' }}>06h00</div>
                         </div>
                         <div className="link-grid">
-                          <div style={{ padding: '12px 14px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                            <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.56)', marginBottom: 6 }}>mise au repos</div>
+                          <div className="landing-metal-card" style={{ padding: '12px 14px', borderRadius: 18, background: 'rgba(255,255,255,0.05)' }}>
+                            <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.56)', marginBottom: 6 }}>repos lancé</div>
                             <div style={{ fontFamily: 'DM Mono, monospace', color: '#fff5eb', fontWeight: 700 }}>17h10</div>
                           </div>
-                          <div style={{ padding: '12px 14px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                          <div className="landing-metal-card" style={{ padding: '12px 14px', borderRadius: 18, background: 'rgba(255,255,255,0.05)' }}>
                             <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.56)', marginBottom: 6 }}>fenêtre service</div>
                             <div style={{ fontFamily: 'DM Mono, monospace', color: '#fff5eb', fontWeight: 700 }}>18h00 → 19h30</div>
                           </div>
@@ -345,7 +361,7 @@ export default function Landing() {
             </p>
             <div style={{ display:'flex', gap:10, flexWrap:'wrap', marginTop: 2 }}>
               {USER_QUESTIONS.map((item) => (
-                <span key={item} style={{ padding:'8px 12px', borderRadius:999, background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', color:'var(--text2)', fontSize:12, fontWeight:600 }}>
+                <span key={item} className="landing-fire-chip">
                   {item}
                 </span>
               ))}
@@ -382,7 +398,7 @@ export default function Landing() {
                 ['Tu prévois le repos', <GaugeIcon key="gauge" />],
                 ['Tu retrouves tes cuissons', <SaveIcon key="save" />],
               ].map(([label, icon]) => (
-                <div key={label} className="premium-card lift" style={{ padding: 18 }}>
+                <div key={label} className="landing-metal-card lift" style={{ padding: 18 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                     <IconFrame>{icon}</IconFrame>
                     <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, fontWeight: 700, color: 'var(--text)' }}>{label}</div>
@@ -466,8 +482,8 @@ export default function Landing() {
               ['02', 'Entre ton poids et ton heure', 'Tu donnes le poids, la méthode et l’heure à laquelle tu veux servir.'],
               ['03', 'Reçois ton plan', 'Le site te donne l’heure de départ, la fenêtre de service et les repères utiles.'],
             ].map(([step, title, copy]) => (
-              <div key={title} className="premium-card lift" style={{ padding: 18 }}>
-                <div style={{ display: 'inline-flex', marginBottom: 12, padding: '6px 10px', borderRadius: 999, background: 'var(--orange-bg)', border: '1px solid var(--orange-border)', color: 'var(--orange)', fontSize: 11, fontWeight: 800 }}>
+              <div key={title} className="landing-metal-card lift" style={{ padding: 18 }}>
+                <div style={{ display: 'inline-flex', marginBottom: 12, padding: '6px 10px', borderRadius: 10, background: 'var(--orange-bg)', border: '1px solid var(--orange-border)', color: 'var(--orange)', fontSize: 11, fontWeight: 800 }}>
                   {step}
                 </div>
                 <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--text)', marginBottom: 10 }}>{title}</div>
@@ -495,7 +511,7 @@ export default function Landing() {
                 'Le wrap aide',
                 'Mieux vaut finir un peu tôt',
               ].map((item) => (
-                <span key={item} style={{ padding:'8px 12px', borderRadius:999, background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', color:'var(--text2)', fontSize:12, fontWeight:600 }}>
+                <span key={item} className="landing-fire-chip">
                   {item}
                 </span>
               ))}
