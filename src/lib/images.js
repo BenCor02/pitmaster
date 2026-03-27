@@ -7,20 +7,24 @@
 const U = (id, w = 800, h = 600) =>
   `https://images.unsplash.com/${id}?w=${w}&h=${h}&q=80&fit=crop&auto=format`
 
+// PATCH: requêtes photo plus explicites pour coller visuellement à chaque viande
+const S = (query, w = 800, h = 600) =>
+  `https://source.unsplash.com/${w}x${h}/?${encodeURIComponent(query)}`
+
 // ── Viandes ───────────────────────────────────────────────────
 export const MEAT_IMAGES = {
-  brisket:       U('photo-1558030006-450675393462', 800, 500),
-  pork_shoulder: U('photo-1529193591184-b1d58069ecdd', 800, 500),
-  ribs_pork:     U('photo-1544025162-d76694265947', 800, 500),
-  ribs_beef:     U('photo-1555939594-58d7cb561ad1', 800, 500),
-  ribs_baby_back:U('photo-1544025162-d76694265947', 800, 500),
-  paleron:       U('photo-1546964124-0cce460f38ef', 800, 500), // chuck roast beef
-  plat_de_cote:  U('photo-1607532941433-304659e8198a', 800, 500), // short ribs beef
-  lamb_shoulder: U('photo-1504674900247-0877df9cc836', 800, 500),
+  brisket:       S('smoked brisket bbq sliced', 800, 500),
+  pork_shoulder: S('pulled pork bbq smoked', 800, 500),
+  ribs_pork:     S('pork ribs bbq smoked', 800, 500),
+  ribs_beef:     S('beef short ribs bbq smoked', 800, 500),
+  ribs_baby_back:S('baby back ribs bbq smoked', 800, 500),
+  paleron:       S('smoked chuck roast bbq', 800, 500),
+  plat_de_cote:  S('beef short ribs plate ribs bbq', 800, 500),
+  lamb_shoulder: S('smoked lamb shoulder bbq', 800, 500),
   // PATCH: visuels ajoutés pour éviter les cartes vides sur la landing et dans l'app
-  whole_chicken: U('photo-1518492104633-130d0cc84637', 800, 500),
-  chicken_pieces: U('photo-1527477396000-e27163b481c2', 800, 500),
-  lamb_leg: U('photo-1544025162-d76694265947', 800, 500),
+  whole_chicken: S('whole chicken smoker bbq', 800, 500),
+  chicken_pieces: S('smoked chicken thighs drumsticks bbq', 800, 500),
+  lamb_leg: S('smoked lamb leg bbq', 800, 500),
 }
 
 // ── Landing / Hero ────────────────────────────────────────────
