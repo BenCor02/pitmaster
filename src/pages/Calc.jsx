@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { MEAT_IMAGES } from '../lib/images'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
@@ -6,7 +6,8 @@ import { supabase } from '../lib/supabase'
 import { MEATS } from '../lib/meats'
 import {
   calculateLowSlow, recalibrate, formatDuration, formatTime,
-  addMinutes, validateInput, PHASE_BASES, buildTimeline,
+  addMinutes, validateInput, PHASE_BASES, buildTimeline, COOKING_METHODS,
+  getCookingProfile, getMethodConfig,
 } from '../lib/calculator.js'
 import { useSnack } from '../components/Snack'
 import Snack from '../components/Snack'
@@ -24,6 +25,8 @@ const MEAT_CATEGORIES = {
   'Bœuf': ['brisket', 'ribs_beef', 'paleron', 'plat_de_cote'],
   'Porc': ['pork_shoulder', 'ribs_pork', 'ribs_baby_back'],
   'Agneau': ['lamb_shoulder'],
+  'Volaille': ['whole_chicken', 'chicken_pieces'],
+  'Gigot': ['lamb_leg'],
 }
 
 const SMOKER_TYPES = [
@@ -45,6 +48,8 @@ const MARBLING_TYPES = [
   { id: 'medium', label: 'Moyen', emoji: '🟡', desc: 'Référence' },
   { id: 'high', label: 'Fort', emoji: '🟠', desc: 'Wagyu / Prime — très persillé' },
 ]
+
+const DEFAULT_METHOD = 'low_and_slow'
 
 const PITMASTER_CONTENT = [
   {
@@ -92,6 +97,8 @@ const toInt = (value, fallback = 0) => {
   const n = parseInt(value, 10)
   return Number.isFinite(n) ? n : fallback
 }
+
+const clamp = (value, min, max) => Math.min(Math.max(value, min), max)
 
 // PATCH: persistance locale réduite aux brouillons de formulaire uniquement
 function getCalcDraft() {
@@ -278,6 +285,42 @@ function getStepTemperatureBadge(step, result) {
   return null
 }
 
+// PATCH: roadmap visuelle simple branchée sur le moteur et affichée comme un plan d’action
+function buildRoadmap(result) {
+  if (!result) return []
+  const ignitionDate = result.startTimeRaw ? new Date(result.startTimeRaw) : new Date()
+  const preheatEnd = result.meatOnSmokerAtRaw ? new Date(result.meatOnSmokerAtRaw) : addMinutes(ignitionDate, result.preheatMin || 30)
+  const stallAt = addMinutes(preheatEnd, result.phase1Min || Math.round((result.cookMin || 0) * 0.45))
+  const wrapAt = result.wrapType !== 'none'
+    ? addMinutes(preheatEnd, Math.max((result.phase1Min || 0) + Math.round((result.stallMin || 0) * 0.35), 45))
+    : null
+  const probeAt = addMinutes(preheatEnd, Math.max((result.cookMin || 0) - Math.max(Math.round((result.phase3Min || 0) * 0.45), 30), 45))
+  const cookDoneAt = result.cookDoneAtRaw ? new Date(result.cookDoneAtRaw) : addMinutes(preheatEnd, result.cookMin || 0)
+  const readyAt = result.readyAtRaw ? new Date(result.readyAtRaw) : addMinutes(cookDoneAt, result.restMin || 0)
+
+  if (result.meatKey === 'ribs_pork' || result.meatKey === 'ribs_baby_back') {
+    return [
+      { id: 'preheat', icon: '🔥', title: 'Préchauffage', time: result.startTime, caption: 'Allume et stabilise le fumoir avant de charger le rack.' },
+      { id: 'load', icon: '🍖', title: 'Poser les ribs', time: formatTime(preheatEnd), caption: `Place les ribs à ${result.smokerTempC}°C et laisse la couleur se construire.` },
+      { id: 'pullback', icon: '🦴', title: 'Pullback', time: null, caption: 'Observe la couleur, le retrait sur l’os et décide si tu veux wrapper.' },
+      { id: 'wrap', icon: '🌯', title: 'Wrap éventuel', time: result.wrapType !== 'none' ? formatTime(addMinutes(preheatEnd, Math.max(Math.round((result.cookMin || 0) * 0.45), 45))) : null, caption: result.wrapType !== 'none' ? 'Emballe si la couleur te plaît et que tu veux une texture plus souple.' : 'Reste à nu si tu veux garder une bark plus marquée.' },
+      { id: 'flex', icon: '🔍', title: 'Flex test', time: null, caption: 'Le vrai signal de fin : le rack plie franchement et commence à fissurer.' },
+      { id: 'rest', icon: '😴', title: 'Repos court', time: formatTime(cookDoneAt), caption: 'Laisse reposer quelques minutes avant de couper.' },
+      { id: 'service', icon: '🍽️', title: 'Service', time: formatTime(readyAt), caption: `Fenêtre conseillée : ${result.serviceWindowStart} → ${result.serviceWindowEnd}.` },
+    ]
+  }
+
+  return [
+    { id: 'preheat', icon: '🔥', title: 'Préchauffage', time: result.startTime, caption: 'Allume le fumoir et laisse-le se stabiliser tranquillement.' },
+    { id: 'load', icon: '🥩', title: 'Poser la viande', time: formatTime(preheatEnd), caption: `Charge la viande sur le fumoir à ${result.smokerTempC}°C.` },
+    { id: 'stall', icon: '📍', title: 'Stall attendu', time: result.cues?.stallRange ? formatTime(stallAt) : null, caption: result.cues?.stallRange ? `Repère utile : ${result.cues.stallRange}. Continue à surveiller la bark.` : 'Surveille surtout la couleur et la texture.' },
+    { id: 'wrap', icon: '📦', title: 'Wrap', time: result.wrapType !== 'none' ? formatTime(wrapAt) : null, caption: result.wrapType !== 'none' ? `Emballe quand la bark te plaît. Repère : ${result.cues?.wrapRange || 'bonne zone de wrap'}.` : 'Sans wrap : laisse continuer jusqu’à la vraie tendreté.' },
+    { id: 'probe', icon: '🌡️', title: 'Début des tests', time: formatTime(probeAt), caption: result.cues?.probeTenderRange ? `Commence à tester vers ${result.cues?.probeStart || 'la bonne zone'} puis cherche ${result.cues.probeTenderRange}.` : 'Commence à tester selon la texture recherchée.' },
+    { id: 'rest', icon: '😴', title: 'Repos', time: formatTime(cookDoneAt), caption: `Repos recommandé : ${result.cues?.restRange || result.restRecommendation}.` },
+    { id: 'service', icon: '🍽️', title: 'Service', time: formatTime(readyAt), caption: `Fenêtre conseillée : ${result.serviceWindowStart} → ${result.serviceWindowEnd}.` },
+  ]
+}
+
 export default function Calc() {
   const navigate = useNavigate()
   const { user } = useAuth()
@@ -290,6 +333,7 @@ export default function Calc() {
   const [thickness,  setThickness]  = useState(() => getCalcDraft().thickness || '')
   const [smokerTemp, setSmokerTemp] = useState(() => getCalcDraft().smokerTemp ?? 110)
   const [serveTime,  setServeTime]  = useState(() => getCalcDraft().serveTime || '19:00')
+  const [cookMethod, setCookMethod] = useState(() => getCalcDraft().cookMethod || DEFAULT_METHOD)
   const [smokerType, setSmokerType] = useState(() => getCalcDraft().smokerType || 'pellet')
   const [wrapType,   setWrapType]   = useState(() => getCalcDraft().wrapType || 'butcher_paper')
   const [marbling,   setMarbling]   = useState(() => getCalcDraft().marbling || 'medium')
@@ -311,18 +355,45 @@ export default function Calc() {
   const profile = MEAT_PROFILES[meatKey]
   const meatData = MEATS[meatKey]
   const isLowSlow = profile?.method === 'lowslow'
+  const cookingProfile = getCookingProfile(meatKey)
+  const methodConfig = useMemo(() => getMethodConfig(meatKey, cookMethod), [meatKey, cookMethod])
+  const tempRange = useMemo(() => methodConfig?.smokerTempRange || [100, 160], [methodConfig])
+  const showWrapChoices = cookMethod === 'texas_crutch'
+  const roadmap = buildRoadmap(result)
 
   // ── Sauvegarde automatique des inputs dans localStorage
   useEffect(() => {
     try {
       localStorage.setItem('pm_calc', JSON.stringify({
         meatKey, weight, thickness, smokerTemp, serveTime,
-        smokerType, wrapType, marbling, startTemp,
+        cookMethod, smokerType, wrapType, marbling, startTemp,
       }))
     } catch {
       // PATCH: persistance best effort seulement
     }
-  }, [meatKey, weight, thickness, smokerTemp, serveTime, smokerType, wrapType, marbling, startTemp])
+  }, [meatKey, weight, thickness, smokerTemp, serveTime, cookMethod, smokerType, wrapType, marbling, startTemp])
+
+  // PATCH: changement de viande = poids et méthode ramenés sur quelque chose de crédible
+  useEffect(() => {
+    const nextProfile = getCookingProfile(meatKey)
+    if (!nextProfile) return
+    if (!weight || weight <= 0) setWeight(nextProfile.defaultWeightKg || 3)
+    if (!nextProfile.methods.some(entry => entry.method === cookMethod)) {
+      const fallbackMethod = nextProfile.methods[0]?.method || DEFAULT_METHOD
+      setCookMethod(fallbackMethod)
+      const fallbackConfig = getMethodConfig(meatKey, fallbackMethod)
+      if (fallbackConfig?.smokerTempDefault) setSmokerTemp(fallbackConfig.smokerTempDefault)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [meatKey])
+
+  // PATCH: le slider fumoir suit la méthode choisie, et le wrap reste cohérent avec cette méthode
+  useEffect(() => {
+    if (!methodConfig) return
+    setSmokerTemp(current => clamp(current, tempRange[0], tempRange[1]))
+    if (cookMethod !== 'texas_crutch' && wrapType !== 'none') setWrapType('none')
+    if (cookMethod === 'texas_crutch' && wrapType === 'none') setWrapType('butcher_paper')
+  }, [cookMethod, methodConfig, tempRange, wrapType])
 
   async function calculate() {
     setLoading(true)
@@ -337,6 +408,7 @@ export default function Calc() {
         setWarnings(w)
 
         const options = {
+          method: cookMethod,
           thicknessCm: safeThickness,
           smokerTempC: safeSmokerTemp,
           startTempC: safeStartTemp,
@@ -352,9 +424,10 @@ export default function Calc() {
         const prudentMin = Number.isFinite(calc.prudentMin) ? calc.prudentMin : probableMin
 
         const start = addMinutes(serve, -probableMin)
+        const meatOnSmokerAt = addMinutes(start, calc.preheatMin || 30)
         // PATCH: expose une lecture simple "fin cuisson" puis "prêt après repos"
-        const estimatedCookDoneAt = addMinutes(start, calc.cookMin || 0)
-        const estimatedReadyAt = addMinutes(start, calc.totalMin || probableMin)
+        const estimatedCookDoneAt = addMinutes(meatOnSmokerAt, calc.cookMin || 0)
+        const estimatedReadyAt = addMinutes(estimatedCookDoneAt, calc.restMin || 0)
         const serviceWindowStart = addMinutes(serve, -(prudentMin - probableMin))
         const serviceWindowEnd = addMinutes(serve, Math.max(optimisticMin - probableMin, 0))
 
@@ -369,7 +442,12 @@ export default function Calc() {
           ...calc,
           weightKg: safeWeight,
           smokerTempC: safeSmokerTemp,
+          startTimeRaw: start.toISOString(),
+          meatOnSmokerAtRaw: meatOnSmokerAt.toISOString(),
+          cookDoneAtRaw: estimatedCookDoneAt.toISOString(),
+          readyAtRaw: estimatedReadyAt.toISOString(),
           startTime: formatTime(start),
+          meatOnSmokerTime: formatTime(meatOnSmokerAt),
           cookDoneTime: formatTime(estimatedCookDoneAt),
           readyAfterRestTime: formatTime(estimatedReadyAt),
           // PATCH: l'heure de service affichée suit aussi l'arrondi utilisateur global
@@ -607,7 +685,13 @@ export default function Calc() {
         {/* Select viande */}
         <div style={{ padding: '12px 16px' }}>
           <label className="pm-field-label">Changer de viande</label>
-          <select className="pm-input" value={meatKey} onChange={e => { setMeatKey(e.target.value); setThickness('') }}>
+          <select className="pm-input" value={meatKey} onChange={e => {
+            const nextMeat = e.target.value
+            const nextProfile = getCookingProfile(nextMeat)
+            setMeatKey(nextMeat)
+            setThickness('')
+            if (nextProfile?.defaultWeightKg) setWeight(nextProfile.defaultWeightKg)
+          }}>
             {Object.entries(MEAT_CATEGORIES).map(([cat, keys]) => (
               <optgroup key={cat} label={cat}>
                 {keys.map(k => MEATS[k] ? <option key={k} value={k}>{MEATS[k].full}</option> : null)}
@@ -640,15 +724,53 @@ export default function Calc() {
 
       {/* FUMOIR */}
       <div className="pm-card">
+        <label className="pm-field-label">Méthode</label>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
+          {COOKING_METHODS.filter(option => cookingProfile?.methods?.some(method => method.method === option.id)).map(option => (
+            <button
+              key={option.id}
+              onClick={() => {
+                setCookMethod(option.id)
+                const nextConfig = getMethodConfig(meatKey, option.id)
+                if (nextConfig?.smokerTempDefault) setSmokerTemp(nextConfig.smokerTempDefault)
+              }}
+              style={{
+                padding: '12px 14px',
+                borderRadius: 14,
+                cursor: 'pointer',
+                textAlign: 'left',
+                border: `1.5px solid ${cookMethod === option.id ? 'var(--orange-border)' : 'var(--border)'}`,
+                background: cookMethod === option.id ? 'var(--orange-bg)' : 'var(--surface2)',
+              }}
+            >
+              <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 13, color: cookMethod === option.id ? 'var(--orange)' : 'var(--text)' }}>
+                {option.label}
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--text3)', marginTop: 4, lineHeight: 1.5 }}>
+                {option.short}
+              </div>
+            </button>
+          ))}
+        </div>
+        {methodConfig?.notes && (
+          <div style={{ marginTop: 10, fontSize: 11, color: 'var(--text3)', lineHeight: 1.6 }}>
+            {methodConfig.notes}
+          </div>
+        )}
+      </div>
+
+      {/* FUMOIR */}
+      <div className="pm-card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <label className="pm-field-label" style={{ marginBottom: 0 }}>T° fumoir (zone indirecte)</label>
           <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 30, color: 'var(--orange)' }}>{smokerTemp}°C</span>
         </div>
-        <input type="range" value={smokerTemp} min={100} max={160} step="5"
+        <input type="range" value={smokerTemp} min={tempRange[0]} max={tempRange[1]} step="1"
           onChange={e => { setSmokerTemp(toInt(e.target.value, 110)) }} />
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
-          <span style={{ fontSize: 10, color: 'var(--text3)' }}>100°C · Low & Slow</span>
-          <span style={{ fontSize: 10, color: 'var(--text3)' }}>160°C · Hot & Fast</span>
+          <span style={{ fontSize: 10, color: 'var(--text3)' }}>{tempRange[0]}°C · mini</span>
+          <span style={{ fontSize: 10, color: 'var(--text3)' }}>{methodConfig?.smokerTempDefault ?? smokerTemp}°C · conseillé</span>
+          <span style={{ fontSize: 10, color: 'var(--text3)' }}>{tempRange[1]}°C · maxi</span>
         </div>
       </div>
 
@@ -660,7 +782,7 @@ export default function Calc() {
       </div>
 
       {/* WRAP */}
-      {isLowSlow && MEAT_PROFILES[meatKey]?.stallStartC && (
+      {showWrapChoices && (
         <div className="pm-card">
           <label className="pm-field-label">Type de wrap</label>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 6 }}>
@@ -770,7 +892,7 @@ export default function Calc() {
               <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '1px' }}>Heure de départ recommandée</div>
               <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 72, fontWeight: 800, lineHeight: 1, color: 'var(--ember)', letterSpacing: '-3px' }}>{result.startTime}</div>
               <div style={{ fontSize: 13, color: 'var(--text2)', marginTop: 10, lineHeight: 1.6 }}>
-                Pour servir à {result.serve}, démarre la cuisson à {result.startTime}.
+                Pour servir à {result.serve}, allume le fumoir vers {result.startTime} en {result.methodLabel}.
               </div>
             </div>
 
@@ -797,6 +919,10 @@ export default function Calc() {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              <div style={{ background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(42,33,27,0.08)', borderRadius: 12, padding: '10px 12px' }}>
+                <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Méthode</div>
+                <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 700, fontSize: 12, color: 'var(--text)' }}>{result.methodLabel}</div>
+              </div>
               {getHeroCues(result).map(cue => (
                 <div key={cue.label} style={{ background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(42,33,27,0.08)', borderRadius: 12, padding: '10px 12px' }}>
                   <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>{cue.label}</div>
@@ -854,6 +980,35 @@ export default function Calc() {
           )}
 
 
+
+          {/* PATCH: roadmap visuelle branchée sur la méthode choisie */}
+          <div className="pm-card" style={{ marginBottom: 12 }}>
+            <div className="pm-sec-label">🗺️ Roadmap cuisson</div>
+            <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 12, lineHeight: 1.6 }}>
+              Une feuille de route simple pour savoir quoi faire du préchauffage au service.
+            </div>
+            {roadmap.map((step, i) => (
+              <div key={step.id} style={{ display: 'grid', gridTemplateColumns: '28px 1fr', gap: 10, padding: '10px 0', position: 'relative' }}>
+                {i < roadmap.length - 1 && <div style={{ position: 'absolute', left: 13, top: 30, bottom: -10, width: 2, background: 'rgba(232,93,4,0.18)' }} />}
+                <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--orange-bg)', border: '1px solid var(--orange-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>
+                  {step.icon}
+                </div>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+                    <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 13, color: 'var(--text)' }}>{step.title}</div>
+                    {step.time && (
+                      <div style={{ fontFamily: 'DM Mono, monospace', fontSize: 11, fontWeight: 700, color: 'var(--orange)', whiteSpace: 'nowrap' }}>
+                        {step.time}
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ marginTop: 6, fontSize: 11, color: 'var(--text3)', lineHeight: 1.6 }}>
+                    {step.caption}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
 
           {/* TIMELINE */}
           <div className="pm-card" style={{ marginBottom: 12 }}>

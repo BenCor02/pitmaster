@@ -3,11 +3,6 @@
  * Rubs, bois, conseils, températures
  */
 
-const am = (d, m) => new Date(d.getTime() + m * 60000)
-const ft = d => d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
-const fd = m => { const h = Math.floor(m/60), mn = m%60; return mn===0?`${h}h`:`${h}h${String(mn).padStart(2,'0')}` }
-const tfact = t => Math.exp(-0.022 * (t - 110))
-
 export const MEATS = {
   brisket: {
     name: 'Brisket',
@@ -253,6 +248,85 @@ export const MEATS = {
         { n:'Paprika doux', q:'1 c.à.s' }, { n:'Cumin', q:'1/2 c.à.c' },
       ],
       note: 'Huile d\'olive comme liant. Style Provence + BBQ. Laisser 12h minimum.',
+    }],
+  },
+  // PATCH: nouvelles viandes branchées sur le nouveau moteur pitmaster-first
+  whole_chicken: {
+    name: 'Poulet entier',
+    full: 'Poulet entier fumé',
+    emoji: '🍗',
+    category: 'poultry',
+    temp: '74-76°C',
+    woods: [
+      { e:'🍎', n:'Pommier', d:'Fumée douce, parfaite pour ne pas couvrir la volaille', i:2 },
+      { e:'🍒', n:'Cerisier', d:'Belle couleur et profil léger', i:2 },
+      { e:'🌳', n:'Chêne léger', d:'En petite dose pour plus de caractère', i:3 },
+    ],
+    tips: [
+      { t:'Température plus haute', b:'La volaille aime les cuissons plus vives. Beaucoup de pitmasters visent 135°C ou plus.' },
+      { t:'Peau plus nette', b:'À basse température, la peau reste souvent molle. Monte un peu le pit si tu veux une peau plus propre.' },
+      { t:'Point de sortie', b:'Contrôle surtout la cuisse et la jointure. 74-76°C donnent un bon compromis jutosité / sécurité.' },
+    ],
+    rubs: [{
+      name: 'Rub volaille simple',
+      ingr: [
+        { n:'Sel fin', q:'1 c.à.s' }, { n:'Paprika doux', q:'1 c.à.s' },
+        { n:'Ail en poudre', q:'1 c.à.c' }, { n:'Poivre noir', q:'1 c.à.c' },
+        { n:'Thym', q:'1 c.à.c' },
+      ],
+      note: 'Huile neutre ou beurre fondu comme liant. Très bien avec une petite saumure préalable.',
+    }],
+  },
+  chicken_pieces: {
+    name: 'Cuisses / pilons',
+    full: 'Cuisses et pilons de poulet',
+    emoji: '🍗',
+    category: 'poultry',
+    temp: '74-78°C',
+    woods: [
+      { e:'🍎', n:'Pommier', d:'Très doux, laisse la place au rub', i:2 },
+      { e:'🍒', n:'Cerisier', d:'Couleur propre et fumée légère', i:2 },
+      { e:'🌳', n:'Chêne', d:'En petite dose pour une volaille plus marquée', i:3 },
+    ],
+    tips: [
+      { t:'Très bon en hot & fast', b:'C’est souvent la méthode la plus simple pour avoir une peau propre et un résultat régulier.' },
+      { t:'La cuisse aime cuire un peu plus', b:'Les morceaux bruns supportent bien 76-78°C sans se dessécher.' },
+      { t:'Reste simple', b:'Une cuisson courte, une bonne couleur et un repos bref suffisent souvent.' },
+    ],
+    rubs: [{
+      name: 'Rub cuisses BBQ',
+      ingr: [
+        { n:'Paprika', q:'1 c.à.s' }, { n:'Sel fin', q:'1 c.à.c' },
+        { n:'Ail poudre', q:'1 c.à.c' }, { n:'Poivre noir', q:'1 c.à.c' },
+        { n:'Cassonade', q:'1 c.à.c' },
+      ],
+      note: 'Une fine couche suffit. Trop de sucre colore trop vite sur une volaille cuite chaud.',
+    }],
+  },
+  lamb_leg: {
+    name: 'Gigot',
+    full: 'Gigot d’agneau fumé',
+    emoji: '🐑',
+    category: 'lamb',
+    temp: '57-63°C rosé',
+    woods: [
+      { e:'🍎', n:'Pommier', d:'Respecte bien le goût de l’agneau', i:2 },
+      { e:'🌿', n:'Romarin', d:'Quelques brins seulement pour renforcer le côté méditerranéen', i:2 },
+      { e:'🌳', n:'Chêne doux', d:'À petite dose pour plus de profondeur', i:3 },
+    ],
+    tips: [
+      { t:'Ne pas le traiter comme une épaule', b:'Le gigot se sert souvent rosé. La texture et la coupe comptent plus qu’un rendu effiloché.' },
+      { t:'Commence à contrôler tôt', b:'Dès que tu approches la bonne zone, surveille souvent pour éviter de dépasser.' },
+      { t:'Repos utile', b:'Même un gigot a besoin de se poser avant découpe pour garder ses jus.' },
+    ],
+    rubs: [{
+      name: 'Rub gigot fumé',
+      ingr: [
+        { n:'Sel', q:'1 c.à.s' }, { n:'Poivre', q:'1 c.à.c' },
+        { n:'Ail en poudre', q:'1 c.à.c' }, { n:'Romarin', q:'1 c.à.c' },
+        { n:'Thym', q:'1 c.à.c' },
+      ],
+      note: 'Très bien avec huile d’olive et zeste de citron. Style plus net et plus premium que les rubs sucrés.',
     }],
   },
 }

@@ -59,6 +59,10 @@ function clearPendingSession() {
 // PATCH: buildCheckpoints — wording revu sur tous les points
 // Format : titre simple > sous-titre pitmaster > explication accessible > action concrète
 function buildCheckpoints(schedule) {
+  const hasStallCue = Boolean(schedule.cues?.stallRange)
+  const hasWrapCue = Boolean(schedule.cues?.wrapRange) || schedule.method === 'texas_crutch'
+  const isPoultry = schedule.meatKey === 'whole_chicken' || schedule.meatKey === 'chicken_pieces'
+  const isLeg = schedule.meatKey === 'lamb_leg'
   // PATCH: flow spécifique ribs = repères visuels et mécaniques, pas probe tender centré sonde
   if (isRibsCook(schedule.meatKey)) {
     const cps = [
@@ -184,10 +188,14 @@ function buildCheckpoints(schedule) {
     {
       id: 'probe_test',
       emoji: '🔍',
-      title: schedule.meatKey === 'pork_shoulder' ? 'La viande s’effiloche bien ?' : 'La viande est tendre ?',
-      titlePitmaster: schedule.meatKey === 'pork_shoulder' ? 'Test d’effilochage / tendreté' : 'Probe Tender',
+      title: isPoultry ? 'La volaille est prête ?' : schedule.meatKey === 'pork_shoulder' ? 'La viande s’effiloche bien ?' : isLeg ? 'Le gigot est au bon point ?' : 'La viande est tendre ?',
+      titlePitmaster: isPoultry ? 'Température cœur / jutosité' : schedule.meatKey === 'pork_shoulder' ? 'Test d’effilochage / tendreté' : isLeg ? 'Contrôle du point de cuisson' : 'Probe Tender',
       // PATCH: instructions pratiques précises sur comment tester
-      explanation: schedule.meatKey === 'lamb_shoulder'
+      explanation: isPoultry
+        ? `Commence à contrôler vers ${schedule.cues?.probeStart || '72°C'}, puis vise une sortie propre autour de ${schedule.cues?.probeTenderRange || '74–78°C'}. Sur la volaille, la peau et la jutosité comptent autant que le chiffre.`
+        : isLeg
+          ? `Commence à contrôler tôt, puis retire selon le point voulu. Sur le gigot, la bonne fin reste plus proche d'une cuisson rosée que d'une logique effilochée.`
+        : schedule.meatKey === 'lamb_shoulder'
         ? `Commence à tester vers ${schedule.cues?.probeStart || '88°C'} puis ajuste selon la texture et le résultat voulu. Sur l’agneau, le bon point dépend plus du rendu recherché que d’un chiffre unique.`
         : schedule.meatKey === 'pork_shoulder'
           ? `Commence à tester vers ${schedule.cues?.probeStart || '90°C'}, puis cherche une viande souple qui s’effiloche proprement. La température aide, mais la texture décide.`
@@ -209,7 +217,12 @@ function buildCheckpoints(schedule) {
     },
   ]
 
-  return schedule.wrapType === 'none' ? cps.filter(c => c.id !== 'wrap') : cps
+  // PATCH: petites viandes sans stall ni wrap explicites gardent un flow plus propre
+  return cps.filter((checkpoint) => {
+    if (checkpoint.id === 'stall' && !hasStallCue) return false
+    if (checkpoint.id === 'wrap' && (!hasWrapCue || schedule.wrapType === 'none')) return false
+    return true
+  })
 }
 
 // ─── Barre de progression simple ─────────────────
@@ -787,7 +800,7 @@ export default function CookSession() {
               {schedule.meatLabel}
             </h1>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>
-              {schedule.weightKg}kg · {schedule.smokerTempC}°C · {schedule.smokerType}
+              {schedule.weightKg}kg · {schedule.smokerTempC}°C · {schedule.methodLabel || 'Méthode pitmaster'} · {schedule.smokerType}
             </div>
           </div>
         </div>
