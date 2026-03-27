@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { HERO_IMAGE, MEAT_IMAGES, SMOKE_IMAGE, SMOKER_IMAGE } from '../lib/images'
+import BrandMark from '../components/BrandMark'
 
 const css = `
   @keyframes heroEnter { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: translateY(0); } }
@@ -239,9 +240,7 @@ export default function Landing() {
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           style={{ background: 'none', border: 'none', padding: 0, color: 'inherit', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}
         >
-          <div style={{ width: 44, height: 44, borderRadius: 12, display: 'grid', placeItems: 'center', background: 'linear-gradient(180deg,var(--orange-light),var(--orange-deep))', border: '1px solid #7f1d1d', color: '#fff', boxShadow: '0 10px 20px rgba(198,40,40,0.18)', fontFamily: 'Rajdhani, sans-serif', fontSize: 16, fontWeight: 700, letterSpacing: '.08em' }}>
-            CF
-          </div>
+          <BrandMark size={44} />
           <div style={{ textAlign: 'left', minWidth: 0 }}>
             <div style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: 18, fontWeight: 700, lineHeight: 1, letterSpacing: '.03em' }}>Charbon &amp; Flamme</div>
             <div className="pm-eyebrow landing-brand-sub" style={{ marginTop: 3, color:'var(--text3)' }}>planifier sa cuisson bbq</div>

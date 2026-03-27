@@ -2,6 +2,7 @@ import { Outlet, NavLink, useLocation } from 'react-router-dom'
 import { useSiteSettings } from '../hooks/useSiteSettings'
 import { useAuth } from '../context/AuthContext'
 import { useState } from 'react'
+import BrandMark from './BrandMark'
 
 const NAV = [
   { section: 'CUISSON', items: [
@@ -86,7 +87,7 @@ export default function Layout() {
         {/* LOGO */}
         <div style={{ padding:'24px 18px 18px', borderBottom:'1px solid var(--border)' }}>
           <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-              <div style={{ width:42, height:42, borderRadius:16, background:'linear-gradient(180deg,var(--orange-light),var(--orange-deep))', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Syne,sans-serif', fontSize:14, fontWeight:800, flexShrink:0, boxShadow:'0 10px 24px rgba(232,69,11,0.26)', color:'#fff' }}>CF</div>
+              <BrandMark size={42} />
               <div>
                 <div style={{ fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:17, color:'var(--text)', letterSpacing:'-0.3px', lineHeight:1.1 }}>{siteName}</div>
                 <div style={{ fontSize:10, color:'var(--text3)', fontWeight:600, marginTop:3, letterSpacing:'1.2px', textTransform:'uppercase' }}>{siteTagline}</div>
@@ -212,7 +213,7 @@ export default function Layout() {
           padding:'0 16px', position:'sticky', top:0, zIndex:30,
         }}>
           <div style={{ display:'flex', alignItems:'center', gap:9 }}>
-            <div style={{ width:34, height:34, borderRadius:13, background:'linear-gradient(180deg,var(--orange-light),var(--orange-deep))', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Syne,sans-serif', fontSize:12, fontWeight:800, boxShadow:'0 8px 18px rgba(197,83,25,0.28)', color:'#fff' }}>CF</div>
+            <BrandMark size={34} compact />
             <span style={{ fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:17, color:'var(--text)' }}>{siteName}</span>
           </div>
           <div style={{ display:'flex', gap:8 }}>
