@@ -46,6 +46,43 @@ const MARBLING_TYPES = [
   { id: 'high', label: 'Fort', emoji: '🟠', desc: 'Wagyu / Prime — très persillé' },
 ]
 
+const PITMASTER_CONTENT = [
+  {
+    title: 'Conseils Pitmaster',
+    items: [
+      'Le stall n’est pas un retard. C’est une phase normale qu’il faut accompagner.',
+      'Une bonne bark dépend surtout de la stabilité du pit et de la patience.',
+      'Le repos fait partie de la cuisson. Il protège la texture au service.',
+    ],
+  },
+  {
+    title: 'Guides liés',
+    items: [
+      'Temps cuisson brisket',
+      'Temps cuisson ribs',
+      'Température pulled pork',
+    ],
+  },
+]
+
+const AFFILIATE_PRODUCTS = [
+  {
+    title: 'Thermomètre',
+    note: 'Lecture fiable de la température interne et du pit.',
+    badge: 'Recommandé',
+  },
+  {
+    title: 'Fumoir',
+    note: 'Choisir le bon modèle selon ton style de cuisson et ton budget.',
+    badge: 'Guide achat',
+  },
+  {
+    title: 'Pellet',
+    note: 'Le bon combustible selon la viande et l’intensité de fumée recherchée.',
+    badge: 'Consommable',
+  },
+]
+
 const toFloat = (value, fallback = 0) => {
   const n = parseFloat(value)
   return Number.isFinite(n) ? n : fallback
@@ -421,34 +458,76 @@ export default function Calc() {
     setSharing(false)
   }
 
+  function downloadPlan() {
+    if (!result) return
+    const lines = [
+      'Charbon & Flamme — Calculateur BBQ Pitmaster',
+      '',
+      `Viande: ${meatData?.full || result.meatLabel}`,
+      `Poids: ${result.weightKg} kg`,
+      `Fumoir: ${result.smokerTempC}°C`,
+      `Service: ${result.serve}`,
+      `Depart recommande: ${result.startTime}`,
+      `Fin cuisson estimee: ${result.cookDoneTime}`,
+      `Pret apres repos: ${result.readyAfterRestTime}`,
+      `Fenetre de service: ${result.serviceWindowStart} -> ${result.serviceWindowEnd}`,
+      '',
+      'Repères de cuisson:',
+      ...timeline.map((step) => {
+        const content = getTimelineStepContent(step, result)
+        return `- ${content.title}: ${content.action}`
+      }),
+    ]
+    const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `bbq-plan-${result.meatKey || 'cook'}.txt`
+    link.click()
+    URL.revokeObjectURL(url)
+    showSnack('✓ Planning téléchargé')
+  }
+
   const phaseColor = p => p.isRest ? 'var(--blue)' : p.isStall ? 'var(--gold)' : 'var(--orange)'
 
   return (
     <div style={{ fontFamily: "'DM Sans', sans-serif" }}>
-      <style>{`@keyframes spin{to{transform:rotate(360deg)}} @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}} .fade-up{animation:fadeUp 0.22s ease both}`}</style>
+      <style>{`
+        @keyframes spin{to{transform:rotate(360deg)}}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+        .fade-up{animation:fadeUp 0.22s ease both}
+        .calc-seo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+        .calc-result-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+        .calc-sticky-cta{display:none}
+        @media(max-width:900px){
+          .calc-seo-grid{grid-template-columns:1fr}
+          .calc-result-actions{grid-template-columns:1fr}
+          .calc-sticky-cta{display:flex;position:fixed;left:12px;right:12px;bottom:76px;z-index:48}
+        }
+      `}</style>
       <Snack snack={snack} />
 
       {/* Entrée produit: plus éditoriale, mais orientée usage */}
       <div className="pm-hero-shell" style={{ marginBottom: 18 }}>
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))', gap:16, alignItems:'stretch' }}>
           <div>
-            <div className="pm-kicker" style={{ marginBottom: 14 }}>Pitmaster planning</div>
+            <div className="pm-kicker" style={{ marginBottom: 14 }}>Calculateur BBQ Pitmaster</div>
             <h1 style={{ fontSize:'clamp(30px,5vw,44px)', lineHeight:1.02, marginBottom:10 }}>
-              Pilote ta cuisson
+              Temps de cuisson précis
               <br />
-              <span style={{ color:'var(--ember)' }}>comme un vrai service</span>
+              <span style={{ color:'var(--ember)' }}>pour brisket, ribs, pulled pork</span>
             </h1>
             <p style={{ fontSize:14, maxWidth:520, color:'var(--text2)' }}>
-              Départ, fenêtre de service, repères de texture et signaux terrain. L&apos;app garde l&apos;essentiel visible pour que tu puisses cuire, ajuster et servir sans t&apos;éparpiller.
+              Le calculateur gratuit te donne une heure de départ crédible, une fenêtre de service et les repères terrain qui comptent vraiment pendant la cuisson.
             </p>
             <div className="pm-grid-2" style={{ marginTop: 16 }}>
               <div style={{ background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.06)', borderRadius:18, padding:'12px 14px' }}>
-                <div style={{ fontSize:10, color:'var(--text3)', textTransform:'uppercase', marginBottom:4 }}>Ce que tu lis</div>
-                <div style={{ fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:15, color:'var(--text)' }}>Départ net, service crédible</div>
+                <div style={{ fontSize:10, color:'var(--text3)', textTransform:'uppercase', marginBottom:4 }}>Lecture immediate</div>
+                <div style={{ fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:15, color:'var(--text)' }}>Depart net, service credible</div>
               </div>
               <div style={{ background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.06)', borderRadius:18, padding:'12px 14px' }}>
-                <div style={{ fontSize:10, color:'var(--text3)', textTransform:'uppercase', marginBottom:4 }}>Ce qui compte</div>
-                <div style={{ fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:15, color:'var(--text)' }}>Repères utiles, jargon traduit</div>
+                <div style={{ fontSize:10, color:'var(--text3)', textTransform:'uppercase', marginBottom:4 }}>Retour utilisateur</div>
+                <div style={{ fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:15, color:'var(--text)' }}>Sauvegarde, partage, consultation mobile</div>
               </div>
             </div>
           </div>
@@ -474,7 +553,7 @@ export default function Calc() {
 
       <div style={{ marginBottom: 20 }}>
         <p style={{ fontSize: 11, color: 'var(--text3)', marginTop: 4, letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 700 }}>
-          Assistant cuisson · Étapes claires · Recalage en cours de cuisson
+          Outil gratuit · SEO utility-first · Étapes claires · Recalage en cours de cuisson
         </p>
       </div>
 
@@ -730,12 +809,15 @@ export default function Calc() {
           {/* PATCH: actions secondaires, après les repères de cuisson */}
           <div className="pm-card" style={{ marginBottom: 12 }}>
             <div className="pm-sec-label">⚡ Actions rapides</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <div className="calc-result-actions">
               <button onClick={sharePlan} disabled={sharing} className="pm-btn-secondary">
                 {sharing ? '⏳...' : '📤 Partager'}
               </button>
               <button onClick={saveSession} disabled={saving} className="pm-btn-primary">
                 {saving ? '⏳...' : user ? '☁️ Sauvegarder' : '🔐 Sauvegarder'}
+              </button>
+              <button onClick={downloadPlan} className="pm-btn-secondary">
+                ⬇ Télécharger
               </button>
             </div>
             {!user && (
@@ -965,6 +1047,63 @@ export default function Calc() {
           </div>
         </div>
       )}
+
+      <div style={{ marginTop: 26 }}>
+        <div className="pm-sec-label">Conseils Pitmaster</div>
+        <div className="calc-seo-grid" style={{ marginBottom: 12 }}>
+          {PITMASTER_CONTENT[0].items.map((item, index) => (
+            <div key={item} className="pm-card" style={{ marginBottom: 0 }}>
+              <div style={{ fontSize: 10, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 8 }}>Conseil {String(index + 1).padStart(2, '0')}</div>
+              <div style={{ color: 'var(--text2)', lineHeight: 1.7 }}>{item}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ marginTop: 8 }}>
+        <div className="pm-sec-label">Matériel recommandé</div>
+        <div style={{ marginBottom: 10, display: 'inline-flex', padding: '5px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', color: 'var(--text2)', fontSize: 11, fontWeight: 600 }}>
+          Matériel recommandé par pitmasters
+        </div>
+        <div className="calc-seo-grid" style={{ marginBottom: 12 }}>
+          {AFFILIATE_PRODUCTS.map((product) => (
+            <div key={product.title} className="pm-card" style={{ marginBottom: 0 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                <div className="pm-kicker">{product.badge}</div>
+              </div>
+              <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--text)', marginBottom: 8 }}>{product.title}</div>
+              <div style={{ color: 'var(--text2)', lineHeight: 1.7, marginBottom: 14 }}>{product.note}</div>
+              <button onClick={() => showSnack('Bloc affiliation à connecter', 'info')} className="pm-btn-secondary" style={{ width: 'auto' }}>
+                Voir la sélection
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ marginTop: 8, marginBottom: 40 }}>
+        <div className="pm-sec-label">Guides liés</div>
+        <div className="calc-seo-grid">
+          {PITMASTER_CONTENT[1].items.map((item) => (
+            <button
+              key={item}
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="pm-card"
+              style={{ marginBottom: 0, textAlign: 'left', cursor: 'pointer' }}
+            >
+              <div style={{ fontSize: 10, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 8 }}>Guide SEO</div>
+              <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 800, color: 'var(--text)', marginBottom: 8 }}>{item}</div>
+              <div style={{ color: 'var(--text2)', lineHeight: 1.7 }}>Contenu connexe pour approfondir la cuisson et revenir sur l’outil plus tard.</div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="calc-sticky-cta">
+        <button onClick={calculate} disabled={loading} className="pm-btn-primary" style={{ width: '100%', padding: '15px 20px' }}>
+          {loading ? 'Calcul...' : 'Calculer'}
+        </button>
+      </div>
     </div>
   )
 }
