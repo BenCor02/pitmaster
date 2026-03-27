@@ -1,32 +1,30 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@500;600;700&family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap');
 
 :root {
-  /* PATCH: design system sombre premium, plus pitmaster et beaucoup plus lisible */
-  --bg:        #0a0a0a;
-  --bg-elev:   #121212;
-  --surface:   rgba(26, 26, 26, 0.94);
-  --surface2:  rgba(34, 34, 34, 0.96);
-  --surface3:  rgba(42, 42, 42, 0.98);
-  --surface4:  rgba(242, 92, 61, 0.08);
-  --surface-glass: rgba(20, 20, 20, 0.86);
+  /* PATCH: palette verrouillée sur l'univers charbon / acier / braise demandé */
+  --bg:        #090909;
+  --bg-elev:   #111111;
+  --surface:   #161616;
+  --surface2:  #1b1b1b;
+  --surface3:  #232323;
+  --surface4:  rgba(198, 40, 40, 0.10);
+  --surface-glass: rgba(22, 22, 22, 0.88);
 
-  --border:    rgba(255,255,255,0.08);
-  --border2:   rgba(255,255,255,0.16);
+  --border:    #2b2b2b;
+  --border2:   #3a3a3a;
   --line-soft: rgba(255,255,255,0.05);
 
-  /* PATCH: accent braise flashy — plus moderne, plus visible, plus impactant */
-  /* PATCH: accent feu plus premium, plus tendu et moins startup */
-  --orange:        #e53935;
-  --orange-light:  #ff6a4d;
-  --orange-deep:   #9f1f1c;
-  --orange-bg:     rgba(229,57,53,0.16);
-  --orange-border: rgba(229,57,53,0.30);
-  --ember:         #f6b36d;
+  --orange:        #c62828;
+  --orange-light:  #e53935;
+  --orange-deep:   #9a1b1b;
+  --orange-bg:     rgba(198, 40, 40, 0.14);
+  --orange-border: rgba(198, 40, 40, 0.34);
+  --ember:         #fdba74;
 
   --sand:   #2a241e;
-  --text:   #f5f0eb;
-  --text2:  #d5c8bc;
-  --text3:  #9b8f84;
+  --text:   #f5f1ea;
+  --text2:  #b7aea4;
+  --text3:  #8f877e;
   --text4:  #73685f;
   --text5:  #5b524b;
 
@@ -55,9 +53,9 @@ html { font-size: 16px; -webkit-font-smoothing: antialiased; }
 
 body {
   background:
-    radial-gradient(circle at top right, rgba(229,57,53,0.16), transparent 22%),
-    radial-gradient(circle at 20% 0%, rgba(246,179,109,0.08), transparent 18%),
-    linear-gradient(180deg, #121212 0%, #090909 42%, #050505 100%);
+    radial-gradient(circle at top right, rgba(229,57,53,0.14), transparent 20%),
+    radial-gradient(circle at 20% 0%, rgba(253,186,116,0.06), transparent 18%),
+    linear-gradient(180deg, #111111 0%, #090909 42%, #060606 100%);
   color: var(--text);
   font-family: 'DM Sans', sans-serif;
   line-height: 1.5;
@@ -68,17 +66,16 @@ body {
 h1 { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
 h2 { font-family: 'Syne', sans-serif; font-size: 21px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
 h3 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); }
-p  { color: var(--text2); line-height: 1.65; }
+p  { color: var(--text2); line-height: 1.6; }
 
 /* ─── CARDS ─── */
 .pm-card {
-  background:
-    linear-gradient(180deg, rgba(30,30,30,0.96), rgba(18,18,18,0.98));
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: var(--radius-xl);
-  padding: 20px;
+  background: linear-gradient(180deg, #1a1a1a, #161616);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
   margin-bottom: 12px;
-  box-shadow: var(--shadow-soft);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.24);
   backdrop-filter: blur(16px);
   position: relative;
   overflow: hidden;
@@ -90,7 +87,7 @@ p  { color: var(--text2); line-height: 1.65; }
   inset: 0 auto auto 0;
   width: 100%;
   height: 1px;
-  background: linear-gradient(90deg, rgba(232,69,11,0.38), transparent 60%);
+  background: linear-gradient(90deg, rgba(249,115,22,0.22), transparent 60%);
   pointer-events: none;
 }
 
@@ -125,8 +122,8 @@ p  { color: var(--text2); line-height: 1.65; }
   gap: 8px;
   padding: 7px 12px;
   border-radius: 999px;
-  background: rgba(232,69,11,0.10);
-  border: 1px solid rgba(232,69,11,0.20);
+  background: rgba(198,40,40,0.12);
+  border: 1px solid rgba(198,40,40,0.20);
   color: var(--ember);
   font-size: 10px;
   font-weight: 700;
@@ -254,7 +251,7 @@ input[type=range]::-webkit-slider-thumb {
   isolation: isolate;
   overflow: hidden;
   /* PATCH: boutons plus mécaniques, plus premium, moins mous */
-  min-height: 56px;
+  min-height: 44px;
   border-radius: 12px;
   padding: 14px 24px;
   display: inline-flex;
@@ -267,12 +264,12 @@ input[type=range]::-webkit-slider-thumb {
   text-decoration: none;
   transform: translateY(0) scale(1);
   transition:
-    transform 0.22s ease,
-    box-shadow 0.22s ease,
-    background 0.22s ease,
-    border-color 0.22s ease,
-    color 0.22s ease,
-    filter 0.22s ease;
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    background 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease,
+    filter 150ms ease;
   will-change: transform, box-shadow;
 }
 
@@ -305,33 +302,36 @@ input[type=range]::-webkit-slider-thumb {
 
 .pm-btn-primary {
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0) 34%),
-    linear-gradient(135deg, #ff5a4d 0%, #e53935 45%, #8f1916 100%);
+    linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0) 42%),
+    linear-gradient(180deg, #d23232 0%, #c62828 100%);
   color: #fff;
-  border: 1px solid rgba(255,255,255,0.10);
+  border: 1px solid #7f1d1d;
   font-family: 'Rajdhani', sans-serif;
-  font-weight: 800;
+  font-weight: 700;
   font-size: 15px;
   cursor: pointer;
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.16),
-    inset 0 -12px 24px rgba(53, 8, 7, 0.34),
-    0 16px 34px rgba(148, 24, 20, 0.32);
+    inset 0 1px 0 rgba(255,255,255,0.10),
+    inset 0 -10px 18px rgba(71, 12, 12, 0.30),
+    0 10px 20px rgba(198, 40, 40, 0.18);
 }
 .pm-btn-primary::before {
   background:
-    radial-gradient(circle at top, rgba(255,214,191,0.18), transparent 55%),
-    linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0));
+    radial-gradient(circle at top, rgba(255,255,255,0.12), transparent 55%),
+    linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0));
 }
 .pm-btn-primary:hover {
   transform: translateY(-2px) scale(1.01);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0) 42%),
+    linear-gradient(180deg, #ea4444 0%, #e53935 100%);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.24),
-    inset 0 -14px 22px rgba(70, 10, 8, 0.34),
-    0 24px 48px rgba(159, 31, 28, 0.42),
-    0 0 0 1px rgba(255,106,77,0.18);
-  filter: saturate(1.08) brightness(1.05);
-  border-color: rgba(255,235,225,0.18);
+    inset 0 1px 0 rgba(255,255,255,0.12),
+    inset 0 -10px 18px rgba(71, 12, 12, 0.34),
+    0 14px 26px rgba(229,57,53,0.24),
+    0 0 0 1px rgba(229,57,53,0.18);
+  filter: brightness(1.02);
+  border-color: #962121;
 }
 .pm-btn-primary:hover::after,
 .pm-btn-secondary:hover::after,
@@ -363,33 +363,29 @@ input[type=range]::-webkit-slider-thumb {
 }
 
 .pm-btn-secondary {
-  background:
-    linear-gradient(180deg, rgba(36,36,36,0.98), rgba(16,16,16,1));
+  background: linear-gradient(180deg, #1a1a1a, #161616);
   color: #f5f1ea;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid #2b2b2b;
   font-family: 'Rajdhani', sans-serif;
   font-weight: 700;
   font-size: 15px;
   cursor: pointer;
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.08),
-    inset 0 -12px 20px rgba(0,0,0,0.30),
-    0 12px 28px rgba(0,0,0,0.24);
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 8px 18px rgba(0,0,0,0.18);
 }
 .pm-btn-secondary::before {
-  background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0));
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0));
 }
 .pm-btn-secondary:hover {
   transform: translateY(-2px);
-  background:
-    linear-gradient(180deg, rgba(44,44,44,1), rgba(20,20,20,1));
+  background: linear-gradient(180deg, #1f1f1f, #1b1b1b);
   color: #fff7f2;
-  border-color: rgba(229,57,53,0.34);
+  border-color: #c62828;
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.12),
-    inset 0 -10px 18px rgba(0,0,0,0.28),
-    0 18px 36px rgba(0,0,0,0.26),
-    0 0 0 1px rgba(229,57,53,0.10);
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    0 12px 22px rgba(0,0,0,0.22),
+    0 0 0 1px rgba(198,40,40,0.10);
 }
 
 .pm-btn-danger {

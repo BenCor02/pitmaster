@@ -18,40 +18,44 @@ const css = `
   .guide-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
   .landing-split { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: center; }
   .landing-footer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-  .landing-section { padding: 0 24px 58px; }
-  .landing-section-tight { padding: 0 24px 42px; }
+  .landing-section { padding: 0 24px 78px; }
+  .landing-section-tight { padding: 0 24px 54px; }
   .hero-media { min-height: 620px; }
   .hero-panel { animation: panelFloat 8s ease-in-out infinite; }
   .hero-glow { animation: glowPulse 7s ease-in-out infinite; }
   .landing-topnav { display:flex; align-items:center; gap:18px; flex-wrap:wrap; }
   .landing-shell-pad { padding: 34px 24px 62px; }
   .landing-brand-sub { display:block; }
-  .landing-hero-copy { max-width: 560px; font-size: 18px; color: rgba(255,245,235,0.76); line-height: 1.7; margin-bottom: 26px; }
-  .landing-hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(72px, 10vw, 142px); line-height: .86; letter-spacing: 0.03em; color: #fff5eb; max-width: 820px; text-shadow: 0 10px 30px rgba(0,0,0,0.34); }
-  .landing-hero-content { padding: 34px 12px 26px 24px; }
+  .landing-hero-copy { max-width: 580px; font-size: 18px; color: #b7aea4; line-height: 1.65; margin-bottom: 30px; }
+  .landing-hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(76px, 10.2vw, 148px); line-height: .84; letter-spacing: 0.035em; color: #f5f1ea; max-width: 760px; text-shadow: 0 12px 38px rgba(0,0,0,0.40); }
+  .landing-hero-content { padding: 42px 20px 36px 28px; }
   .landing-cook-card { height: 240px; }
-  .landing-hero-shell { position: relative; background: radial-gradient(circle at top right, rgba(229,57,53,0.24), transparent 24%), linear-gradient(180deg, rgba(22,22,22,0.9), rgba(8,8,8,0.98)); border: 1px solid rgba(255,255,255,0.07); border-radius: 36px; box-shadow: 0 30px 90px rgba(0,0,0,0.42); overflow: hidden; isolation:isolate; }
+  .landing-hero-shell { position: relative; background: radial-gradient(circle at top right, rgba(229,57,53,0.18), transparent 26%), linear-gradient(180deg, #141414, #090909 72%); border: 1px solid #2b2b2b; border-radius: 18px; box-shadow: 0 28px 78px rgba(0,0,0,0.38); overflow: hidden; isolation:isolate; }
   .landing-hero-shell::before { content: ""; position: absolute; inset: 0; background: linear-gradient(120deg, transparent 0%, rgba(229,57,53,0.05) 46%, transparent 100%); mix-blend-mode: screen; animation: emberSweep 6s ease-in-out infinite alternate; pointer-events: none; }
   .landing-hero-shell::after { content:""; position:absolute; inset:0; background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.035) 1px, transparent 0); background-size: 24px 24px; opacity:.18; pointer-events:none; }
-  .landing-poster-frame { position: relative; min-height: 620px; border-radius: 30px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); background: #080808; }
-  .landing-poster-overlay { position:absolute; inset:0; background: linear-gradient(180deg, rgba(9,9,9,0.08), rgba(9,9,9,0.28) 40%, rgba(9,9,9,0.86) 100%), linear-gradient(90deg, rgba(9,9,9,0.04), rgba(9,9,9,0.34) 55%, rgba(9,9,9,0.88)); }
+  .landing-poster-frame { position: relative; min-height: 620px; border-radius: 16px; overflow: hidden; border: 1px solid #2b2b2b; background: #080808; box-shadow: 0 20px 44px rgba(0,0,0,0.28); }
+  .landing-poster-overlay { position:absolute; inset:0; background: linear-gradient(180deg, rgba(9,9,9,0.08), rgba(9,9,9,0.34) 38%, rgba(9,9,9,0.92) 100%), linear-gradient(90deg, rgba(9,9,9,0.04), rgba(9,9,9,0.44) 55%, rgba(9,9,9,0.92)); }
   .landing-poster-copy { position:absolute; left:24px; right:24px; bottom:24px; display:grid; gap:14px; }
   .landing-hero-rail { display:grid; gap:12px; }
   .landing-stat-rail { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:14px; }
   .landing-hero-stage { position:relative; padding: 18px 18px 16px; }
-  .landing-hero-stage::before { content:""; position:absolute; inset:18px auto auto 18px; width:72px; height:1px; background:linear-gradient(90deg, rgba(255,255,255,.55), transparent); }
-  .landing-hero-stage::after { content:""; position:absolute; right:18px; bottom:18px; width:110px; height:110px; border-radius:50%; background: radial-gradient(circle, rgba(249,115,22,.16), transparent 68%); pointer-events:none; }
+  .landing-hero-stage::before { content:""; position:absolute; inset:18px auto auto 18px; width:72px; height:1px; background:linear-gradient(90deg, rgba(245,241,234,.55), transparent); }
+  .landing-hero-stage::after { content:""; position:absolute; right:18px; bottom:18px; width:110px; height:110px; border-radius:50%; background: radial-gradient(circle, rgba(249,115,22,.14), transparent 68%); pointer-events:none; }
   .landing-benefit-grid { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap:18px; }
-  .premium-card { background: linear-gradient(180deg, rgba(24,24,24,0.98), rgba(14,14,14,0.99)); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; box-shadow: 0 18px 44px rgba(0,0,0,0.24); position: relative; overflow: hidden; }
-  .premium-card::before { content: ""; position: absolute; inset: 0 auto auto 0; width: 100%; height: 1px; background: linear-gradient(90deg, rgba(255,90,54,0.34), transparent 60%); pointer-events: none; }
-  .dark-card { background: linear-gradient(180deg, rgba(18,18,18,0.98), rgba(9,9,9,1)); border: 1px solid rgba(255,255,255,0.08); border-radius: 30px; box-shadow: 0 22px 54px rgba(25,18,14,0.32); position: relative; overflow: hidden; }
-  .dark-card::before { content: ""; position: absolute; inset: 0 auto auto 0; width: 100%; height: 1px; background: linear-gradient(90deg, rgba(255,90,54,0.30), transparent 52%); pointer-events: none; }
-  .landing-metal-card { background: linear-gradient(180deg, rgba(28,28,28,0.98), rgba(14,14,14,1)); border: 1px solid rgba(255,255,255,0.10); border-radius: 18px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 18px 32px rgba(0,0,0,0.24); position: relative; overflow: hidden; }
-  .landing-metal-card::after { content: ""; position: absolute; inset: auto 0 0 0; height: 2px; background: linear-gradient(90deg, rgba(255,90,54,0.75), rgba(255,176,103,0.36), transparent 80%); }
+  /* PATCH: cartes plus denses, moins template, avec vraie matière sombre */
+  .premium-card { background: linear-gradient(180deg, #1a1a1a, #161616); border: 1px solid #2b2b2b; border-radius: 14px; box-shadow: 0 14px 30px rgba(0,0,0,0.22); position: relative; overflow: hidden; transition: background 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease; }
+  .premium-card::before { content: ""; position: absolute; inset: 0 auto auto 0; width: 100%; height: 1px; background: linear-gradient(90deg, rgba(249,115,22,0.22), transparent 60%); pointer-events: none; }
+  .premium-card:hover { background: linear-gradient(180deg, #1f1f1f, #1b1b1b); border-color: #3a3a3a; }
+  .dark-card { background: linear-gradient(180deg, #181818, #111111); border: 1px solid #2b2b2b; border-radius: 14px; box-shadow: 0 16px 34px rgba(0,0,0,0.22); position: relative; overflow: hidden; transition: background 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease; }
+  .dark-card::before { content: ""; position: absolute; inset: 0 auto auto 0; width: 100%; height: 1px; background: linear-gradient(90deg, rgba(249,115,22,0.18), transparent 52%); pointer-events: none; }
+  .dark-card:hover { background: linear-gradient(180deg, #1d1d1d, #161616); border-color: #3a3a3a; }
+  .landing-metal-card { background: linear-gradient(180deg, #1a1a1a, #161616); border: 1px solid #2b2b2b; border-radius: 14px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 12px 24px rgba(0,0,0,0.20); position: relative; overflow: hidden; transition: background 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease; }
+  .landing-metal-card::after { content: ""; position: absolute; inset: auto 0 0 0; height: 2px; background: linear-gradient(90deg, rgba(198,40,40,0.8), rgba(249,115,22,0.38), transparent 80%); }
+  .landing-metal-card:hover { background: linear-gradient(180deg, #1f1f1f, #1b1b1b); border-color: #3a3a3a; }
   .landing-steel-rule { height: 1px; width: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent); }
-  .landing-fire-chip { padding: 8px 12px; border-radius: 12px; background: linear-gradient(180deg, rgba(255,90,54,0.12), rgba(255,90,54,0.04)); border: 1px solid rgba(255,90,54,0.18); color: #f5f1ea; font-size: 12px; font-weight: 700; letter-spacing: .02em; }
-  .lift { transition: transform .24s ease, border-color .24s ease, box-shadow .24s ease; }
-  .lift:hover { transform: translateY(-3px); border-color: rgba(255,90,54,0.26) !important; box-shadow: 0 24px 52px rgba(0,0,0,0.30); }
+  .landing-fire-chip { padding: 8px 12px; border-radius: 12px; background: linear-gradient(180deg, rgba(198,40,40,0.14), rgba(198,40,40,0.05)); border: 1px solid rgba(198,40,40,0.18); color: #f5f1ea; font-size: 12px; font-weight: 700; letter-spacing: .02em; }
+  .lift { transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease; }
+  .lift:hover { transform: translateY(-2px); border-color: #3a3a3a !important; box-shadow: 0 18px 34px rgba(0,0,0,0.24); }
   @media (max-width: 1080px) {
     .hero-grid, .feature-grid, .material-grid, .landing-split, .landing-footer-grid, .landing-benefit-grid { grid-template-columns: 1fr; }
     .guide-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -63,13 +67,13 @@ const css = `
     .landing-topnav { gap: 10px; justify-content: flex-end; }
     .landing-topnav > button:not(.landing-cta) { display:none; }
     .landing-brand-sub { display:none; }
-    .landing-shell-pad { padding: 20px 16px 44px; }
-    .landing-section { padding: 0 16px 42px; }
-    .landing-section-tight { padding: 0 16px 32px; }
+    .landing-shell-pad { padding: 20px 16px 52px; }
+    .landing-section { padding: 0 16px 54px; }
+    .landing-section-tight { padding: 0 16px 40px; }
     .hero-media, .landing-poster-frame { min-height: 360px; }
-    .landing-hero-content { padding: 18px 4px 10px 4px; }
-    .landing-hero-title { font-size: 66px; line-height: .92; }
-    .landing-hero-copy { font-size: 15px; line-height: 1.6; margin-bottom: 20px; }
+    .landing-hero-content { padding: 24px 8px 18px 8px; }
+    .landing-hero-title { font-size: 72px; line-height: .9; }
+    .landing-hero-copy { font-size: 15px; line-height: 1.6; margin-bottom: 24px; }
     .landing-cook-card { height: 210px; }
     .landing-poster-copy { left: 14px; right: 14px; bottom: 14px; }
     .landing-hero-stage { padding: 16px 14px 14px; }
@@ -224,8 +228,8 @@ export default function Landing() {
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '0 22px',
-          background: scrolled ? 'rgba(12,12,12,0.92)' : 'rgba(12,12,12,0.72)',
-          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          background: scrolled ? 'rgba(9,9,9,0.94)' : 'rgba(9,9,9,0.76)',
+          borderBottom: '1px solid #2b2b2b',
           backdropFilter: 'blur(20px)',
         }}
       >
@@ -233,11 +237,11 @@ export default function Landing() {
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           style={{ background: 'none', border: 'none', padding: 0, color: 'inherit', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}
         >
-          <div style={{ width: 44, height: 44, borderRadius: 14, display: 'grid', placeItems: 'center', background: 'linear-gradient(180deg,var(--orange-light),var(--orange-deep))', color: '#fff', boxShadow: '0 16px 34px rgba(197,83,25,0.22)', fontFamily: 'Syne, sans-serif', fontSize: 14, fontWeight: 800 }}>
+          <div style={{ width: 44, height: 44, borderRadius: 12, display: 'grid', placeItems: 'center', background: 'linear-gradient(180deg,var(--orange-light),var(--orange-deep))', border: '1px solid #7f1d1d', color: '#fff', boxShadow: '0 10px 20px rgba(198,40,40,0.18)', fontFamily: 'Rajdhani, sans-serif', fontSize: 16, fontWeight: 700, letterSpacing: '.08em' }}>
             CF
           </div>
           <div style={{ textAlign: 'left', minWidth: 0 }}>
-            <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 16, fontWeight: 800, lineHeight: 1 }}>Charbon &amp; Flamme</div>
+            <div style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: 18, fontWeight: 700, lineHeight: 1, letterSpacing: '.03em' }}>Charbon &amp; Flamme</div>
             <div className="pm-eyebrow landing-brand-sub" style={{ marginTop: 3, color:'var(--text3)' }}>planifier sa cuisson bbq</div>
           </div>
         </button>
@@ -249,7 +253,7 @@ export default function Landing() {
             ['Comment ça marche', () => scrollToSection('comment-ca-marche')],
             ['Ouvrir l’app', openCalculator],
           ].map(([label, action]) => (
-            <button key={label} onClick={action} style={{ background:'none', border:'none', padding:0, color:'var(--text2)', fontSize: 13, fontWeight: 600, cursor:'pointer' }}>
+            <button key={label} onClick={action} style={{ background:'none', border:'none', padding:0, color:'var(--text2)', fontSize: 13, fontWeight: 600, cursor:'pointer', letterSpacing: '.02em' }}>
               {label}
             </button>
           ))}
@@ -295,8 +299,8 @@ export default function Landing() {
               <div className="hero-item landing-benefit-grid" style={{ marginTop: 8 }}>
                 {BENEFITS.map(({ title, copy }) => (
                   <div key={title} style={{ display: 'grid', gap: 8 }}>
-                    <div style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: 20, fontWeight: 700, color: '#fff5eb', letterSpacing: '.02em' }}>{title}</div>
-                    <p style={{ fontSize: 14, color: 'rgba(255,245,235,0.68)', lineHeight: 1.6 }}>{copy}</p>
+                  <div style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: 20, fontWeight: 700, color: '#f5f1ea', letterSpacing: '.02em' }}>{title}</div>
+                    <p style={{ fontSize: 14, color: '#b7aea4', lineHeight: 1.6 }}>{copy}</p>
                   </div>
                 ))}
               </div>
@@ -338,14 +342,14 @@ export default function Landing() {
                   </div>
                   <div className="landing-stat-rail">
                     {HERO_METRICS.map(([label, value]) => (
-                      <div key={label} className="landing-metal-card" style={{ padding: '14px 16px', background: 'rgba(12,12,12,0.58)', backdropFilter: 'blur(12px)' }}>
+                      <div key={label} className="landing-metal-card" style={{ padding: '16px 18px', background: 'rgba(17,17,17,0.70)', backdropFilter: 'blur(12px)' }}>
                         <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.56)', marginBottom: 8 }}>{label}</div>
                         <div style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: 28, fontWeight: 700, color: '#fff5eb', letterSpacing: '.02em' }}>{value}</div>
                       </div>
                     ))}
                   </div>
                   <div className="landing-hero-rail">
-                    <div className="landing-metal-card" style={{ padding: '14px 16px', background: 'rgba(12,12,12,0.64)', backdropFilter: 'blur(14px)' }}>
+                    <div className="landing-metal-card" style={{ padding: '16px 18px', background: 'rgba(17,17,17,0.76)', backdropFilter: 'blur(14px)' }}>
                       <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.56)', marginBottom: 8 }}>repères pitmaster</div>
                       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                         {['Stall 65–75°C', 'Wrap 70–75°C', 'Tests dès 90°C'].map((item) => (
@@ -356,7 +360,7 @@ export default function Landing() {
                       </div>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-                      <div style={{ color: 'rgba(255,245,235,0.78)', fontSize: 14, maxWidth: 320 }}>
+                      <div style={{ color: '#b7aea4', fontSize: 14, maxWidth: 320, lineHeight: 1.6 }}>
                         Plus besoin de deviner si tu dois te lever à 4h ou si ta viande sortira trop tard.
                       </div>
                       <button onClick={() => openCalculator()} className="pm-btn-primary" style={{ width: 'auto', minWidth: 200 }}>
@@ -393,7 +397,7 @@ export default function Landing() {
       </section>
 
       <section id="calculateur" className="landing-section">
-        <div className="pm-shell premium-card" style={{ padding: 26 }}>
+        <div className="pm-shell premium-card" style={{ padding: 30 }}>
           <div className="landing-split">
             <div>
               <div className="pm-eyebrow" style={{ marginBottom: 10, color:'var(--text3)' }}>Le calculateur</div>
@@ -420,12 +424,12 @@ export default function Landing() {
                 ['Tu prévois le repos', <GaugeIcon key="gauge" />],
                 ['Tu retrouves tes cuissons', <SaveIcon key="save" />],
               ].map(([label, icon]) => (
-                <div key={label} className="landing-metal-card lift" style={{ padding: 18 }}>
+                <div key={label} className="landing-metal-card lift" style={{ padding: 22 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                     <IconFrame>{icon}</IconFrame>
-                    <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, fontWeight: 700, color: 'var(--text)' }}>{label}</div>
+                    <div style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: 21, fontWeight: 700, color: 'var(--text)', letterSpacing: '.02em' }}>{label}</div>
                   </div>
-                  <p style={{ fontSize: 14, color:'var(--text2)' }}>
+                  <p style={{ fontSize: 14, color:'var(--text2)', lineHeight: 1.6 }}>
                     Une réponse claire à une vraie question de cuisson, sans te noyer dans le détail.
                   </p>
                 </div>
@@ -442,8 +446,8 @@ export default function Landing() {
             ['Tu gères mieux ton repos', 'Le plan n’oublie pas le hold. C’est souvent lui qui sauve un service propre et une viande plus sereine.'],
             ['Tu cuisines avec une vraie ligne de conduite', 'Repères de stall, wrap, tests de tendreté et fenêtre de service : tu avances avec des points concrets.'],
           ].map(([title, copy]) => (
-            <div key={title} style={{ paddingTop: 18, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-              <h3 style={{ fontSize: 24, color: 'var(--text)', marginBottom: 10 }}>{title}</h3>
+            <div key={title} style={{ paddingTop: 22, borderTop: '1px solid #2b2b2b' }}>
+              <h3 style={{ fontSize: 24, color: 'var(--text)', marginBottom: 10, fontFamily: 'Rajdhani, sans-serif', letterSpacing: '.02em' }}>{title}</h3>
               <p>{copy}</p>
             </div>
           ))}
@@ -491,7 +495,7 @@ export default function Landing() {
       </section>
 
       <section id="comment-ca-marche" className="landing-section">
-        <div className="pm-shell premium-card" style={{ padding: 26 }}>
+        <div className="pm-shell premium-card" style={{ padding: 30 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', gap: 24, flexWrap: 'wrap', marginBottom: 18 }}>
             <div>
               <div className="pm-eyebrow" style={{ marginBottom: 10, color:'var(--text3)' }}>Comment ça marche ?</div>
@@ -508,11 +512,11 @@ export default function Landing() {
               ['02', 'Entre ton poids et ton heure', 'Tu donnes le poids, la méthode et l’heure à laquelle tu veux servir.'],
               ['03', 'Reçois ton plan', 'Le site te donne l’heure de départ, la fenêtre de service et les repères utiles.'],
             ].map(([step, title, copy]) => (
-              <div key={title} className="landing-metal-card lift" style={{ padding: 18 }}>
+              <div key={title} className="landing-metal-card lift" style={{ padding: 22 }}>
                 <div style={{ display: 'inline-flex', marginBottom: 12, padding: '6px 10px', borderRadius: 10, background: 'var(--orange-bg)', border: '1px solid var(--orange-border)', color: 'var(--orange)', fontSize: 11, fontWeight: 800 }}>
                   {step}
                 </div>
-                <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--text)', marginBottom: 10 }}>{title}</div>
+                <div style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: 24, fontWeight: 700, color: 'var(--text)', marginBottom: 10, letterSpacing: '.02em' }}>{title}</div>
                 <p style={{ marginBottom: 16 }}>{copy}</p>
               </div>
             ))}
@@ -522,7 +526,7 @@ export default function Landing() {
 
       <section id="guides" className="landing-section">
         <div className="pm-shell">
-          <div className="premium-card" style={{ padding: 24 }}>
+          <div className="premium-card" style={{ padding: 28 }}>
             <div className="pm-eyebrow" style={{ marginBottom: 10, color:'var(--text3)' }}>À garder en tête</div>
             <h2 className="pm-section-title" style={{ fontSize: 'clamp(28px, 4vw, 44px)', marginBottom: 12 }}>
               Le BBQ reste vivant.
@@ -546,11 +550,11 @@ export default function Landing() {
         </div>
       </section>
 
-      <footer style={{ borderTop: '1px solid rgba(255,255,255,0.08)', padding: '28px 16px 48px' }}>
+      <footer style={{ borderTop: '1px solid #2b2b2b', padding: '32px 16px 56px' }}>
         <div className="pm-shell">
           <div className="landing-footer-grid">
             <div>
-              <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, fontWeight: 800, marginBottom: 8 }}>Charbon &amp; Flamme</div>
+              <div style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: 22, fontWeight: 700, marginBottom: 8, letterSpacing: '.03em' }}>Charbon &amp; Flamme</div>
               <p className="pm-section-copy" style={{ maxWidth: 420 }}>
                 Lance ta cuisson avec un vrai plan. Prépare ton prochain service sans deviner.
               </p>
