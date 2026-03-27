@@ -59,7 +59,7 @@ function PrivateRoute({ children }) {
 }
 
 function AdminRoute({ children }) {
-  const { user, isAdmin, loading, profile } = useAuth()
+  const { user, isAdmin, loading, profile, roles } = useAuth()
   if (loading) {
     return (
       <div style={{ minHeight:'100vh', background:'#080706', display:'flex', alignItems:'center', justifyContent:'center', color:'#d4c4b0', fontFamily:"'DM Sans', sans-serif" }}>
@@ -78,6 +78,12 @@ function AdminRoute({ children }) {
           </div>
           <div style={{ color:'#8a7060', fontSize:13, marginBottom:18 }}>
             Rôle actuel : {profile?.role || 'member'}
+          </div>
+          <div style={{ color:'#8a7060', fontSize:12, marginBottom:18, lineHeight:1.6 }}>
+            Email détecté : {user?.email || '—'}<br />
+            User ID : {user?.id || '—'}<br />
+            Profile ID : {profile?.id || '—'}<br />
+            Roles[] : {Array.isArray(roles) && roles.length ? roles.join(', ') : '—'}
           </div>
           <a href="/app" style={{ display:'inline-flex', alignItems:'center', justifyContent:'center', minHeight:44, padding:'0 18px', borderRadius:12, border:'1px solid #2b2b2b', background:'#161616', color:'#f5f1ea', textDecoration:'none', fontWeight:700 }}>
             Retour au calculateur

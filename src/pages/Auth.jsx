@@ -15,7 +15,7 @@ export default function Auth() {
   const navigate  = useNavigate()
   const location  = useLocation()
   const from      = location.state?.from || '/app'
-  const { user, signOut, profile } = useAuth()
+  const { user, signOut, profile, roles, reloadProfile } = useAuth()
 
   const [mode,     setMode]     = useState('login') // login | signup
   const [email,    setEmail]    = useState('')
@@ -118,12 +118,21 @@ export default function Auth() {
           <div style={{ fontSize:14, color:'#d4c4b0', marginBottom:6 }}>{user.email}</div>
           <div style={{ fontSize:12, color:'#5a4a3a', marginBottom:22 }}>
             Rôle : {profile?.role || 'member'}
+            <br />
+            User ID : {user.id}
+            <br />
+            Profile ID : {profile?.id || '—'}
+            <br />
+            Roles[] : {Array.isArray(roles) && roles.length ? roles.join(', ') : '—'}
           </div>
 
           {error && <div style={{ fontSize:12, color:'#f87171', marginBottom:12, padding:'8px 12px', background:'rgba(248,113,113,0.08)', borderRadius:8 }}>{error}</div>}
 
           <button onClick={() => navigate(from, { replace: true })} style={{ ...S.btn, background:'linear-gradient(135deg,#f48c06,#d44e00)', color:'#fff', boxShadow:'0 4px 16px rgba(232,93,4,0.25)' }}>
             Continuer
+          </button>
+          <button onClick={reloadProfile} style={{ ...S.btn, background:'transparent', border:'1px solid #2a2218', color:'#d4c4b0' }}>
+            Recharger le profil
           </button>
           <button onClick={() => navigate('/app/profile')} style={{ ...S.btn, background:'transparent', border:'1px solid #2a2218', color:'#d4c4b0' }}>
             Ouvrir mon profil
