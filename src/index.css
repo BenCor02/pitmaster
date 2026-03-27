@@ -63,7 +63,7 @@ body {
 /* ─── TYPOGRAPHY ─── */
 h1 { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
 h2 { font-family: 'Syne', sans-serif; font-size: 21px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
-h3 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: var(--sand); }
+h3 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); }
 p  { color: var(--text2); line-height: 1.65; }
 
 /* ─── CARDS ─── */
@@ -241,7 +241,7 @@ input[type=range]::-webkit-slider-thumb {
   justify-content: center;
   gap: 8px;
 }
-.pm-btn-secondary:hover { background: rgba(56,40,31,0.96); color: var(--text); border-color: var(--orange-border); }
+.pm-btn-secondary:hover { background: linear-gradient(180deg, rgba(255,255,255,1), rgba(242,235,227,1)); color: var(--text); border-color: var(--orange-border); }
 
 /* ─── LABELS ─── */
 .pm-field-label {
