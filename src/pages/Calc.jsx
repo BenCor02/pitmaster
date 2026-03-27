@@ -598,10 +598,16 @@ export default function Calc() {
         .calc-seo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
         .calc-result-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
         .calc-sticky-cta{display:none}
+        .calc-two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        .calc-three-col{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+        .calc-wrap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+        .calc-result-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+        .calc-recal-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
         @media(max-width:900px){
           .calc-seo-grid{grid-template-columns:1fr}
           .calc-result-actions{grid-template-columns:1fr}
           .calc-sticky-cta{display:flex;position:fixed;left:12px;right:12px;bottom:76px;z-index:48}
+          .calc-two-col,.calc-three-col,.calc-wrap-grid,.calc-result-grid,.calc-recal-grid{grid-template-columns:1fr}
         }
       `}</style>
       <Snack snack={snack} />
@@ -612,12 +618,12 @@ export default function Calc() {
           <div>
             <div className="pm-kicker" style={{ marginBottom: 14 }}>Calculateur BBQ Pitmaster</div>
             <h1 style={{ fontSize:'clamp(30px,5vw,44px)', lineHeight:1.02, marginBottom:10 }}>
-              Lance ta cuisson
+              Planifie ta cuisson
               <br />
-              <span style={{ color:'var(--ember)' }}>sans te perdre dans l’outil</span>
+              <span style={{ color:'var(--ember)' }}>sans compliquer ton barbecue</span>
             </h1>
             <p style={{ fontSize:14, maxWidth:520, color:'var(--text2)' }}>
-              Choisis la viande, règle ton fumoir, puis récupère un plan clair avec les vrais repères pitmaster. Rien de compliqué, rien d’inutile.
+              Choisis la viande, règle le fumoir, puis récupère un plan clair avec les bons repères terrain. Rapide à lire, simple à suivre.
             </p>
             <div className="pm-grid-2" style={{ marginTop: 16 }}>
               <div className="pm-glow-pill">
@@ -685,7 +691,7 @@ export default function Calc() {
       </div>
 
       {/* VIANDE + PHOTO */}
-      {renderSectionEyebrow('01', 'Choisis ta pièce', 'Commence par la viande. L’outil adapte ensuite la méthode, les repères et la roadmap.')}
+      {renderSectionEyebrow('01', 'Choisis ta pièce', 'Commence par la viande. L’outil adapte ensuite la méthode et les repères utiles.')}
       <div className="pm-card" style={{ padding: 0, overflow: 'hidden' }}>
         {/* Photo de la viande sélectionnée */}
         {MEAT_IMAGES[meatKey] && (
@@ -731,8 +737,8 @@ export default function Calc() {
       </div>
 
       {/* POIDS & ÉPAISSEUR */}
-      {renderSectionEyebrow('02', 'Règle ta cuisson', 'Poids, méthode, température et options utiles. Le reste doit rester simple.')}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+      {renderSectionEyebrow('02', 'Règle ta cuisson', 'Poids, méthode, température et options utiles. Rien de plus.')}
+      <div className="calc-two-col">
         <div className="pm-card">
           <label className="pm-field-label">Poids (kg)</label>
           <input type="number" className="pm-input" value={weight} min="0.5" max="20" step="0.5"
@@ -752,7 +758,7 @@ export default function Calc() {
             placeholder="Auto depuis le poids"
             onChange={e => { setThickness(e.target.value) }} />
           <div style={{ fontSize: 10, color: 'var(--text3)', marginTop: 5, lineHeight: 1.5 }}>
-            Harry Soo : l&apos;épaisseur influence souvent plus le temps que le poids
+            L’épaisseur peut jouer autant que le poids sur certaines grosses pièces.
           </div>
         </div>
       </div>
@@ -850,7 +856,7 @@ export default function Calc() {
       {meatKey === 'lamb_leg' && (
         <div className="pm-card">
           <label className="pm-field-label">Style du gigot</label>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          <div className="calc-two-col">
             {[
               { id: 'medium', title: 'Rosé / Medium', desc: 'Cible autour de 63°C, cuisson plus courte, belle tranche.' },
               { id: 'pulled', title: 'Effiloché', desc: 'Version poussée type épaule, plus longue et plus fondante.' },
@@ -886,7 +892,7 @@ export default function Calc() {
           <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 10, lineHeight: 1.6 }}>
             Le wrap fait partie du low & slow. Choisis-le si tu veux raccourcir la fin de cuisson et lisser le stall.
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 6 }}>
+          <div className="calc-wrap-grid">
             {WRAP_TYPES.map(w => (
               <button key={w.id} onClick={() => { setWrapType(w.id) }}
                 style={{ padding: '10px 6px', borderRadius: 12, cursor: 'pointer', textAlign: 'center', transition: 'all 0.15s',
@@ -956,12 +962,12 @@ export default function Calc() {
       )}
 
       {/* BOUTON CALCULER */}
-      {renderSectionEyebrow('03', 'Calcule ton plan', 'Un clic pour obtenir l’heure de départ, la fenêtre de service et les grands repères de cuisson.')}
+      {renderSectionEyebrow('03', 'Calcule ton plan', 'Un clic pour obtenir le départ, la fenêtre de service et les grands repères de cuisson.')}
       <button onClick={calculate} disabled={loading} className="pm-btn-primary"
         style={{ width: '100%', padding: '14px', marginBottom: 24, fontSize: 14 }}>
         {loading
           ? <><span style={{ width: 14, height: 14, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} /> Calcul...</>
-          : '🔥 Calculer le planning'}
+          : '🔥 Calculer ma cuisson'}
       </button>
 
       {/* WARNINGS */}
@@ -995,7 +1001,7 @@ export default function Calc() {
               <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '1px' }}>Lancer le préchauffage</div>
               <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 72, fontWeight: 800, lineHeight: 1, color: 'var(--ember)', letterSpacing: '-3px' }}>{result.startTime}</div>
               <div style={{ fontSize: 13, color: 'var(--text2)', marginTop: 10, lineHeight: 1.6 }}>
-                Pour servir à {result.serve}, allume le fumoir vers {result.startTime} puis mets la viande vers {result.meatOnSmokerTime}.
+                Pour servir à {result.serve}, lance le fumoir vers {result.startTime} puis mets la viande vers {result.meatOnSmokerTime}.
               </div>
             </div>
 
@@ -1003,7 +1009,7 @@ export default function Calc() {
               <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 18, color: 'var(--text)', marginBottom: 6, textAlign: 'center' }}>
                 {getReadyWindowText(result)}
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 12, marginBottom: 12 }}>
+              <div className="calc-result-grid" style={{ marginTop: 12, marginBottom: 12 }}>
                 <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '10px 12px', textAlign: 'center' }}>
                   <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Viande sur fumoir</div>
                   <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 700, fontSize: 14, color: 'var(--text)' }}>{result.meatOnSmokerTime}</div>
@@ -1025,7 +1031,7 @@ export default function Calc() {
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <div className="calc-two-col">
               <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '10px 12px' }}>
                 <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Méthode</div>
                 <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 700, fontSize: 12, color: 'var(--text)' }}>{result.methodVariantLabel || result.methodLabel}</div>
@@ -1037,7 +1043,7 @@ export default function Calc() {
                 </div>
               ))}
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 8, marginTop: 10 }}>
+            <div className="calc-three-col" style={{ marginTop: 10 }}>
               {[
                 ['Cuisson', formatDuration(result.cookMin)],
                 ['Repos', formatDuration(result.restMin)],
@@ -1056,18 +1062,18 @@ export default function Calc() {
             <div className="pm-sec-label">⚡ Actions rapides</div>
             <div className="calc-result-actions">
               <button onClick={sharePlan} disabled={sharing} className="pm-btn-secondary">
-                {sharing ? '⏳...' : '📤 Partager'}
+                {sharing ? '⏳...' : '📤 Partager le plan'}
               </button>
               <button onClick={saveSession} disabled={saving} className="pm-btn-primary">
-                {saving ? '⏳...' : user ? '☁️ Sauvegarder' : '🔐 Sauvegarder'}
+                {saving ? '⏳...' : user ? '☁️ Garder ce plan' : '🔐 Garder ce plan'}
               </button>
               <button onClick={downloadPlan} className="pm-btn-secondary">
-                ⬇ Télécharger
+                ⬇ Exporter
               </button>
             </div>
             {!user && (
               <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text3)', lineHeight: 1.6 }}>
-                Tu peux utiliser l’outil sans compte. Pour garder tes plannings, ton historique et reprendre plus tard, il faut créer un compte.
+                Tu peux utiliser l’outil sans compte. Le compte sert surtout à retrouver tes cuissons plus tard.
               </div>
             )}
           </div>
@@ -1161,15 +1167,15 @@ export default function Calc() {
           {isLowSlow && (
             <div className="pm-card" style={{ marginBottom: 12 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }} onClick={() => setShowRecal(o => !o)}>
-                <div className="pm-sec-label" style={{ marginBottom: 0 }}>🔄 Aide si la cuisson ralentit</div>
+                <div className="pm-sec-label" style={{ marginBottom: 0 }}>🔄 Recalage en cours de cuisson</div>
                 <span style={{ fontSize: 12, color: 'var(--text3)' }}>{showRecal ? '▲' : '▼'}</span>
               </div>
               {showRecal && (
                 <div style={{ marginTop: 14 }}>
                   <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 12, lineHeight: 1.6 }}>
-                    Entre la température interne actuelle pour voir si la cuisson est dans les temps.
+                    Entre la température interne actuelle pour voir si la cuisson est en avance ou en retard.
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 12 }}>
+                  <div className="calc-recal-grid">
                     {[
                       { label: 'T° interne (°C)', val: currentTempC, set: setCurrentTempC, placeholder: 'Ex: 68' },
                       { label: 'Temps écoulé (min)', val: elapsedMin, set: setElapsedMin, placeholder: 'Ex: 180' },

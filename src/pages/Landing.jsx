@@ -17,6 +17,8 @@ const css = `
   .guide-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
   .hero-panel { animation: panelFloat 8s ease-in-out infinite; }
   .hero-glow { animation: glowPulse 7s ease-in-out infinite; }
+  .landing-topnav { display:flex; align-items:center; gap:18px; flex-wrap:wrap; }
+  .landing-shell-pad { padding: 34px 24px 62px; }
   /* PATCH: landing alignée sur le thème dark premium de l'app */
   .premium-card { background: linear-gradient(180deg, rgba(26,26,26,0.96), rgba(16,16,16,0.98)); border: 1px solid rgba(255,255,255,0.08); border-radius: 28px; box-shadow: 0 18px 44px rgba(0,0,0,0.24); }
   .dark-card { background: linear-gradient(180deg, rgba(23,18,15,0.96), rgba(15,12,10,0.98)); border: 1px solid rgba(255,255,255,0.08); border-radius: 30px; box-shadow: 0 22px 54px rgba(25,18,14,0.32); }
@@ -28,6 +30,9 @@ const css = `
   }
   @media (max-width: 720px) {
     .link-grid, .guide-strip { grid-template-columns: 1fr; }
+    .landing-topnav { gap: 10px; justify-content: flex-end; }
+    .landing-topnav > button:not(.landing-cta) { display:none; }
+    .landing-shell-pad { padding: 20px 16px 44px; }
   }
 `
 
@@ -171,7 +176,7 @@ export default function Landing() {
           </div>
         </button>
 
-        <nav style={{ display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap' }}>
+        <nav className="landing-topnav">
           {[
             ['Calculateur', () => scrollToSection('calculateur')],
             ['Guides BBQ', () => scrollToSection('guides')],
@@ -182,41 +187,41 @@ export default function Landing() {
               {label}
             </button>
           ))}
-          <button onClick={saveCook} className="pm-btn-secondary" style={{ width: 'auto', padding: '12px 16px', fontSize: 12 }}>
-            Sauvegarder ma cuisson
+          <button onClick={saveCook} className="pm-btn-secondary landing-cta" style={{ width: 'auto', padding: '12px 16px', fontSize: 12 }}>
+            Mon compte
           </button>
         </nav>
       </header>
 
-      <section style={{ padding: '34px 24px 62px' }}>
+      <section className="landing-shell-pad">
         <div className="pm-shell dark-card" style={{ padding: 18, position: 'relative', overflow: 'hidden' }}>
           <div className="hero-glow" style={{ position: 'absolute', right: -80, top: -60, width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(circle, rgba(240,122,47,0.28), transparent 68%)', pointerEvents: 'none' }} />
           <div className="hero-grid" style={{ position: 'relative', zIndex: 1 }}>
             <div style={{ padding: '28px 16px 18px 20px' }}>
-              <div className="hero-item pm-kicker" style={{ marginBottom: 18 }}>calculateur bbq premium et utile</div>
+              <div className="hero-item pm-kicker" style={{ marginBottom: 18 }}>calculateur bbq / fumage</div>
               <div className="hero-item" style={{ marginBottom: 14 }}>
                 <h1 style={{ fontSize: 'clamp(46px, 8vw, 96px)', lineHeight: 0.92, letterSpacing: '-4px', color: '#fff5eb', maxWidth: 820 }}>
-                  Calculateur BBQ
+                  Planifie ta cuisson
                   <br />
-                  <span style={{ color: 'var(--ember)' }}>Pitmaster</span>
+                  <span style={{ color: 'var(--ember)' }}>comme un pitmaster</span>
                 </h1>
               </div>
               <p className="hero-item" style={{ maxWidth: 560, fontSize: 18, color: 'rgba(255,245,235,0.76)', lineHeight: 1.7, marginBottom: 26 }}>
-                Temps de cuisson précis pour brisket, ribs, pulled pork. Une interface claire pour calculer vite, mieux servir, et revenir avant chaque nouvelle cuisson.
+                Heure de départ, fenêtre de service, repères utiles. Un outil clair pour brisket, ribs, pulled pork et bien plus, sans jargon inutile.
               </p>
               <div className="hero-item" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 22 }}>
                 <button onClick={openCalculator} className="pm-btn-primary" style={{ width: 'auto', padding: '16px 28px', fontSize: 15 }}>
-                  Calculer maintenant
+                  Ouvrir le calculateur
                 </button>
                 <button onClick={saveCook} className="pm-btn-secondary" style={{ width: 'auto', padding: '15px 20px', fontSize: 15, background: 'rgba(255,255,255,0.06)', color: '#fff5eb', border: '1px solid rgba(255,255,255,0.12)' }}>
-                  Sauvegarder ma cuisson
+                  Retrouver mes cuissons
                 </button>
               </div>
               <div className="hero-item feature-grid" style={{ marginTop: 8 }}>
                 {[
-                  ['Heure de départ', '06h00', <ClockIcon key="clock" />],
-                  ['Fenêtre de service', '18h00 → 19h30', <FireIcon key="fire" />],
-                  ['Repère pit', '110°C stabilisés', <GaugeIcon key="gauge" />],
+                  ['Départ', '06h00', <ClockIcon key="clock" />],
+                  ['Service', '18h00 → 19h30', <FireIcon key="fire" />],
+                  ['Fumoir', '110°C stables', <GaugeIcon key="gauge" />],
                 ].map(([label, value, icon]) => (
                   <div key={label} style={{ padding: '14px 14px 16px', borderRadius: 22, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
@@ -255,12 +260,12 @@ export default function Landing() {
                             <div style={{ fontFamily: 'DM Mono, monospace', color: '#fff5eb', fontWeight: 700 }}>17h10</div>
                           </div>
                           <div style={{ padding: '12px 14px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                            <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.56)', marginBottom: 6 }}>service window</div>
+                            <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.56)', marginBottom: 6 }}>fenêtre service</div>
                             <div style={{ fontFamily: 'DM Mono, monospace', color: '#fff5eb', fontWeight: 700 }}>18h00 → 19h30</div>
                           </div>
                         </div>
                         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                          {['Stall 65-75°C', 'Wrap papier', 'Début tests 90°C'].map((item) => (
+                          {['Stall 65–75°C', 'Wrap papier', 'Tests dès 90°C'].map((item) => (
                             <span key={item} style={{ padding: '6px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,245,235,0.8)', fontSize: 11, fontWeight: 600 }}>
                               {item}
                             </span>
