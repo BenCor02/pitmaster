@@ -772,6 +772,11 @@ export default function CookSession() {
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
         @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
         .fade-up { animation: fadeUp 0.25s ease both }
+        .session-two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+        .session-cta-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+        @media(max-width:900px){
+          .session-two-col,.session-cta-grid{grid-template-columns:1fr}
+        }
       `}</style>
 
       {/* PATCH: header session renforcé pour une lecture plus claire et plus premium */}
@@ -809,8 +814,16 @@ export default function CookSession() {
           <div className="pm-kicker" style={{ marginBottom: 10 }}>
             {cookStarted ? 'Cuisson en cours' : 'Session prête'}
           </div>
+          <div style={{ display:'flex', gap:8, flexWrap:'wrap', marginBottom:10 }}>
+            <span style={{ padding:'6px 10px', borderRadius:999, border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.03)', fontSize:11, color:'var(--text2)', fontWeight:600 }}>
+              {schedule.methodVariantLabel || schedule.methodLabel || 'Méthode pitmaster'}
+            </span>
+            <span style={{ padding:'6px 10px', borderRadius:999, border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.03)', fontSize:11, color:'var(--text2)', fontWeight:600 }}>
+              Service {schedule.serviceWindowStart} → {schedule.serviceWindowEnd}
+            </span>
+          </div>
           <div style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.7 }}>
-            Une seule étape active à la fois. Valide les vrais signaux terrain, puis laisse l’app t’aider à garder le cap sans te surcharger.
+            Une seule étape active à la fois. Valide les vrais signaux terrain, puis laisse l’app te guider sans te surcharger.
           </div>
         </div>
       </div>
@@ -827,7 +840,7 @@ export default function CookSession() {
           <div style={{ fontSize: 12, color: 'var(--text3)', lineHeight: 1.7 }}>
             Les ribs ne se pilotent pas à la minute près. Valide chaque étape quand le rack te donne le bon signal visuel.
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 12 }}>
+          <div className="session-two-col" style={{ marginTop: 12 }}>
             <div style={{ background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 12, padding: '10px 12px' }}>
               <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Départ estimé</div>
               <div style={{ fontFamily: "'DM Mono',monospace", fontWeight: 700, fontSize: 12, color: 'var(--text)' }}>{schedule.startTime || '—'}</div>
@@ -840,7 +853,7 @@ export default function CookSession() {
         </div>
       ) : (
         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16, padding: '16px 20px', marginBottom: 20 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
+          <div className="session-two-col" style={{ marginBottom: 12 }}>
             <div style={{ background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 12, padding: '10px 12px' }}>
               <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Départ estimé</div>
               <div style={{ fontFamily: "'DM Mono',monospace", fontWeight: 700, fontSize: 12, color: 'var(--text)' }}>{schedule.startTime || '—'}</div>
@@ -850,7 +863,7 @@ export default function CookSession() {
               <div style={{ fontFamily: "'DM Mono',monospace", fontWeight: 700, fontSize: 12, color: 'var(--text)' }}>{schedule.serviceWindowStart} → {schedule.serviceWindowEnd}</div>
             </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          <div className="session-two-col">
             {schedule.cues?.stallRange && (
               <div style={{ background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 12, padding: '10px 12px' }}>
                 <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Stall</div>
@@ -935,7 +948,7 @@ export default function CookSession() {
           <div style={{ fontSize:12, color:'var(--text2)', lineHeight:1.7, marginBottom:12 }}>
             Retrouve ce planning plus tard, garde tes cuissons passées et construis ton historique pour progresser d’une session à l’autre.
           </div>
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
+          <div className="session-cta-grid">
             <button
               onClick={() => navigate('/auth', { state: { from: '/app/session', reason: 'session-finished' } })}
               style={{ padding:'13px', borderRadius:50, border:'none', background:'linear-gradient(135deg,#f48c06,#d44e00)', color:'#fff', fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:13, cursor:'pointer' }}
@@ -987,7 +1000,7 @@ export default function CookSession() {
 
       {/* ── TERMINER */}
       <button onClick={() => { clearPendingSession(); navigate('/app') }} style={{ width: '100%', padding: '14px', borderRadius: 50, border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text3)', fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: 13, cursor: 'pointer', marginTop: 16 }}>
-        ↩ Terminer la session
+        ↩ Retour au calculateur
       </button>
     </div>
   )
