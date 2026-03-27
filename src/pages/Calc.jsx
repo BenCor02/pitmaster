@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { MEAT_IMAGES } from '../lib/images'
+import { MEAT_IMAGES, SMOKE_IMAGE } from '../lib/images'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
@@ -368,6 +368,8 @@ export default function Calc() {
   const [loading,  setLoading]  = useState(false)
   const [saving,   setSaving]   = useState(false)
   const [sharing,  setSharing]  = useState(false)
+  const [heroImageSrc, setHeroImageSrc] = useState(() => MEAT_IMAGES[getCalcDraft().meatKey || 'brisket'] || MEAT_IMAGES.brisket || SMOKE_IMAGE)
+  const [meatImageSrc, setMeatImageSrc] = useState(() => MEAT_IMAGES[getCalcDraft().meatKey || 'brisket'] || MEAT_IMAGES.brisket || SMOKE_IMAGE)
 
   const profile = MEAT_PROFILES[meatKey]
   const meatData = MEATS[meatKey]
@@ -377,6 +379,11 @@ export default function Calc() {
   const tempRange = useMemo(() => methodConfig?.smokerTempRange || [100, 160], [methodConfig])
   const showWrapChoices = cookMethod === 'low_and_slow' && (Boolean(cookingProfile?.temperatureCues?.wrapRangeC) || meatKey === 'ribs_pork' || meatKey === 'ribs_baby_back' || meatKey === 'lamb_leg')
   const roadmap = buildRoadmap(result)
+
+  useEffect(() => {
+    setHeroImageSrc(MEAT_IMAGES[meatKey] || MEAT_IMAGES.brisket || SMOKE_IMAGE)
+    setMeatImageSrc(MEAT_IMAGES[meatKey] || MEAT_IMAGES.brisket || SMOKE_IMAGE)
+  }, [meatKey])
 
   useEffect(() => {
     const preselectedMeatKey = location.state?.preselectMeatKey
@@ -675,8 +682,9 @@ export default function Calc() {
           </div>
           <div style={{ position:'relative', minHeight:220, borderRadius:24, overflow:'hidden', border:'1px solid rgba(255,255,255,0.08)' }}>
             <img
-              src={MEAT_IMAGES[meatKey] || MEAT_IMAGES.brisket}
+              src={heroImageSrc}
               alt={meatData?.full || 'BBQ'}
+              onError={() => setHeroImageSrc(SMOKE_IMAGE)}
               style={{ width:'100%', height:'100%', objectFit:'cover', display:'block', filter:'saturate(.96) contrast(1.06)' }}
             />
             <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(8,8,8,0.82) 0%, rgba(16,12,10,0.14) 56%, rgba(16,12,10,0.08) 100%)' }} />
@@ -716,8 +724,9 @@ export default function Calc() {
         {MEAT_IMAGES[meatKey] && (
           <div style={{ position: 'relative', height: 160, overflow: 'hidden' }}>
             <img
-              src={MEAT_IMAGES[meatKey]}
+              src={meatImageSrc}
               alt={MEATS[meatKey]?.full || meatKey}
+              onError={() => setMeatImageSrc(SMOKE_IMAGE)}
               style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'opacity 0.4s' }}
               loading="lazy"
             />

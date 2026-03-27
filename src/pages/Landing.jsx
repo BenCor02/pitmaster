@@ -163,6 +163,7 @@ export default function Landing() {
   const [scrolled, setScrolled] = useState(false)
   // PATCH: fallback visuel pour éviter un hero cassé si une image distante ne répond pas
   const [heroVisual, setHeroVisual] = useState(SMOKER_IMAGE)
+  const [cardImageFallbacks, setCardImageFallbacks] = useState({})
 
   useEffect(() => {
     document.title = 'Calculateur BBQ Pitmaster | Charbon & Flamme'
@@ -180,6 +181,7 @@ export default function Landing() {
   const scrollToSection = (sectionId) => {
     document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
+  const getCardImage = (key) => cardImageFallbacks[key] || MEAT_IMAGES[key] || SMOKE_IMAGE
 
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--text)', overflowX: 'hidden' }}>
@@ -427,7 +429,12 @@ export default function Landing() {
                 style={{ overflow: 'hidden', cursor: 'pointer', textAlign: 'left', color: 'inherit', padding: 0 }}
               >
                 <div className="landing-cook-card" style={{ position: 'relative' }}>
-                  <img src={MEAT_IMAGES[item.key]} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover', filter:'saturate(.92) contrast(1.02)' }} />
+                  <img
+                    src={getCardImage(item.key)}
+                    alt={item.title}
+                    onError={() => setCardImageFallbacks(prev => ({ ...prev, [item.key]: SMOKE_IMAGE }))}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', filter:'saturate(.92) contrast(1.02)' }}
+                  />
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(23,18,15,0.9), rgba(23,18,15,0.08) 60%)' }} />
                   <div style={{ position: 'absolute', left: 16, right: 16, bottom: 16 }}>
                     <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.58)', marginBottom: 8 }}>Cuisson</div>

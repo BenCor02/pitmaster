@@ -554,6 +554,7 @@ export default function CookSession() {
   const [cookStartTime, setCookStartTime] = useState(() => location.state?.startedAt || pendingSession?.startedAt || null)
   const [restTimer,     setRestTimer]     = useState(null)
   const [log,           setLog]           = useState([])
+  const [sessionImageSrc, setSessionImageSrc] = useState(() => MEAT_IMAGES[schedule.meatKey] || SMOKER_IMAGE)
   const timerRef = useRef(null)
 
   // ── Timer tick toutes les minutes
@@ -568,6 +569,10 @@ export default function CookSession() {
   useEffect(() => {
     if (currentIndex >= checkpoints.length && checkpoints.length > 0) clearPendingSession()
   }, [currentIndex, checkpoints.length])
+
+  useEffect(() => {
+    setSessionImageSrc(MEAT_IMAGES[schedule.meatKey] || SMOKER_IMAGE)
+  }, [schedule.meatKey])
 
   // PATCH: persistance transitoire de session pour ne pas dépendre seulement du state de navigation
   useEffect(() => {
@@ -786,8 +791,9 @@ export default function CookSession() {
         {/* Photo viande ou ambiance fumoir */}
         <div style={{ height: 156, position: 'relative' }}>
           <img
-            src={MEAT_IMAGES[schedule.meatKey] || SMOKER_IMAGE}
+            src={sessionImageSrc}
             alt={schedule.meatLabel}
+            onError={() => setSessionImageSrc(SMOKER_IMAGE)}
             style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
             loading="eager"
           />
