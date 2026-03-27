@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { MEAT_IMAGES } from '../lib/images'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { MEATS } from '../lib/meats'
@@ -335,6 +335,7 @@ function buildRoadmap(result) {
 
 export default function Calc() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { user } = useAuth()
   const { snack, showSnack } = useSnack()
 
@@ -376,6 +377,24 @@ export default function Calc() {
   const tempRange = useMemo(() => methodConfig?.smokerTempRange || [100, 160], [methodConfig])
   const showWrapChoices = cookMethod === 'low_and_slow' && (Boolean(cookingProfile?.temperatureCues?.wrapRangeC) || meatKey === 'ribs_pork' || meatKey === 'ribs_baby_back' || meatKey === 'lamb_leg')
   const roadmap = buildRoadmap(result)
+
+  useEffect(() => {
+    const preselectedMeatKey = location.state?.preselectMeatKey
+    if (!preselectedMeatKey || !MEATS[preselectedMeatKey] || preselectedMeatKey === meatKey) return
+    // PATCH: si on arrive depuis la landing sur une viande donnée, on l'applique tout de suite
+    setMeatKey(preselectedMeatKey)
+    const nextProfile = getCookingProfile(preselectedMeatKey)
+    if (nextProfile?.defaultWeightKg) setWeight(nextProfile.defaultWeightKg)
+    const nextMethod = nextProfile?.methods?.[0]?.method || DEFAULT_METHOD
+    setCookMethod(nextMethod)
+    const nextConfig = getMethodConfig(preselectedMeatKey, nextMethod)
+    if (nextConfig?.smokerTempDefault) setSmokerTemp(nextConfig.smokerTempDefault)
+    setThickness('')
+    setResult(null)
+    setTimeline([])
+    setWarnings([])
+    setRecalResult(null)
+  }, [location.state, meatKey])
 
   // ── Sauvegarde automatique des inputs dans localStorage
   useEffect(() => {

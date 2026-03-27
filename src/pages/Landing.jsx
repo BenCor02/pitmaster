@@ -172,7 +172,9 @@ export default function Landing() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  const openCalculator = () => navigate('/app')
+  // PATCH: la landing peut envoyer une viande déjà choisie vers le calculateur
+  const openCalculator = (preselectMeatKey = null) =>
+    navigate('/app', { state: preselectMeatKey ? { preselectMeatKey } : undefined })
   const saveCook = () => navigate('/auth', { state: { from: '/app', reason: 'save-planning' } })
   // PATCH: les liens de la landing font soit un vrai scroll, soit une vraie navigation app
   const scrollToSection = (sectionId) => {
@@ -245,7 +247,7 @@ export default function Landing() {
                 Entre ta viande, son poids et ton heure de service. On te dit quand allumer le fumoir, quand poser la viande et quelle fenêtre viser pour servir à temps.
               </p>
               <div className="hero-item" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 22 }}>
-                <button onClick={openCalculator} className="pm-btn-primary" style={{ width: 'auto', padding: '16px 28px', fontSize: 15 }}>
+                <button onClick={() => openCalculator()} className="pm-btn-primary" style={{ width: 'auto', padding: '16px 28px', fontSize: 15 }}>
                   Calculer ma cuisson
                 </button>
                 <button onClick={() => scrollToSection('comment-ca-marche')} className="pm-btn-secondary" style={{ width: 'auto', padding: '15px 20px', fontSize: 15, background: 'rgba(255,255,255,0.06)', color: '#fff5eb', border: '1px solid rgba(255,255,255,0.12)' }}>
@@ -364,7 +366,7 @@ export default function Landing() {
                 Choisis la viande, entre le poids, règle ton fumoir et ton heure de service. En quelques secondes, tu sais quand lancer la cuisson.
               </p>
               <div style={{ display:'flex', gap:10, flexWrap:'wrap', marginTop: 18 }}>
-                <button onClick={openCalculator} className="pm-btn-primary" style={{ width: 'auto', padding: '14px 22px' }}>
+                <button onClick={() => openCalculator()} className="pm-btn-primary" style={{ width: 'auto', padding: '14px 22px' }}>
                   Calculer maintenant
                 </button>
                 <button onClick={saveCook} className="pm-btn-secondary" style={{ width: 'auto', padding: '14px 18px' }}>
@@ -420,7 +422,7 @@ export default function Landing() {
             {COOKS.map((item) => (
               <button
                 key={item.key}
-                onClick={openCalculator}
+                onClick={() => openCalculator(item.key)}
                 className="dark-card lift"
                 style={{ overflow: 'hidden', cursor: 'pointer', textAlign: 'left', color: 'inherit', padding: 0 }}
               >
@@ -504,7 +506,7 @@ export default function Landing() {
                 Lance ta cuisson avec un vrai plan. Prépare ton prochain service sans deviner.
               </p>
               <div style={{ marginTop: 16, display:'flex', gap:10, flexWrap:'wrap' }}>
-                <button onClick={openCalculator} className="pm-btn-primary" style={{ width:'auto', padding:'14px 18px' }}>
+                <button onClick={() => openCalculator()} className="pm-btn-primary" style={{ width:'auto', padding:'14px 18px' }}>
                   Tester le calculateur
                 </button>
                 <button onClick={saveCook} className="pm-btn-secondary" style={{ width:'auto', padding:'14px 18px' }}>
@@ -516,7 +518,7 @@ export default function Landing() {
               {USER_QUESTIONS.concat(['Brisket', 'Ribs']).map((label) => (
                 <button
                   key={label}
-                  onClick={openCalculator}
+                  onClick={() => openCalculator()}
                   style={{ textAlign: 'left', background: 'none', border: 'none', padding: '0 0 8px', cursor: 'pointer', color: 'var(--text2)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}
                 >
                   {label}
