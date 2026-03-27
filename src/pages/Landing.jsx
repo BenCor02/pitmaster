@@ -136,6 +136,12 @@ function getSectionItems(section, fallback) {
   return fallback
 }
 
+function getSectionMetrics(section, fallback) {
+  const source = section?.settings_json
+  if (source && Array.isArray(source.metrics)) return source.metrics
+  return fallback
+}
+
 function ensureMeta(name, content) {
   let tag = document.querySelector(`meta[name="${name}"]`)
   if (!tag) {
@@ -239,7 +245,7 @@ export default function Landing() {
   const finalCtaSection = getSectionByType(sections, 'final_cta')
 
   const heroQuestions = getSectionItems(heroSection, ['À quelle heure lancer ?', 'Quand wrapper ?', 'Combien de repos prévoir ?'])
-  const heroMetrics = getSectionItems(heroSection, HERO_METRICS)
+  const heroMetrics = getSectionMetrics(heroSection, HERO_METRICS)
   const benefitCards = getSectionItems(benefitsSection, BENEFITS)
   const cookCards = getSectionItems(cooksSection, COOKS)
   const howItWorksItems = getSectionItems(howItWorksSection, [

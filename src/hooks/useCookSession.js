@@ -5,7 +5,7 @@
  * - Notifications push locales via Service Worker
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 
@@ -17,7 +17,8 @@ async function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) return null
   try {
     // PATCH: versionne explicitement le SW pour éviter qu'une ancienne UI reste servie depuis le cache
-    const reg = await navigator.serviceWorker.register('/sw.js?v=brandmark-1')
+    // PATCH: version bump pour forcer les clients à récupérer le bundle/service worker après la phase Supabase-first
+    const reg = await navigator.serviceWorker.register('/sw.js?v=supabase-phase1-1')
     await navigator.serviceWorker.ready
     return reg
   } catch (e) {
@@ -33,7 +34,7 @@ async function requestNotifPermission() {
   return perm === 'granted'
 }
 
-function scheduleNotification(sw, checkpoint, startedAt) {
+function scheduleNotification(sw, checkpoint) {
   if (!sw?.active) return
   const triggerTime  = new Date(checkpoint.triggerTime)
   const now          = Date.now()
