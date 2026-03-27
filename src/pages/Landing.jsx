@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { HERO_IMAGE, MEAT_IMAGES, SMOKER_IMAGE } from '../lib/images'
+import { HERO_IMAGE, MEAT_IMAGES, SMOKE_IMAGE, SMOKER_IMAGE } from '../lib/images'
 
 const css = `
   @keyframes heroEnter { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: translateY(0); } }
@@ -161,6 +161,8 @@ function SaveIcon() {
 export default function Landing() {
   const navigate = useNavigate()
   const [scrolled, setScrolled] = useState(false)
+  // PATCH: fallback visuel pour éviter un hero cassé si une image distante ne répond pas
+  const [heroVisual, setHeroVisual] = useState(SMOKER_IMAGE)
 
   useEffect(() => {
     document.title = 'Calculateur BBQ Pitmaster | Charbon & Flamme'
@@ -270,7 +272,20 @@ export default function Landing() {
             <div style={{ padding: 12 }}>
               <div className="hero-panel premium-card" style={{ overflow: 'hidden' }}>
                 <div className="hero-media" style={{ position: 'relative' }}>
-                  <img src={SMOKER_IMAGE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'saturate(.84) contrast(1.04)' }} />
+                  <img
+                    src={heroVisual}
+                    alt="Fumoir en action"
+                    onError={() => {
+                      if (heroVisual !== HERO_IMAGE) {
+                        setHeroVisual(HERO_IMAGE)
+                        return
+                      }
+                      if (heroVisual !== SMOKE_IMAGE) {
+                        setHeroVisual(SMOKE_IMAGE)
+                      }
+                    }}
+                    style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'saturate(.84) contrast(1.04)' }}
+                  />
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(23,18,15,0.9), rgba(23,18,15,0.06) 56%)' }} />
                   <div style={{ position: 'absolute', top: 18, left: 18, right: 18, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div className="pm-kicker">resultat premium</div>
