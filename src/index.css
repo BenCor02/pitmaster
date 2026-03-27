@@ -15,12 +15,13 @@
   --line-soft: rgba(255,255,255,0.05);
 
   /* PATCH: accent braise flashy — plus moderne, plus visible, plus impactant */
-  --orange:        #ff5a36;
-  --orange-light:  #ff865f;
-  --orange-deep:   #cf3116;
-  --orange-bg:     rgba(255,90,54,0.14);
-  --orange-border: rgba(255,90,54,0.28);
-  --ember:         #ffb067;
+  /* PATCH: accent feu plus premium, plus tendu et moins startup */
+  --orange:        #e53935;
+  --orange-light:  #ff6a4d;
+  --orange-deep:   #9f1f1c;
+  --orange-bg:     rgba(229,57,53,0.16);
+  --orange-border: rgba(229,57,53,0.30);
+  --ember:         #f6b36d;
 
   --sand:   #2a241e;
   --text:   #f5f0eb;
@@ -54,9 +55,9 @@ html { font-size: 16px; -webkit-font-smoothing: antialiased; }
 
 body {
   background:
-    radial-gradient(circle at top right, rgba(255,90,54,0.16), transparent 22%),
-    radial-gradient(circle at 20% 0%, rgba(255,176,103,0.10), transparent 18%),
-    linear-gradient(180deg, #101010 0%, #0a0a0a 38%, #050505 100%);
+    radial-gradient(circle at top right, rgba(229,57,53,0.16), transparent 22%),
+    radial-gradient(circle at 20% 0%, rgba(246,179,109,0.08), transparent 18%),
+    linear-gradient(180deg, #121212 0%, #090909 42%, #050505 100%);
   color: var(--text);
   font-family: 'DM Sans', sans-serif;
   line-height: 1.5;
@@ -252,15 +253,17 @@ input[type=range]::-webkit-slider-thumb {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  min-height: 52px;
-  border-radius: 13px;
-  padding: 12px 22px;
+  /* PATCH: boutons plus mécaniques, plus premium, moins mous */
+  min-height: 56px;
+  border-radius: 12px;
+  padding: 14px 24px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 9px;
   font-size: 14px;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   text-decoration: none;
   transform: translateY(0) scale(1);
   transition:
@@ -302,33 +305,33 @@ input[type=range]::-webkit-slider-thumb {
 
 .pm-btn-primary {
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.20), rgba(255,255,255,0) 46%),
-    linear-gradient(135deg, #ff8652 0%, #f25f2d 52%, #c93b16 100%);
+    linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0) 34%),
+    linear-gradient(135deg, #ff5a4d 0%, #e53935 45%, #8f1916 100%);
   color: #fff;
-  border: 1px solid rgba(255,255,255,0.16);
-  font-family: 'Syne', sans-serif;
+  border: 1px solid rgba(255,255,255,0.10);
+  font-family: 'Rajdhani', sans-serif;
   font-weight: 800;
-  font-size: 14px;
+  font-size: 15px;
   cursor: pointer;
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.20),
-    inset 0 -8px 18px rgba(90, 18, 6, 0.18),
-    0 16px 36px rgba(201, 59, 22, 0.28);
+    inset 0 1px 0 rgba(255,255,255,0.16),
+    inset 0 -12px 24px rgba(53, 8, 7, 0.34),
+    0 16px 34px rgba(148, 24, 20, 0.32);
 }
 .pm-btn-primary::before {
   background:
-    radial-gradient(circle at top, rgba(255,214,191,0.20), transparent 55%),
+    radial-gradient(circle at top, rgba(255,214,191,0.18), transparent 55%),
     linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0));
 }
 .pm-btn-primary:hover {
   transform: translateY(-2px) scale(1.01);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.24),
-    inset 0 -10px 20px rgba(90, 18, 6, 0.22),
-    0 24px 48px rgba(201, 59, 22, 0.34),
-    0 0 0 1px rgba(255,134,82,0.14);
-  filter: saturate(1.05) brightness(1.03);
-  border-color: rgba(255,235,225,0.26);
+    inset 0 -14px 22px rgba(70, 10, 8, 0.34),
+    0 24px 48px rgba(159, 31, 28, 0.42),
+    0 0 0 1px rgba(255,106,77,0.18);
+  filter: saturate(1.08) brightness(1.05);
+  border-color: rgba(255,235,225,0.18);
 }
 .pm-btn-primary:hover::after,
 .pm-btn-secondary:hover::after,
@@ -361,32 +364,32 @@ input[type=range]::-webkit-slider-thumb {
 
 .pm-btn-secondary {
   background:
-    linear-gradient(180deg, rgba(42,42,42,0.98), rgba(24,24,24,1));
+    linear-gradient(180deg, rgba(36,36,36,0.98), rgba(16,16,16,1));
   color: #f5f1ea;
-  border: 1px solid rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.08);
   font-family: 'Rajdhani', sans-serif;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 15px;
   cursor: pointer;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.08),
-    inset 0 -10px 18px rgba(0,0,0,0.24),
-    0 12px 28px rgba(0,0,0,0.22);
+    inset 0 -12px 20px rgba(0,0,0,0.30),
+    0 12px 28px rgba(0,0,0,0.24);
 }
 .pm-btn-secondary::before {
-  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0));
+  background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0));
 }
 .pm-btn-secondary:hover {
   transform: translateY(-2px);
   background:
-    linear-gradient(180deg, rgba(48,48,48,1), rgba(28,28,28,1));
+    linear-gradient(180deg, rgba(44,44,44,1), rgba(20,20,20,1));
   color: #fff7f2;
-  border-color: rgba(255,90,54,0.34);
+  border-color: rgba(229,57,53,0.34);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.12),
     inset 0 -10px 18px rgba(0,0,0,0.28),
     0 18px 36px rgba(0,0,0,0.26),
-    0 0 0 1px rgba(255,90,54,0.10);
+    0 0 0 1px rgba(229,57,53,0.10);
 }
 
 .pm-btn-danger {

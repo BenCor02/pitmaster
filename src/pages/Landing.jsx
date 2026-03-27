@@ -11,27 +11,37 @@ const css = `
   .hero-item:nth-child(2) { animation-delay: .08s; }
   .hero-item:nth-child(3) { animation-delay: .16s; }
   .hero-item:nth-child(4) { animation-delay: .24s; }
-  .hero-grid { display: grid; grid-template-columns: 1.08fr .92fr; gap: 28px; }
+  .hero-grid { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(380px, .92fr); gap: 34px; align-items: end; }
   .feature-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
   .link-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-  .material-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-  .guide-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  .material-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+  .guide-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
   .landing-split { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: center; }
   .landing-footer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
   .landing-section { padding: 0 24px 58px; }
   .landing-section-tight { padding: 0 24px 42px; }
-  .hero-media { min-height: 520px; }
+  .hero-media { min-height: 620px; }
   .hero-panel { animation: panelFloat 8s ease-in-out infinite; }
   .hero-glow { animation: glowPulse 7s ease-in-out infinite; }
   .landing-topnav { display:flex; align-items:center; gap:18px; flex-wrap:wrap; }
   .landing-shell-pad { padding: 34px 24px 62px; }
   .landing-brand-sub { display:block; }
   .landing-hero-copy { max-width: 560px; font-size: 18px; color: rgba(255,245,235,0.76); line-height: 1.7; margin-bottom: 26px; }
-  .landing-hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(60px, 9vw, 124px); line-height: .88; letter-spacing: 0.02em; color: #fff5eb; max-width: 820px; text-shadow: 0 10px 30px rgba(0,0,0,0.34); }
-  .landing-hero-content { padding: 28px 16px 18px 20px; }
+  .landing-hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(72px, 10vw, 142px); line-height: .86; letter-spacing: 0.03em; color: #fff5eb; max-width: 820px; text-shadow: 0 10px 30px rgba(0,0,0,0.34); }
+  .landing-hero-content { padding: 34px 12px 26px 24px; }
   .landing-cook-card { height: 240px; }
-  .landing-hero-shell { position: relative; background: radial-gradient(circle at top right, rgba(255,90,54,0.22), transparent 24%), linear-gradient(180deg, rgba(22,22,22,0.92), rgba(10,10,10,0.98)); border: 1px solid rgba(255,255,255,0.08); border-radius: 36px; box-shadow: 0 30px 90px rgba(0,0,0,0.42); overflow: hidden; }
-  .landing-hero-shell::before { content: ""; position: absolute; inset: 0; background: linear-gradient(120deg, transparent 0%, rgba(255,90,54,0.05) 46%, transparent 100%); mix-blend-mode: screen; animation: emberSweep 6s ease-in-out infinite alternate; pointer-events: none; }
+  .landing-hero-shell { position: relative; background: radial-gradient(circle at top right, rgba(229,57,53,0.24), transparent 24%), linear-gradient(180deg, rgba(22,22,22,0.9), rgba(8,8,8,0.98)); border: 1px solid rgba(255,255,255,0.07); border-radius: 36px; box-shadow: 0 30px 90px rgba(0,0,0,0.42); overflow: hidden; isolation:isolate; }
+  .landing-hero-shell::before { content: ""; position: absolute; inset: 0; background: linear-gradient(120deg, transparent 0%, rgba(229,57,53,0.05) 46%, transparent 100%); mix-blend-mode: screen; animation: emberSweep 6s ease-in-out infinite alternate; pointer-events: none; }
+  .landing-hero-shell::after { content:""; position:absolute; inset:0; background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.035) 1px, transparent 0); background-size: 24px 24px; opacity:.18; pointer-events:none; }
+  .landing-poster-frame { position: relative; min-height: 620px; border-radius: 30px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); background: #080808; }
+  .landing-poster-overlay { position:absolute; inset:0; background: linear-gradient(180deg, rgba(9,9,9,0.08), rgba(9,9,9,0.28) 40%, rgba(9,9,9,0.86) 100%), linear-gradient(90deg, rgba(9,9,9,0.04), rgba(9,9,9,0.34) 55%, rgba(9,9,9,0.88)); }
+  .landing-poster-copy { position:absolute; left:24px; right:24px; bottom:24px; display:grid; gap:14px; }
+  .landing-hero-rail { display:grid; gap:12px; }
+  .landing-stat-rail { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:14px; }
+  .landing-hero-stage { position:relative; padding: 18px 18px 16px; }
+  .landing-hero-stage::before { content:""; position:absolute; inset:18px auto auto 18px; width:72px; height:1px; background:linear-gradient(90deg, rgba(255,255,255,.55), transparent); }
+  .landing-hero-stage::after { content:""; position:absolute; right:18px; bottom:18px; width:110px; height:110px; border-radius:50%; background: radial-gradient(circle, rgba(249,115,22,.16), transparent 68%); pointer-events:none; }
+  .landing-benefit-grid { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap:18px; }
   .premium-card { background: linear-gradient(180deg, rgba(24,24,24,0.98), rgba(14,14,14,0.99)); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; box-shadow: 0 18px 44px rgba(0,0,0,0.24); position: relative; overflow: hidden; }
   .premium-card::before { content: ""; position: absolute; inset: 0 auto auto 0; width: 100%; height: 1px; background: linear-gradient(90deg, rgba(255,90,54,0.34), transparent 60%); pointer-events: none; }
   .dark-card { background: linear-gradient(180deg, rgba(18,18,18,0.98), rgba(9,9,9,1)); border: 1px solid rgba(255,255,255,0.08); border-radius: 30px; box-shadow: 0 22px 54px rgba(25,18,14,0.32); position: relative; overflow: hidden; }
@@ -43,9 +53,10 @@ const css = `
   .lift { transition: transform .24s ease, border-color .24s ease, box-shadow .24s ease; }
   .lift:hover { transform: translateY(-3px); border-color: rgba(255,90,54,0.26) !important; box-shadow: 0 24px 52px rgba(0,0,0,0.30); }
   @media (max-width: 1080px) {
-    .hero-grid, .feature-grid, .material-grid, .landing-split, .landing-footer-grid { grid-template-columns: 1fr; }
+    .hero-grid, .feature-grid, .material-grid, .landing-split, .landing-footer-grid, .landing-benefit-grid { grid-template-columns: 1fr; }
     .guide-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .hero-media { min-height: 440px; }
+    .landing-stat-rail { grid-template-columns: 1fr; }
   }
   @media (max-width: 720px) {
     .link-grid, .guide-strip { grid-template-columns: 1fr; }
@@ -55,11 +66,13 @@ const css = `
     .landing-shell-pad { padding: 20px 16px 44px; }
     .landing-section { padding: 0 16px 42px; }
     .landing-section-tight { padding: 0 16px 32px; }
-    .hero-media { min-height: 360px; }
+    .hero-media, .landing-poster-frame { min-height: 360px; }
     .landing-hero-content { padding: 18px 4px 10px 4px; }
-    .landing-hero-title { font-size: 58px; line-height: .92; }
+    .landing-hero-title { font-size: 66px; line-height: .92; }
     .landing-hero-copy { font-size: 15px; line-height: 1.6; margin-bottom: 20px; }
     .landing-cook-card { height: 210px; }
+    .landing-poster-copy { left: 14px; right: 14px; bottom: 14px; }
+    .landing-hero-stage { padding: 16px 14px 14px; }
   }
 `
 
@@ -87,6 +100,12 @@ const BENEFITS = [
     title: 'Servir à l’heure',
     copy: 'Le vrai but, c’est de sortir une viande prête au bon moment quand les gens s’installent à table.',
   },
+]
+
+const HERO_METRICS = [
+  ['Allumage', '06h00'],
+  ['Viande au fumoir', '06h30'],
+  ['Service visé', '19h00'],
 ]
 
 const COOKS = [
@@ -241,105 +260,108 @@ export default function Landing() {
       </header>
 
       <section className="landing-shell-pad">
-        <div className="pm-shell landing-hero-shell" style={{ padding: 18, position: 'relative' }}>
-          <div className="hero-glow" style={{ position: 'absolute', right: -80, top: -60, width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(circle, rgba(240,122,47,0.28), transparent 68%)', pointerEvents: 'none' }} />
+        {/* PATCH: hero transformé en vraie affiche premium, moins app générique et plus univers pitmaster */}
+        <div className="pm-shell landing-hero-shell landing-hero-stage">
+          <div className="hero-glow" style={{ position: 'absolute', right: -80, top: -60, width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(circle, rgba(229,57,53,0.30), transparent 68%)', pointerEvents: 'none' }} />
           <div className="hero-grid" style={{ position: 'relative', zIndex: 1 }}>
             <div className="landing-hero-content">
-              <div className="hero-item pm-kicker" style={{ marginBottom: 18 }}>charbon · braise · cuisson lente · service à l’heure</div>
+              <div className="hero-item pm-kicker" style={{ marginBottom: 18 }}>charbon · acier noirci · feu maîtrisé</div>
               <div className="hero-item" style={{ marginBottom: 14 }}>
                 <h1 className="landing-hero-title">
-                  PLANIFIE
+                  À QUELLE HEURE
                   <br />
-                  TON SERVICE
+                  LANCER TA
                   <br />
-                  <span style={{ color: 'var(--ember)' }}>COMME UN PITMASTER.</span>
+                  <span style={{ color: 'var(--ember)' }}>CUISSON BBQ ?</span>
                 </h1>
               </div>
               <p className="hero-item landing-hero-copy">
-                Brisket, ribs, pulled pork, paleron. Entre ta viande, ton poids et ton heure de service. On te dit quand allumer le fumoir et quand lancer la cuisson pour servir au bon moment.
+                Brisket, ribs, pulled pork, paleron. Tu choisis la pièce, le poids et l’heure de service. Charbon &amp; Flamme te donne quand allumer le fumoir, quand poser la viande et comment rester large jusqu’au service.
               </p>
-              <div className="hero-item" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 22 }}>
-                <button onClick={() => openCalculator()} className="pm-btn-primary" style={{ width: 'auto', padding: '16px 28px', fontSize: 15, minWidth: 220 }}>
-                  Lancer le calculateur
+              <div className="hero-item" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
+                <button onClick={() => openCalculator()} className="pm-btn-primary" style={{ width: 'auto', minWidth: 240 }}>
+                  Calculer ma cuisson
                 </button>
-                <button onClick={() => scrollToSection('comment-ca-marche')} className="pm-btn-secondary" style={{ width: 'auto', padding: '15px 20px', fontSize: 15 }}>
-                  Voir le principe
+                <button onClick={() => scrollToSection('comment-ca-marche')} className="pm-btn-secondary" style={{ width: 'auto' }}>
+                  Voir comment ça marche
                 </button>
               </div>
-              <div className="hero-item" style={{ display:'flex', gap:10, flexWrap:'wrap', marginBottom: 18 }}>
-                {['À quelle heure lancer ?', 'Quand wrapper ?', 'Combien de repos prévoir ?'].map((item) => (
+              <div className="hero-item" style={{ display:'flex', gap:10, flexWrap:'wrap', marginBottom: 20 }}>
+                {['À quelle heure lancer ?', 'Quand wrapper ?', 'Peut-on dormir tranquille ?'].map((item) => (
                   <span key={item} className="landing-fire-chip">{item}</span>
                 ))}
               </div>
               <div className="landing-steel-rule hero-item" style={{ marginBottom: 18 }} />
-              <div className="hero-item feature-grid" style={{ marginTop: 8 }}>
-                {[
-                  ['Départ', '06h00', <ClockIcon key="clock" />],
-                  ['Service', '18h00 → 19h30', <FireIcon key="fire" />],
-                  ['Fumoir', '110°C stables', <GaugeIcon key="gauge" />],
-                ].map(([label, value, icon]) => (
-                  <div key={label} className="landing-metal-card" style={{ padding: '14px 14px 16px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                      <IconFrame dark>{icon}</IconFrame>
-                      <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.56)' }}>{label}</div>
-                    </div>
-                    <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 800, color: '#fff5eb', lineHeight: 1.02 }}>{value}</div>
+              <div className="hero-item landing-benefit-grid" style={{ marginTop: 8 }}>
+                {BENEFITS.map(({ title, copy }) => (
+                  <div key={title} style={{ display: 'grid', gap: 8 }}>
+                    <div style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: 20, fontWeight: 700, color: '#fff5eb', letterSpacing: '.02em' }}>{title}</div>
+                    <p style={{ fontSize: 14, color: 'rgba(255,245,235,0.68)', lineHeight: 1.6 }}>{copy}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div style={{ padding: 12 }}>
-              <div className="hero-panel premium-card" style={{ overflow: 'hidden', borderRadius: 30 }}>
-                <div className="hero-media" style={{ position: 'relative' }}>
-                  <img
-                    src={heroVisual}
-                    alt="Fumoir en action"
-                    onError={() => {
-                      if (heroVisual !== HERO_IMAGE) {
-                        setHeroVisual(HERO_IMAGE)
-                        return
-                      }
-                      if (heroVisual !== SMOKE_IMAGE) {
-                        setHeroVisual(SMOKE_IMAGE)
-                      }
-                    }}
-                    style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'saturate(.84) contrast(1.04)' }}
-                  />
-                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(12,8,7,0.96), rgba(12,8,7,0.08) 56%)' }} />
-                  <div style={{ position: 'absolute', top: 18, left: 18, right: 18, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div className="pm-kicker">service sous contrôle</div>
-                    <div style={{ display: 'inline-flex', gap: 6 }}>
-                      {[0, 1, 2].map((dot) => (
-                        <span key={dot} style={{ width: 8, height: 8, borderRadius: '50%', background: dot === 0 ? 'var(--orange)' : 'rgba(255,255,255,0.34)' }} />
-                      ))}
+            <div style={{ padding: 8 }}>
+              <div className="landing-poster-frame hero-panel">
+                <img
+                  src={heroVisual}
+                  alt="Fumoir en action"
+                  onError={() => {
+                    if (heroVisual !== HERO_IMAGE) {
+                      setHeroVisual(HERO_IMAGE)
+                      return
+                    }
+                    if (heroVisual !== SMOKE_IMAGE) {
+                      setHeroVisual(SMOKE_IMAGE)
+                    }
+                  }}
+                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'saturate(.92) contrast(1.06)' }}
+                />
+                <div className="landing-poster-overlay" />
+                <div style={{ position: 'absolute', top: 20, left: 20, right: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div className="pm-kicker">service sous contrôle</div>
+                  <div style={{ display: 'inline-flex', gap: 6 }}>
+                    {[0, 1, 2].map((dot) => (
+                      <span key={dot} style={{ width: 8, height: 8, borderRadius: '50%', background: dot === 0 ? 'var(--orange)' : 'rgba(255,255,255,0.34)' }} />
+                    ))}
+                  </div>
+                </div>
+                <div className="landing-poster-copy">
+                  <div style={{ display:'grid', gap: 8 }}>
+                    <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.60)' }}>exemple de service</div>
+                    <div style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 'clamp(48px, 8vw, 84px)', lineHeight: .9, letterSpacing: '.04em', color: '#fff5eb' }}>
+                      BRISKET
+                      <br />
+                      PRÊTE POUR 19H
                     </div>
                   </div>
-                  <div style={{ position: 'absolute', left: 18, right: 18, bottom: 18 }}>
-                    <div className="landing-metal-card" style={{ padding: '18px 18px 16px', borderRadius: 24, background: 'rgba(18,16,15,0.82)', backdropFilter: 'blur(18px)' }}>
-                      <div style={{ display: 'grid', gap: 12 }}>
-                        <div>
-                          <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.56)', marginBottom: 6 }}>allume le fumoir à</div>
-                          <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 'clamp(40px, 6vw, 64px)', fontWeight: 800, lineHeight: .92, color: '#fff5eb' }}>06h00</div>
-                        </div>
-                        <div className="link-grid">
-                          <div className="landing-metal-card" style={{ padding: '12px 14px', borderRadius: 18, background: 'rgba(255,255,255,0.05)' }}>
-                            <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.56)', marginBottom: 6 }}>repos lancé</div>
-                            <div style={{ fontFamily: 'DM Mono, monospace', color: '#fff5eb', fontWeight: 700 }}>17h10</div>
-                          </div>
-                          <div className="landing-metal-card" style={{ padding: '12px 14px', borderRadius: 18, background: 'rgba(255,255,255,0.05)' }}>
-                            <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.56)', marginBottom: 6 }}>fenêtre service</div>
-                            <div style={{ fontFamily: 'DM Mono, monospace', color: '#fff5eb', fontWeight: 700 }}>18h00 → 19h30</div>
-                          </div>
-                        </div>
-                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                          {['Stall 65–75°C', 'Wrap papier', 'Tests dès 90°C'].map((item) => (
-                            <span key={item} style={{ padding: '6px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,245,235,0.8)', fontSize: 11, fontWeight: 600 }}>
-                              {item}
-                            </span>
-                          ))}
-                        </div>
+                  <div className="landing-stat-rail">
+                    {HERO_METRICS.map(([label, value]) => (
+                      <div key={label} className="landing-metal-card" style={{ padding: '14px 16px', background: 'rgba(12,12,12,0.58)', backdropFilter: 'blur(12px)' }}>
+                        <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.56)', marginBottom: 8 }}>{label}</div>
+                        <div style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: 28, fontWeight: 700, color: '#fff5eb', letterSpacing: '.02em' }}>{value}</div>
                       </div>
+                    ))}
+                  </div>
+                  <div className="landing-hero-rail">
+                    <div className="landing-metal-card" style={{ padding: '14px 16px', background: 'rgba(12,12,12,0.64)', backdropFilter: 'blur(14px)' }}>
+                      <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.56)', marginBottom: 8 }}>repères pitmaster</div>
+                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                        {['Stall 65–75°C', 'Wrap 70–75°C', 'Tests dès 90°C'].map((item) => (
+                          <span key={item} style={{ padding: '7px 11px', borderRadius: 999, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,245,235,0.82)', fontSize: 11, fontWeight: 700 }}>
+                            {item}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                      <div style={{ color: 'rgba(255,245,235,0.78)', fontSize: 14, maxWidth: 320 }}>
+                        Plus besoin de deviner si tu dois te lever à 4h ou si ta viande sortira trop tard.
+                      </div>
+                      <button onClick={() => openCalculator()} className="pm-btn-primary" style={{ width: 'auto', minWidth: 200 }}>
+                        Lancer maintenant
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -350,7 +372,7 @@ export default function Landing() {
       </section>
 
       <section className="landing-section-tight">
-        <div className="pm-shell premium-card" style={{ padding: 22 }}>
+        <div className="pm-shell" style={{ padding: '0 4px' }}>
           <div style={{ display: 'grid', gap: 12 }}>
             <div className="pm-kicker">Pourquoi c’est utile</div>
             <h2 className="pm-section-title" style={{ fontSize: 'clamp(30px, 4.8vw, 48px)' }}>
@@ -415,7 +437,11 @@ export default function Landing() {
 
       <section className="landing-section">
         <div className="pm-shell feature-grid">
-          {BENEFITS.map(({ title, copy }) => (
+          {[
+            ['Tu ne rates plus ton départ', 'Tu vois rapidement si ton service demande un lancement la veille, un réveil tôt ou un départ confortable le matin.'],
+            ['Tu gères mieux ton repos', 'Le plan n’oublie pas le hold. C’est souvent lui qui sauve un service propre et une viande plus sereine.'],
+            ['Tu cuisines avec une vraie ligne de conduite', 'Repères de stall, wrap, tests de tendreté et fenêtre de service : tu avances avec des points concrets.'],
+          ].map(([title, copy]) => (
             <div key={title} style={{ paddingTop: 18, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
               <h3 style={{ fontSize: 24, color: 'var(--text)', marginBottom: 10 }}>{title}</h3>
               <p>{copy}</p>
