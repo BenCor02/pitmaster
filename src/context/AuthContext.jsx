@@ -101,21 +101,42 @@ export function AuthProvider({ children }) {
   }, [])
 
   useEffect(() => {
+    let isMounted = true
+    const safetyTimer = setTimeout(() => {
+      if (isMounted) setLoading(false)
+    }, 4000)
+
     // Session initiale
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      loadProfile(session?.user ?? null).finally(() => setLoading(false))
-    })
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        if (!isMounted) return
+        setUser(session?.user ?? null)
+        return loadProfile(session?.user ?? null)
+      })
+      .catch((error) => {
+        console.error('getSession error', error)
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false)
+      })
 
     // Écouter les changements auth
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
+        if (!isMounted) return
         setUser(session?.user ?? null)
-        await loadProfile(session?.user ?? null)
-        setLoading(false)
+        try {
+          await loadProfile(session?.user ?? null)
+        } finally {
+          if (isMounted) setLoading(false)
+        }
       }
     )
-    return () => subscription.unsubscribe()
+    return () => {
+      isMounted = false
+      clearTimeout(safetyTimer)
+      subscription.unsubscribe()
+    }
   }, [loadProfile])
 
   // Helpers rôles
