@@ -16,7 +16,8 @@ import { useAuth } from '../context/AuthContext'
 async function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) return null
   try {
-    const reg = await navigator.serviceWorker.register('/sw.js')
+    // PATCH: versionne explicitement le SW pour éviter qu'une ancienne UI reste servie depuis le cache
+    const reg = await navigator.serviceWorker.register('/sw.js?v=brandmark-1')
     await navigator.serviceWorker.ready
     return reg
   } catch (e) {
