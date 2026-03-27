@@ -11,11 +11,11 @@ const U = (id, w = 800, h = 600) =>
 export const MEAT_IMAGES = {
   // PATCH: sélection fixe plus cohérente viande par viande, basée sur de vraies photos ciblées
   brisket: 'https://images.unsplash.com/photo-1694619003734-0ee52758ddc3?auto=format&fit=crop&fm=jpg&q=80&w=1600&v=bbq3',
-  pork_shoulder: 'https://images.unsplash.com/photo-1445979323117-80453f573b71?auto=format&fit=crop&fm=jpg&q=80&w=1600&v=bbq5',
+  pork_shoulder: 'https://unsplash.com/photos/0L1rEvbzbxU/download?force=true&w=1600',
   ribs_pork: 'https://images.unsplash.com/photo-1578981931698-7d3b21a0d6ac?auto=format&fit=crop&fm=jpg&q=80&w=1600&v=bbq2',
-  ribs_beef: 'https://images.unsplash.com/photo-1625604086988-6e41981275fa?auto=format&fit=crop&fm=jpg&q=80&w=1600&v=bbq5',
+  ribs_beef: 'https://unsplash.com/photos/41IXII03_A0/download?force=true&w=1600',
   ribs_baby_back: 'https://images.unsplash.com/photo-1578981931698-7d3b21a0d6ac?auto=format&fit=crop&fm=jpg&q=80&w=1600&v=bbq2',
-  paleron: 'https://images.unsplash.com/photo-1750461325999-a092ac3964cf?auto=format&fit=crop&fm=jpg&q=80&w=1600&v=bbq5',
+  paleron: 'https://unsplash.com/photos/IePWXTF3-0Y/download?force=true&w=1600',
   plat_de_cote: 'https://images.unsplash.com/photo-1625604086816-4bfaf603e842?auto=format&fit=crop&fm=jpg&q=80&w=1600&v=bbq2',
   lamb_shoulder: 'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?auto=format&fit=crop&fm=jpg&q=80&w=1600&v=bbq3',
   whole_chicken: 'https://images.unsplash.com/photo-1712579733874-c3a79f0f9d12?auto=format&fit=crop&fm=jpg&q=80&w=1600&v=bbq2',
