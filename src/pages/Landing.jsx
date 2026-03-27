@@ -36,26 +36,40 @@ const css = `
   }
 `
 
-const SEO_LINKS = [
-  'Temps cuisson brisket',
-  'Temps cuisson ribs',
-  'Température pulled pork',
-  'Guide fumoir',
-  'Calculateur BBQ',
-  'Matériel recommandé BBQ',
+const USER_QUESTIONS = [
+  'À quelle heure allumer le fumoir ?',
+  'Quand wrapper ?',
+  'La viande sera-t-elle prête à temps ?',
+  'Combien de repos prévoir ?',
 ]
 
-const MATERIAL = [
-  { title: 'Thermomètre', copy: 'Lecture fiable du pit et de la température interne pendant toute la cuisson.', action: 'Voir les modèles' },
-  { title: 'Fumoir', copy: 'Comparer pellet, offset et kamado selon ton budget et ton terrain de jeu.', action: 'Comparer les fumoirs' },
-  { title: 'Pellet', copy: 'Choisir le bon combustible selon la viande et le profil de fumée recherché.', action: 'Choisir mes pellets' },
+const BENEFITS = [
+  {
+    title: 'Savoir quand démarrer',
+    copy: 'Tu entres ta viande, son poids et ton heure de service. Le site te dit quand lancer la cuisson.',
+  },
+  {
+    title: 'Prévoir le repos',
+    copy: 'Le repos fait partie du plan. Tu vois plus facilement si tu es large ou si tu joues trop serré.',
+  },
+  {
+    title: 'Mieux gérer le wrap',
+    copy: 'Le plan te rappelle les bons repères de stall, de wrap et de fin de cuisson sans te noyer dans les chiffres.',
+  },
+  {
+    title: 'Servir à l’heure',
+    copy: 'Le vrai but, c’est de sortir une viande prête au bon moment quand les gens s’installent à table.',
+  },
 ]
 
-const GUIDES = [
-  { key: 'brisket', title: 'Brisket', subtitle: 'Timing, stall, wrap, repos' },
-  { key: 'pork_shoulder', title: 'Pulled Pork', subtitle: 'Texture, hold, service' },
-  { key: 'ribs_beef', title: 'Beef Ribs', subtitle: 'Finition, tendreté, coupe' },
-  { key: 'ribs_pork', title: 'Ribs', subtitle: 'Pullback, flex test, glaze' },
+const COOKS = [
+  { key: 'brisket', title: 'Brisket', subtitle: 'Longue cuisson, stall, wrap, repos' },
+  { key: 'ribs_pork', title: 'Ribs', subtitle: 'Couleur, pullback, flex test' },
+  { key: 'pork_shoulder', title: 'Pulled pork', subtitle: 'Temps long, tendreté, effilochage' },
+  { key: 'paleron', title: 'Paleron', subtitle: 'Alternative généreuse, très BBQ' },
+  { key: 'ribs_beef', title: 'Short ribs', subtitle: 'Bark, tendreté, service' },
+  { key: 'chicken_pieces', title: 'Poulet', subtitle: 'Cuisson plus vive, peau plus propre' },
+  { key: 'lamb_shoulder', title: 'Agneau', subtitle: 'Version fondante, plus douce, plus souple' },
 ]
 
 function ensureMeta(name, content) {
@@ -131,7 +145,7 @@ export default function Landing() {
 
   useEffect(() => {
     document.title = 'Calculateur BBQ Pitmaster | Charbon & Flamme'
-    ensureMeta('description', 'Calculateur BBQ pitmaster gratuit pour brisket, ribs et pulled pork. Temps de cuisson précis, guides, recettes et matériel recommandé.')
+    ensureMeta('description', 'Brisket, ribs, pulled pork : entre ta viande, ton poids et ton heure de service. Charbon & Flamme te dit quand lancer la cuisson.')
     const onScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
@@ -172,15 +186,15 @@ export default function Landing() {
           </div>
           <div style={{ textAlign: 'left' }}>
             <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 16, fontWeight: 800, lineHeight: 1 }}>Charbon &amp; Flamme</div>
-            <div className="pm-eyebrow" style={{ marginTop: 3, color:'var(--text3)' }}>outil gratuit de reference</div>
+            <div className="pm-eyebrow" style={{ marginTop: 3, color:'var(--text3)' }}>planifier sa cuisson bbq</div>
           </div>
         </button>
 
         <nav className="landing-topnav">
           {[
             ['Calculateur', () => scrollToSection('calculateur')],
-            ['Guides BBQ', () => scrollToSection('guides')],
-            ['Matériel', () => scrollToSection('materiel')],
+            ['Cuissons', () => scrollToSection('cuissons')],
+            ['Comment ça marche', () => scrollToSection('comment-ca-marche')],
             ['Ouvrir l’app', openCalculator],
           ].map(([label, action]) => (
             <button key={label} onClick={action} style={{ background:'none', border:'none', padding:0, color:'var(--text2)', fontSize: 13, fontWeight: 600, cursor:'pointer' }}>
@@ -188,7 +202,7 @@ export default function Landing() {
             </button>
           ))}
           <button onClick={saveCook} className="pm-btn-secondary landing-cta" style={{ width: 'auto', padding: '12px 16px', fontSize: 12 }}>
-            Mon compte
+            Mes cuissons
           </button>
         </nav>
       </header>
@@ -198,23 +212,23 @@ export default function Landing() {
           <div className="hero-glow" style={{ position: 'absolute', right: -80, top: -60, width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(circle, rgba(240,122,47,0.28), transparent 68%)', pointerEvents: 'none' }} />
           <div className="hero-grid" style={{ position: 'relative', zIndex: 1 }}>
             <div style={{ padding: '28px 16px 18px 20px' }}>
-              <div className="hero-item pm-kicker" style={{ marginBottom: 18 }}>calculateur bbq / fumage</div>
+              <div className="hero-item pm-kicker" style={{ marginBottom: 18 }}>brisket · ribs · pulled pork · agneau</div>
               <div className="hero-item" style={{ marginBottom: 14 }}>
                 <h1 style={{ fontSize: 'clamp(46px, 8vw, 96px)', lineHeight: 0.92, letterSpacing: '-4px', color: '#fff5eb', maxWidth: 820 }}>
-                  Planifie ta cuisson
+                  À quelle heure
                   <br />
-                  <span style={{ color: 'var(--ember)' }}>comme un pitmaster</span>
+                  <span style={{ color: 'var(--ember)' }}>lancer ton BBQ ?</span>
                 </h1>
               </div>
               <p className="hero-item" style={{ maxWidth: 560, fontSize: 18, color: 'rgba(255,245,235,0.76)', lineHeight: 1.7, marginBottom: 26 }}>
-                Heure de départ, fenêtre de service, repères utiles. Un outil clair pour brisket, ribs, pulled pork et bien plus, sans jargon inutile.
+                Entre ta viande, son poids et ton heure de service. On te dit quand allumer le fumoir, quand poser la viande et quelle fenêtre viser pour servir à temps.
               </p>
               <div className="hero-item" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 22 }}>
                 <button onClick={openCalculator} className="pm-btn-primary" style={{ width: 'auto', padding: '16px 28px', fontSize: 15 }}>
-                  Ouvrir le calculateur
+                  Calculer ma cuisson
                 </button>
-                <button onClick={saveCook} className="pm-btn-secondary" style={{ width: 'auto', padding: '15px 20px', fontSize: 15, background: 'rgba(255,255,255,0.06)', color: '#fff5eb', border: '1px solid rgba(255,255,255,0.12)' }}>
-                  Retrouver mes cuissons
+                <button onClick={() => scrollToSection('comment-ca-marche')} className="pm-btn-secondary" style={{ width: 'auto', padding: '15px 20px', fontSize: 15, background: 'rgba(255,255,255,0.06)', color: '#fff5eb', border: '1px solid rgba(255,255,255,0.12)' }}>
+                  Voir comment ça marche
                 </button>
               </div>
               <div className="hero-item feature-grid" style={{ marginTop: 8 }}>
@@ -251,12 +265,12 @@ export default function Landing() {
                     <div style={{ padding: '18px 18px 16px', borderRadius: 24, background: 'rgba(20,16,13,0.8)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(18px)' }}>
                       <div style={{ display: 'grid', gap: 12 }}>
                         <div>
-                          <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.56)', marginBottom: 6 }}>heure de départ recommandée</div>
+                          <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.56)', marginBottom: 6 }}>heure de lancement</div>
                           <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 'clamp(40px, 6vw, 64px)', fontWeight: 800, lineHeight: .92, color: '#fff5eb' }}>06h00</div>
                         </div>
                         <div className="link-grid">
                           <div style={{ padding: '12px 14px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                            <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.56)', marginBottom: 6 }}>fin cuisson</div>
+                            <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.56)', marginBottom: 6 }}>mise au repos</div>
                             <div style={{ fontFamily: 'DM Mono, monospace', color: '#fff5eb', fontWeight: 700 }}>17h10</div>
                           </div>
                           <div style={{ padding: '12px 14px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
@@ -281,32 +295,63 @@ export default function Landing() {
         </div>
       </section>
 
+      <section style={{ padding: '0 24px 42px' }}>
+        <div className="pm-shell premium-card" style={{ padding: 22 }}>
+          <div style={{ display: 'grid', gap: 12 }}>
+            <div className="pm-kicker">Pourquoi c’est utile</div>
+            <h2 className="pm-section-title" style={{ fontSize: 'clamp(30px, 4.8vw, 48px)' }}>
+              Plus besoin de deviner.
+            </h2>
+            <p className="pm-section-copy" style={{ maxWidth: 760 }}>
+              Tu n’as plus à choisir au hasard entre finir trop tard ou te lever à 4h. Le site t’aide à prévoir large, à mieux gérer le repos et à servir une viande prête au bon moment.
+            </p>
+            <div style={{ display:'flex', gap:10, flexWrap:'wrap', marginTop: 2 }}>
+              {USER_QUESTIONS.map((item) => (
+                <span key={item} style={{ padding:'8px 12px', borderRadius:999, background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', color:'var(--text2)', fontSize:12, fontWeight:600 }}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="calculateur" style={{ padding: '0 24px 58px' }}>
         <div className="pm-shell premium-card" style={{ padding: 26 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, alignItems: 'center' }}>
             <div>
-              <div className="pm-eyebrow" style={{ marginBottom: 10, color:'var(--text3)' }}>section principale</div>
+              <div className="pm-eyebrow" style={{ marginBottom: 10, color:'var(--text3)' }}>Le calculateur</div>
               <h2 className="pm-section-title" style={{ fontSize: 'clamp(34px, 4.8vw, 58px)', marginBottom: 14 }}>
-                Un outil de référence.
+                Entre ta cuisson.
                 <br />
-                Pas un formulaire triste.
+                Reçois ton plan.
               </h2>
               <p className="pm-section-copy" style={{ maxWidth: 540 }}>
-                Grands champs, hiérarchie nette, résultat premium et actions utiles. On comprend quoi faire, quoi attendre et quoi sauvegarder sans se perdre.
+                Choisis la viande, entre le poids, règle ton fumoir et ton heure de service. En quelques secondes, tu sais quand lancer la cuisson.
               </p>
+              <div style={{ display:'flex', gap:10, flexWrap:'wrap', marginTop: 18 }}>
+                <button onClick={openCalculator} className="pm-btn-primary" style={{ width: 'auto', padding: '14px 22px' }}>
+                  Calculer maintenant
+                </button>
+                <button onClick={saveCook} className="pm-btn-secondary" style={{ width: 'auto', padding: '14px 18px' }}>
+                  Retrouver mes plans
+                </button>
+              </div>
             </div>
             <div className="feature-grid">
               {[
-                ['Temps de cuisson précis', <ClockIcon key="clock" />],
-                ['Timeline verticale claire', <GaugeIcon key="gauge" />],
-                ['Sauvegarde et retour', <SaveIcon key="save" />],
+                ['Tu sais quand démarrer', <ClockIcon key="clock" />],
+                ['Tu prévois le repos', <GaugeIcon key="gauge" />],
+                ['Tu retrouves tes cuissons', <SaveIcon key="save" />],
               ].map(([label, icon]) => (
                 <div key={label} className="premium-card lift" style={{ padding: 18 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                     <IconFrame>{icon}</IconFrame>
                     <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, fontWeight: 700, color: 'var(--text)' }}>{label}</div>
                   </div>
-                  <p style={{ fontSize: 14, color:'var(--text2)' }}>Un bloc bien rangé, lisible, et directement utile dans le parcours de cuisson.</p>
+                  <p style={{ fontSize: 14, color:'var(--text2)' }}>
+                    Une réponse claire à une vraie question de cuisson, sans te noyer dans le détail.
+                  </p>
                 </div>
               ))}
             </div>
@@ -316,11 +361,7 @@ export default function Landing() {
 
       <section style={{ padding: '0 24px 58px' }}>
         <div className="pm-shell feature-grid">
-          {[
-            ['Compréhension immédiate', 'Tu entres ton service, tu obtiens un départ, une fenêtre et des repères actionnables.'],
-            ['Scroll utile', 'Les blocs prolongent l’outil avec des guides et du matériel au bon endroit, sans casser le rythme.'],
-            ['Affiliation discrète', 'Le produit recommandé ressemble à une aide de pitmaster, pas à une pub plaquée.'],
-          ].map(([title, copy]) => (
+          {BENEFITS.map(({ title, copy }) => (
             <div key={title} style={{ paddingTop: 18, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
               <h3 style={{ fontSize: 24, color: 'var(--text)', marginBottom: 10 }}>{title}</h3>
               <p>{copy}</p>
@@ -329,20 +370,20 @@ export default function Landing() {
         </div>
       </section>
 
-      <section id="guides" style={{ padding: '0 24px 58px' }}>
+      <section id="cuissons" style={{ padding: '0 24px 58px' }}>
         <div className="pm-shell">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', gap: 24, flexWrap: 'wrap', marginBottom: 18 }}>
             <div>
-              <div className="pm-eyebrow" style={{ marginBottom: 10, color:'var(--text3)' }}>guides bbq</div>
-              <h2 className="pm-section-title" style={{ fontSize: 'clamp(30px, 4.5vw, 52px)' }}>Blocs rangés, utiles, lisibles.</h2>
+              <div className="pm-eyebrow" style={{ marginBottom: 10, color:'var(--text3)' }}>Pour quelles cuissons ?</div>
+              <h2 className="pm-section-title" style={{ fontSize: 'clamp(30px, 4.5vw, 52px)' }}>Les cuissons qui comptent vraiment.</h2>
             </div>
             <p className="pm-section-copy" style={{ maxWidth: 420 }}>
-              Les sections sous le calculateur doivent prolonger l’usage, pas détourner l’attention.
+              Brisket, ribs, pulled pork, paleron, short ribs, poulet, agneau. Tu te projettes tout de suite dans ta prochaine cuisson.
             </p>
           </div>
 
           <div className="guide-strip">
-            {GUIDES.map((item) => (
+            {COOKS.map((item) => (
               <button
                 key={item.key}
                 onClick={openCalculator}
@@ -353,7 +394,7 @@ export default function Landing() {
                   <img src={MEAT_IMAGES[item.key]} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover', filter:'saturate(.92) contrast(1.02)' }} />
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(23,18,15,0.9), rgba(23,18,15,0.08) 60%)' }} />
                   <div style={{ position: 'absolute', left: 16, right: 16, bottom: 16 }}>
-                    <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.58)', marginBottom: 8 }}>guide</div>
+                    <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.58)', marginBottom: 8 }}>Cuisson</div>
                     <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800, color: '#fff5eb', marginBottom: 6 }}>{item.title}</div>
                     <p style={{ color: 'rgba(255,245,235,0.76)', fontSize: 13 }}>{item.subtitle}</p>
                   </div>
@@ -364,31 +405,58 @@ export default function Landing() {
         </div>
       </section>
 
-      <section id="materiel" style={{ padding: '0 24px 60px' }}>
+      <section id="comment-ca-marche" style={{ padding: '0 24px 58px' }}>
         <div className="pm-shell premium-card" style={{ padding: 26 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', gap: 24, flexWrap: 'wrap', marginBottom: 18 }}>
             <div>
-              <div className="pm-eyebrow" style={{ marginBottom: 10, color:'var(--text3)' }}>materiel recommande</div>
-              <h2 className="pm-section-title" style={{ fontSize: 'clamp(30px, 4.5vw, 52px)' }}>Des cartes produits précises et propres.</h2>
+              <div className="pm-eyebrow" style={{ marginBottom: 10, color:'var(--text3)' }}>Comment ça marche ?</div>
+              <h2 className="pm-section-title" style={{ fontSize: 'clamp(30px, 4.5vw, 52px)' }}>Trois étapes, pas plus.</h2>
             </div>
-            <div style={{ display: 'inline-flex', padding: '6px 12px', borderRadius: 999, background: 'rgba(240,122,47,0.08)', border: '1px solid rgba(240,122,47,0.14)', color: 'var(--orange)', fontSize: 11, fontWeight: 700 }}>
-              Matériel recommandé par pitmasters
-            </div>
+            <p className="pm-section-copy" style={{ maxWidth: 420 }}>
+              Le but n’est pas de t’impressionner. Le but, c’est de t’aider à lancer ta cuisson au bon moment.
+            </p>
           </div>
 
           <div className="material-grid">
-            {MATERIAL.map((item) => (
-              <div key={item.title} className="premium-card lift" style={{ padding: 18 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-                  <IconFrame><FireIcon /></IconFrame>
-                  <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--text)' }}>{item.title}</div>
+            {[
+              ['01', 'Choisis ta viande', 'Brisket, ribs, pulled pork, poulet, agneau… commence par la cuisson que tu prépares.'],
+              ['02', 'Entre ton poids et ton heure', 'Tu donnes le poids, la méthode et l’heure à laquelle tu veux servir.'],
+              ['03', 'Reçois ton plan', 'Le site te donne l’heure de départ, la fenêtre de service et les repères utiles.'],
+            ].map(([step, title, copy]) => (
+              <div key={title} className="premium-card lift" style={{ padding: 18 }}>
+                <div style={{ display: 'inline-flex', marginBottom: 12, padding: '6px 10px', borderRadius: 999, background: 'var(--orange-bg)', border: '1px solid var(--orange-border)', color: 'var(--orange)', fontSize: 11, fontWeight: 800 }}>
+                  {step}
                 </div>
-                <p style={{ marginBottom: 16 }}>{item.copy}</p>
-                <button onClick={openCalculator} className="pm-btn-secondary" style={{ width: 'auto', padding: '12px 14px' }}>
-                  {item.action}
-                </button>
+                <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--text)', marginBottom: 10 }}>{title}</div>
+                <p style={{ marginBottom: 16 }}>{copy}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="guides" style={{ padding: '0 24px 58px' }}>
+        <div className="pm-shell">
+          <div className="premium-card" style={{ padding: 24 }}>
+            <div className="pm-eyebrow" style={{ marginBottom: 10, color:'var(--text3)' }}>À garder en tête</div>
+            <h2 className="pm-section-title" style={{ fontSize: 'clamp(28px, 4vw, 44px)', marginBottom: 12 }}>
+              Le BBQ reste vivant.
+            </h2>
+            <p className="pm-section-copy" style={{ maxWidth: 760, marginBottom: 18 }}>
+              La viande, le fumoir et la météo peuvent faire bouger la cuisson. Le but est de prévoir large, de garder une vraie marge de repos et de préférer une viande prête un peu tôt qu’un service en retard.
+            </p>
+            <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
+              {[
+                'Prévoir large',
+                'Le repos compte',
+                'Le wrap aide',
+                'Mieux vaut finir un peu tôt',
+              ].map((item) => (
+                <span key={item} style={{ padding:'8px 12px', borderRadius:999, background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)', color:'var(--text2)', fontSize:12, fontWeight:600 }}>
+                  {item}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -399,11 +467,19 @@ export default function Landing() {
             <div>
               <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, fontWeight: 800, marginBottom: 8 }}>Charbon &amp; Flamme</div>
               <p className="pm-section-copy" style={{ maxWidth: 420 }}>
-                Le calculateur BBQ gratuit pensé pour devenir le point d’entrée premium, simple et fiable avant chaque cuisson.
+                Lance ta cuisson avec un vrai plan. Prépare ton prochain service sans deviner.
               </p>
+              <div style={{ marginTop: 16, display:'flex', gap:10, flexWrap:'wrap' }}>
+                <button onClick={openCalculator} className="pm-btn-primary" style={{ width:'auto', padding:'14px 18px' }}>
+                  Tester le calculateur
+                </button>
+                <button onClick={saveCook} className="pm-btn-secondary" style={{ width:'auto', padding:'14px 18px' }}>
+                  Retrouver mes cuissons
+                </button>
+              </div>
             </div>
             <div className="link-grid">
-              {SEO_LINKS.map((label) => (
+              {USER_QUESTIONS.concat(['Brisket', 'Ribs']).map((label) => (
                 <button
                   key={label}
                   onClick={openCalculator}
