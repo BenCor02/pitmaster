@@ -9,18 +9,18 @@ const U = (id, w = 800, h = 600) =>
 
 // ── Viandes ───────────────────────────────────────────────────
 export const MEAT_IMAGES = {
-  // PATCH: URLs fixes pour éviter les images dynamiques cassées
-  brisket:       U('photo-1558030006-450675393462', 800, 500),
-  pork_shoulder: U('photo-1529193591184-b1d58069ecdd', 800, 500),
-  ribs_pork:     U('photo-1544025162-d76694265947', 800, 500),
-  ribs_beef:     U('photo-1555939594-58d7cb561ad1', 800, 500),
-  ribs_baby_back:U('photo-1544025162-d76694265947', 800, 500),
-  paleron:       U('photo-1546964124-0cce460f38ef', 800, 500),
-  plat_de_cote:  U('photo-1607532941433-304659e8198a', 800, 500),
-  lamb_shoulder: U('photo-1504674900247-0877df9cc836', 800, 500),
-  whole_chicken: U('photo-1518492104633-130d0cc84637', 800, 500),
-  chicken_pieces: U('photo-1527477396000-e27163b481c2', 800, 500),
-  lamb_leg: U('photo-1504674900247-0877df9cc836', 800, 500),
+  // PATCH: sélection fixe plus cohérente viande par viande, basée sur de vraies photos ciblées
+  brisket: 'https://images.unsplash.com/photo-1622665632960-aba7ac089541?auto=format&fit=crop&fm=jpg&q=80&w=1600',
+  pork_shoulder: 'https://images.unsplash.com/photo-1523986490752-c28064f26be3?auto=format&fit=crop&fm=jpg&q=80&w=1600',
+  ribs_pork: 'https://images.unsplash.com/photo-1578981931698-7d3b21a0d6ac?auto=format&fit=crop&fm=jpg&q=80&w=1600',
+  ribs_beef: 'https://images.unsplash.com/photo-1625604086816-4bfaf603e842?auto=format&fit=crop&fm=jpg&q=80&w=1600',
+  ribs_baby_back: 'https://images.unsplash.com/photo-1578981931698-7d3b21a0d6ac?auto=format&fit=crop&fm=jpg&q=80&w=1600',
+  paleron: 'https://images.unsplash.com/photo-1750461325999-a092ac3964cf?auto=format&fit=crop&fm=jpg&q=80&w=1600',
+  plat_de_cote: 'https://images.unsplash.com/photo-1629600938295-080a35c50302?auto=format&fit=crop&fm=jpg&q=80&w=1600',
+  lamb_shoulder: 'https://images.unsplash.com/photo-1766589152485-9aafd9812a19?auto=format&fit=crop&fm=jpg&q=80&w=1600',
+  whole_chicken: 'https://images.unsplash.com/photo-1712579733874-c3a79f0f9d12?auto=format&fit=crop&fm=jpg&q=80&w=1600',
+  chicken_pieces: 'https://images.unsplash.com/photo-1750277093031-1ef101be01c5?auto=format&fit=crop&fm=jpg&q=80&w=1600',
+  lamb_leg: 'https://images.unsplash.com/photo-1766589152485-9aafd9812a19?auto=format&fit=crop&fm=jpg&q=80&w=1600',
 }
 
 // ── Landing / Hero ────────────────────────────────────────────
