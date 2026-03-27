@@ -17,10 +17,11 @@ const css = `
   .guide-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
   .hero-panel { animation: panelFloat 8s ease-in-out infinite; }
   .hero-glow { animation: glowPulse 7s ease-in-out infinite; }
-  .premium-card { background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(248,242,236,0.96)); border: 1px solid rgba(47,36,28,0.08); border-radius: 28px; box-shadow: 0 18px 44px rgba(42,33,27,0.08); }
+  /* PATCH: landing alignée sur le thème dark premium de l'app */
+  .premium-card { background: linear-gradient(180deg, rgba(26,26,26,0.96), rgba(16,16,16,0.98)); border: 1px solid rgba(255,255,255,0.08); border-radius: 28px; box-shadow: 0 18px 44px rgba(0,0,0,0.24); }
   .dark-card { background: linear-gradient(180deg, rgba(23,18,15,0.96), rgba(15,12,10,0.98)); border: 1px solid rgba(255,255,255,0.08); border-radius: 30px; box-shadow: 0 22px 54px rgba(25,18,14,0.32); }
   .lift { transition: transform .24s ease, border-color .24s ease, box-shadow .24s ease; }
-  .lift:hover { transform: translateY(-3px); border-color: rgba(240,122,47,0.22) !important; box-shadow: 0 24px 52px rgba(42,33,27,0.12); }
+  .lift:hover { transform: translateY(-3px); border-color: rgba(240,122,47,0.22) !important; box-shadow: 0 24px 52px rgba(0,0,0,0.28); }
   @media (max-width: 1080px) {
     .hero-grid, .feature-grid, .material-grid { grid-template-columns: 1fr; }
     .guide-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -133,6 +134,10 @@ export default function Landing() {
 
   const openCalculator = () => navigate('/app')
   const saveCook = () => navigate('/auth', { state: { from: '/app', reason: 'save-planning' } })
+  // PATCH: les liens de la landing font soit un vrai scroll, soit une vraie navigation app
+  const scrollToSection = (sectionId) => {
+    document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--text)', overflowX: 'hidden' }}>
@@ -148,8 +153,8 @@ export default function Landing() {
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '0 22px',
-          background: scrolled ? 'rgba(245,241,234,0.84)' : 'rgba(245,241,234,0.58)',
-          borderBottom: '1px solid rgba(42,33,27,0.08)',
+          background: scrolled ? 'rgba(12,12,12,0.92)' : 'rgba(12,12,12,0.72)',
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
           backdropFilter: 'blur(20px)',
         }}
       >
@@ -162,20 +167,20 @@ export default function Landing() {
           </div>
           <div style={{ textAlign: 'left' }}>
             <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 16, fontWeight: 800, lineHeight: 1 }}>Charbon &amp; Flamme</div>
-            <div className="pm-eyebrow" style={{ marginTop: 3 }}>outil gratuit de reference</div>
+            <div className="pm-eyebrow" style={{ marginTop: 3, color:'var(--text3)' }}>outil gratuit de reference</div>
           </div>
         </button>
 
         <nav style={{ display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap' }}>
           {[
-            ['Calculateur', '#calculateur'],
-            ['Guides BBQ', '#guides'],
-            ['Recettes', '#guides'],
-            ['Matériel recommandé', '#materiel'],
-          ].map(([label, href]) => (
-            <a key={label} href={href} style={{ textDecoration: 'none', color: 'var(--text2)', fontSize: 13, fontWeight: 600 }}>
+            ['Calculateur', () => scrollToSection('calculateur')],
+            ['Guides BBQ', () => scrollToSection('guides')],
+            ['Matériel', () => scrollToSection('materiel')],
+            ['Ouvrir l’app', openCalculator],
+          ].map(([label, action]) => (
+            <button key={label} onClick={action} style={{ background:'none', border:'none', padding:0, color:'var(--text2)', fontSize: 13, fontWeight: 600, cursor:'pointer' }}>
               {label}
-            </a>
+            </button>
           ))}
           <button onClick={saveCook} className="pm-btn-secondary" style={{ width: 'auto', padding: '12px 16px', fontSize: 12 }}>
             Sauvegarder ma cuisson
@@ -275,7 +280,7 @@ export default function Landing() {
         <div className="pm-shell premium-card" style={{ padding: 26 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, alignItems: 'center' }}>
             <div>
-              <div className="pm-eyebrow" style={{ marginBottom: 10 }}>section principale</div>
+              <div className="pm-eyebrow" style={{ marginBottom: 10, color:'var(--text3)' }}>section principale</div>
               <h2 className="pm-section-title" style={{ fontSize: 'clamp(34px, 4.8vw, 58px)', marginBottom: 14 }}>
                 Un outil de référence.
                 <br />
@@ -296,7 +301,7 @@ export default function Landing() {
                     <IconFrame>{icon}</IconFrame>
                     <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, fontWeight: 700, color: 'var(--text)' }}>{label}</div>
                   </div>
-                  <p style={{ fontSize: 14 }}>Un bloc bien rangé, lisible, et directement utile dans le parcours de cuisson.</p>
+                  <p style={{ fontSize: 14, color:'var(--text2)' }}>Un bloc bien rangé, lisible, et directement utile dans le parcours de cuisson.</p>
                 </div>
               ))}
             </div>
@@ -311,7 +316,7 @@ export default function Landing() {
             ['Scroll utile', 'Les blocs prolongent l’outil avec des guides et du matériel au bon endroit, sans casser le rythme.'],
             ['Affiliation discrète', 'Le produit recommandé ressemble à une aide de pitmaster, pas à une pub plaquée.'],
           ].map(([title, copy]) => (
-            <div key={title} style={{ paddingTop: 18, borderTop: '1px solid rgba(42,33,27,0.1)' }}>
+            <div key={title} style={{ paddingTop: 18, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
               <h3 style={{ fontSize: 24, color: 'var(--text)', marginBottom: 10 }}>{title}</h3>
               <p>{copy}</p>
             </div>
@@ -323,7 +328,7 @@ export default function Landing() {
         <div className="pm-shell">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', gap: 24, flexWrap: 'wrap', marginBottom: 18 }}>
             <div>
-              <div className="pm-eyebrow" style={{ marginBottom: 10 }}>guides bbq</div>
+              <div className="pm-eyebrow" style={{ marginBottom: 10, color:'var(--text3)' }}>guides bbq</div>
               <h2 className="pm-section-title" style={{ fontSize: 'clamp(30px, 4.5vw, 52px)' }}>Blocs rangés, utiles, lisibles.</h2>
             </div>
             <p className="pm-section-copy" style={{ maxWidth: 420 }}>
@@ -340,7 +345,7 @@ export default function Landing() {
                 style={{ overflow: 'hidden', cursor: 'pointer', textAlign: 'left', color: 'inherit', padding: 0 }}
               >
                 <div style={{ position: 'relative', height: 240 }}>
-                  <img src={MEAT_IMAGES[item.key]} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={MEAT_IMAGES[item.key]} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover', filter:'saturate(.92) contrast(1.02)' }} />
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(23,18,15,0.9), rgba(23,18,15,0.08) 60%)' }} />
                   <div style={{ position: 'absolute', left: 16, right: 16, bottom: 16 }}>
                     <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.58)', marginBottom: 8 }}>guide</div>
@@ -358,7 +363,7 @@ export default function Landing() {
         <div className="pm-shell premium-card" style={{ padding: 26 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', gap: 24, flexWrap: 'wrap', marginBottom: 18 }}>
             <div>
-              <div className="pm-eyebrow" style={{ marginBottom: 10 }}>materiel recommande</div>
+              <div className="pm-eyebrow" style={{ marginBottom: 10, color:'var(--text3)' }}>materiel recommande</div>
               <h2 className="pm-section-title" style={{ fontSize: 'clamp(30px, 4.5vw, 52px)' }}>Des cartes produits précises et propres.</h2>
             </div>
             <div style={{ display: 'inline-flex', padding: '6px 12px', borderRadius: 999, background: 'rgba(240,122,47,0.08)', border: '1px solid rgba(240,122,47,0.14)', color: 'var(--orange)', fontSize: 11, fontWeight: 700 }}>
@@ -383,7 +388,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <footer style={{ borderTop: '1px solid rgba(42,33,27,0.08)', padding: '28px 24px 48px' }}>
+      <footer style={{ borderTop: '1px solid rgba(255,255,255,0.08)', padding: '28px 24px 48px' }}>
         <div className="pm-shell">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
             <div>
@@ -397,7 +402,7 @@ export default function Landing() {
                 <button
                   key={label}
                   onClick={openCalculator}
-                  style={{ textAlign: 'left', background: 'none', border: 'none', padding: '0 0 8px', cursor: 'pointer', color: 'var(--text2)', borderBottom: '1px solid rgba(42,33,27,0.08)' }}
+                  style={{ textAlign: 'left', background: 'none', border: 'none', padding: '0 0 8px', cursor: 'pointer', color: 'var(--text2)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}
                 >
                   {label}
                 </button>

@@ -5,26 +5,27 @@ import { useState } from 'react'
 
 const NAV = [
   { section: 'CUISSON', items: [
-    { path: '/app', icon: 'PL', label: 'Calculateur', end: true },
-    { path: '/app/party', icon: 'CP', label: 'Cook Party' },
-    { path: '/app/cold', icon: 'CF', label: 'Fumage à froid' },
-    { path: '/app/session', icon: 'SV', label: 'Session active' },
-    { path: '/app/timer', icon: 'TM', label: 'Minuteur' },
+    // PATCH: vrais pictos lisibles au lieu d'abréviations techniques
+    { path: '/app', icon: '🔥', label: 'Calculateur', end: true },
+    { path: '/app/party', icon: '🍽️', label: 'Cook Party' },
+    { path: '/app/cold', icon: '❄️', label: 'Fumage à froid' },
+    { path: '/app/session', icon: '🎯', label: 'Session active' },
+    { path: '/app/timer', icon: '⏱️', label: 'Minuteur' },
   ]},
   { section: 'OUTILS', items: [
-    { path: '/app/quantity', icon: 'QT', label: 'Quantités' },
-    { path: '/app/reference', icon: 'RF', label: 'Référence' },
-    { path: '/app/journal', icon: 'JR', label: 'Journal' },
-    { path: '/app/history', icon: 'HS', label: 'Historique' },
-    { path: '/app/ask', icon: 'AI', label: 'Ask the Pitmaster' },
+    { path: '/app/quantity', icon: '⚖️', label: 'Quantités' },
+    { path: '/app/reference', icon: '📚', label: 'Référence' },
+    { path: '/app/journal', icon: '📓', label: 'Journal' },
+    { path: '/app/history', icon: '🕘', label: 'Historique' },
+    { path: '/app/ask', icon: '🤠', label: 'Ask the Pitmaster' },
   ]},
 ]
 
 const MOBILE_NAV = [
-  { path: '/app', icon: 'PL', label: 'Cuisson', end: true },
-  { path: '/app/party', icon: 'CP', label: 'Party' },
-  { path: '/app/journal', icon: 'JR', label: 'Journal' },
-  { path: '/app/cold', icon: 'CF', label: 'Froid' },
+  { path: '/app', icon: '🔥', label: 'Cuisson', end: true },
+  { path: '/app/party', icon: '🍽️', label: 'Party' },
+  { path: '/app/journal', icon: '📓', label: 'Journal' },
+  { path: '/app/cold', icon: '❄️', label: 'Froid' },
 ]
 
 const css = `
@@ -46,7 +47,7 @@ const css = `
   .nav-link { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 16px; margin-bottom: 5px; cursor: pointer; transition: all 0.18s; text-decoration: none; border:1px solid transparent; }
   .nav-link:hover { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.08); transform: translateX(2px); }
   .nav-link.active { background: linear-gradient(135deg, rgba(232,69,11,0.18), rgba(232,69,11,0.05)); border-color: var(--orange-border); box-shadow: inset 0 1px 0 rgba(255,255,255,0.04); }
-  .nav-icon { width: 28px; height: 28px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.6px; color: var(--text3); background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+  .nav-icon { width: 28px; height: 28px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--text3); background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
   .nav-link.active .nav-icon { color: var(--ember); border-color: rgba(240,122,47,0.18); background: rgba(240,122,47,0.08); }
 
   .nav-label-active  { color: var(--text); font-weight: 700; font-family: 'DM Sans',sans-serif; font-size: 14px; }
