@@ -744,40 +744,41 @@ function getTempAdjustment(smokerTempC) {
 function getAdjustedMinutesPerKg(methodProfile, smokerTempC) {
   const [rangeMin, rangeMax] = methodProfile.smokerTempRange
   const temp = clamp(toFiniteNumber(smokerTempC, methodProfile.smokerTempDefault), rangeMin, rangeMax)
-  const ratio = (temp - rangeMin) / Math.max(rangeMax - rangeMin, 1)
-  // PATCH: plus le fumoir est chaud, plus on se rapproche du minimum de min/kg
-  return lerp(methodProfile.minutesPerKg[1], methodProfile.minutesPerKg[0], ratio)
+  const normalized = (temp - rangeMin) / Math.max(rangeMax - rangeMin, 1)
+  const curved = Math.pow(clamp(normalized, 0, 1), 0.7)
+  // PATCH: interpolation non linéaire officielle : plus de gain dans le bas de plage
+  return methodProfile.minutesPerKg[1] + (methodProfile.minutesPerKg[0] - methodProfile.minutesPerKg[1]) * curved
 }
 
-function getCookRange(profile, methodProfile, weightKg, smokerTempC) {
+function getCookMinutes(profile, methodProfile, weightKg, smokerTempC, lambLegStyle = 'medium') {
+  let cookMinutes
+
   if (methodProfile.fixedTotalMinutes) {
-    return {
-      cookMin: methodProfile.fixedTotalMinutes[0],
-      cookMax: methodProfile.fixedTotalMinutes[1],
-    }
+    cookMinutes = avg(methodProfile.fixedTotalMinutes[0], methodProfile.fixedTotalMinutes[1])
+  } else {
+    const adjustedMinPerKg = getAdjustedMinutesPerKg(methodProfile, smokerTempC)
+    cookMinutes = weightKg * adjustedMinPerKg
   }
 
-  const minPerKg = getAdjustedMinutesPerKg({ ...methodProfile, minutesPerKg: [methodProfile.minutesPerKg[0], methodProfile.minutesPerKg[0]] }, smokerTempC)
-  const maxPerKg = getAdjustedMinutesPerKg({ ...methodProfile, minutesPerKg: [methodProfile.minutesPerKg[1], methodProfile.minutesPerKg[1]] }, smokerTempC)
-
-  let cookMin = weightKg * minPerKg
-  let cookMax = weightKg * maxPerKg
-
-  // PATCH: très grosses pièces = surcharge légère seulement, jamais explosive
-  if (weightKg > 6) {
-    const overweightFactor = 1 + (weightKg - 6) * 0.03
-    cookMin *= overweightFactor
-    cookMax *= overweightFactor
+  // PATCH: très grosses pièces = légère inertie supplémentaire, jamais explosive
+  if (weightKg > 6 && !methodProfile.fixedTotalMinutes) {
+    cookMinutes *= 1 + (weightKg - 6) * 0.03
   }
 
-  return { cookMin, cookMax }
+  // PATCH: gigot effiloché = comportement proche d’une épaule
+  if (profile.id === 'lamb_leg' && lambLegStyle === 'pulled') {
+    cookMinutes *= 1.45
+  }
+
+  return cookMinutes
 }
 
-function buildCues(profile, methodProfile, wrapType) {
+function buildCues(profile, methodProfile, wrapType, options = {}) {
   const temperatureCues = profile.temperatureCues
   const wrapRangeC = methodProfile.wrapTemp
     ? [Math.max(methodProfile.wrapTemp - 3, 0), methodProfile.wrapTemp + 3]
     : temperatureCues.wrapRangeC
+  const lambLegStyle = options.lambLegStyle || 'medium'
 
   if (isRibsCook(profile.id)) {
     return {
@@ -793,6 +794,38 @@ function buildCues(profile, methodProfile, wrapType) {
         wrapType !== 'none' ? 'Wrap facultatif' : 'Cuisson à nu',
         'Flex test',
         'Glaze optionnelle',
+      ],
+    }
+  }
+
+  if (profile.id === 'lamb_leg') {
+    if (lambLegStyle === 'pulled') {
+      return {
+        style: 'temperature_and_visual',
+        stallRange: formatRange([66, 74]),
+        wrapRange: formatRange([71, 74]),
+        probeStart: '90°C',
+        probeTenderRange: '94°C – 97°C',
+        restRange: formatRange([30, 60], ' min'),
+        visuals: [
+          'Bark / couleur',
+          'Wrap utile si la surface te plaît',
+          'Texture effilochable et moelleuse',
+        ],
+      }
+    }
+
+    return {
+      style: 'temperature_and_visual',
+      stallRange: null,
+      wrapRange: null,
+      probeStart: '55°C',
+      probeTenderRange: '57°C – 63°C',
+      restRange: formatRange([15, 30], ' min'),
+      visuals: [
+        'Belle couleur extérieure',
+        'Cuisson rosée au centre',
+        'Repos avant découpe',
       ],
     }
   }
@@ -840,10 +873,9 @@ export function calculateLowSlow(meatKey, weightKg, options = {}, approvedAdjust
   const smokerType = options.smokerType || 'offset'
   const wrapType = options.wrapType || 'none'
   const marbling = options.marbling || 'medium'
+  const lambLegStyle = options.lambLegStyle || 'medium'
   const method = inferMethod({ method: options.method, smokerTempC, wrapType })
   const methodProfile = getMethodProfile(profile, method)
-
-  const { cookMin: rawCookMin, cookMax: rawCookMax } = getCookRange(profile, methodProfile, safeWeightKg, smokerTempC)
   const thicknessClass = inferThicknessClass(parseNumericInput(options.thicknessCm, null), meatKey, safeWeightKg)
   const smokerAdjustment = BASE_COEFFS.smoker[smokerType] ?? 1.0
   const wrapAdjustment = BASE_COEFFS.wrap[wrapType] ?? 1.0
@@ -855,24 +887,22 @@ export function calculateLowSlow(meatKey, weightKg, options = {}, approvedAdjust
 
   // PATCH: ajustement global faible et strictement plafonné
   const totalAdjustment = clamp(smokerAdjustment * wrapAdjustment * tempAdjustment * thicknessAdjustment * marblingAdjustment * adjustmentHook, 0.82, 1.18)
-  const cookMin = normalizeDuration(avg(rawCookMin, rawCookMax) * totalAdjustment, avg(rawCookMin, rawCookMax), 1)
-  const cookRangeMin = normalizeDuration(rawCookMin * totalAdjustment, rawCookMin, 1)
-  const cookRangeMax = normalizeDuration(rawCookMax * totalAdjustment, rawCookMax, cookRangeMin)
+  const baseCookMinutes = getCookMinutes(profile, methodProfile, safeWeightKg, smokerTempC, lambLegStyle)
+  const cookMin = normalizeDuration(baseCookMinutes * totalAdjustment, baseCookMinutes, 1)
 
   const restMin = normalizeDuration(avg(...methodProfile.restMinutes), 0, 5)
-  const restMinLow = normalizeDuration(methodProfile.restMinutes[0], restMin, 5)
-  const restMinHigh = normalizeDuration(methodProfile.restMinutes[1], restMin, restMinLow)
   const bufferMin = normalizeDuration(clamp(cookMin * 0.15, 30, 90), 30, 0)
   const preheatMin = 30
 
   const totalMin = cookMin + restMin + bufferMin + preheatMin
-  const optimisticMin = normalizeDuration(cookRangeMin + restMinLow + bufferMin + preheatMin, totalMin, 5)
-  const prudentMin = normalizeDuration(cookRangeMax + restMinHigh + bufferMin + preheatMin, totalMin, optimisticMin)
+  const variabilityCookMin = cookMin * 0.12
+  const optimisticMin = normalizeDuration(preheatMin + (cookMin - variabilityCookMin) + restMin + bufferMin, totalMin, 5)
+  const prudentMin = normalizeDuration(preheatMin + (cookMin + variabilityCookMin) + restMin + bufferMin, totalMin, optimisticMin)
 
   const stallRangeC = methodProfile.stallRange || profile.temperatureCues.stallRangeC || null
   const wrapRangeC = methodProfile.wrapTemp ? [Math.max(methodProfile.wrapTemp - 3, 0), methodProfile.wrapTemp + 3] : profile.temperatureCues.wrapRangeC || null
-  const probeStartC = profile.temperatureCues.probeStartC ?? null
-  const probeTenderRangeC = profile.temperatureCues.probeTenderRangeC ?? null
+  const probeStartC = profile.id === 'lamb_leg' && lambLegStyle === 'medium' ? 55 : profile.temperatureCues.probeStartC ?? null
+  const probeTenderRangeC = profile.id === 'lamb_leg' && lambLegStyle === 'medium' ? [57, 63] : profile.temperatureCues.probeTenderRangeC ?? null
 
   // PATCH: phases internes conservées uniquement pour la logique session/recalibration
   const phaseRatios = isRibsCook(meatKey)
@@ -889,7 +919,10 @@ export function calculateLowSlow(meatKey, weightKg, options = {}, approvedAdjust
   const stallMin = normalizeDuration(cookMin * phaseRatios[1], 0, isRibsCook(meatKey) ? 0 : 0)
   const phase3Min = Math.max(cookMin - phase1Min - stallMin, 1)
 
-  const cues = buildCues(profile, methodProfile, wrapType)
+  const cues = buildCues(profile, methodProfile, wrapType, { lambLegStyle })
+  const targetTemp = profile.id === 'lamb_leg'
+    ? (lambLegStyle === 'pulled' ? 96 : 63)
+    : profile.tempTarget ?? null
 
   const result = {
     meatKey,
@@ -903,8 +936,9 @@ export function calculateLowSlow(meatKey, weightKg, options = {}, approvedAdjust
     smokerType,
     wrapType,
     marbling,
-    targetTempC: profile.tempTarget ?? null,
-    targetC: profile.tempTarget ?? null,
+    lambLegStyle,
+    targetTempC: targetTemp,
+    targetC: targetTemp,
     wrapTempC: methodProfile.wrapTemp ?? null,
     stallStartC: stallRangeC?.[0] ?? null,
     preheatMin,
@@ -952,6 +986,54 @@ export function buildTimeline(calc, smokerTempC) {
   const steps = []
 
   if (isRibsCook(calc.meatKey)) {
+    // PATCH: méthodes ribs fixes = roadmap 3-2-1 / 2-2-1 explicite
+    if (calc.method === 'texas_crutch') {
+      const phase1 = calc.meatKey === 'ribs_pork' ? 180 : 120
+      const phase2 = 120
+      const phase3 = 60
+      steps.push({
+        id: 'bark',
+        label: 'Phase de fumée nue',
+        description: `Laisse les ribs prendre la fumée à ${safeTemp}°C sans les perturber.`,
+        visualCueNote: 'Cherche une belle couleur et une surface bien prise.',
+        checkpoint: 'bark_check',
+        durationMin: phase1,
+      })
+      steps.push({
+        id: 'wrap',
+        label: 'Wrap / braisage',
+        description: 'Emballe les ribs pour les attendrir et accélérer la cuisson.',
+        visualCueNote: 'Le wrap reste une méthode, pas une obligation terrain.',
+        checkpoint: 'wrap_confirm',
+        durationMin: phase2,
+      })
+      steps.push({
+        id: 'flex',
+        label: 'Finition / flex test',
+        description: 'Termine à découvert, glace si tu veux, puis valide le rack au flex test.',
+        visualCueNote: 'La rack doit plier nettement et commencer à fissurer.',
+        checkpoint: 'flex_test',
+        durationMin: phase3,
+      })
+      steps.push({
+        id: 'glaze',
+        label: 'Glaze / sauce',
+        description: 'Optionnelle en toute fin : fine couche seulement pour faire prendre la sauce sans brûler le sucre.',
+        visualCueNote: 'Quelques minutes suffisent pour fixer la glaze.',
+        checkpoint: 'glaze',
+        isOptional: true,
+        durationMin: 15,
+      })
+      steps.push({
+        id: 'rest',
+        label: 'Repos court / service',
+        description: `Laisse reposer quelques minutes, puis sers. Repère : ${calc.cues?.restRange || calc.restRecommendation}.`,
+        isRest: true,
+        durationMin: calc.restMin,
+      })
+      return steps
+    }
+
     steps.push({
       id: 'bark',
       label: 'Couleur / bark',
@@ -1151,6 +1233,23 @@ export function recalibrate(calc, currentTempC, elapsedMin, currentPitTempC = nu
   }
 }
 
+// PATCH: helpers horaires pour la future V1 charbonetflamme.fr
+export function hhmmToMinutes(value) {
+  const [hours, minutes] = String(value || '19:00').split(':').map((part) => parseInt(part, 10))
+  return (Number.isFinite(hours) ? hours : 19) * 60 + (Number.isFinite(minutes) ? minutes : 0)
+}
+
+export function minutesToClock(totalMinutes) {
+  const normalized = ((Math.round(totalMinutes) % 1440) + 1440) % 1440
+  const hours = Math.floor(normalized / 60)
+  const minutes = normalized % 60
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`
+}
+
+export function roundMinutesForDisplay(totalMinutes, step = 10) {
+  return Math.round(totalMinutes / step) * step
+}
+
 // ─────────────────────────────────────────────────────────────
 // STEAKS (compatibilité)
 // ─────────────────────────────────────────────────────────────
@@ -1251,9 +1350,9 @@ export function roundToNearestHalfHour(date) {
   const safeDate = date instanceof Date && Number.isFinite(date.getTime()) ? new Date(date.getTime()) : new Date()
   const rounded = new Date(safeDate)
   const minutes = rounded.getMinutes()
-  if (minutes <= 14) rounded.setMinutes(0, 0, 0)
-  else if (minutes <= 44) rounded.setMinutes(30, 0, 0)
-  else rounded.setHours(rounded.getHours() + 1, 0, 0, 0)
+  const snapped = Math.round(minutes / 10) * 10
+  if (snapped === 60) rounded.setHours(rounded.getHours() + 1, 0, 0, 0)
+  else rounded.setMinutes(snapped, 0, 0)
   return rounded
 }
 
@@ -1261,7 +1360,7 @@ export function formatDisplayTimeRounded(date) {
   const rounded = roundToNearestHalfHour(date)
   const hours = rounded.getHours()
   const minutes = rounded.getMinutes()
-  return minutes === 0 ? `${hours}h` : `${hours}h30`
+  return minutes === 0 ? `${hours}h` : `${hours}h${String(minutes).padStart(2, '0')}`
 }
 
 export function formatTime(date) {
@@ -1301,6 +1400,7 @@ export function validateInput(meatKey, weightKg, smokerTempC, thicknessCm = null
   if (meatKey === 'brisket' && safeWeightKg > 8) warnings.push('Grosse brisket : la cuisson peut déborder franchement selon le stall réel et le repos.')
   if (meatKey === 'pork_shoulder' && safeWeightKg > 6) warnings.push('Grosse épaule : le stall peut durer longtemps, surtout sans wrap.')
   if (isRibsCook(meatKey)) warnings.push('Pour les ribs, le bend test et le pullback valent mieux qu’une lecture purement théorique.')
+  if (meatKey === 'lamb_leg') warnings.push('Gigot : rosé et effiloché sont deux cuissons très différentes. Vérifie bien le style choisi.')
   return warnings
 }
 

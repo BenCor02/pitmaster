@@ -7,7 +7,7 @@ import { MEATS } from '../lib/meats'
 import {
   calculateLowSlow, recalibrate, formatDuration, formatTime,
   addMinutes, validateInput, PHASE_BASES, buildTimeline, COOKING_METHODS,
-  getCookingProfile, getMethodConfig,
+  getCookingProfile, getMethodConfig, hhmmToMinutes, minutesToClock, roundMinutesForDisplay,
 } from '../lib/calculator.js'
 import { useSnack } from '../components/Snack'
 import Snack from '../components/Snack'
@@ -106,6 +106,15 @@ function getCalcDraft() {
     return JSON.parse(localStorage.getItem('pm_calc') || '{}')
   } catch {
     return {}
+  }
+}
+
+// PATCH: restauration du dernier résultat pour retrouver rapidement son plan
+function getLastCalcResult() {
+  try {
+    return JSON.parse(localStorage.getItem('pm_calc_result') || 'null')
+  } catch {
+    return null
   }
 }
 
@@ -257,7 +266,7 @@ function getReadyWindowText(result) {
 }
 
 // PATCH: le hero remonte seulement les vrais repères utiles du moteur final
-function getHeroCues(result) {
+function getHeroCues(result, unit = 'c') {
   if (!result?.cues) return []
   if (result.meatKey === 'ribs_pork' || result.meatKey === 'ribs_baby_back') {
     return [
@@ -267,57 +276,80 @@ function getHeroCues(result) {
     ]
   }
   return [
-    { label: 'Stall', value: result.cues.stallRange },
-    { label: 'Wrap', value: result.cues.wrapRange },
-    { label: 'Début tests', value: result.cues.probeStart },
-    { label: 'Probe tender', value: result.cues.probeTenderRange },
+    { label: 'Stall', value: result.stallRangeC ? formatRangeDisplay(result.stallRangeC, unit) : result.cues.stallRange },
+    { label: 'Wrap', value: result.wrapRangeC ? formatRangeDisplay(result.wrapRangeC, unit) : result.cues.wrapRange },
+    { label: 'Début tests', value: result.probeStartC ? formatRangeDisplay(result.probeStartC, unit) : result.cues.probeStart },
+    { label: 'Cible interne', value: result.probeTenderRangeC ? formatRangeDisplay(result.probeTenderRangeC, unit) : formatTemperatureDisplay(result.targetTempC, unit) || result.cues.probeTenderRange },
     { label: 'Repos', value: result.cues.restRange },
   ].filter(cue => cue.value)
 }
 
 // PATCH: petit label compact pour afficher la température utile à atteindre sur chaque étape
-function getStepTemperatureBadge(step, result) {
+function getStepTemperatureBadge(step, result, unit = 'c') {
   if (!result || result.meatKey === 'ribs_pork' || result.meatKey === 'ribs_baby_back') return null
-  if (step.id === 'stall') return result.cues?.stallRange || null
-  if (step.id === 'wrap') return result.cues?.wrapRange || null
-  if (step.id === 'probe') return result.cues?.probeTenderRange || result.cues?.probeStart || null
+  if (step.id === 'stall') return result.stallRangeC ? formatRangeDisplay(result.stallRangeC, unit) : result.cues?.stallRange || null
+  if (step.id === 'wrap') return result.wrapRangeC ? formatRangeDisplay(result.wrapRangeC, unit) : result.cues?.wrapRange || null
+  if (step.id === 'probe') {
+    if (result.probeTenderRangeC) return formatRangeDisplay(result.probeTenderRangeC, unit)
+    if (result.probeStartC) return formatRangeDisplay(result.probeStartC, unit)
+    return result.cues?.probeTenderRange || result.cues?.probeStart || null
+  }
   if (step.id === 'rest') return result.cues?.restRange || null
   return null
+}
+
+function cToF(value) {
+  return Math.round((value * 9) / 5 + 32)
+}
+
+function formatTemperatureDisplay(value, unit = 'c') {
+  if (value == null) return null
+  const numeric = typeof value === 'number' ? value : null
+  if (numeric === null) return String(value)
+  return unit === 'f' ? `${cToF(numeric)}°F` : `${numeric}°C`
+}
+
+function formatRangeDisplay(value, unit = 'c') {
+  if (Array.isArray(value) && value.length === 2) {
+    return unit === 'f'
+      ? `${cToF(value[0])}–${cToF(value[1])}°F`
+      : `${value[0]}–${value[1]}°C`
+  }
+  return formatTemperatureDisplay(value, unit)
 }
 
 // PATCH: roadmap visuelle simple branchée sur le moteur et affichée comme un plan d’action
 function buildRoadmap(result) {
   if (!result) return []
-  const ignitionDate = result.startTimeRaw ? new Date(result.startTimeRaw) : new Date()
-  const preheatEnd = result.meatOnSmokerAtRaw ? new Date(result.meatOnSmokerAtRaw) : addMinutes(ignitionDate, result.preheatMin || 30)
-  const stallAt = addMinutes(preheatEnd, result.phase1Min || Math.round((result.cookMin || 0) * 0.45))
-  const wrapAt = result.wrapType !== 'none'
-    ? addMinutes(preheatEnd, Math.max((result.phase1Min || 0) + Math.round((result.stallMin || 0) * 0.35), 45))
-    : null
-  const probeAt = addMinutes(preheatEnd, Math.max((result.cookMin || 0) - Math.max(Math.round((result.phase3Min || 0) * 0.45), 30), 45))
-  const cookDoneAt = result.cookDoneAtRaw ? new Date(result.cookDoneAtRaw) : addMinutes(preheatEnd, result.cookMin || 0)
-  const readyAt = result.readyAtRaw ? new Date(result.readyAtRaw) : addMinutes(cookDoneAt, result.restMin || 0)
+  const startMinutes = typeof result.preheatStartMinutes === 'number' ? result.preheatStartMinutes : hhmmToMinutes(result.startTime || '19:00')
+  const meatOnSmokerMinutes = typeof result.meatOnSmokerMinutes === 'number' ? result.meatOnSmokerMinutes : startMinutes + (result.preheatMin || 30)
+  const cookDoneMinutes = typeof result.estimatedDoneTimeMinutes === 'number' ? result.estimatedDoneTimeMinutes : meatOnSmokerMinutes + (result.cookMin || 0)
+  const readyAtMinutes = typeof result.readyAfterRestMinutes === 'number' ? result.readyAfterRestMinutes : cookDoneMinutes + (result.restMin || 0)
+  const stallAtMinutes = meatOnSmokerMinutes + Math.round((result.cookMin || 0) * (result.method === 'hot_and_fast' ? 0.5 : 0.55))
+  const wrapAtMinutes = meatOnSmokerMinutes + Math.round((result.cookMin || 0) * 0.45)
+  const probeAtMinutes = meatOnSmokerMinutes + Math.round((result.cookMin || 0) * (result.method === 'hot_and_fast' ? 0.8 : 0.85))
+  const displayClock = (minutes) => minutesToClock(roundMinutesForDisplay(minutes, 10)).replace(':', 'h')
 
   if (result.meatKey === 'ribs_pork' || result.meatKey === 'ribs_baby_back') {
     return [
-      { id: 'preheat', icon: '🔥', title: 'Préchauffage', time: result.startTime, caption: 'Allume et stabilise le fumoir avant de charger le rack.' },
-      { id: 'load', icon: '🍖', title: 'Poser les ribs', time: formatTime(preheatEnd), caption: `Place les ribs à ${result.smokerTempC}°C et laisse la couleur se construire.` },
+      { id: 'preheat', icon: '🔥', title: 'Préchauffage', time: displayClock(startMinutes), caption: 'Allume et stabilise le fumoir avant de charger le rack.' },
+      { id: 'load', icon: '🍖', title: 'Poser les ribs', time: displayClock(meatOnSmokerMinutes), caption: `Place les ribs à ${result.smokerTempC}°C et laisse la couleur se construire.` },
       { id: 'pullback', icon: '🦴', title: 'Pullback', time: null, caption: 'Observe la couleur, le retrait sur l’os et décide si tu veux wrapper.' },
-      { id: 'wrap', icon: '🌯', title: 'Wrap éventuel', time: result.wrapType !== 'none' ? formatTime(addMinutes(preheatEnd, Math.max(Math.round((result.cookMin || 0) * 0.45), 45))) : null, caption: result.wrapType !== 'none' ? 'Emballe si la couleur te plaît et que tu veux une texture plus souple.' : 'Reste à nu si tu veux garder une bark plus marquée.' },
+      { id: 'wrap', icon: '🌯', title: 'Wrap éventuel', time: result.wrapType !== 'none' ? displayClock(wrapAtMinutes) : null, caption: result.wrapType !== 'none' ? 'Emballe si la couleur te plaît et que tu veux une texture plus souple.' : 'Reste à nu si tu veux garder une bark plus marquée.' },
       { id: 'flex', icon: '🔍', title: 'Flex test', time: null, caption: 'Le vrai signal de fin : le rack plie franchement et commence à fissurer.' },
-      { id: 'rest', icon: '😴', title: 'Repos court', time: formatTime(cookDoneAt), caption: 'Laisse reposer quelques minutes avant de couper.' },
-      { id: 'service', icon: '🍽️', title: 'Service', time: formatTime(readyAt), caption: `Fenêtre conseillée : ${result.serviceWindowStart} → ${result.serviceWindowEnd}.` },
+      { id: 'rest', icon: '😴', title: 'Repos court', time: displayClock(cookDoneMinutes), caption: 'Laisse reposer quelques minutes avant de couper.' },
+      { id: 'service', icon: '🍽️', title: 'Service', time: displayClock(readyAtMinutes), caption: `Fenêtre conseillée : ${result.serviceWindowStart} → ${result.serviceWindowEnd}.` },
     ]
   }
 
   return [
-    { id: 'preheat', icon: '🔥', title: 'Préchauffage', time: result.startTime, caption: 'Allume le fumoir et laisse-le se stabiliser tranquillement.' },
-    { id: 'load', icon: '🥩', title: 'Poser la viande', time: formatTime(preheatEnd), caption: `Charge la viande sur le fumoir à ${result.smokerTempC}°C.` },
-    { id: 'stall', icon: '📍', title: 'Stall attendu', time: result.cues?.stallRange ? formatTime(stallAt) : null, caption: result.cues?.stallRange ? `Repère utile : ${result.cues.stallRange}. Continue à surveiller la bark.` : 'Surveille surtout la couleur et la texture.' },
-    { id: 'wrap', icon: '📦', title: 'Wrap', time: result.wrapType !== 'none' ? formatTime(wrapAt) : null, caption: result.wrapType !== 'none' ? `Emballe quand la bark te plaît. Repère : ${result.cues?.wrapRange || 'bonne zone de wrap'}.` : 'Sans wrap : laisse continuer jusqu’à la vraie tendreté.' },
-    { id: 'probe', icon: '🌡️', title: 'Début des tests', time: formatTime(probeAt), caption: result.cues?.probeTenderRange ? `Commence à tester vers ${result.cues?.probeStart || 'la bonne zone'} puis cherche ${result.cues.probeTenderRange}.` : 'Commence à tester selon la texture recherchée.' },
-    { id: 'rest', icon: '😴', title: 'Repos', time: formatTime(cookDoneAt), caption: `Repos recommandé : ${result.cues?.restRange || result.restRecommendation}.` },
-    { id: 'service', icon: '🍽️', title: 'Service', time: formatTime(readyAt), caption: `Fenêtre conseillée : ${result.serviceWindowStart} → ${result.serviceWindowEnd}.` },
+    { id: 'preheat', icon: '🔥', title: 'Préchauffage', time: displayClock(startMinutes), caption: 'Allume le fumoir et laisse-le se stabiliser tranquillement.' },
+    { id: 'load', icon: '🥩', title: 'Poser la viande', time: displayClock(meatOnSmokerMinutes), caption: `Charge la viande sur le fumoir à ${result.smokerTempC}°C.` },
+    { id: 'stall', icon: '📍', title: 'Stall attendu', time: result.cues?.stallRange ? displayClock(stallAtMinutes) : null, caption: result.cues?.stallRange ? `Repère utile : ${result.cues.stallRange}. Continue à surveiller la bark.` : 'Surveille surtout la couleur et la texture.' },
+    { id: 'wrap', icon: '📦', title: 'Wrap', time: result.wrapType !== 'none' ? displayClock(wrapAtMinutes) : null, caption: result.wrapType !== 'none' ? `Emballe quand la bark te plaît. Repère : ${result.cues?.wrapRange || 'bonne zone de wrap'}.` : 'Sans wrap : laisse continuer jusqu’à la vraie tendreté.' },
+    { id: 'probe', icon: '🌡️', title: 'Début des tests', time: displayClock(probeAtMinutes), caption: result.cues?.probeTenderRange ? `Commence à tester vers ${result.cues?.probeStart || 'la bonne zone'} puis cherche ${result.cues.probeTenderRange}.` : 'Commence à tester selon la texture recherchée.' },
+    { id: 'rest', icon: '😴', title: 'Repos', time: displayClock(cookDoneMinutes), caption: `Repos recommandé : ${result.cues?.restRange || result.restRecommendation}.` },
+    { id: 'service', icon: '🍽️', title: 'Service', time: displayClock(readyAtMinutes), caption: `Fenêtre conseillée : ${result.serviceWindowStart} → ${result.serviceWindowEnd}.` },
   ]
 }
 
@@ -334,6 +366,8 @@ export default function Calc() {
   const [smokerTemp, setSmokerTemp] = useState(() => getCalcDraft().smokerTemp ?? 110)
   const [serveTime,  setServeTime]  = useState(() => getCalcDraft().serveTime || '19:00')
   const [cookMethod, setCookMethod] = useState(() => getCalcDraft().cookMethod || DEFAULT_METHOD)
+  const [displayUnit, setDisplayUnit] = useState(() => getCalcDraft().displayUnit || 'c')
+  const [lambLegStyle, setLambLegStyle] = useState(() => getCalcDraft().lambLegStyle || 'medium')
   const [smokerType, setSmokerType] = useState(() => getCalcDraft().smokerType || 'pellet')
   const [wrapType,   setWrapType]   = useState(() => getCalcDraft().wrapType || 'butcher_paper')
   const [marbling,   setMarbling]   = useState(() => getCalcDraft().marbling || 'medium')
@@ -345,7 +379,7 @@ export default function Calc() {
   const [currentPitTemp, setCurrentPitTemp] = useState('')
   const [recalResult,    setRecalResult]    = useState(null)
   // PATCH: le résultat n'est plus restauré depuis localStorage pour éviter d'en faire une base produit fragile
-  const [result,   setResult]   = useState(null)
+  const [result,   setResult]   = useState(() => getLastCalcResult())
   const [timeline, setTimeline] = useState([])
   const [warnings, setWarnings] = useState([])
   const [loading,  setLoading]  = useState(false)
@@ -366,12 +400,12 @@ export default function Calc() {
     try {
       localStorage.setItem('pm_calc', JSON.stringify({
         meatKey, weight, thickness, smokerTemp, serveTime,
-        cookMethod, smokerType, wrapType, marbling, startTemp,
+        cookMethod, displayUnit, lambLegStyle, smokerType, wrapType, marbling, startTemp,
       }))
     } catch {
       // PATCH: persistance best effort seulement
     }
-  }, [meatKey, weight, thickness, smokerTemp, serveTime, cookMethod, smokerType, wrapType, marbling, startTemp])
+  }, [meatKey, weight, thickness, smokerTemp, serveTime, cookMethod, displayUnit, lambLegStyle, smokerType, wrapType, marbling, startTemp])
 
   // PATCH: changement de viande = poids et méthode ramenés sur quelque chose de crédible
   useEffect(() => {
@@ -412,6 +446,7 @@ export default function Calc() {
           thicknessCm: safeThickness,
           smokerTempC: safeSmokerTemp,
           startTempC: safeStartTemp,
+          lambLegStyle,
           smokerType,
           wrapType,
           marbling,
@@ -467,6 +502,11 @@ export default function Calc() {
           },
         }
         setResult(newResult)
+        try {
+          localStorage.setItem('pm_calc_result', JSON.stringify(newResult))
+        } catch {
+          // PATCH: résultat mémorisé en best effort uniquement
+        }
         setTimeline(tl)
         setLoading(false)
         setTimeout(() => document.getElementById('calc-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
@@ -707,6 +747,11 @@ export default function Calc() {
           <label className="pm-field-label">Poids (kg)</label>
           <input type="number" className="pm-input" value={weight} min="0.5" max="20" step="0.5"
             onChange={e => { setWeight(toFloat(e.target.value, 0)) }} />
+          {(meatKey === 'ribs_pork' || meatKey === 'ribs_baby_back') && cookMethod === 'texas_crutch' && (
+            <div style={{ fontSize: 10, color: 'var(--text3)', marginTop: 5, lineHeight: 1.5 }}>
+              Sur cette méthode fixe, le type de rack compte plus que le poids exact.
+            </div>
+          )}
         </div>
         <div className="pm-card">
           <label className="pm-field-label">
@@ -763,7 +808,14 @@ export default function Calc() {
       <div className="pm-card">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <label className="pm-field-label" style={{ marginBottom: 0 }}>T° fumoir (zone indirecte)</label>
-          <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 30, color: 'var(--orange)' }}>{smokerTemp}°C</span>
+          <div style={{ textAlign: 'right' }}>
+            <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 30, color: 'var(--orange)', display: 'block' }}>
+              {formatTemperatureDisplay(smokerTemp, displayUnit)}
+            </span>
+            <span style={{ fontSize: 10, color: 'var(--text3)' }}>
+              {displayUnit === 'c' ? `${cToF(smokerTemp)}°F` : `${smokerTemp}°C`}
+            </span>
+          </div>
         </div>
         <input type="range" value={smokerTemp} min={tempRange[0]} max={tempRange[1]} step="1"
           onChange={e => { setSmokerTemp(toInt(e.target.value, 110)) }} />
@@ -771,6 +823,30 @@ export default function Calc() {
           <span style={{ fontSize: 10, color: 'var(--text3)' }}>{tempRange[0]}°C · mini</span>
           <span style={{ fontSize: 10, color: 'var(--text3)' }}>{methodConfig?.smokerTempDefault ?? smokerTemp}°C · conseillé</span>
           <span style={{ fontSize: 10, color: 'var(--text3)' }}>{tempRange[1]}°C · maxi</span>
+        </div>
+        <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+          {[
+            { id: 'c', label: 'Afficher en °C' },
+            { id: 'f', label: 'Afficher en °F' },
+          ].map(option => (
+            <button
+              key={option.id}
+              onClick={() => setDisplayUnit(option.id)}
+              style={{
+                flex: 1,
+                padding: '8px 10px',
+                borderRadius: 999,
+                border: `1px solid ${displayUnit === option.id ? 'var(--orange-border)' : 'var(--border)'}`,
+                background: displayUnit === option.id ? 'var(--orange-bg)' : 'var(--surface2)',
+                color: displayUnit === option.id ? 'var(--orange)' : 'var(--text3)',
+                fontSize: 11,
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
+              {option.label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -780,6 +856,38 @@ export default function Calc() {
         <input type="time" className="pm-input" value={serveTime}
           onChange={e => { setServeTime(e.target.value) }} />
       </div>
+
+      {meatKey === 'lamb_leg' && (
+        <div className="pm-card">
+          <label className="pm-field-label">Style du gigot</label>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            {[
+              { id: 'medium', title: 'Rosé / Medium', desc: 'Cible autour de 63°C, cuisson plus courte, belle tranche.' },
+              { id: 'pulled', title: 'Effiloché', desc: 'Version poussée type épaule, plus longue et plus fondante.' },
+            ].map(option => (
+              <button
+                key={option.id}
+                onClick={() => setLambLegStyle(option.id)}
+                style={{
+                  padding: '12px 14px',
+                  borderRadius: 14,
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  border: `1.5px solid ${lambLegStyle === option.id ? 'var(--orange-border)' : 'var(--border)'}`,
+                  background: lambLegStyle === option.id ? 'var(--orange-bg)' : 'var(--surface2)',
+                }}
+              >
+                <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 13, color: lambLegStyle === option.id ? 'var(--orange)' : 'var(--text)' }}>
+                  {option.title}
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--text3)', marginTop: 5, lineHeight: 1.5 }}>
+                  {option.desc}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* WRAP */}
       {showWrapChoices && (
@@ -889,10 +997,10 @@ export default function Calc() {
           <div style={{ background: 'linear-gradient(180deg, rgba(255,252,247,0.98), rgba(245,238,231,0.98))', border: '1px solid rgba(42,33,27,0.08)', borderRadius: 24, padding: '22px 20px', marginBottom: 12, position: 'relative', overflow: 'hidden', boxShadow: 'var(--shadow-soft)' }}>
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'var(--orange)', borderRadius: '20px 20px 0 0' }} />
             <div style={{ textAlign: 'center', marginBottom: 16 }}>
-              <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '1px' }}>Heure de départ recommandée</div>
+              <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '1px' }}>Lancer le préchauffage</div>
               <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 72, fontWeight: 800, lineHeight: 1, color: 'var(--ember)', letterSpacing: '-3px' }}>{result.startTime}</div>
               <div style={{ fontSize: 13, color: 'var(--text2)', marginTop: 10, lineHeight: 1.6 }}>
-                Pour servir à {result.serve}, allume le fumoir vers {result.startTime} en {result.methodLabel}.
+                Pour servir à {result.serve}, allume le fumoir vers {result.startTime} puis mets la viande vers {result.meatOnSmokerTime}.
               </div>
             </div>
 
@@ -901,6 +1009,10 @@ export default function Calc() {
                 {getReadyWindowText(result)}
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 12, marginBottom: 12 }}>
+                <div style={{ background: 'rgba(255,255,255,0.82)', border: '1px solid rgba(42,33,27,0.08)', borderRadius: 12, padding: '10px 12px', textAlign: 'center' }}>
+                  <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Viande sur fumoir</div>
+                  <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 700, fontSize: 14, color: 'var(--text)' }}>{result.meatOnSmokerTime}</div>
+                </div>
                 <div style={{ background: 'rgba(255,255,255,0.82)', border: '1px solid rgba(42,33,27,0.08)', borderRadius: 12, padding: '10px 12px', textAlign: 'center' }}>
                   <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Fin cuisson</div>
                   <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 700, fontSize: 14, color: 'var(--text)' }}>{result.cookDoneTime}</div>
@@ -923,10 +1035,23 @@ export default function Calc() {
                 <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Méthode</div>
                 <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 700, fontSize: 12, color: 'var(--text)' }}>{result.methodLabel}</div>
               </div>
-              {getHeroCues(result).map(cue => (
+              {getHeroCues(result, displayUnit).map(cue => (
                 <div key={cue.label} style={{ background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(42,33,27,0.08)', borderRadius: 12, padding: '10px 12px' }}>
                   <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>{cue.label}</div>
                   <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 700, fontSize: 12, color: 'var(--text)' }}>{cue.value}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 8, marginTop: 10 }}>
+              {[
+                ['Cuisson', formatDuration(result.cookMin)],
+                ['Repos', formatDuration(result.restMin)],
+                ['Tampon', formatDuration(result.bufferMin)],
+                ['Total', formatDuration(result.totalMin)],
+              ].map(([label, value]) => (
+                <div key={label} style={{ background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(42,33,27,0.08)', borderRadius: 12, padding: '10px 12px', textAlign: 'center' }}>
+                  <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>{label}</div>
+                  <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 700, fontSize: 12, color: 'var(--text)' }}>{value}</div>
                 </div>
               ))}
             </div>
@@ -1026,9 +1151,9 @@ export default function Calc() {
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
                       <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 13, color: 'var(--text)', lineHeight: 1.3 }}>{guide.watch}</div>
-                      {getStepTemperatureBadge(step, result) && (
+                      {getStepTemperatureBadge(step, result, displayUnit) && (
                         <span style={{ fontFamily: 'DM Mono, monospace', fontSize: 10, color: 'var(--text3)', flexShrink: 0 }}>
-                          {getStepTemperatureBadge(step, result)}
+                          {getStepTemperatureBadge(step, result, displayUnit)}
                         </span>
                       )}
                     </div>
