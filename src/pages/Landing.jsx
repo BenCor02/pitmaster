@@ -11,7 +11,7 @@ const css = `
   .hero-item:nth-child(2) { animation-delay: .08s; }
   .hero-item:nth-child(3) { animation-delay: .16s; }
   .hero-item:nth-child(4) { animation-delay: .24s; }
-  .hero-grid { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(380px, .92fr); gap: 34px; align-items: end; }
+  .hero-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; align-items: end; }
   .feature-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
   .link-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .material-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
@@ -24,23 +24,27 @@ const css = `
   .hero-panel { animation: panelFloat 8s ease-in-out infinite; }
   .hero-glow { animation: glowPulse 7s ease-in-out infinite; }
   .landing-topnav { display:flex; align-items:center; gap:18px; flex-wrap:wrap; }
-  .landing-shell-pad { padding: 34px 24px 62px; }
+  .landing-shell-pad { padding: 0 0 70px; }
   .landing-brand-sub { display:block; }
-  .landing-hero-copy { max-width: 580px; font-size: 18px; color: #b7aea4; line-height: 1.65; margin-bottom: 30px; }
-  .landing-hero-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(76px, 10.2vw, 148px); line-height: .84; letter-spacing: 0.035em; color: #f5f1ea; max-width: 760px; text-shadow: 0 12px 38px rgba(0,0,0,0.40); }
-  .landing-hero-content { padding: 42px 20px 36px 28px; }
+  .landing-hero-copy { max-width: 720px; font-size: 19px; color: #b7aea4; line-height: 1.65; margin: 0 auto 32px; }
+  .landing-hero-title { font-family: 'Oswald', sans-serif; font-size: clamp(76px, 11vw, 170px); line-height: .86; letter-spacing: 0.04em; color: #f5f1ea; max-width: 900px; text-shadow: 0 16px 42px rgba(0,0,0,0.42); text-transform: uppercase; margin: 0 auto; }
+  .landing-hero-content { padding: 0 20px; text-align: center; }
   .landing-cook-card { height: 240px; }
-  .landing-hero-shell { position: relative; background: radial-gradient(circle at top right, rgba(229,57,53,0.18), transparent 26%), linear-gradient(180deg, #141414, #090909 72%); border: 1px solid #2b2b2b; border-radius: 18px; box-shadow: 0 28px 78px rgba(0,0,0,0.38); overflow: hidden; isolation:isolate; }
+  .landing-hero-shell { position: relative; min-height: calc(100svh - 76px); background: #090909; overflow: hidden; isolation:isolate; display:flex; align-items:center; justify-content:center; padding: 110px 24px 120px; }
   .landing-hero-shell::before { content: ""; position: absolute; inset: 0; background: linear-gradient(120deg, transparent 0%, rgba(229,57,53,0.05) 46%, transparent 100%); mix-blend-mode: screen; animation: emberSweep 6s ease-in-out infinite alternate; pointer-events: none; }
-  .landing-hero-shell::after { content:""; position:absolute; inset:0; background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.035) 1px, transparent 0); background-size: 24px 24px; opacity:.18; pointer-events:none; }
-  .landing-poster-frame { position: relative; min-height: 620px; border-radius: 16px; overflow: hidden; border: 1px solid #2b2b2b; background: #080808; box-shadow: 0 20px 44px rgba(0,0,0,0.28); }
-  .landing-poster-overlay { position:absolute; inset:0; background: linear-gradient(180deg, rgba(9,9,9,0.08), rgba(9,9,9,0.34) 38%, rgba(9,9,9,0.92) 100%), linear-gradient(90deg, rgba(9,9,9,0.04), rgba(9,9,9,0.44) 55%, rgba(9,9,9,0.92)); }
-  .landing-poster-copy { position:absolute; left:24px; right:24px; bottom:24px; display:grid; gap:14px; }
-  .landing-hero-rail { display:grid; gap:12px; }
-  .landing-stat-rail { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:14px; }
-  .landing-hero-stage { position:relative; padding: 18px 18px 16px; }
-  .landing-hero-stage::before { content:""; position:absolute; inset:18px auto auto 18px; width:72px; height:1px; background:linear-gradient(90deg, rgba(245,241,234,.55), transparent); }
-  .landing-hero-stage::after { content:""; position:absolute; right:18px; bottom:18px; width:110px; height:110px; border-radius:50%; background: radial-gradient(circle, rgba(249,115,22,.14), transparent 68%); pointer-events:none; }
+  .landing-hero-shell::after { content:""; position:absolute; inset:0; background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.028) 1px, transparent 0); background-size: 24px 24px; opacity:.14; pointer-events:none; }
+  .pitmaster-hero-image { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter: saturate(.86) contrast(1.08) brightness(.62); }
+  .pitmaster-hero-overlay { position:absolute; inset:0; background: linear-gradient(180deg, rgba(0,0,0,0.34) 0%, rgba(9,9,9,0.66) 52%, rgba(9,9,9,0.98) 100%); }
+  .landing-hero-inner { position:relative; z-index:1; width:min(100%, 1180px); margin:0 auto; display:grid; gap:34px; }
+  .landing-hero-copy-wrap { display:grid; gap:18px; justify-items:center; }
+  .hero-highlight { -webkit-text-stroke: 1px #f5f1ea; color: transparent; }
+  .landing-hero-strap { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+  .landing-hero-preview { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:16px; margin-top: 8px; }
+  .landing-preview-card { background: linear-gradient(180deg, rgba(22,22,22,0.88), rgba(12,12,12,0.94)); border:1px solid #2b2b2b; border-radius:14px; padding:18px 18px 16px; box-shadow: 0 16px 34px rgba(0,0,0,0.24); backdrop-filter: blur(12px); }
+  .landing-preview-wide { grid-column: span 3; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+  .landing-benefit-grid { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap:18px; }
+  .feature-slab { background: linear-gradient(180deg, #1a1a1a, #161616); border:1px solid #2b2b2b; border-left:4px solid #c62828; border-radius: 14px; padding: 24px; box-shadow: 0 14px 28px rgba(0,0,0,0.20); transition: transform 180ms ease, background 180ms ease, border-color 180ms ease, box-shadow 180ms ease; }
+  .feature-slab:hover { transform: translateY(-2px); background: linear-gradient(180deg, #1f1f1f, #1b1b1b); border-color: #3a3a3a; box-shadow: 0 18px 34px rgba(0,0,0,0.24); }
   .landing-benefit-grid { display:grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap:18px; }
   /* PATCH: cartes plus denses, moins template, avec vraie matière sombre */
   .premium-card { background: linear-gradient(180deg, #1a1a1a, #161616); border: 1px solid #2b2b2b; border-radius: 14px; box-shadow: 0 14px 30px rgba(0,0,0,0.22); position: relative; overflow: hidden; transition: background 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease; }
@@ -57,26 +61,24 @@ const css = `
   .lift { transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease; }
   .lift:hover { transform: translateY(-2px); border-color: #3a3a3a !important; box-shadow: 0 18px 34px rgba(0,0,0,0.24); }
   @media (max-width: 1080px) {
-    .hero-grid, .feature-grid, .material-grid, .landing-split, .landing-footer-grid, .landing-benefit-grid { grid-template-columns: 1fr; }
+    .hero-grid, .feature-grid, .material-grid, .landing-split, .landing-footer-grid, .landing-benefit-grid, .landing-hero-preview { grid-template-columns: 1fr; }
     .guide-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .hero-media { min-height: 440px; }
-    .landing-stat-rail { grid-template-columns: 1fr; }
+    .landing-preview-wide { grid-column: auto; align-items:flex-start; }
   }
   @media (max-width: 720px) {
     .link-grid, .guide-strip { grid-template-columns: 1fr; }
     .landing-topnav { gap: 10px; justify-content: flex-end; }
     .landing-topnav > button:not(.landing-cta) { display:none; }
     .landing-brand-sub { display:none; }
-    .landing-shell-pad { padding: 20px 16px 52px; }
+    .landing-shell-pad { padding: 0 0 54px; }
     .landing-section { padding: 0 16px 54px; }
     .landing-section-tight { padding: 0 16px 40px; }
-    .hero-media, .landing-poster-frame { min-height: 360px; }
-    .landing-hero-content { padding: 24px 8px 18px 8px; }
-    .landing-hero-title { font-size: 72px; line-height: .9; }
+    .landing-hero-shell { min-height: calc(100svh - 76px); padding: 96px 16px 92px; }
+    .landing-hero-content { padding: 0; }
+    .landing-hero-title { font-size: 82px; line-height: .88; }
     .landing-hero-copy { font-size: 15px; line-height: 1.6; margin-bottom: 24px; }
     .landing-cook-card { height: 210px; }
-    .landing-poster-copy { left: 14px; right: 14px; bottom: 14px; }
-    .landing-hero-stage { padding: 16px 14px 14px; }
+    .landing-preview-card { padding: 16px; }
   }
 `
 
@@ -264,110 +266,73 @@ export default function Landing() {
       </header>
 
       <section className="landing-shell-pad">
-        {/* PATCH: hero transformé en vraie affiche premium, moins app générique et plus univers pitmaster */}
-        <div className="pm-shell landing-hero-shell landing-hero-stage">
-          <div className="hero-glow" style={{ position: 'absolute', right: -80, top: -60, width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(circle, rgba(229,57,53,0.30), transparent 68%)', pointerEvents: 'none' }} />
-          <div className="hero-grid" style={{ position: 'relative', zIndex: 1 }}>
-            <div className="landing-hero-content">
-              <div className="hero-item pm-kicker" style={{ marginBottom: 18 }}>charbon · acier noirci · feu maîtrisé</div>
-              <div className="hero-item" style={{ marginBottom: 14 }}>
+        {/* PATCH: hero recadré comme une vraie affiche pitmaster plein cadre, inspirée du moodboard fourni */}
+        <div className="landing-hero-shell">
+          <img
+            src={heroVisual}
+            alt="Fumoir en action"
+            className="pitmaster-hero-image"
+            onError={() => {
+              if (heroVisual !== HERO_IMAGE) {
+                setHeroVisual(HERO_IMAGE)
+                return
+              }
+              if (heroVisual !== SMOKE_IMAGE) {
+                setHeroVisual(SMOKE_IMAGE)
+              }
+            }}
+          />
+          <div className="pitmaster-hero-overlay" />
+          <div className="hero-glow" style={{ position: 'absolute', right: -80, top: -60, width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(circle, rgba(229,57,53,0.26), transparent 68%)', pointerEvents: 'none' }} />
+
+          <div className="landing-hero-inner">
+            <div className="landing-hero-content landing-hero-copy-wrap">
+              <div className="hero-item pm-kicker">charbon · braise · service à l’heure</div>
+              <div className="hero-item">
                 <h1 className="landing-hero-title">
                   À QUELLE HEURE
                   <br />
                   LANCER TA
                   <br />
-                  <span style={{ color: 'var(--ember)' }}>CUISSON BBQ ?</span>
+                  <span className="hero-highlight">CUISSON BBQ</span>
                 </h1>
               </div>
               <p className="hero-item landing-hero-copy">
-                Brisket, ribs, pulled pork, paleron. Tu choisis la pièce, le poids et l’heure de service. Charbon &amp; Flamme te donne quand allumer le fumoir, quand poser la viande et comment rester large jusqu’au service.
+                Brisket, ribs, pulled pork ou paleron. Tu choisis la pièce, le poids et l’heure de service. On te dit quand allumer le fumoir pour servir au bon moment, sans deviner.
               </p>
-              <div className="hero-item" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 20 }}>
-                <button onClick={() => openCalculator()} className="pm-btn-primary" style={{ width: 'auto', minWidth: 240 }}>
+              <div className="hero-item" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
+                <button onClick={() => openCalculator()} className="pm-btn-primary" style={{ width: 'auto', minWidth: 250 }}>
                   Calculer ma cuisson
                 </button>
                 <button onClick={() => scrollToSection('comment-ca-marche')} className="pm-btn-secondary" style={{ width: 'auto' }}>
-                  Voir comment ça marche
+                  Voir le principe
                 </button>
               </div>
-              <div className="hero-item" style={{ display:'flex', gap:10, flexWrap:'wrap', marginBottom: 20 }}>
-                {['À quelle heure lancer ?', 'Quand wrapper ?', 'Peut-on dormir tranquille ?'].map((item) => (
+              <div className="hero-item landing-hero-strap">
+                {['À quelle heure lancer ?', 'Quand wrapper ?', 'Combien de repos prévoir ?'].map((item) => (
                   <span key={item} className="landing-fire-chip">{item}</span>
-                ))}
-              </div>
-              <div className="landing-steel-rule hero-item" style={{ marginBottom: 18 }} />
-              <div className="hero-item landing-benefit-grid" style={{ marginTop: 8 }}>
-                {BENEFITS.map(({ title, copy }) => (
-                  <div key={title} style={{ display: 'grid', gap: 8 }}>
-                  <div style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: 20, fontWeight: 700, color: '#f5f1ea', letterSpacing: '.02em' }}>{title}</div>
-                    <p style={{ fontSize: 14, color: '#b7aea4', lineHeight: 1.6 }}>{copy}</p>
-                  </div>
                 ))}
               </div>
             </div>
 
-            <div style={{ padding: 8 }}>
-              <div className="landing-poster-frame hero-panel">
-                <img
-                  src={heroVisual}
-                  alt="Fumoir en action"
-                  onError={() => {
-                    if (heroVisual !== HERO_IMAGE) {
-                      setHeroVisual(HERO_IMAGE)
-                      return
-                    }
-                    if (heroVisual !== SMOKE_IMAGE) {
-                      setHeroVisual(SMOKE_IMAGE)
-                    }
-                  }}
-                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'saturate(.92) contrast(1.06)' }}
-                />
-                <div className="landing-poster-overlay" />
-                <div style={{ position: 'absolute', top: 20, left: 20, right: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div className="pm-kicker">service sous contrôle</div>
-                  <div style={{ display: 'inline-flex', gap: 6 }}>
-                    {[0, 1, 2].map((dot) => (
-                      <span key={dot} style={{ width: 8, height: 8, borderRadius: '50%', background: dot === 0 ? 'var(--orange)' : 'rgba(255,255,255,0.34)' }} />
-                    ))}
+            <div className="landing-hero-preview">
+              {HERO_METRICS.map(([label, value]) => (
+                <div key={label} className="landing-preview-card hero-item">
+                  <div className="pm-eyebrow" style={{ color: 'rgba(245,241,234,0.58)', marginBottom: 10 }}>{label}</div>
+                  <div style={{ fontFamily: 'Oswald, sans-serif', fontSize: 34, lineHeight: .95, letterSpacing: '.04em', color: '#f5f1ea' }}>{value}</div>
+                </div>
+              ))}
+              <div className="landing-preview-card landing-preview-wide hero-item">
+                <div style={{ display:'grid', gap: 8 }}>
+                  <div className="pm-eyebrow" style={{ color: 'rgba(245,241,234,0.58)' }}>exemple de service</div>
+                  <div style={{ fontFamily: 'Oswald, sans-serif', fontSize: 'clamp(34px, 4.5vw, 60px)', lineHeight: .92, letterSpacing: '.04em', color: '#f5f1ea', textTransform: 'uppercase' }}>
+                    Brisket prête pour 19h
                   </div>
                 </div>
-                <div className="landing-poster-copy">
-                  <div style={{ display:'grid', gap: 8 }}>
-                    <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.60)' }}>exemple de service</div>
-                    <div style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: 'clamp(48px, 8vw, 84px)', lineHeight: .9, letterSpacing: '.04em', color: '#fff5eb' }}>
-                      BRISKET
-                      <br />
-                      PRÊTE POUR 19H
-                    </div>
-                  </div>
-                  <div className="landing-stat-rail">
-                    {HERO_METRICS.map(([label, value]) => (
-                      <div key={label} className="landing-metal-card" style={{ padding: '16px 18px', background: 'rgba(17,17,17,0.70)', backdropFilter: 'blur(12px)' }}>
-                        <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.56)', marginBottom: 8 }}>{label}</div>
-                        <div style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: 28, fontWeight: 700, color: '#fff5eb', letterSpacing: '.02em' }}>{value}</div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="landing-hero-rail">
-                    <div className="landing-metal-card" style={{ padding: '16px 18px', background: 'rgba(17,17,17,0.76)', backdropFilter: 'blur(14px)' }}>
-                      <div className="pm-eyebrow" style={{ color: 'rgba(255,245,235,0.56)', marginBottom: 8 }}>repères pitmaster</div>
-                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                        {['Stall 65–75°C', 'Wrap 70–75°C', 'Tests dès 90°C'].map((item) => (
-                          <span key={item} style={{ padding: '7px 11px', borderRadius: 999, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,245,235,0.82)', fontSize: 11, fontWeight: 700 }}>
-                            {item}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-                      <div style={{ color: '#b7aea4', fontSize: 14, maxWidth: 320, lineHeight: 1.6 }}>
-                        Plus besoin de deviner si tu dois te lever à 4h ou si ta viande sortira trop tard.
-                      </div>
-                      <button onClick={() => openCalculator()} className="pm-btn-primary" style={{ width: 'auto', minWidth: 200 }}>
-                        Lancer maintenant
-                      </button>
-                    </div>
-                  </div>
+                <div style={{ display:'flex', gap:8, flexWrap:'wrap', justifyContent:'flex-end' }}>
+                  {['Stall 65–75°C', 'Wrap 70–75°C', 'Tests dès 90°C'].map((item) => (
+                    <span key={item} className="landing-fire-chip">{item}</span>
+                  ))}
                 </div>
               </div>
             </div>
@@ -424,7 +389,7 @@ export default function Landing() {
                 ['Tu prévois le repos', <GaugeIcon key="gauge" />],
                 ['Tu retrouves tes cuissons', <SaveIcon key="save" />],
               ].map(([label, icon]) => (
-                <div key={label} className="landing-metal-card lift" style={{ padding: 22 }}>
+                <div key={label} className="feature-slab" style={{ padding: 22 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                     <IconFrame>{icon}</IconFrame>
                     <div style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: 21, fontWeight: 700, color: 'var(--text)', letterSpacing: '.02em' }}>{label}</div>
@@ -512,7 +477,7 @@ export default function Landing() {
               ['02', 'Entre ton poids et ton heure', 'Tu donnes le poids, la méthode et l’heure à laquelle tu veux servir.'],
               ['03', 'Reçois ton plan', 'Le site te donne l’heure de départ, la fenêtre de service et les repères utiles.'],
             ].map(([step, title, copy]) => (
-              <div key={title} className="landing-metal-card lift" style={{ padding: 22 }}>
+              <div key={title} className="feature-slab" style={{ padding: 22 }}>
                 <div style={{ display: 'inline-flex', marginBottom: 12, padding: '6px 10px', borderRadius: 10, background: 'var(--orange-bg)', border: '1px solid var(--orange-border)', color: 'var(--orange)', fontSize: 11, fontWeight: 800 }}>
                   {step}
                 </div>
