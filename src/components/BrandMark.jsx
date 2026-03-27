@@ -1,80 +1,75 @@
-// PATCH: emblème de marque refait plus radicalement pour lire "barbecue" au premier regard
+// PATCH: emblème de marque refait en badge BBQ beaucoup plus distinct, pour casser totalement l'ancien rendu
 export default function BrandMark({ size = 42, compact = false }) {
-  const radius = Math.max(12, Math.round(size * 0.3))
-
   return (
     <div
       style={{
         width: size,
         height: size,
-        borderRadius: radius,
         display: 'grid',
         placeItems: 'center',
-        background: 'radial-gradient(circle at 50% 0%, rgba(255,255,255,0.04), transparent 40%), linear-gradient(180deg, #202020, #0f0f0f)',
-        border: '1px solid rgba(255,255,255,0.08)',
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -16px 28px rgba(0,0,0,0.24), 0 12px 24px rgba(0,0,0,0.22)',
         position: 'relative',
-        overflow: 'hidden',
         flexShrink: 0,
       }}
       aria-hidden="true"
     >
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background:
-            'radial-gradient(circle at 68% 28%, rgba(249,115,22,0.22), transparent 20%), linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0))',
-          pointerEvents: 'none',
-        }}
-      />
       <svg
-        width={Math.round(size * 0.74)}
-        height={Math.round(size * 0.74)}
-        viewBox="0 0 56 56"
+        width={size}
+        height={size}
+        viewBox="0 0 64 64"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
         <path
-          d="M10 32.5C10 30.6 11.6 29 13.5 29H42.5C44.4 29 46 30.6 46 32.5C46 34.4 44.4 36 42.5 36H13.5C11.6 36 10 34.4 10 32.5Z"
+          d="M32 4L53.5 13.5V33.5C53.5 45 44.6 54.8 32 60C19.4 54.8 10.5 45 10.5 33.5V13.5L32 4Z"
+          fill="url(#badge)"
+        />
+        <path
+          d="M32 6.8L51 15.2V33.1C51 43.1 43.3 51.9 32 56.8C20.7 51.9 13 43.1 13 33.1V15.2L32 6.8Z"
+          stroke="rgba(255,255,255,0.14)"
+          strokeWidth="1.4"
+        />
+        <path
+          d="M17 37.5C17 35.8 18.3 34.5 20 34.5H44C45.7 34.5 47 35.8 47 37.5C47 39.2 45.7 40.5 44 40.5H20C18.3 40.5 17 39.2 17 37.5Z"
           fill="url(#grill)"
         />
-        <path d="M16 40.5H40" stroke="#8C8C8C" strokeWidth="2.4" strokeLinecap="round" />
-        <path d="M18.5 27.5L15.2 41.8" stroke="#767676" strokeWidth="2.2" strokeLinecap="round" />
-        <path d="M37.5 27.5L40.8 41.8" stroke="#767676" strokeWidth="2.2" strokeLinecap="round" />
-        {!compact && (
-          <>
-            <path d="M20 28.8L18.4 36" stroke="rgba(255,255,255,0.14)" strokeWidth="1" strokeLinecap="round" />
-            <path d="M28 28.8L28 36" stroke="rgba(255,255,255,0.14)" strokeWidth="1" strokeLinecap="round" />
-            <path d="M36 28.8L37.6 36" stroke="rgba(255,255,255,0.14)" strokeWidth="1" strokeLinecap="round" />
-          </>
-        )}
+        <path d="M21 44.5H43" stroke="url(#steelLine)" strokeWidth="2.5" strokeLinecap="round" />
+        <path d="M23.5 32.6L20 45.6" stroke="#7B7B7B" strokeWidth="2.1" strokeLinecap="round" />
+        <path d="M32 32.4V45.4" stroke="#8E8E8E" strokeWidth="1.9" strokeLinecap="round" opacity={compact ? 0.55 : 0.92} />
+        <path d="M40.5 32.6L44 45.6" stroke="#7B7B7B" strokeWidth="2.1" strokeLinecap="round" />
         <path
-          d="M29.8 6C30.9 11.5 27.4 15 24.7 17.9C22.2 20.4 20.4 22.8 20.4 26.1C20.4 29.7 23.1 32.1 26.3 32.1C30.5 32.1 33.5 28.8 33.5 24.4C33.5 22 32.7 20.1 31.6 17.8C35.8 19.8 40.8 24.6 40.8 31.8C40.8 39.8 34.8 45.8 26.2 45.8C18.1 45.8 11.7 39.8 11.7 32.2C11.7 24.9 16 20.4 19.8 16.5C23.3 12.9 26.3 9.8 27.2 4.8L29.8 6Z"
+          d="M34.7 10.3C35.8 15.5 32.4 18.7 29.8 21.3C27.5 23.6 25.8 25.7 25.8 28.7C25.8 32 28.2 34.2 31.2 34.2C35.1 34.2 37.9 31.1 37.9 27.1C37.9 24.9 37.2 23.2 36.2 21.1C40 22.9 44.5 27.4 44.5 34C44.5 41.3 39 46.8 31.2 46.8C23.8 46.8 18 41.3 18 34.3C18 27.6 22 23.5 25.5 19.9C28.7 16.6 31.4 13.8 32.3 9.2L34.7 10.3Z"
           fill="url(#ember)"
         />
         <path
-          d="M26.8 18.8C27.3 21.3 25.7 23 24.3 24.4C23 25.8 22 27.1 22 29C22 31.1 23.5 32.6 25.5 32.6C28.1 32.6 30 30.5 30 27.7C30 26.3 29.5 25.1 28.9 23.7C31.4 25 34.2 28 34.2 32C34.2 36.5 30.9 39.8 26.2 39.8C21.8 39.8 18.5 36.6 18.5 32.5C18.5 28.5 20.9 25.9 22.9 23.8C24.8 21.9 26.3 20.2 26.7 17.2L26.8 18.8Z"
+          d="M31.8 21.4C32.3 23.7 30.9 25.3 29.6 26.6C28.5 27.8 27.6 29 27.6 30.7C27.6 32.6 29 34 30.8 34C33.2 34 34.9 32 34.9 29.5C34.9 28.2 34.5 27.1 33.9 25.8C36.2 27 38.8 29.8 38.8 33.5C38.8 37.7 35.7 40.7 31.3 40.7C27.2 40.7 24.1 37.8 24.1 34C24.1 30.3 26.3 27.8 28.2 25.9C29.9 24.1 31.3 22.6 31.7 19.8L31.8 21.4Z"
           fill="url(#core)"
         />
         <path
-          d="M41.7 9.2L43.6 13.8L48.2 15.7L43.6 17.6L41.7 22.2L39.8 17.6L35.2 15.7L39.8 13.8L41.7 9.2Z"
+          d="M45.6 12L47.1 15.7L50.8 17.2L47.1 18.7L45.6 22.4L44.1 18.7L40.4 17.2L44.1 15.7L45.6 12Z"
           fill="#FDBA74"
           opacity={compact ? 0.85 : 1}
         />
         <defs>
-          <linearGradient id="ember" x1="26.25" y1="4.8" x2="26.25" y2="45.8" gradientUnits="userSpaceOnUse">
+          <linearGradient id="badge" x1="32" y1="4" x2="32" y2="60" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#262626" />
+            <stop offset="1" stopColor="#0F0F0F" />
+          </linearGradient>
+          <linearGradient id="ember" x1="31.25" y1="9.2" x2="31.25" y2="46.8" gradientUnits="userSpaceOnUse">
             <stop stopColor="#FF7A36" />
             <stop offset="0.48" stopColor="#E53935" />
             <stop offset="1" stopColor="#9A1B1B" />
           </linearGradient>
-          <linearGradient id="core" x1="26.35" y1="17.2" x2="26.35" y2="39.8" gradientUnits="userSpaceOnUse">
+          <linearGradient id="core" x1="31.45" y1="19.8" x2="31.45" y2="40.7" gradientUnits="userSpaceOnUse">
             <stop stopColor="#FFD39A" />
             <stop offset="1" stopColor="#F97316" />
           </linearGradient>
-          <linearGradient id="grill" x1="28" y1="29" x2="28" y2="36" gradientUnits="userSpaceOnUse">
+          <linearGradient id="grill" x1="32" y1="34.5" x2="32" y2="40.5" gradientUnits="userSpaceOnUse">
             <stop stopColor="#D5D5D5" />
             <stop offset="1" stopColor="#717171" />
+          </linearGradient>
+          <linearGradient id="steelLine" x1="32" y1="44.5" x2="32" y2="44.5" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#D0D0D0" />
+            <stop offset="1" stopColor="#767676" />
           </linearGradient>
         </defs>
       </svg>
