@@ -3,7 +3,8 @@
  *
  * PATCH: refonte complète du moteur autour d'une logique pitmaster-first.
  * - base majoritairement issue des repères terrain
- * - méthodes low & slow / hot & fast / texas crutch
+ * - méthodes low & slow / hot & fast
+ * - wrap intégré comme variante du low & slow, pas comme 3e méthode visible
  * - pas de moteur pseudo-scientifique accumulatif
  * - front alimenté par :
  *   - heure de départ
@@ -635,14 +636,12 @@ const PITMASTER_PROFILES = {
 const METHOD_LABELS = {
   low_and_slow: 'Low & Slow',
   hot_and_fast: 'Hot & Fast',
-  texas_crutch: 'Texas Crutch',
 }
 
-// PATCH: export léger pour brancher le front sur les vraies méthodes du moteur
+// PATCH: seules les méthodes lisibles par un utilisateur restent visibles dans le front
 export const COOKING_METHODS = [
-  { id: 'low_and_slow', label: METHOD_LABELS.low_and_slow, short: 'Cuisson lente, bark posée, logique classique.' },
+  { id: 'low_and_slow', label: METHOD_LABELS.low_and_slow, short: 'Cuisson lente, bark propre, wrap possible si tu veux raccourcir la fin.' },
   { id: 'hot_and_fast', label: METHOD_LABELS.hot_and_fast, short: 'Plus direct, plus rapide, très utile sur volaille et grosses sessions.' },
-  { id: 'texas_crutch', label: METHOD_LABELS.texas_crutch, short: 'Wrap en cours de cuisson pour raccourcir le stall et lisser la fin.' },
 ]
 
 const KEY_ALIASES = {
@@ -706,11 +705,25 @@ export function getMethodConfig(meatKey, method = null) {
   }
 }
 
-function inferMethod({ method = null, smokerTempC = 110, wrapType = 'none' } = {}) {
+function inferMethod({ method = null, smokerTempC = 110 } = {}) {
+  if (method === 'texas_crutch') return 'low_and_slow'
   if (method && METHOD_LABELS[method]) return method
-  if (wrapType && wrapType !== 'none') return 'texas_crutch'
   if (toFiniteNumber(smokerTempC, 110) >= 130) return 'hot_and_fast'
   return 'low_and_slow'
+}
+
+// PATCH: le wrap vit dans le low & slow; on réutilise les profils texas crutch seulement comme métadonnées de gain
+function getWrapPlan(profile, method, wrapType, lambLegStyle = 'medium') {
+  const wrapActive = method === 'low_and_slow' && wrapType !== 'none' && !(profile.id === 'lamb_leg' && lambLegStyle === 'medium')
+  if (!wrapActive) return { active: false, fixedTotalMinutes: null, wrapTemp: null, wrapTimeSavedPercent: 0 }
+
+  const crutchProfile = profile.methods.find((entry) => entry.method === 'texas_crutch')
+  return {
+    active: true,
+    fixedTotalMinutes: crutchProfile?.fixedTotalMinutes || null,
+    wrapTemp: crutchProfile?.wrapTemp ?? profile.temperatureCues.wrapRangeC?.[0] ?? null,
+    wrapTimeSavedPercent: crutchProfile?.wrapTimeSavedPercent ?? 25,
+  }
 }
 
 function inferThicknessClass(thicknessCm, meatKey, weightKg) {
@@ -750,10 +763,12 @@ function getAdjustedMinutesPerKg(methodProfile, smokerTempC) {
   return methodProfile.minutesPerKg[1] + (methodProfile.minutesPerKg[0] - methodProfile.minutesPerKg[1]) * curved
 }
 
-function getCookMinutes(profile, methodProfile, weightKg, smokerTempC, lambLegStyle = 'medium') {
+function getCookMinutes(profile, methodProfile, weightKg, smokerTempC, lambLegStyle = 'medium', wrapPlan = { active: false }) {
   let cookMinutes
 
-  if (methodProfile.fixedTotalMinutes) {
+  if (wrapPlan.active && wrapPlan.fixedTotalMinutes) {
+    cookMinutes = avg(wrapPlan.fixedTotalMinutes[0], wrapPlan.fixedTotalMinutes[1])
+  } else if (methodProfile.fixedTotalMinutes) {
     cookMinutes = avg(methodProfile.fixedTotalMinutes[0], methodProfile.fixedTotalMinutes[1])
   } else {
     const adjustedMinPerKg = getAdjustedMinutesPerKg(methodProfile, smokerTempC)
@@ -770,13 +785,20 @@ function getCookMinutes(profile, methodProfile, weightKg, smokerTempC, lambLegSt
     cookMinutes *= 1.45
   }
 
+  // PATCH: le wrap raccourcit seulement la partie post-stall, pas toute la cuisson
+  if (wrapPlan.active && !wrapPlan.fixedTotalMinutes) {
+    const materialFactor = wrapPlan.wrapType === 'foil' ? 1.0 : wrapPlan.wrapType === 'foil_boat' ? 0.85 : 0.72
+    const totalReduction = clamp((wrapPlan.wrapTimeSavedPercent / 100) * 0.45 * materialFactor, 0.05, 0.18)
+    cookMinutes *= (1 - totalReduction)
+  }
+
   return cookMinutes
 }
 
 function buildCues(profile, methodProfile, wrapType, options = {}) {
   const temperatureCues = profile.temperatureCues
-  const wrapRangeC = methodProfile.wrapTemp
-    ? [Math.max(methodProfile.wrapTemp - 3, 0), methodProfile.wrapTemp + 3]
+  const wrapRangeC = (options.wrapTemp ?? methodProfile.wrapTemp)
+    ? [Math.max((options.wrapTemp ?? methodProfile.wrapTemp) - 3, 0), (options.wrapTemp ?? methodProfile.wrapTemp) + 3]
     : temperatureCues.wrapRangeC
   const lambLegStyle = options.lambLegStyle || 'medium'
 
@@ -833,7 +855,7 @@ function buildCues(profile, methodProfile, wrapType, options = {}) {
   return {
     style: 'temperature_and_visual',
     stallRange: formatRange(temperatureCues.stallRangeC),
-    wrapRange: wrapType !== 'none' || methodProfile.wrapTemp ? formatRange(wrapRangeC) : formatRange(temperatureCues.wrapRangeC),
+    wrapRange: wrapType !== 'none' || options.wrapTemp || methodProfile.wrapTemp ? formatRange(wrapRangeC) : formatRange(temperatureCues.wrapRangeC),
     probeStart: formatSingleOrRange(temperatureCues.probeStartC),
     probeTenderRange: formatSingleOrRange(temperatureCues.probeTenderRangeC),
     restRange: formatRange(temperatureCues.restMinutes, ' min'),
@@ -876,9 +898,10 @@ export function calculateLowSlow(meatKey, weightKg, options = {}, approvedAdjust
   const lambLegStyle = options.lambLegStyle || 'medium'
   const method = inferMethod({ method: options.method, smokerTempC, wrapType })
   const methodProfile = getMethodProfile(profile, method)
+  const wrapPlan = getWrapPlan(profile, method, wrapType, lambLegStyle)
   const thicknessClass = inferThicknessClass(parseNumericInput(options.thicknessCm, null), meatKey, safeWeightKg)
   const smokerAdjustment = BASE_COEFFS.smoker[smokerType] ?? 1.0
-  const wrapAdjustment = BASE_COEFFS.wrap[wrapType] ?? 1.0
+  const wrapAdjustment = wrapPlan.active ? (BASE_COEFFS.wrap[wrapType] ?? 1.0) : 1.0
   const tempAdjustment = getTempAdjustment(smokerTempC)
   const thicknessAdjustment = getThicknessAdjustment(thicknessClass)
   const marblingAdjustment = BASE_COEFFS.marbling[marbling] ?? 1.0
@@ -887,7 +910,7 @@ export function calculateLowSlow(meatKey, weightKg, options = {}, approvedAdjust
 
   // PATCH: ajustement global faible et strictement plafonné
   const totalAdjustment = clamp(smokerAdjustment * wrapAdjustment * tempAdjustment * thicknessAdjustment * marblingAdjustment * adjustmentHook, 0.82, 1.18)
-  const baseCookMinutes = getCookMinutes(profile, methodProfile, safeWeightKg, smokerTempC, lambLegStyle)
+  const baseCookMinutes = getCookMinutes(profile, methodProfile, safeWeightKg, smokerTempC, lambLegStyle, { ...wrapPlan, wrapType })
   const cookMin = normalizeDuration(baseCookMinutes * totalAdjustment, baseCookMinutes, 1)
 
   const restMin = normalizeDuration(avg(...methodProfile.restMinutes), 0, 5)
@@ -900,16 +923,16 @@ export function calculateLowSlow(meatKey, weightKg, options = {}, approvedAdjust
   const prudentMin = normalizeDuration(preheatMin + (cookMin + variabilityCookMin) + restMin + bufferMin, totalMin, optimisticMin)
 
   const stallRangeC = methodProfile.stallRange || profile.temperatureCues.stallRangeC || null
-  const wrapRangeC = methodProfile.wrapTemp ? [Math.max(methodProfile.wrapTemp - 3, 0), methodProfile.wrapTemp + 3] : profile.temperatureCues.wrapRangeC || null
+  const wrapRangeC = wrapPlan.wrapTemp ? [Math.max(wrapPlan.wrapTemp - 3, 0), wrapPlan.wrapTemp + 3] : profile.temperatureCues.wrapRangeC || null
   const probeStartC = profile.id === 'lamb_leg' && lambLegStyle === 'medium' ? 55 : profile.temperatureCues.probeStartC ?? null
   const probeTenderRangeC = profile.id === 'lamb_leg' && lambLegStyle === 'medium' ? [57, 63] : profile.temperatureCues.probeTenderRangeC ?? null
 
   // PATCH: phases internes conservées uniquement pour la logique session/recalibration
   const phaseRatios = isRibsCook(meatKey)
-    ? method === 'texas_crutch'
+    ? wrapPlan.active
       ? [0.45, 0.35, 0.20]
       : [0.55, 0.15, 0.30]
-    : method === 'texas_crutch'
+    : wrapPlan.active
       ? [0.42, 0.10, 0.48]
       : method === 'hot_and_fast'
         ? [0.48, 0.12, 0.40]
@@ -919,7 +942,7 @@ export function calculateLowSlow(meatKey, weightKg, options = {}, approvedAdjust
   const stallMin = normalizeDuration(cookMin * phaseRatios[1], 0, isRibsCook(meatKey) ? 0 : 0)
   const phase3Min = Math.max(cookMin - phase1Min - stallMin, 1)
 
-  const cues = buildCues(profile, methodProfile, wrapType, { lambLegStyle })
+  const cues = buildCues(profile, methodProfile, wrapType, { lambLegStyle, wrapTemp: wrapPlan.wrapTemp })
   const targetTemp = profile.id === 'lamb_leg'
     ? (lambLegStyle === 'pulled' ? 96 : 63)
     : profile.tempTarget ?? null
@@ -929,6 +952,7 @@ export function calculateLowSlow(meatKey, weightKg, options = {}, approvedAdjust
     meatLabel: profile.label,
     method,
     methodLabel: METHOD_LABELS[method],
+    methodVariantLabel: wrapPlan.active ? 'Low & Slow + Wrap' : METHOD_LABELS[method],
     methodProfile,
     weightKg: safeWeightKg,
     thicknessCm,
@@ -939,7 +963,7 @@ export function calculateLowSlow(meatKey, weightKg, options = {}, approvedAdjust
     lambLegStyle,
     targetTempC: targetTemp,
     targetC: targetTemp,
-    wrapTempC: methodProfile.wrapTemp ?? null,
+    wrapTempC: wrapPlan.wrapTemp ?? null,
     stallStartC: stallRangeC?.[0] ?? null,
     preheatMin,
     cookMin,
@@ -987,7 +1011,7 @@ export function buildTimeline(calc, smokerTempC) {
 
   if (isRibsCook(calc.meatKey)) {
     // PATCH: méthodes ribs fixes = roadmap 3-2-1 / 2-2-1 explicite
-    if (calc.method === 'texas_crutch') {
+    if (calc.method === 'low_and_slow' && calc.wrapType !== 'none') {
       const phase1 = calc.meatKey === 'ribs_pork' ? 180 : 120
       const phase2 = 120
       const phase3 = 60
@@ -1108,7 +1132,7 @@ export function buildTimeline(calc, smokerTempC) {
     })
   }
 
-  if (calc.wrapType !== 'none' || calc.wrapTempC) {
+  if (calc.method === 'low_and_slow' && (calc.wrapType !== 'none' || calc.wrapTempC)) {
     steps.push({
       id: 'wrap',
       label: calc.meatKey === 'paleron' ? 'Wrap / finition couverte' : 'Wrap (emballage)',

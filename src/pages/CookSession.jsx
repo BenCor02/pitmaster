@@ -60,7 +60,7 @@ function clearPendingSession() {
 // Format : titre simple > sous-titre pitmaster > explication accessible > action concrète
 function buildCheckpoints(schedule) {
   const hasStallCue = Boolean(schedule.cues?.stallRange)
-  const hasWrapCue = Boolean(schedule.cues?.wrapRange) || schedule.method === 'texas_crutch'
+  const hasWrapCue = Boolean(schedule.cues?.wrapRange) || schedule.wrapType !== 'none'
   const isPoultry = schedule.meatKey === 'whole_chicken' || schedule.meatKey === 'chicken_pieces'
   const isLeg = schedule.meatKey === 'lamb_leg'
   // PATCH: flow spécifique ribs = repères visuels et mécaniques, pas probe tender centré sonde
@@ -800,7 +800,7 @@ export default function CookSession() {
               {schedule.meatLabel}
             </h1>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>
-              {schedule.weightKg}kg · {schedule.smokerTempC}°C · {schedule.methodLabel || 'Méthode pitmaster'} · {schedule.smokerType}
+              {schedule.weightKg}kg · {schedule.smokerTempC}°C · {schedule.methodVariantLabel || schedule.methodLabel || 'Méthode pitmaster'} · {schedule.smokerType}
             </div>
           </div>
         </div>

@@ -365,11 +365,14 @@ export default function Calc() {
   const [thickness,  setThickness]  = useState(() => getCalcDraft().thickness || '')
   const [smokerTemp, setSmokerTemp] = useState(() => getCalcDraft().smokerTemp ?? 110)
   const [serveTime,  setServeTime]  = useState(() => getCalcDraft().serveTime || '19:00')
-  const [cookMethod, setCookMethod] = useState(() => getCalcDraft().cookMethod || DEFAULT_METHOD)
+  const [cookMethod, setCookMethod] = useState(() => {
+    const savedMethod = getCalcDraft().cookMethod || DEFAULT_METHOD
+    return savedMethod === 'texas_crutch' ? 'low_and_slow' : savedMethod
+  })
   const [displayUnit, setDisplayUnit] = useState(() => getCalcDraft().displayUnit || 'c')
   const [lambLegStyle, setLambLegStyle] = useState(() => getCalcDraft().lambLegStyle || 'medium')
   const [smokerType, setSmokerType] = useState(() => getCalcDraft().smokerType || 'pellet')
-  const [wrapType,   setWrapType]   = useState(() => getCalcDraft().wrapType || 'butcher_paper')
+  const [wrapType,   setWrapType]   = useState(() => getCalcDraft().wrapType || 'none')
   const [marbling,   setMarbling]   = useState(() => getCalcDraft().marbling || 'medium')
   const [startTemp,  setStartTemp]  = useState(() => getCalcDraft().startTemp ?? 4)
   const [showAdvanced,   setShowAdvanced]   = useState(false)
@@ -392,7 +395,7 @@ export default function Calc() {
   const cookingProfile = getCookingProfile(meatKey)
   const methodConfig = useMemo(() => getMethodConfig(meatKey, cookMethod), [meatKey, cookMethod])
   const tempRange = useMemo(() => methodConfig?.smokerTempRange || [100, 160], [methodConfig])
-  const showWrapChoices = cookMethod === 'texas_crutch'
+  const showWrapChoices = cookMethod === 'low_and_slow' && (Boolean(cookingProfile?.temperatureCues?.wrapRangeC) || meatKey === 'ribs_pork' || meatKey === 'ribs_baby_back' || meatKey === 'lamb_leg')
   const roadmap = buildRoadmap(result)
 
   // ── Sauvegarde automatique des inputs dans localStorage
@@ -411,6 +414,7 @@ export default function Calc() {
   useEffect(() => {
     const nextProfile = getCookingProfile(meatKey)
     if (!nextProfile) return
+    if (cookMethod === 'texas_crutch') setCookMethod('low_and_slow')
     if (!weight || weight <= 0) setWeight(nextProfile.defaultWeightKg || 3)
     if (!nextProfile.methods.some(entry => entry.method === cookMethod)) {
       const fallbackMethod = nextProfile.methods[0]?.method || DEFAULT_METHOD
@@ -425,8 +429,7 @@ export default function Calc() {
   useEffect(() => {
     if (!methodConfig) return
     setSmokerTemp(current => clamp(current, tempRange[0], tempRange[1]))
-    if (cookMethod !== 'texas_crutch' && wrapType !== 'none') setWrapType('none')
-    if (cookMethod === 'texas_crutch' && wrapType === 'none') setWrapType('butcher_paper')
+    if (cookMethod === 'hot_and_fast' && wrapType !== 'none') setWrapType('none')
   }, [cookMethod, methodConfig, tempRange, wrapType])
 
   async function calculate() {
@@ -892,7 +895,10 @@ export default function Calc() {
       {/* WRAP */}
       {showWrapChoices && (
         <div className="pm-card">
-          <label className="pm-field-label">Type de wrap</label>
+          <label className="pm-field-label">Wrap pendant le low & slow</label>
+          <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 10, lineHeight: 1.6 }}>
+            Le wrap fait partie du low & slow. Choisis-le si tu veux raccourcir la fin de cuisson et lisser le stall.
+          </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 6 }}>
             {WRAP_TYPES.map(w => (
               <button key={w.id} onClick={() => { setWrapType(w.id) }}
@@ -1033,7 +1039,7 @@ export default function Calc() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               <div style={{ background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(42,33,27,0.08)', borderRadius: 12, padding: '10px 12px' }}>
                 <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Méthode</div>
-                <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 700, fontSize: 12, color: 'var(--text)' }}>{result.methodLabel}</div>
+                <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 700, fontSize: 12, color: 'var(--text)' }}>{result.methodVariantLabel || result.methodLabel}</div>
               </div>
               {getHeroCues(result, displayUnit).map(cue => (
                 <div key={cue.label} style={{ background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(42,33,27,0.08)', borderRadius: 12, padding: '10px 12px' }}>
