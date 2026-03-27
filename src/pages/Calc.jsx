@@ -1048,11 +1048,10 @@ export default function Calc() {
                 </div>
               ))}
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 8, marginTop: 10 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 8, marginTop: 10 }}>
               {[
                 ['Cuisson', formatDuration(result.cookMin)],
                 ['Repos', formatDuration(result.restMin)],
-                ['Tampon', formatDuration(result.bufferMin)],
                 ['Total', formatDuration(result.totalMin)],
               ].map(([label, value]) => (
                 <div key={label} style={{ background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(42,33,27,0.08)', borderRadius: 12, padding: '10px 12px', textAlign: 'center' }}>

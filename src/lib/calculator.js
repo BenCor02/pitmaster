@@ -81,7 +81,8 @@ const PITMASTER_PROFILES = {
         method: 'low_and_slow',
         smokerTempRange: [107, 121],
         smokerTempDefault: 110,
-        minutesPerKg: [155, 200],
+        // PATCH: recalage vers une médiane plus crédible croisée ThermoWorks / Hey Grill Hey / BBQ Québec / terrain
+        minutesPerKg: [125, 165],
         stallRange: [66, 74],
         stallDurationMin: 120,
         wrapTemp: null,
@@ -914,7 +915,8 @@ export function calculateLowSlow(meatKey, weightKg, options = {}, approvedAdjust
   const cookMin = normalizeDuration(baseCookMinutes * totalAdjustment, baseCookMinutes, 1)
 
   const restMin = normalizeDuration(avg(...methodProfile.restMinutes), 0, 5)
-  const bufferMin = normalizeDuration(clamp(cookMin * 0.15, 30, 90), 30, 0)
+  // PATCH: plus de tampon produit visible — le repos couvre déjà la marge utile pour le service
+  const bufferMin = 0
   const preheatMin = 30
 
   const totalMin = cookMin + restMin + bufferMin + preheatMin
