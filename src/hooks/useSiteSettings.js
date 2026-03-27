@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
+import { fetchSiteSettingsRow } from '../lib/cms'
 
 // Store global partagé entre tous les composants
 let cache = null
@@ -10,10 +10,9 @@ function notify(newSettings) {
 }
 
 async function fetchSettings() {
-  const { data } = await supabase.from('site_settings').select('key, value')
+  const data = await fetchSiteSettingsRow()
   if (data) {
-    cache = {}
-    data.forEach(row => { cache[row.key] = row.value })
+    cache = data
     notify(cache)
   }
   return cache
@@ -31,8 +30,6 @@ export function useSiteSettings() {
     // Charger si pas encore en cache
     if (!cache) {
       fetchSettings()
-    } else {
-      setSettings({ ...cache })
     }
 
     // S'abonner aux mises à jour globales

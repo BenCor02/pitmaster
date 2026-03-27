@@ -7,6 +7,8 @@ import { createContext, useContext, useEffect, useState, useCallback } from 'rea
 import { supabase } from '../lib/supabase'
 
 const AuthContext = createContext({})
+// PATCH: hook export conservé ici pour ne pas casser tout le projet pendant la migration Supabase-first.
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext)
 
 export function AuthProvider({ children }) {
@@ -52,9 +54,9 @@ export function AuthProvider({ children }) {
   }, [loadProfile])
 
   // Helpers rôles
-  const isAdmin   = roles.includes('admin')
-  const isEditor  = roles.includes('editor') || roles.includes('admin')
-  const isSupport = roles.includes('support') || roles.includes('admin')
+  const isAdmin   = roles.includes('super_admin') || roles.includes('admin')
+  const isEditor  = roles.includes('editor') || roles.includes('super_admin') || roles.includes('admin')
+  const isSupport = roles.includes('support') || roles.includes('super_admin') || roles.includes('admin')
   const isPro     = profile?.plan_code !== 'free'
 
   async function signOut() {

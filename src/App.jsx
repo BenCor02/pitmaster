@@ -22,6 +22,8 @@ import AdminLayout from './pages/Admin/Layout'
 import AdminDashboard from './pages/Admin/Dashboard'
 import AdminMembers from './pages/Admin/Members'
 import AdminMeats from './pages/Admin/Meats'
+import AdminContent from './pages/Admin/Content'
+import AdminMedia from './pages/Admin/Media'
 import AdminSettings from './pages/Admin/Settings'
 import AdminSecurity from './pages/Admin/Security'
 import AdminPlans from './pages/Admin/Plans'
@@ -94,6 +96,8 @@ export default function App() {
       {/* ADMIN */}
       <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
         <Route index             element={<AdminDashboard />} />
+        <Route path="content"    element={<AdminContent />} />
+        <Route path="media"      element={<AdminMedia />} />
         <Route path="members"    element={<AdminMembers />} />
         <Route path="meats"      element={<AdminMeats />} />
         <Route path="settings"   element={<AdminSettings />} />

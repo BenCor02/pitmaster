@@ -1,296 +1,279 @@
-import { useState, useEffect } from 'react'
-import { supabase } from '../../lib/supabase'
-import { MEATS } from '../../lib/meats'
-import { useSnack } from '../../components/Snack'
-import Snack from '../../components/Snack'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { fetchCalculatorCatalog, upsertCalculatorMeat, upsertCalculatorParameters, upsertCookingMethod } from '../../lib/cms'
 
 const css = `
-  @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-  .fade-up{animation:fadeUp 0.2s ease both}
-  .adm-card{background:#171410;border:1px solid #1e1a14;border-radius:14px;padding:20px;margin-bottom:12px}
-  .pm-input{background:#0e0c0a;border:1px solid #252018;border-radius:9px;color:#d4c4b0;font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 12px;outline:none;transition:all 0.15s;width:100%}
-  .pm-input:focus{border-color:#e85d04;box-shadow:0 0 0 3px rgba(232,93,4,0.07)}
-  .pm-textarea{background:#0e0c0a;border:1px solid #252018;border-radius:9px;color:#d4c4b0;font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 12px;outline:none;transition:all 0.15s;width:100%;resize:vertical}
-  .pm-textarea:focus{border-color:#e85d04}
-  .field-label{display:block;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#6a5a4a;margin-bottom:7px;font-family:'DM Sans',sans-serif}
-  .meat-item{background:#0e0c0a;border:1px solid #1e1a14;border-radius:10px;padding:14px;margin-bottom:8px;cursor:pointer;transition:all 0.15s;display:flex;justify-content:space-between;align-items:center}
-  .meat-item:hover{border-color:rgba(232,93,4,0.3);background:rgba(232,93,4,0.03)}
-  .meat-item.selected{border-color:rgba(232,93,4,0.4);background:rgba(232,93,4,0.06)}
+  .cat-wrap{display:grid;grid-template-columns:320px minmax(0,1fr);gap:18px}
+  .cat-card{background:#171410;border:1px solid #1e1a14;border-radius:14px;padding:18px}
+  .cat-input,.cat-select,.cat-textarea{background:#0e0c0a;border:1px solid #252018;border-radius:10px;color:#d4c4b0;font-family:'DM Sans',sans-serif;font-size:13px;padding:10px 12px;outline:none;width:100%}
+  .cat-textarea{resize:vertical}
+  .cat-label{display:block;font-size:10px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#6a5a4a;margin-bottom:7px}
+  .cat-item{padding:12px 14px;border:1px solid #1e1a14;border-radius:10px;background:#100d0b;cursor:pointer}
+  .cat-item.active{border-color:rgba(232,93,4,0.35);background:rgba(232,93,4,0.08)}
+  @media(max-width:980px){.cat-wrap{grid-template-columns:1fr}}
 `
 
-// Viandes par défaut depuis meats.js + custom depuis Supabase
+const EMPTY_MEAT = { slug: '', name: '', category: 'boeuf', icon: '🥩', description: '', default_weight_kg: 3, is_active: true, display_order: 0 }
+const EMPTY_METHOD = {
+  method_key: 'low_and_slow',
+  label: 'Low & Slow',
+  smoker_temp_min: 107,
+  smoker_temp_max: 121,
+  smoker_temp_default: 110,
+  target_internal_temp: 96,
+  target_internal_temp_min: 92,
+  target_internal_temp_max: 97,
+  probe_start_temp: 90,
+  wrap_temp: null,
+  wrap_time_saved_percent: 0,
+  rest_min: 60,
+  rest_max: 120,
+  stall_min: 65,
+  stall_max: 75,
+  stall_duration_min: 60,
+  notes: '',
+  timeline_profile: 'classic_probe',
+  fixed_total_min: null,
+  fixed_total_max: null,
+  sizing_model: 'weighted',
+  high_temp_minutes_per_kg: 125,
+  low_temp_minutes_per_kg: 165,
+  is_active: true,
+  display_order: 1,
+}
+
 export default function AdminMeats() {
-  const { snack, showSnack } = useSnack()
-  const [meats, setMeats] = useState([])
-  const [selected, setSelected] = useState(null)
-  const [editing, setEditing] = useState(null)
-  const [saving, setSaving] = useState(false)
-  const [tab, setTab] = useState('list') // list | edit | new
+  const [catalog, setCatalog] = useState({ meats: [], methods: [], parameters: [] })
+  const [selectedSlug, setSelectedSlug] = useState(null)
+  const [meatForm, setMeatForm] = useState(EMPTY_MEAT)
+  const [methodForm, setMethodForm] = useState(EMPTY_METHOD)
 
-  useEffect(() => { loadMeats() }, [])
-
-  async function loadMeats() {
-    // Charger les overrides depuis Supabase
-    const { data } = await supabase.from('meat_configs').select('*')
-    const overrides = {}
-    data?.forEach(d => { overrides[d.meat_key] = d })
-
-    // Merger avec les données par défaut
-    const list = Object.entries(MEATS).map(([key, m]) => ({
-      key,
-      name: m.name,
-      full: m.full,
-      temp: m.temp,
-      bMin: m.bMin,
-      stall: m.stall,
-      rest: m.rest,
-      tips: m.tips,
-      rubs: m.rubs,
-      woods: m.woods,
-      hasStall: m.hasStall,
-      source: 'default',
-      ...overrides[key] ? { ...overrides[key], source: 'custom' } : {},
-    }))
-
-    // Ajouter les viandes 100% custom (pas dans MEATS)
-    data?.filter(d => !MEATS[d.meat_key]).forEach(d => {
-      list.push({ ...d, key: d.meat_key, source: 'custom' })
+  const selectMeat = useCallback((slug, source = catalog) => {
+    const meat = source.meats.find((entry) => entry.slug === slug)
+    const method = source.methods.find((entry) => entry.meat_id === meat?.id) || EMPTY_METHOD
+    const param = source.parameters.find((entry) => entry.method_id === method?.id)
+    setSelectedSlug(slug)
+    setMeatForm(meat || EMPTY_MEAT)
+    setMethodForm({
+      ...EMPTY_METHOD,
+      ...method,
+      high_temp_minutes_per_kg: param?.high_temp_minutes_per_kg ?? method?.high_temp_minutes_per_kg ?? EMPTY_METHOD.high_temp_minutes_per_kg,
+      low_temp_minutes_per_kg: param?.low_temp_minutes_per_kg ?? method?.low_temp_minutes_per_kg ?? EMPTY_METHOD.low_temp_minutes_per_kg,
     })
+  }, [catalog])
 
-    setMeats(list)
-  }
-
-  function startEdit(meat) {
-    setEditing({
-      key: meat.key,
-      name: meat.name || '',
-      full: meat.full || '',
-      temp: meat.temp || '',
-      bMin: meat.bMin || 0,
-      stall: meat.stall || 0,
-      rest: meat.rest || 30,
-      hasStall: meat.hasStall || false,
-      tips: meat.tips?.map(t => `${t.t}|${t.b}`).join('\n') || '',
-      rubs_json: JSON.stringify(meat.rubs || [], null, 2),
-      woods_json: JSON.stringify(meat.woods || [], null, 2),
-    })
-    setTab('edit')
-    setSelected(meat.key)
-  }
-
-  function startNew() {
-    setEditing({
-      key: 'new_' + Date.now(),
-      name: '',
-      full: '',
-      temp: '',
-      bMin: 60,
-      stall: 60,
-      rest: 30,
-      hasStall: false,
-      tips: 'Température cible|Indique la T° optimale\nConseils bois|Recommandations bois',
-      rubs_json: JSON.stringify([{ name: 'Rub de base', ingr: [{ n: 'Sel', q: '2 c.a.s' }], note: 'Appliquer 4h avant.' }], null, 2),
-      woods_json: JSON.stringify([{ e: '🌳', n: 'Chene', d: 'Fumee longue', i: 4 }], null, 2),
-    })
-    setTab('edit')
-    setSelected(null)
-  }
+  const loadCatalog = useCallback(async (nextSlug = null) => {
+    const next = await fetchCalculatorCatalog()
+    setCatalog(next)
+    const slug = nextSlug || selectedSlug || next.meats[0]?.slug || null
+    if (slug) selectMeat(slug, next)
+  }, [selectedSlug, selectMeat])
 
   async function saveMeat() {
-    if (!editing.name || !editing.key) { showSnack('Nom et clé obligatoires', 'error'); return }
-    setSaving(true)
-
-    let tips, rubs, woods
-    try {
-      tips = editing.tips.split('\n').filter(Boolean).map(line => {
-        const [t, b] = line.split('|')
-        return { t: t?.trim(), b: b?.trim() || '' }
-      })
-      rubs = JSON.parse(editing.rubs_json)
-      woods = JSON.parse(editing.woods_json)
-    } catch(e) {
-      showSnack('JSON invalide dans Rubs ou Bois', 'error')
-      setSaving(false)
-      return
-    }
-
-    const { error } = await supabase.from('meat_configs').upsert({
-      meat_key: editing.key,
-      name: editing.name,
-      full: editing.full,
-      temp: editing.temp,
-      bMin: parseInt(editing.bMin),
-      stall: parseInt(editing.stall),
-      rest: parseInt(editing.rest),
-      hasStall: editing.hasStall,
-      tips,
-      rubs,
-      woods,
-      updated_at: new Date().toISOString(),
-    }, { onConflict: 'meat_key' })
-
-    setSaving(false)
-    if (error) { showSnack('Erreur: ' + error.message, 'error'); return }
-    showSnack('✅ Viande sauvegardée !')
-    await loadMeats()
-    setTab('list')
+    const saved = await upsertCalculatorMeat({
+      ...meatForm,
+      default_weight_kg: Number(meatForm.default_weight_kg) || 3,
+      display_order: Number(meatForm.display_order) || 0,
+    })
+    await loadCatalog(saved.slug)
   }
 
-  async function resetToDefault(key) {
-    if (!confirm('Supprimer les modifications et revenir aux valeurs par défaut ?')) return
-    await supabase.from('meat_configs').delete().eq('meat_key', key)
-    showSnack('Réinitialisé aux valeurs par défaut')
-    await loadMeats()
-    setTab('list')
+  async function saveMethod() {
+    const meat = catalog.meats.find((entry) => entry.slug === selectedSlug) || meatForm
+    if (!meat.id) return
+    const savedMethod = await upsertCookingMethod({
+      ...methodForm,
+      meat_id: meat.id,
+      smoker_temp_min: Number(methodForm.smoker_temp_min),
+      smoker_temp_max: Number(methodForm.smoker_temp_max),
+      smoker_temp_default: Number(methodForm.smoker_temp_default),
+      target_internal_temp: methodForm.target_internal_temp ? Number(methodForm.target_internal_temp) : null,
+      target_internal_temp_min: methodForm.target_internal_temp_min ? Number(methodForm.target_internal_temp_min) : null,
+      target_internal_temp_max: methodForm.target_internal_temp_max ? Number(methodForm.target_internal_temp_max) : null,
+      probe_start_temp: methodForm.probe_start_temp ? Number(methodForm.probe_start_temp) : null,
+      wrap_temp: methodForm.wrap_temp ? Number(methodForm.wrap_temp) : null,
+      wrap_time_saved_percent: Number(methodForm.wrap_time_saved_percent) || 0,
+      rest_min: Number(methodForm.rest_min) || 0,
+      rest_max: Number(methodForm.rest_max) || 0,
+      stall_min: methodForm.stall_min ? Number(methodForm.stall_min) : null,
+      stall_max: methodForm.stall_max ? Number(methodForm.stall_max) : null,
+      stall_duration_min: Number(methodForm.stall_duration_min) || 0,
+      fixed_total_min: methodForm.fixed_total_min ? Number(methodForm.fixed_total_min) : null,
+      fixed_total_max: methodForm.fixed_total_max ? Number(methodForm.fixed_total_max) : null,
+      high_temp_minutes_per_kg: Number(methodForm.high_temp_minutes_per_kg) || null,
+      low_temp_minutes_per_kg: Number(methodForm.low_temp_minutes_per_kg) || null,
+      display_order: Number(methodForm.display_order) || 1,
+    })
+
+    await upsertCalculatorParameters({
+      method_id: savedMethod.id,
+      low_temp_minutes_per_kg: Number(methodForm.low_temp_minutes_per_kg) || 0,
+      high_temp_minutes_per_kg: Number(methodForm.high_temp_minutes_per_kg) || 0,
+      buffer_percent: 0,
+      buffer_min_minutes: 0,
+      buffer_max_minutes: 0,
+      weight_adjustment_json: { overweight_from_kg: 6, overweight_percent_per_kg: 0.03 },
+      special_rules_json: { sizing_model: methodForm.sizing_model || 'weighted' },
+    })
+
+    await loadCatalog(selectedSlug)
   }
 
-  async function deleteMeat(key) {
-    if (!confirm('Supprimer cette viande ? Cette action est irréversible.')) return
-    await supabase.from('meat_configs').delete().eq('meat_key', key)
-    showSnack('Viande supprimée')
-    await loadMeats()
-    setTab('list')
-  }
+  const methodsForSelected = useMemo(
+    () => catalog.methods.filter((entry) => entry.meat_id === meatForm.id),
+    [catalog.methods, meatForm.id]
+  )
+
+  useEffect(() => {
+    const timer = setTimeout(() => { loadCatalog() }, 0)
+    return () => clearTimeout(timer)
+  }, [loadCatalog])
 
   return (
-    <div className="fade-up" style={{ fontFamily:'DM Sans,sans-serif' }}>
+    <div style={{ fontFamily: 'DM Sans,sans-serif' }}>
       <style>{css}</style>
-      <Snack snack={snack} />
-
-      <div style={{ marginBottom:24 }}>
-        <h1 style={{ fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:28, color:'#fff', letterSpacing:'-0.5px' }}>
-          Viandes <span style={{ color:'#e85d04' }}>&</span> Calculs
+      <div style={{ marginBottom: 22 }}>
+        <h1 style={{ fontFamily: 'Syne,sans-serif', fontWeight: 800, fontSize: 28, color: '#fff' }}>
+          Calculateur <span style={{ color: '#e85d04' }}>catalogue</span>
         </h1>
-        <p style={{ fontSize:11, color:'#8a7060', marginTop:6, letterSpacing:'1.5px', textTransform:'uppercase', fontWeight:600 }}>
-          Modifier les viandes · Temps de cuisson · Rubs · Conseils
+        <p style={{ fontSize: 11, color: '#8a7060', marginTop: 6, letterSpacing: '1.5px', textTransform: 'uppercase', fontWeight: 600 }}>
+          Viandes · méthodes · paramètres depuis Supabase
         </p>
       </div>
 
-      {/* TABS */}
-      <div style={{ display:'flex', gap:8, marginBottom:20 }}>
-        <button onClick={() => setTab('list')} style={{ padding:'8px 16px', borderRadius:8, border:`1px solid ${tab==='list'?'rgba(232,93,4,0.4)':'#1e1a14'}`, background:tab==='list'?'rgba(232,93,4,0.1)':'#171410', color:tab==='list'?'#e85d04':'#6a5a4a', fontFamily:'Syne,sans-serif', fontSize:12, fontWeight:700, cursor:'pointer' }}>
-          Liste ({meats.length})
-        </button>
-        <button onClick={startNew} style={{ padding:'8px 16px', borderRadius:8, border:'1px solid rgba(34,197,94,0.3)', background:'rgba(34,197,94,0.08)', color:'#22c55e', fontFamily:'Syne,sans-serif', fontSize:12, fontWeight:700, cursor:'pointer' }}>
-          + Nouvelle viande
-        </button>
-      </div>
+      <div className="cat-wrap">
+        <aside className="cat-card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <div style={{ fontFamily: 'Syne,sans-serif', fontWeight: 700, color: '#fff' }}>Viandes</div>
+            <button className="pm-btn-secondary" style={{ width: 'auto', padding: '10px 12px', fontSize: 12 }} onClick={() => { setSelectedSlug(null); setMeatForm(EMPTY_MEAT); setMethodForm(EMPTY_METHOD) }}>
+              Nouvelle
+            </button>
+          </div>
+          <div style={{ display: 'grid', gap: 10 }}>
+            {catalog.meats.map((meat) => (
+              <button key={meat.id} className={`cat-item${selectedSlug === meat.slug ? ' active' : ''}`} style={{ textAlign: 'left', color: 'inherit' }} onClick={() => selectMeat(meat.slug)}>
+                <div style={{ color: '#f5f1ea', fontWeight: 700 }}>{meat.icon} {meat.name}</div>
+                <div style={{ color: '#8a7060', fontSize: 12, marginTop: 4 }}>{meat.slug} · {meat.category}</div>
+              </button>
+            ))}
+          </div>
+        </aside>
 
-      {tab === 'list' && (
-        <div className="adm-card">
-          {meats.map(m => (
-            <div key={m.key} className={`meat-item${selected===m.key?' selected':''}`} onClick={() => startEdit(m)}>
+        <div style={{ display: 'grid', gap: 18 }}>
+          <section className="cat-card">
+            <div style={{ fontFamily: 'Syne,sans-serif', fontWeight: 700, color: '#fff', marginBottom: 14 }}>Viande</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 120px', gap: 12 }}>
               <div>
-                <div style={{ fontFamily:'Syne,sans-serif', fontWeight:700, fontSize:14, color:'#d4c4b0', marginBottom:3 }}>
-                  {m.name}
-                  {m.source === 'custom' && <span style={{ marginLeft:8, fontSize:10, fontWeight:700, color:'#f48c06', background:'rgba(244,140,6,0.1)', border:'1px solid rgba(244,140,6,0.2)', borderRadius:4, padding:'1px 6px' }}>MODIFIÉ</span>}
-                </div>
-                <div style={{ fontSize:11, color:'#4a3a2e' }}>{m.full} · {m.temp} · Repos: {m.rest} min</div>
+                <label className="cat-label">Slug</label>
+                <input className="cat-input" value={meatForm.slug || ''} onChange={(e) => setMeatForm((prev) => ({ ...prev, slug: e.target.value }))} />
               </div>
-              <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-                <span style={{ fontFamily:'DM Mono,monospace', fontSize:11, color:'#6a5a4a' }}>bMin: {m.bMin}</span>
-                <span style={{ fontSize:14, color:'#4a3a2e' }}>✏️</span>
+              <div>
+                <label className="cat-label">Nom</label>
+                <input className="cat-input" value={meatForm.name || ''} onChange={(e) => setMeatForm((prev) => ({ ...prev, name: e.target.value }))} />
+              </div>
+              <div>
+                <label className="cat-label">Icône</label>
+                <input className="cat-input" value={meatForm.icon || ''} onChange={(e) => setMeatForm((prev) => ({ ...prev, icon: e.target.value }))} />
+              </div>
+              <div>
+                <label className="cat-label">Catégorie</label>
+                <input className="cat-input" value={meatForm.category || ''} onChange={(e) => setMeatForm((prev) => ({ ...prev, category: e.target.value }))} />
+              </div>
+              <div>
+                <label className="cat-label">Poids défaut kg</label>
+                <input className="cat-input" value={meatForm.default_weight_kg || ''} onChange={(e) => setMeatForm((prev) => ({ ...prev, default_weight_kg: e.target.value }))} />
+              </div>
+              <div>
+                <label className="cat-label">Ordre</label>
+                <input className="cat-input" value={meatForm.display_order || 0} onChange={(e) => setMeatForm((prev) => ({ ...prev, display_order: e.target.value }))} />
               </div>
             </div>
-          ))}
-        </div>
-      )}
-
-      {tab === 'edit' && editing && (
-        <div>
-          <div style={{ display:'flex', gap:8, marginBottom:16 }}>
-            <button onClick={() => setTab('list')} style={{ padding:'7px 14px', borderRadius:8, border:'1px solid #1e1a14', background:'transparent', color:'#6a5a4a', fontFamily:'Syne,sans-serif', fontSize:12, fontWeight:700, cursor:'pointer' }}>
-              ← Retour
-            </button>
-            {selected && meats.find(m=>m.key===selected)?.source === 'custom' && (
-              <button onClick={() => resetToDefault(selected)} style={{ padding:'7px 14px', borderRadius:8, border:'1px solid rgba(239,68,68,0.3)', background:'rgba(239,68,68,0.07)', color:'#ef4444', fontFamily:'Syne,sans-serif', fontSize:12, fontWeight:700, cursor:'pointer' }}>
-                Réinitialiser
+            <div style={{ marginTop: 12 }}>
+              <label className="cat-label">Description</label>
+              <textarea className="cat-textarea" rows={4} value={meatForm.description || ''} onChange={(e) => setMeatForm((prev) => ({ ...prev, description: e.target.value }))} />
+            </div>
+            <div style={{ marginTop: 16 }}>
+              <button className="pm-btn-primary" style={{ width: 'auto', padding: '12px 18px' }} onClick={saveMeat}>
+                Sauvegarder la viande
               </button>
-            )}
-          </div>
+            </div>
+          </section>
 
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-            {/* INFOS DE BASE */}
-            <div className="adm-card">
-              <div style={{ fontFamily:'Syne,sans-serif', fontSize:11, fontWeight:700, letterSpacing:'1.5px', textTransform:'uppercase', color:'#4a3a2e', marginBottom:16 }}>📋 Informations de base</div>
-              <div style={{ marginBottom:12 }}>
-                <label className="field-label">Nom court (ex: Brisket)</label>
-                <input className="pm-input" value={editing.name} onChange={e => setEditing(p=>({...p,name:e.target.value}))} />
+          <section className="cat-card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+              <div style={{ fontFamily: 'Syne,sans-serif', fontWeight: 700, color: '#fff' }}>Méthodes</div>
+              <div style={{ color: '#8a7060', fontSize: 12 }}>{methodsForSelected.length} méthode(s)</div>
+            </div>
+            {methodsForSelected.length ? (
+              <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
+                {methodsForSelected.map((method) => (
+                  <button key={method.id} className="pm-btn-secondary" style={{ width: 'auto', padding: '10px 12px', fontSize: 12 }} onClick={() => setMethodForm({
+                    ...method,
+                    high_temp_minutes_per_kg: catalog.parameters.find((entry) => entry.method_id === method.id)?.high_temp_minutes_per_kg ?? method.high_temp_minutes_per_kg,
+                    low_temp_minutes_per_kg: catalog.parameters.find((entry) => entry.method_id === method.id)?.low_temp_minutes_per_kg ?? method.low_temp_minutes_per_kg,
+                  })}>
+                    {method.label}
+                  </button>
+                ))}
               </div>
-              <div style={{ marginBottom:12 }}>
-                <label className="field-label">Nom complet (ex: Poitrine de boeuf)</label>
-                <input className="pm-input" value={editing.full} onChange={e => setEditing(p=>({...p,full:e.target.value}))} />
+            ) : null}
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+              <div>
+                <label className="cat-label">Method key</label>
+                <select className="cat-select" value={methodForm.method_key || 'low_and_slow'} onChange={(e) => setMethodForm((prev) => ({ ...prev, method_key: e.target.value }))}>
+                  <option value="low_and_slow">low_and_slow</option>
+                  <option value="hot_and_fast">hot_and_fast</option>
+                  <option value="texas_crutch">texas_crutch</option>
+                </select>
               </div>
-              <div style={{ marginBottom:12 }}>
-                <label className="field-label">Température cible (ex: 93-96°C)</label>
-                <input className="pm-input" value={editing.temp} onChange={e => setEditing(p=>({...p,temp:e.target.value}))} />
+              <div>
+                <label className="cat-label">Label</label>
+                <input className="cat-input" value={methodForm.label || ''} onChange={(e) => setMethodForm((prev) => ({ ...prev, label: e.target.value }))} />
               </div>
-              <div style={{ marginBottom:12 }}>
-                <label className="field-label">Clé unique (ex: brisket, pork_belly)</label>
-                <input className="pm-input" value={editing.key} onChange={e => setEditing(p=>({...p,key:e.target.value}))} disabled={!!selected} style={{ opacity: selected ? 0.5 : 1 }} />
+              <div>
+                <label className="cat-label">Timeline profile</label>
+                <input className="cat-input" value={methodForm.timeline_profile || ''} onChange={(e) => setMethodForm((prev) => ({ ...prev, timeline_profile: e.target.value }))} />
               </div>
             </div>
 
-            {/* PARAMÈTRES DE CUISSON */}
-            <div className="adm-card">
-              <div style={{ fontFamily:'Syne,sans-serif', fontSize:11, fontWeight:700, letterSpacing:'1.5px', textTransform:'uppercase', color:'#4a3a2e', marginBottom:16 }}>⏱️ Paramètres de cuisson</div>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:12 }}>
-                <div>
-                  <label className="field-label">bMin (min/kg à 110°C)</label>
-                  <input className="pm-input" type="number" value={editing.bMin} onChange={e => setEditing(p=>({...p,bMin:e.target.value}))} />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginTop: 12 }}>
+              {[
+                ['smoker_temp_min', 'Temp min'],
+                ['smoker_temp_max', 'Temp max'],
+                ['smoker_temp_default', 'Temp défaut'],
+                ['wrap_temp', 'Wrap temp'],
+                ['target_internal_temp', 'Target'],
+                ['target_internal_temp_min', 'Tender min'],
+                ['target_internal_temp_max', 'Tender max'],
+                ['probe_start_temp', 'Début tests'],
+                ['rest_min', 'Repos min'],
+                ['rest_max', 'Repos max'],
+                ['stall_min', 'Stall min'],
+                ['stall_max', 'Stall max'],
+                ['high_temp_minutes_per_kg', 'min/kg chaud'],
+                ['low_temp_minutes_per_kg', 'min/kg froid'],
+                ['fixed_total_min', 'Fixe min'],
+                ['fixed_total_max', 'Fixe max'],
+              ].map(([key, label]) => (
+                <div key={key}>
+                  <label className="cat-label">{label}</label>
+                  <input className="cat-input" value={methodForm[key] ?? ''} onChange={(e) => setMethodForm((prev) => ({ ...prev, [key]: e.target.value }))} />
                 </div>
-                <div>
-                  <label className="field-label">Stall (min fixes)</label>
-                  <input className="pm-input" type="number" value={editing.stall} onChange={e => setEditing(p=>({...p,stall:e.target.value}))} />
-                </div>
-              </div>
-              <div style={{ marginBottom:12 }}>
-                <label className="field-label">Repos (minutes)</label>
-                <input className="pm-input" type="number" value={editing.rest} onChange={e => setEditing(p=>({...p,rest:e.target.value}))} />
-              </div>
-              <div style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 12px', background:'#0e0c0a', border:'1px solid #1e1a14', borderRadius:9 }}>
-                <input type="checkbox" checked={editing.hasStall} onChange={e => setEditing(p=>({...p,hasStall:e.target.checked}))} style={{ width:16, height:16, accentColor:'#e85d04', cursor:'pointer' }} />
-                <span style={{ fontSize:13, color:'#d4c4b0' }}>Afficher l'avertissement stall</span>
-              </div>
-              <div style={{ marginTop:12, padding:'10px', background:'rgba(244,140,6,0.05)', border:'1px solid rgba(244,140,6,0.1)', borderRadius:8, fontSize:11, color:'#6a5a4a', lineHeight:1.6 }}>
-                💡 <strong style={{color:'#f48c06'}}>Formule :</strong> durée = (bMin × poids + stall) × facteur_température
-              </div>
+              ))}
             </div>
-          </div>
 
-          {/* CONSEILS */}
-          <div className="adm-card">
-            <div style={{ fontFamily:'Syne,sans-serif', fontSize:11, fontWeight:700, letterSpacing:'1.5px', textTransform:'uppercase', color:'#4a3a2e', marginBottom:12 }}>💡 Conseils (un par ligne, format: Titre|Description)</div>
-            <textarea className="pm-textarea" rows={5} value={editing.tips} onChange={e => setEditing(p=>({...p,tips:e.target.value}))} placeholder="Température cible|93-96°C ET sonde sans résistance&#10;Sens du grain|Couper perpendiculairement aux fibres" />
-            <div style={{ fontSize:11, color:'#4a3a2e', marginTop:6 }}>Format : Titre|Description — un conseil par ligne</div>
-          </div>
-
-          {/* RUBS JSON */}
-          <div className="adm-card">
-            <div style={{ fontFamily:'Syne,sans-serif', fontSize:11, fontWeight:700, letterSpacing:'1.5px', textTransform:'uppercase', color:'#4a3a2e', marginBottom:12 }}>🧂 Rubs (JSON)</div>
-            <textarea className="pm-textarea" rows={8} value={editing.rubs_json} onChange={e => setEditing(p=>({...p,rubs_json:e.target.value}))} style={{ fontFamily:'DM Mono,monospace', fontSize:12 }} />
-          </div>
-
-          {/* BOIS JSON */}
-          <div className="adm-card">
-            <div style={{ fontFamily:'Syne,sans-serif', fontSize:11, fontWeight:700, letterSpacing:'1.5px', textTransform:'uppercase', color:'#4a3a2e', marginBottom:12 }}>🪵 Bois de fumage (JSON)</div>
-            <textarea className="pm-textarea" rows={6} value={editing.woods_json} onChange={e => setEditing(p=>({...p,woods_json:e.target.value}))} style={{ fontFamily:'DM Mono,monospace', fontSize:12 }} />
-            <div style={{ fontSize:11, color:'#4a3a2e', marginTop:6 }}>Format : {`[{"e":"🌳","n":"Chene","d":"Description","i":4}]`} — i = intensité (1-5)</div>
-          </div>
-
-          {/* ACTIONS */}
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
-            <button onClick={saveMeat} disabled={saving} style={{ padding:'14px', borderRadius:12, border:'none', background:'linear-gradient(135deg,#f48c06,#d44e00)', color:'#fff', fontFamily:'Syne,sans-serif', fontSize:14, fontWeight:700, cursor:'pointer', boxShadow:'0 4px 16px rgba(232,93,4,0.25)' }}>
-              {saving ? '⏳ Sauvegarde...' : '💾 Sauvegarder'}
-            </button>
-            {selected && (
-              <button onClick={() => deleteMeat(selected)} style={{ padding:'14px', borderRadius:12, border:'1px solid rgba(239,68,68,0.3)', background:'rgba(239,68,68,0.08)', color:'#ef4444', fontFamily:'Syne,sans-serif', fontSize:14, fontWeight:700, cursor:'pointer' }}>
-                🗑 Supprimer
+            <div style={{ marginTop: 12 }}>
+              <label className="cat-label">Notes pitmaster</label>
+              <textarea className="cat-textarea" rows={5} value={methodForm.notes || ''} onChange={(e) => setMethodForm((prev) => ({ ...prev, notes: e.target.value }))} />
+            </div>
+            <div style={{ marginTop: 16 }}>
+              <button className="pm-btn-primary" style={{ width: 'auto', padding: '12px 18px' }} onClick={saveMethod}>
+                Sauvegarder la méthode
               </button>
-            )}
-          </div>
+            </div>
+          </section>
         </div>
-      )}
+      </div>
     </div>
   )
 }

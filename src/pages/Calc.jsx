@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import { MEATS } from '../lib/meats'
+import { useCalculatorCatalog } from '../hooks/useCalculatorCatalog'
 import {
   calculateLowSlow, recalibrate, formatDuration, formatTime,
   addMinutes, validateInput, PHASE_BASES, buildTimeline, COOKING_METHODS,
@@ -27,6 +28,16 @@ const MEAT_CATEGORIES = {
   'Agneau': ['lamb_shoulder'],
   'Volaille': ['whole_chicken', 'chicken_pieces'],
   'Gigot': ['lamb_leg'],
+}
+
+function buildMeatCategories(catalogMeats) {
+  if (!catalogMeats?.length) return MEAT_CATEGORIES
+  return catalogMeats.reduce((acc, meat) => {
+    const label = meat.category ? meat.category.charAt(0).toUpperCase() + meat.category.slice(1) : 'Autres'
+    if (!acc[label]) acc[label] = []
+    acc[label].push(meat.slug)
+    return acc
+  }, {})
 }
 
 const SMOKER_TYPES = [
@@ -338,6 +349,7 @@ export default function Calc() {
   const location = useLocation()
   const { user } = useAuth()
   const { snack, showSnack } = useSnack()
+  const { meats: catalogMeats, meatsBySlug } = useCalculatorCatalog()
 
   // PATCH: seul le brouillon de formulaire reste restauré depuis localStorage
   const [meatKey,    setMeatKey]    = useState(() => getCalcDraft().meatKey || 'brisket')
@@ -372,11 +384,22 @@ export default function Calc() {
   const [meatImageSrc, setMeatImageSrc] = useState(() => MEAT_IMAGES[getCalcDraft().meatKey || 'brisket'] || MEAT_IMAGES.brisket || SMOKE_IMAGE)
 
   const profile = MEAT_PROFILES[meatKey]
-  const meatData = MEATS[meatKey]
+  const availableMeatKeys = catalogMeats.length ? catalogMeats.map((entry) => entry.slug) : Object.keys(MEATS)
+  const meatData = meatsBySlug[meatKey]
+    ? {
+        ...MEATS[meatKey],
+        name: meatsBySlug[meatKey].name,
+        full: meatsBySlug[meatKey].name,
+        category: meatsBySlug[meatKey].category,
+        icon: meatsBySlug[meatKey].icon,
+        description: meatsBySlug[meatKey].description,
+      }
+    : MEATS[meatKey]
   const isLowSlow = profile?.method === 'lowslow'
   const cookingProfile = getCookingProfile(meatKey)
   const methodConfig = useMemo(() => getMethodConfig(meatKey, cookMethod), [meatKey, cookMethod])
   const tempRange = useMemo(() => methodConfig?.smokerTempRange || [100, 160], [methodConfig])
+  const displayCategories = useMemo(() => buildMeatCategories(catalogMeats), [catalogMeats])
   const showWrapChoices = cookMethod === 'low_and_slow' && (Boolean(cookingProfile?.temperatureCues?.wrapRangeC) || meatKey === 'ribs_pork' || meatKey === 'ribs_baby_back' || meatKey === 'lamb_leg')
   const roadmap = buildRoadmap(result)
 
@@ -387,7 +410,7 @@ export default function Calc() {
 
   useEffect(() => {
     const preselectedMeatKey = location.state?.preselectMeatKey
-    if (!preselectedMeatKey || !MEATS[preselectedMeatKey] || preselectedMeatKey === meatKey) return
+    if (!preselectedMeatKey || !availableMeatKeys.includes(preselectedMeatKey) || preselectedMeatKey === meatKey) return
     // PATCH: si on arrive depuis la landing sur une viande donnée, on l'applique tout de suite
     setMeatKey(preselectedMeatKey)
     const nextProfile = getCookingProfile(preselectedMeatKey)
@@ -401,7 +424,7 @@ export default function Calc() {
     setTimeline([])
     setWarnings([])
     setRecalResult(null)
-  }, [location.state, meatKey])
+  }, [location.state, meatKey, availableMeatKeys])
 
   // ── Sauvegarde automatique des inputs dans localStorage
   useEffect(() => {
@@ -725,7 +748,7 @@ export default function Calc() {
           <div style={{ position: 'relative', height: 160, overflow: 'hidden' }}>
             <img
               src={meatImageSrc}
-              alt={MEATS[meatKey]?.full || meatKey}
+              alt={meatData?.full || meatKey}
               onError={() => setMeatImageSrc(SMOKE_IMAGE)}
               style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'opacity 0.4s' }}
               loading="lazy"
@@ -735,7 +758,7 @@ export default function Calc() {
             {/* Nom de la viande sur la photo */}
             <div style={{ position: 'absolute', bottom: 12, left: 16, right: 16 }}>
               <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 18, color: '#fff', lineHeight: 1.2 }}>
-                {MEATS[meatKey]?.full}
+                {meatData?.full}
               </div>
               {profile && (
                 <span style={{ display: 'inline-block', marginTop: 4, padding: '2px 8px', borderRadius: 50, background: 'rgba(232,69,11,0.88)', fontSize: 10, fontWeight: 700, color: '#fff', letterSpacing: '1px' }}>
@@ -755,9 +778,14 @@ export default function Calc() {
             setThickness('')
             if (nextProfile?.defaultWeightKg) setWeight(nextProfile.defaultWeightKg)
           }}>
-            {Object.entries(MEAT_CATEGORIES).map(([cat, keys]) => (
+            {Object.entries(displayCategories).map(([cat, keys]) => (
               <optgroup key={cat} label={cat}>
-                {keys.map(k => MEATS[k] ? <option key={k} value={k}>{MEATS[k].full}</option> : null)}
+                {keys.map((k) => {
+                  const fallback = MEATS[k]
+                  const catalog = meatsBySlug[k]
+                  const label = catalog?.name || fallback?.full || k
+                  return label ? <option key={k} value={k}>{label}</option> : null
+                })}
               </optgroup>
             ))}
           </select>

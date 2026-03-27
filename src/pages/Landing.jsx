@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { HERO_IMAGE, MEAT_IMAGES, SMOKE_IMAGE, SMOKER_IMAGE } from '../lib/images'
 import BrandMark from '../components/BrandMark'
+import { usePageContent } from '../hooks/usePageContent'
 
 const css = `
   @keyframes heroEnter { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: translateY(0); } }
@@ -125,6 +126,16 @@ const COOKS = [
   { key: 'lamb_shoulder', title: 'Agneau', subtitle: 'Version fondante, plus douce, plus souple' },
 ]
 
+function getSectionByType(sections, type) {
+  return sections.find((section) => section.section_type === type) || null
+}
+
+function getSectionItems(section, fallback) {
+  const source = section?.settings_json
+  if (source && Array.isArray(source.items)) return source.items
+  return fallback
+}
+
 function ensureMeta(name, content) {
   let tag = document.querySelector(`meta[name="${name}"]`)
   if (!tag) {
@@ -194,6 +205,7 @@ function SaveIcon() {
 
 export default function Landing() {
   const navigate = useNavigate()
+  const { page, sections } = usePageContent('home')
   const [scrolled, setScrolled] = useState(false)
   // PATCH: fallback visuel pour éviter un hero cassé si une image distante ne répond pas
   const [heroVisual, setHeroVisual] = useState(SMOKER_IMAGE)
@@ -216,6 +228,37 @@ export default function Landing() {
     document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
   const getCardImage = (key) => cardImageFallbacks[key] || MEAT_IMAGES[key] || SMOKE_IMAGE
+
+  const heroSection = getSectionByType(sections, 'hero')
+  const valueSection = getSectionByType(sections, 'value_proof')
+  const calculatorSection = getSectionByType(sections, 'calculator_cta')
+  const benefitsSection = getSectionByType(sections, 'benefits')
+  const cooksSection = getSectionByType(sections, 'cooks')
+  const howItWorksSection = getSectionByType(sections, 'how_it_works')
+  const reassuranceSection = getSectionByType(sections, 'reassurance')
+  const finalCtaSection = getSectionByType(sections, 'final_cta')
+
+  const heroQuestions = getSectionItems(heroSection, ['À quelle heure lancer ?', 'Quand wrapper ?', 'Combien de repos prévoir ?'])
+  const heroMetrics = getSectionItems(heroSection, HERO_METRICS)
+  const benefitCards = getSectionItems(benefitsSection, BENEFITS)
+  const cookCards = getSectionItems(cooksSection, COOKS)
+  const howItWorksItems = getSectionItems(howItWorksSection, [
+    ['01', 'Choisis ta viande', 'Brisket, ribs, pulled pork, poulet, agneau… commence par la cuisson que tu prépares.'],
+    ['02', 'Entre ton poids et ton heure', 'Tu donnes le poids, la méthode et l’heure à laquelle tu veux servir.'],
+    ['03', 'Reçois ton plan', 'Le site te donne l’heure de départ, la fenêtre de service et les repères utiles.'],
+  ])
+  const reassuranceChips = getSectionItems(reassuranceSection, [
+    'Prévoir large',
+    'Le repos compte',
+    'Le wrap aide',
+    'Mieux vaut finir un peu tôt',
+  ])
+
+  const heroTitle = heroSection?.title || page?.title || 'À QUELLE HEURE\nLANCER TA\nCUISSON BBQ'
+  const heroSubtitle = heroSection?.content || 'Brisket, ribs, pulled pork ou paleron. Tu choisis la pièce, le poids et l’heure de service. On te dit quand allumer le fumoir pour servir au bon moment, sans deviner.'
+  const heroEyebrow = heroSection?.subtitle || 'charbon · braise · service à l’heure'
+  const heroPrimaryCta = heroSection?.cta_text || 'Calculer ma cuisson'
+  const heroSecondaryCta = heroSection?.settings_json?.secondary_cta_text || 'Voir le principe'
 
   return (
     <div style={{ background: 'var(--bg)', color: 'var(--text)', overflowX: 'hidden' }}>
@@ -268,7 +311,7 @@ export default function Landing() {
         {/* PATCH: hero recadré comme une vraie affiche pitmaster plein cadre, inspirée du moodboard fourni */}
         <div className="landing-hero-shell">
           <img
-            src={heroVisual}
+            src={heroSection?.image_url || heroVisual}
             alt="Fumoir en action"
             className="pitmaster-hero-image"
             onError={() => {
@@ -286,50 +329,55 @@ export default function Landing() {
 
           <div className="landing-hero-inner">
             <div className="landing-hero-content landing-hero-copy-wrap">
-              <div className="hero-item pm-kicker">charbon · braise · service à l’heure</div>
+              <div className="hero-item pm-kicker">{heroEyebrow}</div>
               <div className="hero-item">
                 <h1 className="landing-hero-title">
-                  À QUELLE HEURE
-                  <br />
-                  LANCER TA
-                  <br />
-                  <span className="hero-highlight">CUISSON BBQ</span>
+                  {String(heroTitle).split('\n').map((line, index, array) => (
+                    <span key={`${line}-${index}`}>
+                      {index === array.length - 1 ? <span className="hero-highlight">{line}</span> : line}
+                      {index < array.length - 1 ? <><br /></> : null}
+                    </span>
+                  ))}
                 </h1>
               </div>
               <p className="hero-item landing-hero-copy">
-                Brisket, ribs, pulled pork ou paleron. Tu choisis la pièce, le poids et l’heure de service. On te dit quand allumer le fumoir pour servir au bon moment, sans deviner.
+                {heroSubtitle}
               </p>
               <div className="hero-item" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
                 <button onClick={() => openCalculator()} className="pm-btn-primary" style={{ width: 'auto', minWidth: 250 }}>
-                  Calculer ma cuisson
+                  {heroPrimaryCta}
                 </button>
                 <button onClick={() => scrollToSection('comment-ca-marche')} className="pm-btn-secondary" style={{ width: 'auto' }}>
-                  Voir le principe
+                  {heroSecondaryCta}
                 </button>
               </div>
               <div className="hero-item landing-hero-strap">
-                {['À quelle heure lancer ?', 'Quand wrapper ?', 'Combien de repos prévoir ?'].map((item) => (
+                {heroQuestions.map((item) => (
                   <span key={item} className="landing-fire-chip">{item}</span>
                 ))}
               </div>
             </div>
 
             <div className="landing-hero-preview">
-              {HERO_METRICS.map(([label, value]) => (
+              {heroMetrics.map((entry) => {
+                const label = Array.isArray(entry) ? entry[0] : entry?.label
+                const value = Array.isArray(entry) ? entry[1] : entry?.value
+                return (
                 <div key={label} className="landing-preview-card hero-item">
                   <div className="pm-eyebrow" style={{ color: 'rgba(245,241,234,0.58)', marginBottom: 10 }}>{label}</div>
                   <div style={{ fontFamily: 'Oswald, sans-serif', fontSize: 34, lineHeight: .95, letterSpacing: '.04em', color: '#f5f1ea' }}>{value}</div>
                 </div>
-              ))}
+                )
+              })}
               <div className="landing-preview-card landing-preview-wide hero-item">
                 <div style={{ display:'grid', gap: 8 }}>
-                  <div className="pm-eyebrow" style={{ color: 'rgba(245,241,234,0.58)' }}>exemple de service</div>
+                  <div className="pm-eyebrow" style={{ color: 'rgba(245,241,234,0.58)' }}>{valueSection?.subtitle || 'exemple de service'}</div>
                   <div style={{ fontFamily: 'Oswald, sans-serif', fontSize: 'clamp(34px, 4.5vw, 60px)', lineHeight: .92, letterSpacing: '.04em', color: '#f5f1ea', textTransform: 'uppercase' }}>
-                    Brisket prête pour 19h
+                    {valueSection?.title || 'Brisket prête pour 19h'}
                   </div>
                 </div>
                 <div style={{ display:'flex', gap:8, flexWrap:'wrap', justifyContent:'flex-end' }}>
-                  {['Stall 65–75°C', 'Wrap 70–75°C', 'Tests dès 90°C'].map((item) => (
+                  {getSectionItems(valueSection, ['Stall 65–75°C', 'Wrap 70–75°C', 'Tests dès 90°C']).map((item) => (
                     <span key={item} className="landing-fire-chip">{item}</span>
                   ))}
                 </div>
@@ -341,16 +389,16 @@ export default function Landing() {
 
       <section className="landing-section-tight">
         <div className="pm-shell" style={{ padding: '0 4px' }}>
-          <div style={{ display: 'grid', gap: 12 }}>
-            <div className="pm-kicker">Pourquoi c’est utile</div>
+            <div style={{ display: 'grid', gap: 12 }}>
+            <div className="pm-kicker">{valueSection?.settings_json?.eyebrow || 'Pourquoi c’est utile'}</div>
             <h2 className="pm-section-title" style={{ fontSize: 'clamp(30px, 4.8vw, 48px)' }}>
-              Plus besoin de deviner.
+              {valueSection?.title || 'Plus besoin de deviner.'}
             </h2>
             <p className="pm-section-copy" style={{ maxWidth: 760 }}>
-              Tu n’as plus à choisir au hasard entre finir trop tard ou te lever à 4h. Le site t’aide à prévoir large, à mieux gérer le repos et à servir une viande prête au bon moment.
+              {valueSection?.content || 'Tu n’as plus à choisir au hasard entre finir trop tard ou te lever à 4h. Le site t’aide à prévoir large, à mieux gérer le repos et à servir une viande prête au bon moment.'}
             </p>
             <div style={{ display:'flex', gap:10, flexWrap:'wrap', marginTop: 2 }}>
-              {USER_QUESTIONS.map((item) => (
+              {heroQuestions.map((item) => (
                 <span key={item} className="landing-fire-chip">
                   {item}
                 </span>
@@ -366,38 +414,44 @@ export default function Landing() {
             <div>
               <div className="pm-eyebrow" style={{ marginBottom: 10, color:'var(--text3)' }}>Le calculateur</div>
               <h2 className="pm-section-title" style={{ fontSize: 'clamp(34px, 4.8vw, 58px)', marginBottom: 14 }}>
-                Entre ta cuisson.
-                <br />
-                Reçois ton plan.
+                {(calculatorSection?.title || 'Entre ta cuisson.\nReçois ton plan.').split('\n').map((line, index, array) => (
+                  <span key={`${line}-${index}`}>
+                    {line}
+                    {index < array.length - 1 ? <><br /></> : null}
+                  </span>
+                ))}
               </h2>
               <p className="pm-section-copy" style={{ maxWidth: 540 }}>
-                Choisis la viande, entre le poids, règle ton fumoir et ton heure de service. En quelques secondes, tu sais quand lancer la cuisson.
+                {calculatorSection?.content || 'Choisis la viande, entre le poids, règle ton fumoir et ton heure de service. En quelques secondes, tu sais quand lancer la cuisson.'}
               </p>
               <div style={{ display:'flex', gap:10, flexWrap:'wrap', marginTop: 18 }}>
                 <button onClick={() => openCalculator()} className="pm-btn-primary" style={{ width: 'auto', padding: '14px 22px' }}>
-                  Calculer maintenant
+                  {calculatorSection?.cta_text || 'Calculer maintenant'}
                 </button>
                 <button onClick={saveCook} className="pm-btn-secondary" style={{ width: 'auto', padding: '14px 18px' }}>
-                  Retrouver mes plans
+                  {calculatorSection?.settings_json?.secondary_cta_text || 'Retrouver mes plans'}
                 </button>
               </div>
             </div>
             <div className="feature-grid">
-              {[
-                ['Tu sais quand démarrer', <ClockIcon key="clock" />],
-                ['Tu prévois le repos', <GaugeIcon key="gauge" />],
-                ['Tu retrouves tes cuissons', <SaveIcon key="save" />],
-              ].map(([label, icon]) => (
+              {getSectionItems(calculatorSection, [
+                ['Tu sais quand démarrer', 'Une réponse claire à une vraie question de cuisson, sans te noyer dans le détail.'],
+                ['Tu prévois le repos', 'Le repos fait partie du plan, pas d’un oubli de dernière minute.'],
+                ['Tu retrouves tes cuissons', 'Tu peux revenir sur un service et garder tes repères.'],
+              ]).map(([label, copy], index) => {
+                const icon = index === 0 ? <ClockIcon key="clock" /> : index === 1 ? <GaugeIcon key="gauge" /> : <SaveIcon key="save" />
+                return (
                 <div key={label} className="feature-slab" style={{ padding: 22 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                     <IconFrame>{icon}</IconFrame>
                     <div style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: 21, fontWeight: 700, color: 'var(--text)', letterSpacing: '.02em' }}>{label}</div>
                   </div>
                   <p style={{ fontSize: 14, color:'var(--text2)', lineHeight: 1.6 }}>
-                    Une réponse claire à une vraie question de cuisson, sans te noyer dans le détail.
+                    {copy}
                   </p>
                 </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         </div>
@@ -405,14 +459,10 @@ export default function Landing() {
 
       <section className="landing-section">
         <div className="pm-shell feature-grid">
-          {[
-            ['Tu ne rates plus ton départ', 'Tu vois rapidement si ton service demande un lancement la veille, un réveil tôt ou un départ confortable le matin.'],
-            ['Tu gères mieux ton repos', 'Le plan n’oublie pas le hold. C’est souvent lui qui sauve un service propre et une viande plus sereine.'],
-            ['Tu cuisines avec une vraie ligne de conduite', 'Repères de stall, wrap, tests de tendreté et fenêtre de service : tu avances avec des points concrets.'],
-          ].map(([title, copy]) => (
-            <div key={title} style={{ paddingTop: 22, borderTop: '1px solid #2b2b2b' }}>
-              <h3 style={{ fontSize: 24, color: 'var(--text)', marginBottom: 10, fontFamily: 'Rajdhani, sans-serif', letterSpacing: '.02em' }}>{title}</h3>
-              <p>{copy}</p>
+          {benefitCards.map((item) => (
+            <div key={item.title} style={{ paddingTop: 22, borderTop: '1px solid #2b2b2b' }}>
+              <h3 style={{ fontSize: 24, color: 'var(--text)', marginBottom: 10, fontFamily: 'Rajdhani, sans-serif', letterSpacing: '.02em' }}>{item.title}</h3>
+              <p>{item.copy}</p>
             </div>
           ))}
         </div>
@@ -423,15 +473,15 @@ export default function Landing() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', gap: 24, flexWrap: 'wrap', marginBottom: 18 }}>
             <div>
               <div className="pm-eyebrow" style={{ marginBottom: 10, color:'var(--text3)' }}>Pour quelles cuissons ?</div>
-              <h2 className="pm-section-title" style={{ fontSize: 'clamp(30px, 4.5vw, 52px)' }}>Les cuissons qui comptent vraiment.</h2>
+              <h2 className="pm-section-title" style={{ fontSize: 'clamp(30px, 4.5vw, 52px)' }}>{cooksSection?.title || 'Les cuissons qui comptent vraiment.'}</h2>
             </div>
             <p className="pm-section-copy" style={{ maxWidth: 420 }}>
-              Brisket, ribs, pulled pork, paleron, short ribs, poulet, agneau. Tu te projettes tout de suite dans ta prochaine cuisson.
+              {cooksSection?.content || 'Brisket, ribs, pulled pork, paleron, short ribs, poulet, agneau. Tu te projettes tout de suite dans ta prochaine cuisson.'}
             </p>
           </div>
 
           <div className="guide-strip">
-            {COOKS.map((item) => (
+            {cookCards.map((item) => (
               <button
                 key={item.key}
                 onClick={() => openCalculator(item.key)}
@@ -462,20 +512,16 @@ export default function Landing() {
         <div className="pm-shell premium-card" style={{ padding: 30 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'end', gap: 24, flexWrap: 'wrap', marginBottom: 18 }}>
             <div>
-              <div className="pm-eyebrow" style={{ marginBottom: 10, color:'var(--text3)' }}>Comment ça marche ?</div>
-              <h2 className="pm-section-title" style={{ fontSize: 'clamp(30px, 4.5vw, 52px)' }}>Trois étapes, pas plus.</h2>
+              <div className="pm-eyebrow" style={{ marginBottom: 10, color:'var(--text3)' }}>{howItWorksSection?.subtitle || 'Comment ça marche ?'}</div>
+              <h2 className="pm-section-title" style={{ fontSize: 'clamp(30px, 4.5vw, 52px)' }}>{howItWorksSection?.title || 'Trois étapes, pas plus.'}</h2>
             </div>
             <p className="pm-section-copy" style={{ maxWidth: 420 }}>
-              Le but n’est pas de t’impressionner. Le but, c’est de t’aider à lancer ta cuisson au bon moment.
+              {howItWorksSection?.content || 'Le but n’est pas de t’impressionner. Le but, c’est de t’aider à lancer ta cuisson au bon moment.'}
             </p>
           </div>
 
           <div className="material-grid">
-            {[
-              ['01', 'Choisis ta viande', 'Brisket, ribs, pulled pork, poulet, agneau… commence par la cuisson que tu prépares.'],
-              ['02', 'Entre ton poids et ton heure', 'Tu donnes le poids, la méthode et l’heure à laquelle tu veux servir.'],
-              ['03', 'Reçois ton plan', 'Le site te donne l’heure de départ, la fenêtre de service et les repères utiles.'],
-            ].map(([step, title, copy]) => (
+            {howItWorksItems.map(([step, title, copy]) => (
               <div key={title} className="feature-slab" style={{ padding: 22 }}>
                 <div style={{ display: 'inline-flex', marginBottom: 12, padding: '6px 10px', borderRadius: 10, background: 'var(--orange-bg)', border: '1px solid var(--orange-border)', color: 'var(--orange)', fontSize: 11, fontWeight: 800 }}>
                   {step}
@@ -491,20 +537,15 @@ export default function Landing() {
       <section id="guides" className="landing-section">
         <div className="pm-shell">
           <div className="premium-card" style={{ padding: 28 }}>
-            <div className="pm-eyebrow" style={{ marginBottom: 10, color:'var(--text3)' }}>À garder en tête</div>
+            <div className="pm-eyebrow" style={{ marginBottom: 10, color:'var(--text3)' }}>{reassuranceSection?.subtitle || 'À garder en tête'}</div>
             <h2 className="pm-section-title" style={{ fontSize: 'clamp(28px, 4vw, 44px)', marginBottom: 12 }}>
-              Le BBQ reste vivant.
+              {reassuranceSection?.title || 'Le BBQ reste vivant.'}
             </h2>
             <p className="pm-section-copy" style={{ maxWidth: 760, marginBottom: 18 }}>
-              La viande, le fumoir et la météo peuvent faire bouger la cuisson. Le but est de prévoir large, de garder une vraie marge de repos et de préférer une viande prête un peu tôt qu’un service en retard.
+              {reassuranceSection?.content || 'La viande, le fumoir et la météo peuvent faire bouger la cuisson. Le but est de prévoir large, de garder une vraie marge de repos et de préférer une viande prête un peu tôt qu’un service en retard.'}
             </p>
             <div style={{ display:'flex', gap:10, flexWrap:'wrap' }}>
-              {[
-                'Prévoir large',
-                'Le repos compte',
-                'Le wrap aide',
-                'Mieux vaut finir un peu tôt',
-              ].map((item) => (
+              {reassuranceChips.map((item) => (
                 <span key={item} className="landing-fire-chip">
                   {item}
                 </span>
@@ -520,19 +561,19 @@ export default function Landing() {
             <div>
               <div style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: 22, fontWeight: 700, marginBottom: 8, letterSpacing: '.03em' }}>Charbon &amp; Flamme</div>
               <p className="pm-section-copy" style={{ maxWidth: 420 }}>
-                Lance ta cuisson avec un vrai plan. Prépare ton prochain service sans deviner.
+                {finalCtaSection?.content || 'Lance ta cuisson avec un vrai plan. Prépare ton prochain service sans deviner.'}
               </p>
               <div style={{ marginTop: 16, display:'flex', gap:10, flexWrap:'wrap' }}>
                 <button onClick={() => openCalculator()} className="pm-btn-primary" style={{ width:'auto', padding:'14px 18px' }}>
-                  Tester le calculateur
+                  {finalCtaSection?.cta_text || 'Tester le calculateur'}
                 </button>
                 <button onClick={saveCook} className="pm-btn-secondary" style={{ width:'auto', padding:'14px 18px' }}>
-                  Retrouver mes cuissons
+                  {finalCtaSection?.settings_json?.secondary_cta_text || 'Retrouver mes cuissons'}
                 </button>
               </div>
             </div>
             <div className="link-grid">
-              {USER_QUESTIONS.concat(['Brisket', 'Ribs']).map((label) => (
+              {heroQuestions.concat(['Brisket', 'Ribs']).map((label) => (
                 <button
                   key={label}
                   onClick={() => openCalculator()}

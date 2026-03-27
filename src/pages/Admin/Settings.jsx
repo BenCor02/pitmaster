@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import { supabase } from '../../lib/supabase'
 import { invalidateSettingsCache } from '../../hooks/useSiteSettings'
 import { useSnack } from '../../components/Snack'
 import Snack from '../../components/Snack'
+import { fetchSiteSettingsRow, upsertSiteSettingsRow } from '../../lib/cms'
 
 const css = `
   .adm-card{background:#171410;border:1px solid #1e1a14;border-radius:14px;padding:20px;margin-bottom:12px}
@@ -35,27 +35,22 @@ const DEFAULT_SETTINGS = {
 export default function AdminSettings() {
   const { snack, showSnack } = useSnack()
   const [settings, setSettings] = useState(DEFAULT_SETTINGS)
-  const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [activeTab, setActiveTab] = useState('general')
 
-  useEffect(() => { loadSettings() }, [])
-
   async function loadSettings() {
-    setLoading(true)
-    const { data } = await supabase.from('site_settings').select('*')
-    if (data) {
-      const map = {}
-      data.forEach(row => { map[row.key] = row.value })
-      setSettings(prev => ({ ...prev, ...map }))
-    }
-    setLoading(false)
+    const data = await fetchSiteSettingsRow()
+    if (data) setSettings(prev => ({ ...prev, ...data }))
   }
 
   async function saveSettings() {
     setSaving(true)
-    const rows = Object.entries(settings).map(([key, value]) => ({ key, value: String(value) }))
-    const { error } = await supabase.from('site_settings').upsert(rows, { onConflict: 'key' })
+    let error = null
+    try {
+      await upsertSiteSettingsRow(settings)
+    } catch (err) {
+      error = err
+    }
     setSaving(false)
     if (error) { showSnack('Erreur: ' + error.message, 'error'); return }
     invalidateSettingsCache()
@@ -72,6 +67,11 @@ export default function AdminSettings() {
     { id:'appearance', label:'Apparence', icon:'🎨' },
     { id:'system', label:'Système', icon:'🛠️' },
   ]
+
+  useEffect(() => {
+    const timer = setTimeout(() => { loadSettings() }, 0)
+    return () => clearTimeout(timer)
+  }, [])
 
   return (
     <div style={{ fontFamily:'DM Sans,sans-serif' }}>

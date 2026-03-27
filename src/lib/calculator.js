@@ -63,7 +63,8 @@ function isRibsCook(meatKey) {
 }
 
 // PATCH: référentiel pitmaster structuré par viande et par méthode
-const PITMASTER_PROFILES = {
+// PATCH: export explicite pour permettre la migration/seed Supabase du moteur BBQ
+export const PITMASTER_PROFILES = {
   brisket: {
     id: 'brisket',
     label: 'Brisket',
@@ -635,6 +636,77 @@ const PITMASTER_PROFILES = {
   },
 }
 
+let runtimeProfiles = null
+
+// PATCH: le moteur peut désormais être piloté par un catalogue Supabase, sans casser les appels existants.
+export function setRuntimeCalculatorProfiles(profiles) {
+  runtimeProfiles = profiles && typeof profiles === 'object' ? profiles : null
+}
+
+export function clearRuntimeCalculatorProfiles() {
+  runtimeProfiles = null
+}
+
+export function buildRuntimeProfilesFromCatalog(catalog = {}) {
+  const meats = Array.isArray(catalog.meats) ? catalog.meats : []
+  const methods = Array.isArray(catalog.methods) ? catalog.methods : []
+  const parameters = Array.isArray(catalog.parameters) ? catalog.parameters : []
+  if (!meats.length || !methods.length) return null
+
+  const paramsByMethodId = Object.fromEntries(parameters.map((entry) => [entry.method_id, entry]))
+  const profiles = {}
+
+  meats
+    .filter((meat) => meat.is_active !== false)
+    .forEach((meat) => {
+      const meatMethods = methods
+        .filter((method) => method.meat_id === meat.id && method.is_active !== false)
+        .sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0))
+
+      if (!meatMethods.length) return
+
+      profiles[meat.slug] = {
+        id: meat.slug,
+        label: meat.name,
+        tempTarget: meatMethods[0]?.target_internal_temp ?? null,
+        defaultWeightKg: Number(meat.default_weight_kg) || 3,
+        temperatureCues: {
+          stallRangeC: meatMethods[0]?.stall_min != null && meatMethods[0]?.stall_max != null ? [meatMethods[0].stall_min, meatMethods[0].stall_max] : null,
+          wrapRangeC: meatMethods[0]?.wrap_temp != null ? [Math.max(meatMethods[0].wrap_temp - 3, 0), meatMethods[0].wrap_temp + 3] : null,
+          probeStartC: meatMethods[0]?.probe_start_temp ?? null,
+          probeTenderRangeC: meatMethods[0]?.target_internal_temp_min != null && meatMethods[0]?.target_internal_temp_max != null
+            ? [meatMethods[0].target_internal_temp_min, meatMethods[0].target_internal_temp_max]
+            : meatMethods[0]?.target_internal_temp != null
+              ? meatMethods[0].target_internal_temp
+              : null,
+          restMinutes: meatMethods[0]?.rest_min != null && meatMethods[0]?.rest_max != null
+            ? [meatMethods[0].rest_min, meatMethods[0].rest_max]
+            : [30, 60],
+        },
+        methods: meatMethods.map((method) => {
+          const param = paramsByMethodId[method.id]
+          return {
+            method: method.method_key,
+            smokerTempRange: [method.smoker_temp_min, method.smoker_temp_max],
+            smokerTempDefault: method.smoker_temp_default,
+            minutesPerKg: param
+              ? [param.high_temp_minutes_per_kg, param.low_temp_minutes_per_kg]
+              : [method.high_temp_minutes_per_kg ?? 120, method.low_temp_minutes_per_kg ?? 180],
+            stallRange: method.stall_min != null && method.stall_max != null ? [method.stall_min, method.stall_max] : null,
+            stallDurationMin: method.stall_duration_min ?? 0,
+            wrapTemp: method.wrap_temp ?? null,
+            wrapTimeSavedPercent: method.wrap_time_saved_percent ?? 0,
+            restMinutes: method.rest_min != null && method.rest_max != null ? [method.rest_min, method.rest_max] : [30, 60],
+            fixedTotalMinutes: method.fixed_total_min != null && method.fixed_total_max != null ? [method.fixed_total_min, method.fixed_total_max] : null,
+            notes: method.notes || '',
+          }
+        }),
+      }
+    })
+
+  return Object.keys(profiles).length ? profiles : null
+}
+
 const METHOD_LABELS = {
   low_and_slow: 'Low & Slow',
   hot_and_fast: 'Hot & Fast',
@@ -680,7 +752,8 @@ export const PHASE_BASES = Object.fromEntries(
 )
 
 function getProfile(meatKey) {
-  return PITMASTER_PROFILES[meatKey] || PITMASTER_PROFILES[KEY_ALIASES[meatKey]] || null
+  const source = runtimeProfiles || PITMASTER_PROFILES
+  return source[meatKey] || source[KEY_ALIASES[meatKey]] || null
 }
 
 // PATCH: helpers exportés pour garder la méthode et les plages de température cohérentes dans le front
