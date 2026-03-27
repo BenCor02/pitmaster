@@ -146,16 +146,24 @@ export function AuthProvider({ children }) {
   const isPro     = profile?.plan_code !== 'free'
 
   async function signOut() {
-    // PATCH: certains navigateurs peuvent bloquer/rallonger signOut côté Supabase.
-    // On garde donc une sortie locale robuste pour éviter un spinner infini.
+    // PATCH: déconnexion locale forcée pour éviter les sessions qui restent accrochées dans le navigateur.
     try {
       await Promise.race([
-        supabase.auth.signOut(),
+        supabase.auth.signOut({ scope: 'local' }),
         new Promise((resolve) => setTimeout(resolve, 2500)),
       ])
     } catch (error) {
       console.warn('signOut fallback:', error)
     }
+
+    try {
+      const storageKey = `sb-${new URL('https://zkjfuzclkrwyustgsezd.supabase.co').hostname.split('.')[0]}-auth-token`
+      localStorage.removeItem(storageKey)
+      sessionStorage.removeItem(storageKey)
+    } catch (error) {
+      console.warn('local auth storage cleanup failed:', error)
+    }
+
     setUser(null)
     setProfile(null)
     setRoles([])
