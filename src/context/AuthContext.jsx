@@ -146,7 +146,16 @@ export function AuthProvider({ children }) {
   const isPro     = profile?.plan_code !== 'free'
 
   async function signOut() {
-    await supabase.auth.signOut()
+    // PATCH: certains navigateurs peuvent bloquer/rallonger signOut côté Supabase.
+    // On garde donc une sortie locale robuste pour éviter un spinner infini.
+    try {
+      await Promise.race([
+        supabase.auth.signOut(),
+        new Promise((resolve) => setTimeout(resolve, 2500)),
+      ])
+    } catch (error) {
+      console.warn('signOut fallback:', error)
+    }
     setUser(null)
     setProfile(null)
     setRoles([])

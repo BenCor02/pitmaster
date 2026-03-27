@@ -65,6 +65,9 @@ export default function Auth() {
     try {
       await signOut()
       navigate('/auth', { replace: true })
+      setTimeout(() => {
+        window.location.reload()
+      }, 120)
     } catch (err) {
       setError(err?.message || 'Impossible de se déconnecter')
     } finally {
