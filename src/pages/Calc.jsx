@@ -507,7 +507,7 @@ export default function Calc() {
       `}</style>
       <Snack snack={snack} />
 
-      {/* Entrée produit: plus éditoriale, mais orientée usage */}
+      {/* Entrée produit: plus simple et plus claire */}
       <div className="pm-hero-shell" style={{ marginBottom: 18 }}>
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))', gap:16, alignItems:'stretch' }}>
           <div>
@@ -521,29 +521,29 @@ export default function Calc() {
               Le calculateur gratuit te donne une heure de départ crédible, une fenêtre de service et les repères terrain qui comptent vraiment pendant la cuisson.
             </p>
             <div className="pm-grid-2" style={{ marginTop: 16 }}>
-              <div style={{ background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.06)', borderRadius:18, padding:'12px 14px' }}>
-                <div style={{ fontSize:10, color:'var(--text3)', textTransform:'uppercase', marginBottom:4 }}>Lecture immediate</div>
+              <div style={{ background:'rgba(255,255,255,0.52)', border:'1px solid rgba(42,33,27,0.08)', borderRadius:18, padding:'12px 14px' }}>
+                <div style={{ fontSize:10, color:'var(--text3)', textTransform:'uppercase', marginBottom:4 }}>Lecture immédiate</div>
                 <div style={{ fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:15, color:'var(--text)' }}>Depart net, service credible</div>
               </div>
-              <div style={{ background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.06)', borderRadius:18, padding:'12px 14px' }}>
+              <div style={{ background:'rgba(255,255,255,0.52)', border:'1px solid rgba(42,33,27,0.08)', borderRadius:18, padding:'12px 14px' }}>
                 <div style={{ fontSize:10, color:'var(--text3)', textTransform:'uppercase', marginBottom:4 }}>Retour utilisateur</div>
                 <div style={{ fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:15, color:'var(--text)' }}>Sauvegarde, partage, consultation mobile</div>
               </div>
             </div>
           </div>
-          <div style={{ position:'relative', minHeight:220, borderRadius:24, overflow:'hidden', border:'1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ position:'relative', minHeight:220, borderRadius:24, overflow:'hidden', border:'1px solid rgba(42,33,27,0.08)' }}>
             <img
               src={MEAT_IMAGES[meatKey] || MEAT_IMAGES.brisket}
               alt={meatData?.full || 'BBQ'}
               style={{ width:'100%', height:'100%', objectFit:'cover', display:'block', filter:'saturate(.96) contrast(1.06)' }}
             />
-            <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(8,6,5,0.96) 0%, rgba(8,6,5,0.28) 56%, rgba(8,6,5,0.18) 100%)' }} />
+            <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(28,22,18,0.76) 0%, rgba(28,22,18,0.12) 56%, rgba(28,22,18,0.08) 100%)' }} />
             <div style={{ position:'absolute', left:16, right:16, bottom:16 }}>
               <div className="pm-kicker" style={{ marginBottom: 10 }}>{meatData?.full || 'Cuisson low & slow'}</div>
-              <div style={{ fontFamily:'Syne, sans-serif', fontSize:26, fontWeight:800, color:'var(--text)', lineHeight:1.05, marginBottom:6 }}>
+              <div style={{ fontFamily:'Syne, sans-serif', fontSize:26, fontWeight:800, color:'#fff', lineHeight:1.05, marginBottom:6 }}>
                 {smokerTemp}°C · {wrapType === 'none' ? 'Sans wrap' : wrapType === 'foil' ? 'Wrap alu' : 'Wrap papier'}
               </div>
-              <div style={{ fontSize:12, color:'rgba(255,247,240,0.72)', lineHeight:1.6 }}>
+              <div style={{ fontSize:12, color:'rgba(255,255,255,0.82)', lineHeight:1.6 }}>
                 Lecture compacte, pensée pour la vraie cuisson.
               </div>
             </div>
@@ -558,7 +558,7 @@ export default function Calc() {
       </div>
 
       {/* PATCH: positionnement acquisition gratuit, sans inscription obligatoire */}
-      <div className="pm-card" style={{ marginBottom: 12, background: 'linear-gradient(180deg,var(--surface),var(--surface2))' }}>
+      <div className="pm-card" style={{ marginBottom: 12, background: 'linear-gradient(180deg,rgba(255,252,247,0.96),rgba(247,240,233,0.98))' }}>
         <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 16, color: 'var(--text)', marginBottom: 6 }}>
           Gratuit, immédiat, pensé pour la vraie cuisson
         </div>
@@ -569,10 +569,10 @@ export default function Calc() {
           <span style={{ padding: '4px 10px', borderRadius: 50, background: 'var(--orange-bg)', border: '1px solid var(--orange-border)', fontSize: 11, color: 'var(--orange)', fontWeight: 700 }}>
             Sans inscription obligatoire
           </span>
-          <span style={{ padding: '4px 10px', borderRadius: 50, background: 'var(--surface)', border: '1px solid var(--border)', fontSize: 11, color: 'var(--text3)' }}>
+          <span style={{ padding: '4px 10px', borderRadius: 50, background: 'rgba(255,255,255,0.8)', border: '1px solid var(--border)', fontSize: 11, color: 'var(--text3)' }}>
             Planning partageable
           </span>
-          <span style={{ padding: '4px 10px', borderRadius: 50, background: 'var(--surface)', border: '1px solid var(--border)', fontSize: 11, color: 'var(--text3)' }}>
+          <span style={{ padding: '4px 10px', borderRadius: 50, background: 'rgba(255,255,255,0.8)', border: '1px solid var(--border)', fontSize: 11, color: 'var(--text3)' }}>
             Compte utile pour sauvegarder l’historique
           </span>
         </div>
@@ -764,7 +764,7 @@ export default function Calc() {
           )}
 
           {/* HERO */}
-          <div style={{ background: 'linear-gradient(180deg, rgba(28,22,18,0.9), rgba(18,15,12,0.96))', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 24, padding: '22px 20px', marginBottom: 12, position: 'relative', overflow: 'hidden', boxShadow: 'var(--shadow-soft)' }}>
+          <div style={{ background: 'linear-gradient(180deg, rgba(255,252,247,0.98), rgba(245,238,231,0.98))', border: '1px solid rgba(42,33,27,0.08)', borderRadius: 24, padding: '22px 20px', marginBottom: 12, position: 'relative', overflow: 'hidden', boxShadow: 'var(--shadow-soft)' }}>
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'var(--orange)', borderRadius: '20px 20px 0 0' }} />
             <div style={{ textAlign: 'center', marginBottom: 16 }}>
               <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '1px' }}>Heure de départ recommandée</div>
@@ -774,16 +774,16 @@ export default function Calc() {
               </div>
             </div>
 
-            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 18, padding: '14px', marginBottom: 12 }}>
+            <div style={{ background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(42,33,27,0.08)', borderRadius: 18, padding: '14px', marginBottom: 12 }}>
               <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 18, color: 'var(--text)', marginBottom: 6, textAlign: 'center' }}>
                 {getReadyWindowText(result)}
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 12, marginBottom: 12 }}>
-                <div style={{ background: 'rgba(0,0,0,0.16)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '10px 12px', textAlign: 'center' }}>
+                <div style={{ background: 'rgba(255,255,255,0.82)', border: '1px solid rgba(42,33,27,0.08)', borderRadius: 12, padding: '10px 12px', textAlign: 'center' }}>
                   <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Fin cuisson</div>
                   <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 700, fontSize: 14, color: 'var(--text)' }}>{result.cookDoneTime}</div>
                 </div>
-                <div style={{ background: 'rgba(0,0,0,0.16)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '10px 12px', textAlign: 'center' }}>
+                <div style={{ background: 'rgba(255,255,255,0.82)', border: '1px solid rgba(42,33,27,0.08)', borderRadius: 12, padding: '10px 12px', textAlign: 'center' }}>
                   <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>Prêt après repos</div>
                   <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 700, fontSize: 14, color: 'var(--text)' }}>{result.readyAfterRestTime}</div>
                 </div>
@@ -798,7 +798,7 @@ export default function Calc() {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               {getHeroCues(result).map(cue => (
-                <div key={cue.label} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '10px 12px' }}>
+                <div key={cue.label} style={{ background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(42,33,27,0.08)', borderRadius: 12, padding: '10px 12px' }}>
                   <div style={{ fontSize: 9, color: 'var(--text3)', textTransform: 'uppercase', marginBottom: 4 }}>{cue.label}</div>
                   <div style={{ fontFamily: 'DM Mono, monospace', fontWeight: 700, fontSize: 12, color: 'var(--text)' }}>{cue.value}</div>
                 </div>
@@ -1048,7 +1048,7 @@ export default function Calc() {
         </div>
       )}
 
-      <div style={{ marginTop: 26 }}>
+      <div style={{ marginTop: 24 }}>
         <div className="pm-sec-label">Conseils Pitmaster</div>
         <div className="calc-seo-grid" style={{ marginBottom: 12 }}>
           {PITMASTER_CONTENT[0].items.map((item, index) => (
