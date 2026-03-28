@@ -228,6 +228,7 @@ export default function LandingPage() {
   // PATCH: la landing peut envoyer une viande déjà choisie vers le calculateur
   const openCalculator = (preselectMeatKey = null) =>
     navigate('/app', { state: preselectMeatKey ? { preselectMeatKey } : undefined })
+  const openMeatGuide = (meatKey) => navigate(`/viandes/${meatKey}`)
   const saveCook = () => navigate('/auth', { state: { from: '/app', reason: 'save-planning' } })
   // PATCH: les liens de la landing font soit un vrai scroll, soit une vraie navigation app
   const scrollToSection = (sectionId) => {
@@ -490,7 +491,7 @@ export default function LandingPage() {
             {cookCards.map((item) => (
               <button
                 key={item.key}
-                onClick={() => openCalculator(item.key)}
+                onClick={() => openMeatGuide(item.key)}
                 className="dark-card lift"
                 style={{ overflow: 'hidden', cursor: 'pointer', textAlign: 'left', color: 'inherit', padding: 0 }}
               >
@@ -582,7 +583,11 @@ export default function LandingPage() {
               {heroQuestions.concat(['Brisket', 'Ribs']).map((label) => (
                 <button
                   key={label}
-                  onClick={() => openCalculator()}
+                  onClick={() => {
+                    if (label === 'Brisket') return openMeatGuide('brisket')
+                    if (label === 'Ribs') return openMeatGuide('ribs_pork')
+                    return openCalculator()
+                  }}
                   style={{ textAlign: 'left', background: 'none', border: 'none', padding: '0 0 8px', cursor: 'pointer', color: 'var(--text2)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}
                 >
                   {label}
