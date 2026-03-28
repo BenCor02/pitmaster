@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './context/AuthContext'
 import Layout from './components/Layout'
 import Auth from './pages/Auth'
+import AuthDebug from './pages/AuthDebug'
 import Calc from './pages/Calc'
 import Journal from './pages/Journal'
 import History from './pages/History'
@@ -103,6 +104,7 @@ export default function App() {
       <Route path="/"           element={<Landing />} />
       <Route path="/pricing"    element={<Navigate to="/app" replace />} />
       <Route path="/auth"            element={<Auth />} />
+      <Route path="/auth-debug"      element={<AuthDebug />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password"  element={<ResetPassword />} />
       <Route path="/onboarding" element={user ? <Onboarding /> : <Navigate to="/auth" replace />} />
