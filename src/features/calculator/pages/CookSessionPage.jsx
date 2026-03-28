@@ -12,9 +12,9 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { recalibrate, formatDuration, formatDisplayTimeRounded } from '../lib/calculator'
-import { MEAT_IMAGES, SMOKER_IMAGE } from '../lib/images'
-import { useAuth } from '../context/AuthContext'
+import { recalibrate, formatDuration, formatDisplayTimeRounded } from '../../../lib/calculator'
+import { MEAT_IMAGES, SMOKER_IMAGE } from '../../../lib/images'
+import { useAuth } from '../../../context/AuthContext'
 
 // Coefficients wrap locaux — alignés avec BASE_COEFFS de calculator.js
 // PATCH: alignement avec les coefficients terrain actuels du moteur
@@ -531,7 +531,7 @@ function ValidatedStep({ cp, result }) {
 }
 
 // ─── PAGE PRINCIPALE ─────────────────────────────────────────
-export default function CookSession() {
+export default function CookSessionPage() {
   const location = useLocation()
   const navigate = useNavigate()
   const { user } = useAuth()

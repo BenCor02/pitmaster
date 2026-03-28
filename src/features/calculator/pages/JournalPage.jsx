@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useAuth } from '../context/AuthContext'
-import { deleteJournalEntryById, fetchUserJournalEntries } from '../modules/cooks/repository'
-import { useSnack } from '../components/useSnack'
-import Snack from '../components/Snack'
+import { useAuth } from '../../../context/AuthContext'
+import { deleteJournalEntryById, fetchUserJournalEntries } from '../../../modules/cooks/repository'
+import { useSnack } from '../../../components/useSnack'
+import Snack from '../../../components/Snack'
 
 const css = `
   @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -42,7 +42,7 @@ function EmptyState() {
   )
 }
 
-export default function Journal() {
+export default function JournalPage() {
   const { user } = useAuth()
   const { snack, showSnack } = useSnack()
   const [entries, setEntries] = useState([])

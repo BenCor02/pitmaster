@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { supabase } from '../../modules/supabase/client'
-import { useSnack } from '../../components/useSnack'
-import Snack from '../../components/Snack'
+import { supabase } from '../../../modules/supabase/client'
+import { useSnack } from '../../../components/useSnack'
+import Snack from '../../../components/Snack'
 
 const css = `
   .adm-card{background:#171410;border:1px solid #1e1a14;border-radius:14px;padding:20px;margin-bottom:12px}
@@ -28,7 +28,7 @@ const STATUS_STYLES = {
   disabled: { color:'#ef4444' },
 }
 
-export default function AdminMembers() {
+export default function AdminMembersPage() {
   const { snack, showSnack } = useSnack()
   const [members, setMembers] = useState([])
   const [loading, setLoading] = useState(true)

@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { useAuth } from '../context/AuthContext'
-import { saveCookParty } from '../modules/cooks/repository'
-import { MEATS } from '../lib/meats'
-import { calculateLowSlow, buildTimeline, formatDuration, formatTime, addMinutes } from '../domain/calculator/engine'
+import { useAuth } from '../../../context/AuthContext'
+import { saveCookParty } from '../../../modules/cooks/repository'
+import { MEATS } from '../../../lib/meats'
+import { calculateLowSlow, buildTimeline, formatDuration, formatTime, addMinutes } from '../../../domain/calculator/engine'
 
 // Wrapper local — ancienne signature : (meatKey, weight, thickness, smokerTempC, method, wrap)
 function calculateCookTime(meatKey, weightKg, thicknessCm, smokerTempC = 120, method, willWrap) {
@@ -15,10 +15,10 @@ function calculateCookTime(meatKey, weightKg, thicknessCm, smokerTempC = 120, me
   const phases = buildTimeline(calc, smokerTempC)
   return { ...calc, phases }
 }
-import { useSnack } from '../components/useSnack'
-import Snack from '../components/Snack'
+import { useSnack } from '../../../components/useSnack'
+import Snack from '../../../components/Snack'
 
-export default function Party() {
+export default function PartyPage() {
   const { user } = useAuth()
   const { snack, showSnack } = useSnack()
   const [partyName, setPartyName] = useState('')

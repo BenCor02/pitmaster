@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import { invalidateSettingsCache } from '../../hooks/useSiteSettings'
-import { useSnack } from '../../components/useSnack'
-import Snack from '../../components/Snack'
-import { fetchSiteSettingsRow, upsertSiteSettingsRow } from '../../modules/cms/repository'
+import { invalidateSettingsCache } from '../../../hooks/useSiteSettings'
+import { useSnack } from '../../../components/useSnack'
+import Snack from '../../../components/Snack'
+import { fetchSiteSettingsRow, upsertSiteSettingsRow } from '../../../modules/cms/repository'
 
 const css = `
   .adm-card{background:#171410;border:1px solid #1e1a14;border-radius:14px;padding:20px;margin-bottom:12px}
@@ -32,7 +32,7 @@ const DEFAULT_SETTINGS = {
   announcement: '',
 }
 
-export default function AdminSettings() {
+export default function AdminSettingsPage() {
   const { snack, showSnack } = useSnack()
   const [settings, setSettings] = useState(DEFAULT_SETTINGS)
   const [saving, setSaving] = useState(false)

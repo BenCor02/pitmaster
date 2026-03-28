@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../../../context/AuthContext'
 
 const SYSTEM_PROMPT = `Tu es PitMaster AI, un expert en BBQ américain, fumage low & slow, et cuisine au feu. Tu réponds uniquement en français, de manière concise et pratique.
 
@@ -68,7 +68,7 @@ function formatMessage(text) {
     .replace(/(<li>.*<\/li>)+/g, match => `<ul>${match}</ul>`)
 }
 
-export default function AskAI() {
+export default function AskPitmasterPage() {
   useAuth()
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')

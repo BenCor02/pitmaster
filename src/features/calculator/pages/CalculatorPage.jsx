@@ -1,17 +1,17 @@
 import { useState, useEffect, useMemo } from 'react'
-import { MEAT_IMAGES, SMOKE_IMAGE } from '../lib/images'
+import { MEAT_IMAGES, SMOKE_IMAGE } from '../../../lib/images'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import { saveCookSession } from '../modules/cooks/repository'
-import { MEATS } from '../lib/meats'
-import { useCalculatorCatalog } from '../hooks/useCalculatorCatalog'
+import { useAuth } from '../../../context/AuthContext'
+import { saveCookSession } from '../../../modules/cooks/repository'
+import { MEATS } from '../../../lib/meats'
+import { useCalculatorCatalog } from '../../../hooks/useCalculatorCatalog'
 import {
   recalibrate, formatDuration, validateInput, PHASE_BASES, COOKING_METHODS,
   getCookingProfile, getMethodConfig,
-} from '../domain/calculator/engine.js'
-import { buildCookResult, buildCookRoadmap } from '../modules/calculator/planner'
-import { useSnack } from '../components/useSnack'
-import Snack from '../components/Snack'
+} from '../../../domain/calculator/engine.js'
+import { buildCookResult, buildCookRoadmap } from '../../../modules/calculator/planner'
+import { useSnack } from '../../../components/useSnack'
+import Snack from '../../../components/Snack'
 
 const MEAT_PROFILES = Object.fromEntries(
   Object.entries(PHASE_BASES).map(([k, v]) => [k, { ...v, method: 'lowslow' }])
@@ -290,7 +290,7 @@ function formatRangeDisplay(value, unit = 'c') {
   return formatTemperatureDisplay(value, unit)
 }
 
-export default function Calc() {
+export default function CalculatorPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { user } = useAuth()

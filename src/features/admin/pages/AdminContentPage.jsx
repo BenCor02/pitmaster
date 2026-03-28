@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { deletePageSection, fetchAdminPages, fetchAdminSections, upsertPage, upsertPageSection } from '../../modules/cms/repository'
+import { deletePageSection, fetchAdminPages, fetchAdminSections, upsertPage, upsertPageSection } from '../../../modules/cms/repository'
 
 const css = `
   .cms-wrap{display:grid;grid-template-columns:320px minmax(0,1fr);gap:18px}
@@ -25,7 +25,7 @@ const EMPTY_SECTION = {
   settings_json: '{}',
 }
 
-export default function AdminContent() {
+export default function AdminContentPage() {
   const [pages, setPages] = useState([])
   const [pageId, setPageId] = useState(null)
   const [pageForm, setPageForm] = useState({ title: '', slug: '', page_type: 'landing', status: 'draft', seo_title: '', seo_description: '' })

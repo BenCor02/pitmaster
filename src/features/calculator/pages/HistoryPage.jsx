@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../../../context/AuthContext'
 import {
   deleteAllCookSessionsForUser,
   deleteCookSessionById,
   fetchUserCookSessions,
-} from '../modules/cooks/repository'
-import { useSnack } from '../components/useSnack'
-import Snack from '../components/Snack'
+} from '../../../modules/cooks/repository'
+import { useSnack } from '../../../components/useSnack'
+import Snack from '../../../components/Snack'
 
 function fd(m) { const h = Math.floor(m / 60), mn = m % 60; return mn === 0 ? `${h}h` : `${h}h${String(mn).padStart(2, '0')}` }
 
@@ -43,7 +43,7 @@ function EmptyState() {
   )
 }
 
-export default function History() {
+export default function HistoryPage() {
   const { user } = useAuth()
   const { snack, showSnack } = useSnack()
   const [sessions, setSessions] = useState([])

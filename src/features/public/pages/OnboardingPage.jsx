@@ -6,8 +6,8 @@
 
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import { calculateLowSlow, formatDuration } from '../domain/calculator/engine'
+import { useAuth } from '../../../context/AuthContext'
+import { calculateLowSlow, formatDuration } from '../../../domain/calculator/engine'
 
 // ── Calcul rapide pour la preview ────────────────────────────
 function quickCalc(meatKey, weightKg, smokerTempC, serveHour) {
@@ -41,7 +41,7 @@ const MEATS = [
   { key:'paleron',        label:'Paleron',       emoji:'🥩' },
 ]
 
-export default function Onboarding() {
+export default function OnboardingPage() {
   const { user, updateProfile } = useAuth()
   const navigate  = useNavigate()
 

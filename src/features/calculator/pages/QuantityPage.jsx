@@ -40,7 +40,7 @@ const ITEMS = [
   },
 ]
 
-export default function Quantity() {
+export default function QuantityPage() {
   const [guests, setGuests] = useState(8)
   const [appetite, setAppetite] = useState('normal') // light | normal | big
   const [event, setEvent] = useState('dinner') // lunch | dinner | party

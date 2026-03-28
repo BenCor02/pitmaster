@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { fetchCalculatorCatalog, upsertCalculatorMeat, upsertCalculatorParameters, upsertCookingMethod } from '../../modules/cms/repository'
+import { fetchCalculatorCatalog, upsertCalculatorMeat, upsertCalculatorParameters, upsertCookingMethod } from '../../../modules/cms/repository'
 
 const css = `
   .cat-wrap{display:grid;grid-template-columns:320px minmax(0,1fr);gap:18px}
@@ -41,7 +41,7 @@ const EMPTY_METHOD = {
   display_order: 1,
 }
 
-export default function AdminMeats() {
+export default function AdminMeatsPage() {
   const [catalog, setCatalog] = useState({ meats: [], methods: [], parameters: [] })
   const [selectedSlug, setSelectedSlug] = useState(null)
   const [meatForm, setMeatForm] = useState(EMPTY_MEAT)

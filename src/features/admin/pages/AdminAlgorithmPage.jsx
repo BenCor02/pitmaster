@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
-import { supabase } from '../../modules/supabase/client'
-import { invalidateAdjustmentsCache } from '../../lib/engineLoader'
-import { BASE_COEFFS, PHASE_BASES } from '../../lib/calculator'
+import { supabase } from '../../../modules/supabase/client'
+import { invalidateAdjustmentsCache } from '../../../lib/engineLoader'
+import { BASE_COEFFS, PHASE_BASES } from '../../../lib/calculator'
 
 const MEAT_LABELS = {
   brisket:'Brisket', pork_shoulder:'Épaule Porc', ribs_pork:'Spare Ribs',
@@ -320,7 +320,7 @@ function TabStats({ history }) {
 }
 
 // ─── PAGE PRINCIPALE ──────────────────────────────────────────────────────
-export default function AdminAlgorithm() {
+export default function AdminAlgorithmPage() {
   const [tab, setTab] = useState('coeffs')
   const [coeffs, setCoeffs]           = useState([])
   const [suggestions, setSuggestions] = useState([])

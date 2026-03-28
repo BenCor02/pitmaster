@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { fetchCookDashboardMetrics } from '../../modules/cooks/repository'
+import { fetchCookDashboardMetrics } from '../../../modules/cooks/repository'
 
 const css = `
   @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -30,7 +30,7 @@ function StatCard({ label, value, sub, color = '#e85d04', icon, trend }) {
   )
 }
 
-export default function AdminDashboard() {
+export default function AdminDashboardPage() {
   const navigate = useNavigate()
   const [stats, setStats] = useState({ users:0, sessions:0, journal:0, parties:0 })
   const [recentSessions, setRecentSessions] = useState([])

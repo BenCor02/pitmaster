@@ -32,7 +32,7 @@ const css = `
   }
 `
 
-export default function AdminLayout() {
+export default function AdminShell() {
   const { user, signOut, isAdmin, profile } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()

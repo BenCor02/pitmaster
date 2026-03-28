@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { deleteMediaAsset, fetchMediaLibrary, uploadMediaAsset } from '../../modules/cms/repository'
-import { useAuth } from '../../context/AuthContext'
+import { deleteMediaAsset, fetchMediaLibrary, uploadMediaAsset } from '../../../modules/cms/repository'
+import { useAuth } from '../../../context/AuthContext'
 
 const css = `
   .media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
@@ -8,7 +8,7 @@ const css = `
   .media-input,.media-select{background:#0e0c0a;border:1px solid #252018;border-radius:10px;color:#d4c4b0;font-family:'DM Sans',sans-serif;font-size:13px;padding:10px 12px;outline:none;width:100%}
 `
 
-export default function AdminMedia() {
+export default function AdminMediaPage() {
   const { user } = useAuth()
   const [assets, setAssets] = useState([])
   const [bucket, setBucket] = useState('site-media')

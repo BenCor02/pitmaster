@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
-import { MEATS } from '../lib/meats'
-import { calculateLowSlow, buildTimeline, formatDuration } from '../domain/calculator/engine'
+import { MEATS } from '../../../lib/meats'
+import { calculateLowSlow, buildTimeline, formatDuration } from '../../../domain/calculator/engine'
 
 function calculateCookTime(meatKey, weightKg, thicknessCm, smokerTempC = 120, method, willWrap) {
   const calc = calculateLowSlow(meatKey, weightKg, { thicknessCm, smokerTempC, wrapType: willWrap ? 'butcher_paper' : 'none' })
   return { ...calc, phases: buildTimeline(calc, smokerTempC) }
 }
-import { useSnack } from '../components/useSnack'
-import Snack from '../components/Snack'
+import { useSnack } from '../../../components/useSnack'
+import Snack from '../../../components/Snack'
 
 function playBeep(ctx, freq = 880, dur = 0.3, vol = 0.5) {
   if (!ctx) return
@@ -135,7 +135,7 @@ function TimerCard({ timer, onRemove, onToggle, onReset }) {
   )
 }
 
-export default function Timer() {
+export default function TimerPage() {
   const { snack, showSnack } = useSnack()
   const [timers, setTimers] = useState([])
   const [mode, setMode] = useState('manual')

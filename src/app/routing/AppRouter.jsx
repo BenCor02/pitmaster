@@ -4,35 +4,35 @@ import { useAuth } from '../../context/AuthContext'
 import { AdminRoute, LoadingScreen } from './guards'
 
 const AppShell = lazy(() => import('../../features/app/AppShell'))
-const AdminLayout = lazy(() => import('../../pages/Admin/Layout'))
+const AdminShell = lazy(() => import('../../features/admin/AdminShell'))
 
 const LandingPage = lazy(() => import('../../features/public/pages/LandingPage'))
 const AuthPage = lazy(() => import('../../features/auth/pages/AuthPage'))
 const ForgotPasswordPage = lazy(() => import('../../features/auth/pages/ForgotPasswordPage'))
 const ResetPasswordPage = lazy(() => import('../../features/auth/pages/ResetPasswordPage'))
-const OnboardingPage = lazy(() => import('../../pages/Onboarding'))
+const OnboardingPage = lazy(() => import('../../features/public/pages/OnboardingPage'))
 
-const CalculatorPage = lazy(() => import('../../pages/Calc'))
-const PartyPage = lazy(() => import('../../pages/Party'))
-const JournalPage = lazy(() => import('../../pages/Journal'))
-const ColdSmokingPage = lazy(() => import('../../pages/Cold'))
-const TimerPage = lazy(() => import('../../pages/Timer'))
-const QuantityPage = lazy(() => import('../../pages/Quantity'))
-const CookSessionPage = lazy(() => import('../../pages/CookSession'))
-const HistoryPage = lazy(() => import('../../pages/History'))
-const AskPitmasterPage = lazy(() => import('../../pages/AskAI'))
+const CalculatorPage = lazy(() => import('../../features/calculator/pages/CalculatorPage'))
+const PartyPage = lazy(() => import('../../features/calculator/pages/PartyPage'))
+const JournalPage = lazy(() => import('../../features/calculator/pages/JournalPage'))
+const ColdSmokingPage = lazy(() => import('../../features/calculator/pages/ColdSmokingPage'))
+const TimerPage = lazy(() => import('../../features/calculator/pages/TimerPage'))
+const QuantityPage = lazy(() => import('../../features/calculator/pages/QuantityPage'))
+const CookSessionPage = lazy(() => import('../../features/calculator/pages/CookSessionPage'))
+const HistoryPage = lazy(() => import('../../features/calculator/pages/HistoryPage'))
+const AskPitmasterPage = lazy(() => import('../../features/calculator/pages/AskPitmasterPage'))
 const ProfilePage = lazy(() => import('../../features/calculator/pages/ProfilePage'))
 const AccountPage = lazy(() => import('../../features/calculator/pages/AccountPage'))
 
-const AdminDashboardPage = lazy(() => import('../../pages/Admin/Dashboard'))
-const AdminContentPage = lazy(() => import('../../pages/Admin/Content'))
-const AdminMediaPage = lazy(() => import('../../pages/Admin/Media'))
-const AdminMembersPage = lazy(() => import('../../pages/Admin/Members'))
-const AdminMeatsPage = lazy(() => import('../../pages/Admin/Meats'))
-const AdminSettingsPage = lazy(() => import('../../pages/Admin/Settings'))
-const AdminSecurityPage = lazy(() => import('../../pages/Admin/Security'))
+const AdminDashboardPage = lazy(() => import('../../features/admin/pages/AdminDashboardPage'))
+const AdminContentPage = lazy(() => import('../../features/admin/pages/AdminContentPage'))
+const AdminMediaPage = lazy(() => import('../../features/admin/pages/AdminMediaPage'))
+const AdminMembersPage = lazy(() => import('../../features/admin/pages/AdminMembersPage'))
+const AdminMeatsPage = lazy(() => import('../../features/admin/pages/AdminMeatsPage'))
+const AdminSettingsPage = lazy(() => import('../../features/admin/pages/AdminSettingsPage'))
+const AdminSecurityPage = lazy(() => import('../../features/admin/pages/AdminSecurityPage'))
 const AdminAccessPage = lazy(() => import('../../features/admin/pages/AdminAccessPage'))
-const AdminAlgorithmPage = lazy(() => import('../../pages/Admin/Algorithm'))
+const AdminAlgorithmPage = lazy(() => import('../../features/admin/pages/AdminAlgorithmPage'))
 
 function Placeholder({ name }) {
   return (
@@ -75,7 +75,7 @@ export default function AppRouter() {
           <Route path="billing" element={<AccountPage />} />
         </Route>
 
-        <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+        <Route path="/admin" element={<AdminRoute><AdminShell /></AdminRoute>}>
           <Route index element={<AdminDashboardPage />} />
           <Route path="content" element={<AdminContentPage />} />
           <Route path="media" element={<AdminMediaPage />} />

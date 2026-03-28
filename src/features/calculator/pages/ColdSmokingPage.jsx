@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { useSnack } from '../components/useSnack'
-import Snack from '../components/Snack'
+import { useSnack } from '../../../components/useSnack'
+import Snack from '../../../components/Snack'
 
 const css = `
   @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -237,7 +237,7 @@ function formatTime(hours) {
   return h === 0 ? `${d} jour${d > 1 ? 's' : ''}` : `${d}j ${h}h`
 }
 
-export default function Cold() {
+export default function ColdSmokingPage() {
   const { snack } = useSnack()
   const [product, setProduct] = useState('salmon')
   const [method, setMethod] = useState('ssv')
