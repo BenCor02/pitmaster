@@ -8,6 +8,7 @@ import { supabase, supabaseProjectUrl } from '../modules/supabase/client'
 import {
   fetchMyProfileRpc,
   fetchProfileByUserId,
+  ensureProfileForAuthUser,
   touchProfileLastSeen,
   updateProfileByUserId,
 } from '../modules/auth/repository'
@@ -59,8 +60,23 @@ export function AuthProvider({ children }) {
         }
       }
 
-      // PATCH: surtout ne plus écrire un fallback member en base.
-      // On préfère un profil mémoire temporaire plutôt que d'écraser un rôle admin.
+      // PATCH: base saine après reset.
+      // Si auth.users existe mais que public.profiles manque, on répare la ligne self.
+      if (!nextProfile) {
+        try {
+          const bootstrappedProfile = await ensureProfileForAuthUser(authUser)
+          if (bootstrappedProfile) {
+            nextProfile = {
+              ...bootstrappedProfile,
+              roles: bootstrappedProfile.role ? [bootstrappedProfile.role] : [],
+              source: 'bootstrap',
+            }
+          }
+        } catch (bootstrapError) {
+          console.warn('profile bootstrap failed', bootstrapError)
+        }
+      }
+
       if (!nextProfile) {
         nextProfile = {
           id: userId,

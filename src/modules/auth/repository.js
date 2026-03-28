@@ -15,6 +15,35 @@ export async function fetchProfileByUserId(userId) {
   return data
 }
 
+export async function ensureProfileForAuthUser(authUser) {
+  const userId = authUser?.id
+  if (!userId) return null
+
+  const existingProfile = await fetchProfileByUserId(userId)
+  if (existingProfile) return existingProfile
+
+  const payload = {
+    id: userId,
+    email: authUser.email || null,
+    first_name: authUser.user_metadata?.first_name || '',
+    last_name: authUser.user_metadata?.last_name || '',
+    role: 'member',
+    status: 'active',
+    account_status: 'active',
+    plan_code: 'free',
+    updated_at: new Date().toISOString(),
+  }
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .insert(payload)
+    .select('*')
+    .single()
+
+  if (error) throw error
+  return data
+}
+
 export async function fetchMyProfileRpc() {
   const { data, error } = await supabase.rpc('get_my_profile')
   if (error) throw error
