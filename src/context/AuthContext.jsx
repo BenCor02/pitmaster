@@ -26,6 +26,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
   const profileRef = useRef(null)
   const rolesRef = useRef([])
+  const loadProfileSeqRef = useRef(0)
 
   useEffect(() => {
     profileRef.current = profile
@@ -35,7 +36,37 @@ export function AuthProvider({ children }) {
     rolesRef.current = roles
   }, [roles])
 
+  function scoreProfileQuality(nextProfile) {
+    if (!nextProfile) return 0
+    if (nextProfile.source === 'missing-profile') return 1
+    if (nextProfile.role && nextProfile.role !== 'member') return 5
+    if (nextProfile.role) return 4
+    if (Array.isArray(nextProfile.roles) && nextProfile.roles.length) return 3
+    return 2
+  }
+
+  function applyResolvedProfile(userId, nextProfile) {
+    const previousProfile = profileRef.current
+    const previousRoles = rolesRef.current || (previousProfile?.role ? [previousProfile.role] : [])
+
+    if (previousProfile?.id === userId) {
+      const previousScore = scoreProfileQuality(previousProfile)
+      const nextScore = scoreProfileQuality(nextProfile)
+
+      if (nextScore < previousScore) {
+        setProfile(previousProfile)
+        setRoles(previousRoles)
+        return previousProfile
+      }
+    }
+
+    setProfile(nextProfile)
+    setRoles(nextProfile.roles || (nextProfile.role ? [nextProfile.role] : []))
+    return nextProfile
+  }
+
   const loadProfile = useCallback(async (authUser) => {
+    const currentSeq = ++loadProfileSeqRef.current
     const userId = authUser?.id
     if (!userId) { setProfile(null); setRoles([]); return }
     try {
@@ -90,8 +121,7 @@ export function AuthProvider({ children }) {
       if (!nextProfile) {
         const previousProfile = profileRef.current
         if (previousProfile?.id === userId) {
-          setProfile(previousProfile)
-          setRoles(rolesRef.current || (previousProfile.role ? [previousProfile.role] : []))
+          applyResolvedProfile(userId, previousProfile)
           return
         }
 
@@ -109,18 +139,18 @@ export function AuthProvider({ children }) {
         }
       }
 
-      setProfile(nextProfile)
-      setRoles(nextProfile.roles || (nextProfile.role ? [nextProfile.role] : []))
+      if (currentSeq !== loadProfileSeqRef.current) return
+      const resolvedProfile = applyResolvedProfile(userId, nextProfile)
 
-      if (nextProfile.source !== 'fallback') {
+      if (resolvedProfile?.source !== 'fallback') {
         await touchProfileLastSeen(userId)
       }
     } catch (e) {
       console.error('loadProfile error', e)
+      if (currentSeq !== loadProfileSeqRef.current) return
       const previousProfile = profileRef.current
       if (previousProfile?.id === userId) {
-        setProfile(previousProfile)
-        setRoles(rolesRef.current || (previousProfile.role ? [previousProfile.role] : []))
+        applyResolvedProfile(userId, previousProfile)
         return
       }
       setProfile(null)

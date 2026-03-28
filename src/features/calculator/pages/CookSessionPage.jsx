@@ -15,6 +15,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { recalibrate, formatDuration, formatDisplayTimeRounded } from '../../../lib/calculator'
 import { MEAT_IMAGES, SMOKER_IMAGE } from '../../../lib/images'
 import { useAuth } from '../../../context/AuthContext'
+import { useCookSession } from '../../../hooks/useCookSession'
 
 // Coefficients wrap locaux — alignés avec BASE_COEFFS de calculator.js
 // PATCH: alignement avec les coefficients terrain actuels du moteur
@@ -53,6 +54,35 @@ function clearPendingSession() {
     sessionStorage.removeItem('pm_active_session')
   } catch {
     // PATCH: nettoyage best effort
+  }
+}
+
+function toDisplayTime(isoValue) {
+  if (!isoValue) return '—'
+  return formatDisplayTimeRounded(new Date(isoValue))
+}
+
+function buildScheduleFromPersistedSession(session) {
+  if (!session) return null
+
+  const startTime = toDisplayTime(session.startedAt)
+  const serviceTime = session.serviceTime || '—'
+
+  return {
+    ...session,
+    serve: serviceTime,
+    startTime,
+    serviceWindowStart: serviceTime,
+    serviceWindowEnd: serviceTime,
+    smokerType: session.smokerType || 'pitmaster',
+    methodLabel: 'Session active',
+    methodVariantLabel: 'Session reprise',
+    cues: {
+      stallRange: session.stallStartC ? `${session.stallStartC}°C` : null,
+      wrapRange: session.wrapTempC ? `${session.wrapTempC}°C` : null,
+      probeTenderRange: session.targetC ? `${session.targetC}°C` : null,
+      restRange: session.restMin ? `${session.restMin} min` : null,
+    },
   }
 }
 
@@ -535,10 +565,11 @@ export default function CookSessionPage() {
   const location = useLocation()
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { session: persistedSession, loading: persistedSessionLoading } = useCookSession()
 
   // PATCH: priorité à la navigation courante, fallback sessionStorage pour éviter une dépendance fragile à location.state
   const pendingSession = loadPendingSession()
-  const schedule  = location.state?.schedule || pendingSession?.schedule
+  const schedule  = location.state?.schedule || pendingSession?.schedule || buildScheduleFromPersistedSession(persistedSession)
 
   const [checkpoints,   setCheckpoints]   = useState(() => schedule ? buildCheckpoints(schedule) : [])
   const [currentIndex,  setCurrentIndex]  = useState(0)
@@ -550,11 +581,11 @@ export default function CookSessionPage() {
     updatedAt: null,
   } : null)
   const [elapsed,       setElapsed]       = useState(0)
-  const [cookStarted,   setCookStarted]   = useState(() => Boolean(location.state?.startedAt || pendingSession?.startedAt))
-  const [cookStartTime, setCookStartTime] = useState(() => location.state?.startedAt || pendingSession?.startedAt || null)
+  const [cookStarted,   setCookStarted]   = useState(() => Boolean(location.state?.startedAt || pendingSession?.startedAt || persistedSession?.startedAt))
+  const [cookStartTime, setCookStartTime] = useState(() => location.state?.startedAt || pendingSession?.startedAt || persistedSession?.startedAt || null)
   const [restTimer,     setRestTimer]     = useState(null)
   const [log,           setLog]           = useState([])
-  const [sessionImageSrc, setSessionImageSrc] = useState(() => MEAT_IMAGES[schedule.meatKey] || SMOKER_IMAGE)
+  const [sessionImageSrc, setSessionImageSrc] = useState(() => MEAT_IMAGES[schedule?.meatKey] || SMOKER_IMAGE)
   const timerRef = useRef(null)
 
   // ── Timer tick toutes les minutes
@@ -571,8 +602,15 @@ export default function CookSessionPage() {
   }, [currentIndex, checkpoints.length])
 
   useEffect(() => {
+    if (!schedule?.meatKey) return
     setSessionImageSrc(MEAT_IMAGES[schedule.meatKey] || SMOKER_IMAGE)
-  }, [schedule.meatKey])
+  }, [schedule?.meatKey])
+
+  useEffect(() => {
+    if (!persistedSession?.startedAt) return
+    if (!cookStartTime) setCookStartTime(persistedSession.startedAt)
+    if (!cookStarted) setCookStarted(true)
+  }, [persistedSession, cookStartTime, cookStarted])
 
   // PATCH: persistance transitoire de session pour ne pas dépendre seulement du state de navigation
   useEffect(() => {
@@ -751,6 +789,20 @@ export default function CookSessionPage() {
   }
 
   // ─── Pas de session active
+  if (!schedule && persistedSessionLoading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '60px 24px' }}>
+        <div style={{ fontSize: 52, marginBottom: 16 }}>🔥</div>
+        <h2 style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 20, color: 'var(--text)', marginBottom: 10 }}>
+          Recherche de la session active
+        </h2>
+        <p style={{ color: 'var(--text3)', fontSize: 13, lineHeight: 1.7 }}>
+          On vérifie la session sauvegardée avant d’afficher l’atelier de cuisson.
+        </p>
+      </div>
+    )
+  }
+
   if (!schedule) {
     return (
       <div style={{ textAlign: 'center', padding: '60px 24px' }}>
