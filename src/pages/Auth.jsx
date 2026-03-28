@@ -4,12 +4,13 @@
  * Utilisé après le flou du résultat calcul
  */
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 
 const REDIRECT = `${window.location.origin}/app`
+const PROJECT_URL = 'https://zkjfuzclkrwyustgsezd.supabase.co'
 
 export default function Auth() {
   const navigate  = useNavigate()
@@ -23,6 +24,54 @@ export default function Auth() {
   const [loading,  setLoading]  = useState(null) // null | 'google' | 'apple' | 'email'
   const [error,    setError]    = useState(null)
   const [sent,     setSent]     = useState(false)
+  const [debug,    setDebug]    = useState(null)
+
+  async function loadDebug() {
+    if (!user?.id) {
+      setDebug(null)
+      return
+    }
+
+    const [profileRes, rpcRes, sessionRes] = await Promise.all([
+      supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id),
+      supabase.rpc('get_my_profile'),
+      supabase.auth.getSession(),
+    ])
+
+    setDebug({
+      projectUrl: PROJECT_URL,
+      profileQuery: {
+        data: profileRes.data || null,
+        error: profileRes.error ? {
+          message: profileRes.error.message,
+          code: profileRes.error.code,
+          details: profileRes.error.details,
+        } : null,
+      },
+      rpcQuery: {
+        data: rpcRes.data || null,
+        error: rpcRes.error ? {
+          message: rpcRes.error.message,
+          code: rpcRes.error.code,
+          details: rpcRes.error.details,
+        } : null,
+      },
+      sessionUserId: sessionRes.data?.session?.user?.id || null,
+      sessionEmail: sessionRes.data?.session?.user?.email || null,
+    })
+  }
+
+  useEffect(() => {
+    if (user?.id) {
+      loadDebug()
+    } else {
+      setDebug(null)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id])
 
   async function signInGoogle() {
     setLoading('google'); setError(null)
@@ -126,6 +175,29 @@ export default function Auth() {
             Roles[] : {Array.isArray(roles) && roles.length ? roles.join(', ') : '—'}
           </div>
 
+          {debug && (
+            <div style={{ textAlign:'left', background:'#0f0d0b', border:'1px solid #241d18', borderRadius:12, padding:12, marginBottom:16 }}>
+              <div style={{ fontSize:11, color:'#e85d04', fontWeight:700, letterSpacing:'1px', textTransform:'uppercase', marginBottom:8 }}>
+                Debug Supabase
+              </div>
+              <div style={{ fontSize:11, color:'#8a7060', lineHeight:1.6, marginBottom:8 }}>
+                Projet : {debug.projectUrl}
+                <br />
+                Session email : {debug.sessionEmail || '—'}
+                <br />
+                Session user id : {debug.sessionUserId || '—'}
+              </div>
+              <div style={{ fontSize:11, color:'#d4c4b0', marginBottom:6 }}>Select `profiles` :</div>
+              <pre style={{ whiteSpace:'pre-wrap', wordBreak:'break-word', fontSize:10, color:'#b7aea4', background:'#090807', border:'1px solid #1b1713', borderRadius:8, padding:10, margin:'0 0 10px' }}>
+                {JSON.stringify(debug.profileQuery, null, 2)}
+              </pre>
+              <div style={{ fontSize:11, color:'#d4c4b0', marginBottom:6 }}>RPC `get_my_profile` :</div>
+              <pre style={{ whiteSpace:'pre-wrap', wordBreak:'break-word', fontSize:10, color:'#b7aea4', background:'#090807', border:'1px solid #1b1713', borderRadius:8, padding:10, margin:0 }}>
+                {JSON.stringify(debug.rpcQuery, null, 2)}
+              </pre>
+            </div>
+          )}
+
           {error && <div style={{ fontSize:12, color:'#f87171', marginBottom:12, padding:'8px 12px', background:'rgba(248,113,113,0.08)', borderRadius:8 }}>{error}</div>}
 
           <button onClick={() => navigate(from, { replace: true })} style={{ ...S.btn, background:'linear-gradient(135deg,#f48c06,#d44e00)', color:'#fff', boxShadow:'0 4px 16px rgba(232,93,4,0.25)' }}>
@@ -133,6 +205,9 @@ export default function Auth() {
           </button>
           <button onClick={reloadProfile} style={{ ...S.btn, background:'transparent', border:'1px solid #2a2218', color:'#d4c4b0' }}>
             Recharger le profil
+          </button>
+          <button onClick={loadDebug} style={{ ...S.btn, background:'transparent', border:'1px solid #2a2218', color:'#d4c4b0' }}>
+            Recharger le debug Supabase
           </button>
           <button onClick={() => navigate('/app/profile')} style={{ ...S.btn, background:'transparent', border:'1px solid #2a2218', color:'#d4c4b0' }}>
             Ouvrir mon profil
