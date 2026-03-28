@@ -15,8 +15,8 @@ const css = `
 
 const DEFAULT_SETTINGS = {
   site_name: 'PitMaster',
-  site_tagline: 'Calculateur BBQ Pro · Low & Slow',
-  site_description: 'Application professionnelle de planification de cuisson BBQ. Calculez vos temps de cuisson, gérez vos sessions et devenez un vrai pit-master.',
+  site_tagline: 'Calculateur BBQ · Low & Slow',
+  site_description: 'Assistant de planification BBQ pour préparer tes cuissons, gérer tes sessions et servir au bon moment.',
   seo_title: 'PitMaster — Calculateur BBQ Low & Slow',
   seo_keywords: 'BBQ, fumage, brisket, pulled pork, ribs, calculateur cuisson, low and slow',
   og_image: '',
@@ -158,7 +158,7 @@ export default function AdminSettingsPage() {
       {activeTab === 'limits' && (
         <div>
           <div className="adm-card">
-            <div className="section-title"><span>🆓</span> Plan Free</div>
+            <div className="section-title"><span>🆓</span> Mode découverte</div>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10 }}>
               <div>
                 <label className="field-label">Max sessions sauvegardées</label>
@@ -175,7 +175,7 @@ export default function AdminSettingsPage() {
             </div>
           </div>
           <div className="adm-card">
-            <div className="section-title"><span>🔥</span> Plan Pro</div>
+            <div className="section-title"><span>🔥</span> Atelier feu</div>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10 }}>
               <div>
                 <label className="field-label">Max sessions</label>

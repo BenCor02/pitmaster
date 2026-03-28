@@ -61,7 +61,8 @@ export default function AppRouter() {
           <Route path="history" element={<HistoryPage />} />
           <Route path="ask" element={<AskPitmasterPage />} />
           <Route path="profile" element={<ProfilePage />} />
-          <Route path="billing" element={<AccountPage />} />
+          <Route path="access" element={<AccountPage />} />
+          <Route path="billing" element={<Navigate to="/app/access" replace />} />
         </Route>
 
         <Route path="/admin" element={<AdminRoute><AdminShell /></AdminRoute>}>

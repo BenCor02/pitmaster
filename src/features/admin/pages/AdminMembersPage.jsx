@@ -238,9 +238,9 @@ export default function AdminMembersPage() {
                     cursor:'pointer',
                   }}
                 >
-                  <option value="free">free</option>
-                  <option value="pro">pro</option>
-                  <option value="ultra">ultra</option>
+                  <option value="free">Découverte</option>
+                  <option value="pro">Atelier feu</option>
+                  <option value="ultra">Service braise</option>
                 </select>
               </div>
             </div>

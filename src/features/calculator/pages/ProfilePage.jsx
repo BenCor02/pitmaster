@@ -1,6 +1,6 @@
 /**
  * Profile — Charbon & Flamme
- * Page profil utilisateur + compteur calculs + abonnement
+ * Page profil utilisateur + compteur calculs + niveau d'acces
  */
 
 import { useState } from 'react'
@@ -13,7 +13,8 @@ export default function ProfilePage() {
   const navigate = useNavigate()
   const { user, profile, signOut, updateProfile } = useAuth()
   const { count, remaining, isPro, FREE_LIMIT } = useCalcLimit()
-  const access = getAccessMeta(isPro ? 'pro' : 'free')
+  const hasWorkshopAccess = isPro
+  const access = getAccessMeta(hasWorkshopAccess ? 'pro' : 'free')
 
   const [editing,   setEditing]   = useState(false)
   const [firstName, setFirstName] = useState(profile?.first_name || '')
@@ -35,7 +36,7 @@ export default function ProfilePage() {
     navigate('/')
   }
 
-  const usedPct = isPro ? 0 : Math.round((count / FREE_LIMIT) * 100)
+  const usedPct = hasWorkshopAccess ? 0 : Math.round((count / FREE_LIMIT) * 100)
 
   const S = {
     card: { background:'var(--surface)', border:'1px solid var(--border)', borderRadius:16, padding:20, marginBottom:12 },
@@ -61,24 +62,24 @@ export default function ProfilePage() {
       )}
 
       {/* Acces + compteur */}
-      <div style={{ ...S.card, border:`1px solid ${isPro ? 'rgba(232,93,4,0.3)' : 'var(--border)'}` }}>
+      <div style={{ ...S.card, border:`1px solid ${hasWorkshopAccess ? 'rgba(232,93,4,0.3)' : 'var(--border)'}` }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
           <div>
             <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:16, color:'var(--text)', marginBottom:2 }}>
               {access.label}
             </div>
             <div style={{ fontSize:12, color:'var(--text3)' }}>
-              {isPro ? 'Capacites etendues dans l atelier' : `${FREE_LIMIT} calculs dans la fenetre decouverte`}
+              {hasWorkshopAccess ? 'Capacités étendues dans l’atelier' : `${FREE_LIMIT} calculs dans la fenêtre découverte`}
             </div>
           </div>
-          {!isPro && (
-            <button onClick={() => navigate('/app/billing')} style={{ padding:'8px 16px', borderRadius:8, border:'none', background:'linear-gradient(135deg,#f48c06,#d44e00)', color:'#fff', fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:700, cursor:'pointer' }}>
-              Voir l&apos;acces
+          {!hasWorkshopAccess && (
+            <button onClick={() => navigate('/app/access')} style={{ padding:'8px 16px', borderRadius:8, border:'none', background:'linear-gradient(135deg,#f48c06,#d44e00)', color:'#fff', fontFamily:"'Syne',sans-serif", fontSize:12, fontWeight:700, cursor:'pointer' }}>
+              Voir mon accès
             </button>
           )}
         </div>
 
-        {!isPro && (
+        {!hasWorkshopAccess && (
           <>
             <div style={{ display:'flex', justifyContent:'space-between', fontSize:12, color:'var(--text3)', marginBottom:6 }}>
               <span>Calculs ce mois-ci</span>

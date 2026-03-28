@@ -52,7 +52,7 @@ const EXPERIENCE_LEVELS = [
   { value: 'beginner', label: 'Débutant', emoji: '🌱', desc: 'Je commence' },
   { value: 'intermediate', label: 'Intermédiaire', emoji: '🔥', desc: 'Quelques cuissons' },
   { value: 'advanced', label: 'Avancé', emoji: '⚡', desc: 'Je maîtrise déjà bien' },
-  { value: 'pro', label: 'Pro', emoji: '👑', desc: 'Usage régulier ou pro' },
+  { value: 'pro', label: 'Expert', emoji: '👑', desc: 'Usage régulier et très à l’aise' },
 ]
 
 const BBQ_FREQUENCIES = [

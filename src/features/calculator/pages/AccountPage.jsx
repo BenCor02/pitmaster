@@ -18,10 +18,11 @@ const EXTENDED_CAPABILITIES = [
   'Capacites etendues de l atelier',
 ]
 
-export default function Billing() {
+export default function AccountPage() {
   const navigate = useNavigate()
   const { count, remaining, isPro, FREE_LIMIT } = useCalcLimit()
-  const access = getAccessMeta(isPro ? 'pro' : 'free')
+  const hasWorkshopAccess = isPro
+  const access = getAccessMeta(hasWorkshopAccess ? 'pro' : 'free')
 
   const S = {
     card: { background:'var(--surface)', border:'1px solid var(--border)', borderRadius:16, padding:22, marginBottom:12 },
@@ -38,10 +39,10 @@ export default function Billing() {
         </p>
       </div>
 
-      <div style={{ ...S.card, border:`1px solid ${isPro ? 'rgba(232,93,4,0.3)' : 'var(--border)'}`, background: isPro ? 'rgba(232,93,4,0.04)' : 'var(--surface)' }}>
+      <div style={{ ...S.card, border:`1px solid ${hasWorkshopAccess ? 'rgba(232,93,4,0.3)' : 'var(--border)'}`, background: hasWorkshopAccess ? 'rgba(232,93,4,0.04)' : 'var(--surface)' }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:16, gap:16 }}>
           <div>
-            <div style={{ fontSize:11, fontWeight:700, letterSpacing:'1.5px', textTransform:'uppercase', color: isPro ? '#e85d04' : 'var(--text3)', marginBottom:6 }}>
+            <div style={{ fontSize:11, fontWeight:700, letterSpacing:'1.5px', textTransform:'uppercase', color: hasWorkshopAccess ? '#e85d04' : 'var(--text3)', marginBottom:6 }}>
               Niveau actuel
             </div>
             <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:22, color:'var(--text)' }}>
@@ -51,13 +52,13 @@ export default function Billing() {
               {access.description}
             </div>
           </div>
-          <div style={{ background:isPro ? 'rgba(34,197,94,0.1)' : 'var(--surface2)', border:isPro ? '1px solid rgba(34,197,94,0.2)' : '1px solid var(--border)', borderRadius:8, padding:'4px 12px', fontSize:11, fontWeight:700, color:isPro ? '#22c55e' : 'var(--text3)' }}>
-            {isPro ? 'Actif' : 'Decouverte'}
+          <div style={{ background:hasWorkshopAccess ? 'rgba(34,197,94,0.1)' : 'var(--surface2)', border:hasWorkshopAccess ? '1px solid rgba(34,197,94,0.2)' : '1px solid var(--border)', borderRadius:8, padding:'4px 12px', fontSize:11, fontWeight:700, color:hasWorkshopAccess ? '#22c55e' : 'var(--text3)' }}>
+            {hasWorkshopAccess ? 'Actif' : 'Découverte'}
           </div>
         </div>
 
         <div style={{ display:'grid', gap:6 }}>
-          {(isPro ? EXTENDED_CAPABILITIES : DISCOVERY_CAPABILITIES).map((label) => (
+          {(hasWorkshopAccess ? EXTENDED_CAPABILITIES : DISCOVERY_CAPABILITIES).map((label) => (
             <div key={label} style={{ display:'flex', gap:8, alignItems:'center' }}>
               <span style={{ color:'#22c55e', fontSize:12 }}>✓</span>
               <span style={{ fontSize:13, color:'var(--text2)' }}>{label}</span>
@@ -66,7 +67,7 @@ export default function Billing() {
         </div>
       </div>
 
-      {!isPro && (
+      {!hasWorkshopAccess && (
         <div style={S.card}>
           <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:14, color:'var(--text)', marginBottom:14 }}>
             Fenetre de calcul actuelle
@@ -89,13 +90,13 @@ export default function Billing() {
         </div>
       )}
 
-      {!isPro && (
+      {!hasWorkshopAccess && (
         <div style={{ background:'linear-gradient(135deg,rgba(232,93,4,0.08),rgba(212,78,0,0.04))', border:'1px solid rgba(232,93,4,0.2)', borderRadius:16, padding:22, marginBottom:12 }}>
           <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:800, fontSize:18, color:'var(--text)', marginBottom:8, lineHeight:1.2 }}>
             Besoin de plus de marge ?
           </div>
           <p style={{ fontSize:13, color:'var(--text3)', lineHeight:1.7, marginBottom:18 }}>
-            Si tu cuisines souvent ou si tu testes beaucoup de sessions, il te faut un acces atelier plus large. Ici, on parle de capacites reelles pour cuisiner, pas d&apos;une page de vente.
+            Si tu cuisines souvent ou si tu testes beaucoup de sessions, il te faut un accès atelier plus large. Ici, on parle de capacité réelle à cuisiner, pas d’une logique SaaS.
           </p>
           <button onClick={() => navigate('/app/profile')} style={{ width:'100%', padding:'14px', borderRadius:12, border:'none', background:'linear-gradient(135deg,#f48c06,#d44e00)', color:'#fff', fontFamily:"'Syne',sans-serif", fontSize:14, fontWeight:700, cursor:'pointer', boxShadow:'0 4px 16px rgba(232,93,4,0.25)' }}>
             Revenir à mon compte
