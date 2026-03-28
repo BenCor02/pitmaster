@@ -3,7 +3,7 @@
  * Phase 1 : profil complet + rôles + last_seen
  */
 
-import { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react'
 import { supabase, supabaseProjectUrl, supabaseStorageKey } from '../modules/supabase/client'
 import {
   fetchMyProfileRpc,
@@ -24,6 +24,16 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null)
   const [roles,   setRoles]   = useState([])
   const [loading, setLoading] = useState(true)
+  const profileRef = useRef(null)
+  const rolesRef = useRef([])
+
+  useEffect(() => {
+    profileRef.current = profile
+  }, [profile])
+
+  useEffect(() => {
+    rolesRef.current = roles
+  }, [roles])
 
   const loadProfile = useCallback(async (authUser) => {
     const userId = authUser?.id
@@ -78,6 +88,13 @@ export function AuthProvider({ children }) {
       }
 
       if (!nextProfile) {
+        const previousProfile = profileRef.current
+        if (previousProfile?.id === userId) {
+          setProfile(previousProfile)
+          setRoles(rolesRef.current || (previousProfile.role ? [previousProfile.role] : []))
+          return
+        }
+
         nextProfile = {
           id: userId,
           email: authUser.email || null,
@@ -92,12 +109,6 @@ export function AuthProvider({ children }) {
         }
       }
 
-      if (!nextProfile) {
-        setProfile(null)
-        setRoles([])
-        return
-      }
-
       setProfile(nextProfile)
       setRoles(nextProfile.roles || (nextProfile.role ? [nextProfile.role] : []))
 
@@ -106,6 +117,12 @@ export function AuthProvider({ children }) {
       }
     } catch (e) {
       console.error('loadProfile error', e)
+      const previousProfile = profileRef.current
+      if (previousProfile?.id === userId) {
+        setProfile(previousProfile)
+        setRoles(rolesRef.current || (previousProfile.role ? [previousProfile.role] : []))
+        return
+      }
       setProfile(null)
       setRoles([])
     }

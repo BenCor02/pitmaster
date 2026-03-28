@@ -135,7 +135,7 @@ export default function ProfilePage() {
         <div style={{ marginBottom:16 }}>
           <label style={S.label}>Rôle</label>
           <div style={{ fontSize:13, color:'var(--text2)', padding:'11px 0' }}>
-            {profile?.role || 'member'}
+            {profile?.role || 'inconnu'}
           </div>
         </div>
 

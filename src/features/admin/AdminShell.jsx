@@ -47,7 +47,7 @@ export default function AdminShell() {
             Le compte connecté n’a pas de rôle admin actif.
           </div>
           <div style={{ color:'#8a7060', fontSize:13, marginBottom:18 }}>
-            Rôle détecté : {profile?.role || 'member'}
+            Rôle détecté : {profile?.role || 'inconnu'}
           </div>
           <button onClick={() => navigate('/app')} style={{ minHeight:44, padding:'0 18px', borderRadius:12, border:'1px solid #2b2b2b', background:'#161616', color:'#f5f1ea', fontWeight:700, cursor:'pointer' }}>
             Retour à l’app
