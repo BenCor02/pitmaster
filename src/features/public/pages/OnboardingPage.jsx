@@ -99,7 +99,6 @@ export default function OnboardingPage() {
     setSaveError('')
     try {
       const { error } = await updateProfile({
-        plan_code: 'free',
         first_name: firstName.trim(),
         last_name: lastName.trim(),
         smoker_type: smokerType,

@@ -35,19 +35,6 @@ const AdminSecurityPage = lazy(() => import('../../features/admin/pages/AdminSec
 const AdminAccessPage = lazy(() => import('../../features/admin/pages/AdminAccessPage'))
 const AdminAlgorithmPage = lazy(() => import('../../features/admin/pages/AdminAlgorithmPage'))
 
-function Placeholder({ name }) {
-  return (
-    <div style={{ fontFamily:"'DM Sans', sans-serif" }}>
-      <h1 style={{ fontFamily:"'Syne', sans-serif", fontWeight:800, fontSize:28, color:'var(--text)', marginBottom:8 }}>
-        {name} <span style={{ color:'var(--orange)' }}>·</span>
-      </h1>
-      <p style={{ fontSize:11, color:'var(--text3)', letterSpacing:'1.5px', textTransform:'uppercase', fontWeight:600 }}>
-        Module en reconstruction propre
-      </p>
-    </div>
-  )
-}
-
 export default function AppRouter() {
   return (
     <Suspense fallback={<LoadingScreen />}>
@@ -68,7 +55,6 @@ export default function AppRouter() {
           <Route path="timer" element={<TimerPage />} />
           <Route path="quantity" element={<QuantityPage />} />
           <Route path="session" element={<CookSessionPage />} />
-          <Route path="reference" element={<Placeholder name="Référence" />} />
           <Route path="history" element={<HistoryPage />} />
           <Route path="ask" element={<AskPitmasterPage />} />
           <Route path="profile" element={<ProfilePage />} />

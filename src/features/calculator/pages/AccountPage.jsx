@@ -97,8 +97,8 @@ export default function Billing() {
           <p style={{ fontSize:13, color:'var(--text3)', lineHeight:1.7, marginBottom:18 }}>
             Si tu cuisines souvent ou si tu testes beaucoup de sessions, il te faut un acces atelier plus large. Ici, on parle de capacites reelles pour cuisiner, pas d&apos;une page de vente.
           </p>
-          <button onClick={() => navigate('/auth')} style={{ width:'100%', padding:'14px', borderRadius:12, border:'none', background:'linear-gradient(135deg,#f48c06,#d44e00)', color:'#fff', fontFamily:"'Syne',sans-serif", fontSize:14, fontWeight:700, cursor:'pointer', boxShadow:'0 4px 16px rgba(232,93,4,0.25)' }}>
-            Ouvrir mon acces atelier
+          <button onClick={() => navigate('/app/profile')} style={{ width:'100%', padding:'14px', borderRadius:12, border:'none', background:'linear-gradient(135deg,#f48c06,#d44e00)', color:'#fff', fontFamily:"'Syne',sans-serif", fontSize:14, fontWeight:700, cursor:'pointer', boxShadow:'0 4px 16px rgba(232,93,4,0.25)' }}>
+            Revenir à mon compte
           </button>
         </div>
       )}

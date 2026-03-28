@@ -1,4 +1,4 @@
-import { supabase, supabaseProjectUrl } from '../supabase/client'
+import { supabase } from '../supabase/client'
 
 const configuredAppUrl = import.meta.env.VITE_APP_URL || 'https://www.charbonetflamme.fr'
 const appOrigin = configuredAppUrl.replace(/\/+$/, '')
@@ -48,49 +48,4 @@ export async function getCurrentSession() {
 
 export function onAuthStateChange(handler) {
   return supabase.auth.onAuthStateChange(handler)
-}
-
-export async function fetchAuthDebugSnapshot(userId) {
-  if (!userId) {
-    return {
-      projectUrl: supabaseProjectUrl,
-      sessionEmail: null,
-      sessionUserId: null,
-      profileQuery: null,
-      rpcQuery: null,
-      localStorage: {},
-    }
-  }
-
-  const [profileRes, rpcRes, sessionRes] = await Promise.all([
-    supabase.from('profiles').select('*').eq('id', userId),
-    supabase.rpc('get_my_profile'),
-    supabase.auth.getSession(),
-  ])
-
-  let storageSnapshot = {}
-  try {
-    storageSnapshot = Object.fromEntries(
-      Object.keys(localStorage)
-        .filter((key) => key.includes('supabase') || key.includes('sb-') || key.includes('cf-supabase-auth'))
-        .map((key) => [key, localStorage.getItem(key)])
-    )
-  } catch (error) {
-    storageSnapshot = { error: error.message }
-  }
-
-  return {
-    projectUrl: supabaseProjectUrl,
-    sessionEmail: sessionRes.data?.session?.user?.email || null,
-    sessionUserId: sessionRes.data?.session?.user?.id || null,
-    localStorage: storageSnapshot,
-    profileQuery: {
-      data: profileRes.data || null,
-      error: profileRes.error || null,
-    },
-    rpcQuery: {
-      data: rpcRes.data || null,
-      error: rpcRes.error || null,
-    },
-  }
 }

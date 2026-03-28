@@ -1,30 +1,13 @@
 import { supabase } from '../supabase/client'
 
-function normalizeSettingsRow(row) {
-  if (!row) return {}
-  if (row.key && Object.prototype.hasOwnProperty.call(row, 'value')) {
-    return { [row.key]: row.value }
-  }
-  return row
-}
-
 export async function fetchSiteSettingsRow() {
-  const singleRow = await supabase
+  const { data, error } = await supabase
     .from('site_settings')
     .select('*')
     .limit(1)
     .maybeSingle()
-
-  if (!singleRow.error && singleRow.data && !singleRow.data.key) {
-    return singleRow.data
-  }
-
-  const legacyRows = await supabase.from('site_settings').select('key, value')
-  if (legacyRows.error) throw legacyRows.error
-
-  const settings = {}
-  ;(legacyRows.data || []).forEach((row) => Object.assign(settings, normalizeSettingsRow(row)))
-  return settings
+  if (error) throw error
+  return data || {}
 }
 
 export async function upsertSiteSettingsRow(payload) {
@@ -34,18 +17,8 @@ export async function upsertSiteSettingsRow(payload) {
     .upsert(body)
     .select()
     .single()
-  if (!error) return data
-
-  const legacyRows = Object.entries(payload).map(([key, value]) => ({
-    key,
-    value: String(value ?? ''),
-  }))
-  const legacy = await supabase
-    .from('site_settings')
-    .upsert(legacyRows, { onConflict: 'key' })
-    .select()
-  if (legacy.error) throw legacy.error
-  return payload
+  if (error) throw error
+  return data
 }
 
 export async function fetchPageWithSections(slug) {

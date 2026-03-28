@@ -6,7 +6,7 @@
  * Cache en mémoire — rechargé au démarrage ou sur invalidation admin.
  */
 
-import { supabase } from './supabase'
+import { supabase } from '../modules/supabase/client'
 
 let cachedAdjustments = null
 let lastLoaded = null

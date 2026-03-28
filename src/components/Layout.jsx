@@ -15,7 +15,6 @@ const NAV = [
   ]},
   { section: 'OUTILS', items: [
     { path: '/app/quantity', icon: '⚖️', label: 'Quantités' },
-    { path: '/app/reference', icon: '📚', label: 'Référence' },
     { path: '/app/journal', icon: '📓', label: 'Journal' },
     { path: '/app/history', icon: '🕘', label: 'Historique' },
     { path: '/app/ask', icon: '🤠', label: 'Ask the Pitmaster' },
