@@ -7,7 +7,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { supabase } from '../lib/supabase'
 import { calculateLowSlow, formatDuration } from '../lib/calculator'
 
 // ── Calcul rapide pour la preview ────────────────────────────
@@ -43,7 +42,7 @@ const MEATS = [
 ]
 
 export default function Onboarding() {
-  const { user } = useAuth()
+  const { user, updateProfile } = useAuth()
   const navigate  = useNavigate()
 
   // ── States ──────────────────────────────────────────────────
@@ -64,14 +63,12 @@ export default function Onboarding() {
 
   async function finishOnboarding() {
     setSaving(true)
-    await supabase.from('profiles').upsert({
-      user_id: user.id,
-      plan: 'free',
-      onboarding_done: true,
-      experience: experience || 'beginner',
-      monthly_calc_count: 0,
-      monthly_calc_reset: new Date().toISOString().slice(0, 7), // YYYY-MM
-    }, { onConflict: 'user_id' })
+    // PATCH: ancien flow user_id/plan supprimé. On n'écrit plus dans l'ancien schéma profiles.
+    await updateProfile({
+      plan_code: 'free',
+      first_name: user?.user_metadata?.first_name || '',
+      last_name: user?.user_metadata?.last_name || '',
+    })
     setSaving(false)
     navigate('/app')
   }

@@ -22,35 +22,46 @@ export function AuthProvider({ children }) {
     if (!userId) { setProfile(null); setRoles([]); return }
     try {
       let nextProfile = null
-      let directProfileError = null
+      // PATCH: la source de vérité principale doit être le select direct sur profiles.id.
+      // On évite qu'un RPC ou un fallback ancien schéma masque un vrai rôle Supabase.
+      const { data: directProfile, error: directProfileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle()
 
-      const { data } = await supabase.rpc('get_my_profile')
-      if (data && !data.error) {
-        nextProfile = data
+      if (directProfileError) {
+        console.warn('profiles direct select failed', directProfileError)
       }
 
-      // PATCH: fallback robuste pour les comptes existants avant la migration profiles/roles
+      if (directProfile) {
+        nextProfile = {
+          ...directProfile,
+          roles: directProfile.role ? [directProfile.role] : [],
+          source: 'profiles',
+        }
+      }
+
+      // PATCH: on garde le RPC en secours seulement, pour les cas où RLS ou schéma
+      // existant renvoient mieux via la fonction security definer.
       if (!nextProfile) {
-        const { data: directProfile, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', userId)
-          .maybeSingle()
-
-        directProfileError = error
-
-        if (directProfile) {
+        const { data: rpcProfile, error: rpcError } = await supabase.rpc('get_my_profile')
+        if (rpcError) {
+          console.warn('get_my_profile rpc failed', rpcError)
+        }
+        if (rpcProfile && !rpcProfile.error) {
           nextProfile = {
-            ...directProfile,
-            roles: directProfile.role ? [directProfile.role] : [],
+            ...rpcProfile,
+            roles: rpcProfile.roles || (rpcProfile.role ? [rpcProfile.role] : []),
+            source: 'rpc',
           }
         }
       }
 
-      // PATCH: on ne crée un profil fallback QUE s'il n'existe réellement pas.
-      // On évite absolument d'écraser un super_admin existant avec un fallback member.
-      if (!nextProfile && !directProfileError) {
-        const fallbackProfile = {
+      // PATCH: surtout ne plus écrire un fallback member en base.
+      // On préfère un profil mémoire temporaire plutôt que d'écraser un rôle admin.
+      if (!nextProfile) {
+        nextProfile = {
           id: userId,
           email: authUser.email || null,
           first_name: authUser.user_metadata?.first_name || '',
@@ -60,33 +71,7 @@ export function AuthProvider({ children }) {
           status: 'active',
           account_status: 'active',
           plan_code: 'free',
-          last_seen_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }
-
-        const { data: insertedProfile } = await supabase
-          .from('profiles')
-          .upsert({
-            id: fallbackProfile.id,
-            email: fallbackProfile.email,
-            first_name: fallbackProfile.first_name,
-            last_name: fallbackProfile.last_name,
-            role: fallbackProfile.role,
-            status: fallbackProfile.status,
-            account_status: fallbackProfile.account_status,
-            plan_code: fallbackProfile.plan_code,
-            last_seen_at: fallbackProfile.last_seen_at,
-          })
-          .select()
-          .single()
-
-        if (insertedProfile) {
-          nextProfile = {
-            ...insertedProfile,
-            roles: insertedProfile.role ? [insertedProfile.role] : ['member'],
-          }
-        } else {
-          nextProfile = fallbackProfile
+          source: 'fallback',
         }
       }
 
@@ -99,10 +84,12 @@ export function AuthProvider({ children }) {
       setProfile(nextProfile)
       setRoles(nextProfile.roles || (nextProfile.role ? [nextProfile.role] : []))
 
-      await supabase
-        .from('profiles')
-        .update({ last_seen_at: new Date().toISOString() })
-        .eq('id', userId)
+      if (nextProfile.source !== 'fallback') {
+        await supabase
+          .from('profiles')
+          .update({ last_seen_at: new Date().toISOString() })
+          .eq('id', userId)
+      }
     } catch (e) {
       console.error('loadProfile error', e)
       setProfile(null)

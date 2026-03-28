@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { supabase } from '../lib/supabase'
 
 const STEPS = [
   {
@@ -53,10 +52,9 @@ const STEPS = [
 ]
 
 export default function Onboarding() {
-  const { user } = useAuth()
+  const { updateProfile } = useAuth()
   const navigate = useNavigate()
   const [step, setStep] = useState(0)
-  const [answers, setAnswers] = useState({})
   const [selected, setSelected] = useState(null)
   const [saving, setSaving] = useState(false)
 
@@ -67,17 +65,14 @@ export default function Onboarding() {
 
   async function next() {
     if (current.options && selected) {
-      setAnswers(prev => ({ ...prev, [current.id]: selected }))
       setSelected(null)
     }
     if (isLast) {
       setSaving(true)
-      await supabase.from('profiles').upsert({
-        user_id: user.id,
-        plan: 'free',
-        onboarding_done: true,
-        ...answers,
-      }, { onConflict: 'user_id' })
+      // PATCH: on ne touche plus au vieux schéma profiles.user_id/plan.
+      await updateProfile({
+        plan_code: 'free',
+      })
       setSaving(false)
       navigate('/')
     } else {

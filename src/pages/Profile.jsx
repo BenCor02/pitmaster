@@ -7,7 +7,6 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useCalcLimit } from '../hooks/useCalcLimit'
-import { supabase } from '../lib/supabase'
 
 export default function Profile() {
   const navigate = useNavigate()
@@ -15,13 +14,14 @@ export default function Profile() {
   const { count, remaining, isPro, FREE_LIMIT } = useCalcLimit()
 
   const [editing,   setEditing]   = useState(false)
-  const [fullName,  setFullName]  = useState(profile?.full_name || '')
+  const [firstName, setFirstName] = useState(profile?.first_name || '')
+  const [lastName,  setLastName]  = useState(profile?.last_name || '')
   const [saving,    setSaving]    = useState(false)
   const [message,   setMessage]   = useState(null)
 
   async function handleSave() {
     setSaving(true)
-    const { error } = await updateProfile({ full_name: fullName })
+    const { error } = await updateProfile({ first_name: firstName, last_name: lastName })
     setSaving(false)
     if (!error) { setEditing(false); setMessage('✓ Profil mis à jour') }
     else setMessage('Erreur : ' + error.message)
@@ -104,12 +104,23 @@ export default function Profile() {
         </div>
 
         <div style={{ marginBottom:14 }}>
+          <label style={S.label}>Prénom</label>
+          {editing ? (
+            <input value={firstName} onChange={e => setFirstName(e.target.value)} style={S.input} placeholder="Ton prénom" />
+          ) : (
+            <div style={{ fontSize:14, color: profile?.first_name ? 'var(--text)' : 'var(--text3)', padding:'11px 0' }}>
+              {profile?.first_name || 'Non renseigné'}
+            </div>
+          )}
+        </div>
+
+        <div style={{ marginBottom:14 }}>
           <label style={S.label}>Nom</label>
           {editing ? (
-            <input value={fullName} onChange={e => setFullName(e.target.value)} style={S.input} placeholder="Ton nom" />
+            <input value={lastName} onChange={e => setLastName(e.target.value)} style={S.input} placeholder="Ton nom" />
           ) : (
-            <div style={{ fontSize:14, color: profile?.full_name ? 'var(--text)' : 'var(--text3)', padding:'11px 0' }}>
-              {profile?.full_name || 'Non renseigné'}
+            <div style={{ fontSize:14, color: profile?.last_name ? 'var(--text)' : 'var(--text3)', padding:'11px 0' }}>
+              {profile?.last_name || 'Non renseigné'}
             </div>
           )}
         </div>
@@ -120,9 +131,9 @@ export default function Profile() {
         </div>
 
         <div style={{ marginBottom:16 }}>
-          <label style={S.label}>Connexion via</label>
+          <label style={S.label}>Rôle</label>
           <div style={{ fontSize:13, color:'var(--text2)', padding:'11px 0' }}>
-            {profile?.provider === 'google' ? '🌐 Google' : profile?.provider === 'apple' ? '🍎 Apple' : '✉️ Email/Mot de passe'}
+            {profile?.role || 'member'}
           </div>
         </div>
 
@@ -143,7 +154,7 @@ export default function Profile() {
       </div>
 
       {/* Sécurité */}
-      {profile?.provider === 'email' && (
+      {Boolean(user?.email) && (
         <div style={S.card}>
           <div style={{ fontFamily:"'Syne',sans-serif", fontWeight:700, fontSize:14, color:'var(--text)', marginBottom:14 }}>
             Sécurité

@@ -41,19 +41,19 @@ export function usePlan() {
     if (!user) return
     setLoading(true)
 
-    // 1. Charger le plan de l'utilisateur
+    // PATCH: nouveau schéma Supabase-first sur profiles.id / plan_code / account_status.
     const { data: profile } = await supabase
       .from('profiles')
-      .select('plan, banned, ban_reason')
-      .eq('user_id', user.id)
+      .select('plan_code, account_status')
+      .eq('id', user.id)
       .single()
 
-    if (profile?.banned) {
+    if (profile?.account_status === 'suspended') {
       await supabase.auth.signOut()
       return
     }
 
-    const userPlan = profile?.plan || 'free'
+    const userPlan = profile?.plan_code || 'free'
     setPlan(userPlan)
 
     // 2. Charger les features du plan depuis Supabase
@@ -74,7 +74,6 @@ export function usePlan() {
     setPlanData(plans || [])
 
     // 4. Charger l'usage de l'utilisateur
-    const today = new Date().toISOString().split('T')[0]
     const { data: usageData } = await supabase
       .from('user_usage')
       .select('feature_key, count, period')
@@ -144,9 +143,9 @@ export function usePlan() {
   }
 
   // Plan minimal requis pour une feature
-  function requiredPlan(featureKey) {
+  function requiredPlan(_featureKey) {
     if (!planData) return 'pro'
-    for (const p of planData) {
+    for (const _p of planData) {
       // Trouver le plan le moins cher qui débloque cette feature
     }
     return 'pro'

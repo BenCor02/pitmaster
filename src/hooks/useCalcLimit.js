@@ -36,7 +36,9 @@ export function useCalcLimit() {
   const [count,     setCount]     = useState(0)
   const [loading,   setLoading]   = useState(true)
 
-  const isPro  = profile?.plan !== 'free' && profile?.plan != null
+  // PATCH: nouveau champ plan_code, avec fallback legacy si besoin.
+  const activePlan = profile?.plan_code ?? profile?.plan
+  const isPro  = activePlan !== 'free' && activePlan != null
   const canCalc = isPro || remaining > 0
 
   const load = useCallback(async () => {
