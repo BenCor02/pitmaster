@@ -38,6 +38,17 @@ export async function fetchUserJournalEntries(userId) {
   return data || []
 }
 
+export async function saveJournalEntry(payload) {
+  const { data, error } = await supabase
+    .from('cook_journal')
+    .insert(payload)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
 export async function deleteJournalEntryById(id) {
   const { error } = await supabase.from('cook_journal').delete().eq('id', id)
   if (error) throw error

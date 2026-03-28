@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { MEAT_IMAGES, SMOKE_IMAGE } from '../../../lib/images'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../context/AuthContext'
-import { saveCookSession } from '../../../modules/cooks/repository'
+import { saveCookSession, saveJournalEntry } from '../../../modules/cooks/repository'
 import { MEATS } from '../../../lib/meats'
 import { useCalculatorCatalog } from '../../../hooks/useCalculatorCatalog'
 import {
@@ -327,6 +327,7 @@ export default function CalculatorPage() {
   const [warnings, setWarnings] = useState([])
   const [loading,  setLoading]  = useState(false)
   const [saving,   setSaving]   = useState(false)
+  const [savingJournal, setSavingJournal] = useState(false)
   const [sharing,  setSharing]  = useState(false)
   const [heroImageSrc, setHeroImageSrc] = useState(() => MEAT_IMAGES[getCalcDraft().meatKey || 'brisket'] || MEAT_IMAGES.brisket || SMOKE_IMAGE)
   const [meatImageSrc, setMeatImageSrc] = useState(() => MEAT_IMAGES[getCalcDraft().meatKey || 'brisket'] || MEAT_IMAGES.brisket || SMOKE_IMAGE)
@@ -483,14 +484,13 @@ export default function CalculatorPage() {
 
   async function saveSession() {
     if (!result) return
-    // PATCH: sauvegarde historique réservée aux membres, sans bloquer l'usage gratuit
+    // PATCH: "Garder ce plan" = historique des sessions sauvegardées, pas journal de terrain.
     if (!user) {
-      showSnack('Crée un compte pour sauvegarder cette cuisson et la retrouver plus tard.', 'info')
+      showSnack('Crée un compte pour garder ce plan dans ton historique.', 'info')
       navigate('/auth', { state: { from: '/app', reason: 'save-planning' } })
       return
     }
     setSaving(true)
-    setSaving(false)
     try {
       await saveCookSession({
         user_id: user.id,
@@ -503,9 +503,46 @@ export default function CalculatorPage() {
         cook_min: result.cookMin,
         date: new Date().toLocaleDateString('fr-FR'),
       })
-      showSnack('✓ Session sauvegardée !')
+      showSnack('✓ Plan ajouté à ton historique')
     } catch (error) {
       showSnack('Erreur : ' + error.message, 'error')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function addToJournal() {
+    if (!result) return
+    if (!user) {
+      showSnack('Crée un compte pour noter cette cuisson dans ton journal.', 'info')
+      navigate('/auth', { state: { from: '/app', reason: 'journal-save' } })
+      return
+    }
+
+    setSavingJournal(true)
+    try {
+      await saveJournalEntry({
+        user_id: user.id,
+        meat_name: meatData?.name || result.meatLabel,
+        date: new Date().toLocaleDateString('fr-FR'),
+        serve_time: result.serve,
+        start_time: result.startTime,
+        smoker_temp: result.smokerTempC,
+        weight: result.weightKg,
+        cook_min: result.cookMin,
+        notes: [
+          `Plan ${meatData?.full || result.meatLabel}`,
+          `Méthode: ${result.methodVariantLabel || result.methodLabel}`,
+          `Fenêtre de service: ${result.serviceWindowStart} → ${result.serviceWindowEnd}`,
+        ].join(' · '),
+        tags: [result.meatKey, result.method || cookMethod].filter(Boolean),
+      })
+      showSnack('✓ Entrée ajoutée au journal')
+    } catch (error) {
+      showSnack('Erreur : ' + error.message, 'error')
+    }
+    finally {
+      setSavingJournal(false)
     }
   }
 
@@ -1058,7 +1095,10 @@ export default function CalculatorPage() {
                 {sharing ? '⏳...' : '📤 Partager le plan'}
               </button>
               <button onClick={saveSession} disabled={saving} className="pm-btn-primary">
-                {saving ? '⏳...' : user ? '☁️ Garder ce plan' : '🔐 Garder ce plan'}
+                {saving ? '⏳...' : user ? '☁️ Garder dans l’historique' : '🔐 Garder dans l’historique'}
+              </button>
+              <button onClick={addToJournal} disabled={savingJournal} className="pm-btn-secondary">
+                {savingJournal ? '⏳...' : user ? '📓 Ajouter au journal' : '🔐 Ajouter au journal'}
               </button>
               <button onClick={downloadPlan} className="pm-btn-secondary">
                 ⬇ Exporter
@@ -1066,7 +1106,7 @@ export default function CalculatorPage() {
             </div>
             {!user && (
               <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text3)', lineHeight: 1.6 }}>
-                Tu peux utiliser l’outil sans compte. Le compte sert surtout à retrouver tes cuissons plus tard.
+                Tu peux utiliser l’outil sans compte. Le compte sert à retrouver tes plans dans l’historique et à tenir ton journal de cuisson.
               </div>
             )}
           </div>
