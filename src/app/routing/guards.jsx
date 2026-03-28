@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 
 export function LoadingScreen({ label = 'Chargement...' }) {
@@ -71,9 +71,9 @@ export function AdminRoute({ children }) {
           <div style={{ color:'#8a7060', fontSize:13, marginBottom:18 }}>
             {missingProfile ? 'État actuel : profil manquant dans public.profiles' : `Rôle actuel : ${profile?.role || 'inconnu'}`}
           </div>
-          <a href="/app" style={{ display:'inline-flex', alignItems:'center', justifyContent:'center', minHeight:44, padding:'0 18px', borderRadius:12, border:'1px solid #2b2b2b', background:'#161616', color:'#f5f1ea', textDecoration:'none', fontWeight:700 }}>
+          <Link to="/app" style={{ display:'inline-flex', alignItems:'center', justifyContent:'center', minHeight:44, padding:'0 18px', borderRadius:12, border:'1px solid #2b2b2b', background:'#161616', color:'#f5f1ea', textDecoration:'none', fontWeight:700 }}>
             Retour au calculateur
-          </a>
+          </Link>
         </div>
       </div>
     )

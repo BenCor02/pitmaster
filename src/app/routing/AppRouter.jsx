@@ -8,6 +8,7 @@ const AdminShell = lazy(() => import('../../features/admin/AdminShell'))
 const LandingPage = lazy(() => import('../../features/public/pages/LandingPage'))
 const MeatGuidePage = lazy(() => import('../../features/public/pages/MeatGuidePage'))
 const GuidePage = lazy(() => import('../../features/public/pages/GuidePage'))
+const NotFoundPage = lazy(() => import('../../features/public/pages/NotFoundPage'))
 const AuthPage = lazy(() => import('../../features/auth/pages/AuthPage'))
 const ForgotPasswordPage = lazy(() => import('../../features/auth/pages/ForgotPasswordPage'))
 const ResetPasswordPage = lazy(() => import('../../features/auth/pages/ResetPasswordPage'))
@@ -76,7 +77,7 @@ export default function AppRouter() {
           <Route path="algorithm" element={<AdminAlgorithmPage />} />
         </Route>
 
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>
   )
