@@ -95,9 +95,17 @@ export default function Auth() {
     e.preventDefault()
     setLoading('email'); setError(null)
     if (mode === 'login') {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) { setError('Email ou mot de passe incorrect'); setLoading(null) }
-      else navigate(from, { replace: true })
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) {
+        setError('Email ou mot de passe incorrect')
+        setLoading(null)
+      } else if (!data?.session?.user) {
+        setError('Connexion acceptée, mais aucune session n’a été créée côté navigateur.')
+        setLoading(null)
+      } else {
+        await reloadProfile()
+        navigate(from, { replace: true })
+      }
     } else {
       const { error } = await supabase.auth.signUp({
         email, password,

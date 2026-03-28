@@ -26,11 +26,23 @@ export default function AuthDebug() {
       ])
 
       if (!cancelled) {
+        let storageSnapshot = {}
+        try {
+          storageSnapshot = Object.fromEntries(
+            Object.keys(localStorage)
+              .filter((key) => key.includes('supabase') || key.includes('sb-') || key.includes('cf-supabase-auth'))
+              .map((key) => [key, localStorage.getItem(key)])
+          )
+        } catch (error) {
+          storageSnapshot = { error: error.message }
+        }
+
         setDebug({
           loading: false,
           projectUrl: PROJECT_URL,
           sessionEmail: sessionRes.data?.session?.user?.email || null,
           sessionUserId: sessionRes.data?.session?.user?.id || null,
+          localStorage: storageSnapshot,
           profileQuery: {
             data: profileRes.data || null,
             error: profileRes.error || null,
@@ -79,6 +91,13 @@ export default function AuthDebug() {
         </button>
 
         <div style={{ display: 'grid', gap: 16 }}>
+          <section style={{ background: '#14110f', border: '1px solid #241d18', borderRadius: 16, padding: 18 }}>
+            <div style={{ fontWeight: 700, marginBottom: 8 }}>Local storage auth</div>
+            <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', margin: 0, color: '#b7aea4', fontSize: 12 }}>
+              {JSON.stringify(debug.localStorage ?? debug.message ?? { loading: debug.loading }, null, 2)}
+            </pre>
+          </section>
+
           <section style={{ background: '#14110f', border: '1px solid #241d18', borderRadius: 16, padding: 18 }}>
             <div style={{ fontWeight: 700, marginBottom: 8 }}>Select profiles</div>
             <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', margin: 0, color: '#b7aea4', fontSize: 12 }}>
