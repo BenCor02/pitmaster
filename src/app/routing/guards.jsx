@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 
@@ -30,9 +31,27 @@ export function PrivateRoute({ children }) {
 }
 
 export function AdminRoute({ children }) {
-  const { user, isAdmin, loading, profile } = useAuth()
+  const { user, isAdmin, loading, profile, reloadProfile } = useAuth()
+  const retriedRef = useRef(false)
+  const [syncingProfile, setSyncingProfile] = useState(false)
 
-  if (loading) {
+  useEffect(() => {
+    if (!user || loading || isAdmin || retriedRef.current) return
+    if (profile && profile.role) return
+
+    retriedRef.current = true
+    setSyncingProfile(true)
+
+    Promise.resolve(reloadProfile?.())
+      .catch((error) => {
+        console.warn('admin profile sync failed', error)
+      })
+      .finally(() => {
+        setSyncingProfile(false)
+      })
+  }, [user, loading, isAdmin, profile, reloadProfile])
+
+  if (loading || syncingProfile) {
     return <LoadingScreen label="Chargement de l’atelier admin..." />
   }
 
