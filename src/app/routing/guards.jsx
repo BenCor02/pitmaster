@@ -10,11 +10,11 @@ export function LoadingScreen({ label = 'Chargement...' }) {
   )
 }
 
-export function PrivateRoute({ children }) {
+export function PrivateRoute({ children, redirectTo = '/' }) {
   const { user, profile, loading } = useAuth()
 
   if (loading) return <LoadingScreen />
-  if (!user) return <Navigate to="/" replace />
+  if (!user) return <Navigate to={redirectTo} replace />
   if (profile?.account_status === 'suspended') {
     return (
       <div style={{ minHeight:'100vh', background:'#080706', display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>

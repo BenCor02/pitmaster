@@ -98,7 +98,7 @@ export default function OnboardingPage() {
     setSaving(true)
     setSaveError('')
     try {
-      await updateProfile({
+      const { error } = await updateProfile({
         plan_code: 'free',
         first_name: firstName.trim(),
         last_name: lastName.trim(),
@@ -109,6 +109,7 @@ export default function OnboardingPage() {
         marketing_opt_in: marketingOptIn,
         source_channel: 'onboarding',
       })
+      if (error) throw error
       navigate('/app')
     } catch (error) {
       setSaveError("Le profil n'a pas pu être enregistré pour l'instant. Exécute le patch SQL marketing/profil, puis réessaie.")

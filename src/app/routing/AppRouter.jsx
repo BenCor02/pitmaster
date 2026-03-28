@@ -1,7 +1,6 @@
 import { Suspense, lazy } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
-import { useAuth } from '../../context/AuthContext'
-import { AdminRoute, LoadingScreen } from './guards'
+import { AdminRoute, LoadingScreen, PrivateRoute } from './guards'
 
 const AppShell = lazy(() => import('../../features/app/AppShell'))
 const AdminShell = lazy(() => import('../../features/admin/AdminShell'))
@@ -50,8 +49,6 @@ function Placeholder({ name }) {
 }
 
 export default function AppRouter() {
-  const { user } = useAuth()
-
   return (
     <Suspense fallback={<LoadingScreen />}>
       <Routes>
@@ -61,7 +58,7 @@ export default function AppRouter() {
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/onboarding" element={user ? <OnboardingPage /> : <Navigate to="/auth" replace />} />
+        <Route path="/onboarding" element={<PrivateRoute redirectTo="/auth"><OnboardingPage /></PrivateRoute>} />
 
         <Route path="/app" element={<AppShell />}>
           <Route index element={<CalculatorPage />} />

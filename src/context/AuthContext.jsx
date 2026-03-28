@@ -210,10 +210,13 @@ export function AuthProvider({ children }) {
   }
 
   async function updateProfile(updates) {
-    if (!user) return
+    if (!user) return { data: null, error: new Error('Aucun utilisateur connecté') }
     try {
       const data = await updateProfileByUserId(user.id, updates)
-      if (data) setProfile(prev => ({ ...prev, ...data }))
+      if (data) {
+        setProfile(prev => ({ ...prev, ...data }))
+        await loadProfile(user)
+      }
       return { data, error: null }
     } catch (error) {
       return { data: null, error }

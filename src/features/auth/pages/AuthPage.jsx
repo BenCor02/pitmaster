@@ -48,7 +48,7 @@ export default function AuthPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const from = location.state?.from || '/app'
-  const { user, signOut, profile, roles, reloadProfile } = useAuth()
+  const { user, signOut, profile, roles, reloadProfile, loading: authLoading } = useAuth()
 
   const [mode, setMode] = useState('login')
   const [email, setEmail] = useState('')
@@ -112,6 +112,17 @@ export default function AuthPage() {
     } finally {
       setLoading('')
     }
+  }
+
+  if (authLoading) {
+    return (
+      <AuthShell
+        title="Chargement du compte"
+        subtitle="On vérifie la session et le profil pour éviter les bascules parasites."
+      >
+        <div style={{ fontSize: 12, color: '#8a7060' }}>Patiente quelques secondes…</div>
+      </AuthShell>
+    )
   }
 
   if (sent) {
