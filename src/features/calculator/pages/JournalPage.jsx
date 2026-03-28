@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../context/AuthContext'
 import { deleteJournalEntryById, fetchUserJournalEntries } from '../../../modules/cooks/repository'
 import { useSnack } from '../../../components/useSnack'
@@ -42,7 +43,30 @@ function EmptyState() {
   )
 }
 
+function GuestState({ onAuth, onBack }) {
+  return (
+    <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+      <div style={{ fontSize: 48, marginBottom: 16 }}>🔐</div>
+      <div style={{ fontFamily: 'Syne,sans-serif', fontWeight: 700, fontSize: 16, color: '#9a8870', marginBottom: 8 }}>
+        Connecte-toi pour ouvrir ton journal
+      </div>
+      <div style={{ fontSize: 13, color: '#8a7060', lineHeight: 1.6, maxWidth: 420, margin: '0 auto 18px' }}>
+        Le journal conserve tes notes de cuisson, tes photos et tes observations. Il est lié à ton compte pour que tu puisses les retrouver plus tard.
+      </div>
+      <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+        <button onClick={onAuth} className="pm-btn-ghost" style={{ width: 'auto', minWidth: 220 }}>
+          Se connecter
+        </button>
+        <button onClick={onBack} className="pm-btn-ghost" style={{ width: 'auto', minWidth: 220 }}>
+          Retour au calculateur
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export default function JournalPage() {
+  const navigate = useNavigate()
   const { user } = useAuth()
   const { snack, showSnack } = useSnack()
   const [entries, setEntries] = useState([])
@@ -76,20 +100,24 @@ export default function JournalPage() {
 
   async function deleteEntry(id) {
     setDeleting(id)
-    setDeleting(null)
     try {
       await deleteJournalEntryById(id)
       setEntries(prev => prev.filter(e => e.id !== id))
       showSnack('Entrée supprimée')
     } catch (error) {
       showSnack('Erreur: ' + error.message, 'error')
+    } finally {
+      setDeleting(null)
     }
   }
 
   const filtered = filter === 'all' ? entries : entries.filter(e => e.rating >= parseInt(filter))
 
   // Stats
-  const avgRating = entries.length ? (entries.reduce((a,e)=>a+(e.rating||0),0)/entries.filter(e=>e.rating>0).length||0).toFixed(1) : '—'
+  const ratedEntries = entries.filter(e => (e.rating || 0) > 0)
+  const avgRating = ratedEntries.length
+    ? (ratedEntries.reduce((a, e) => a + (e.rating || 0), 0) / ratedEntries.length).toFixed(1)
+    : '—'
   const meatCount = [...new Set(entries.map(e=>e.meat_name))].length
   const totalSessions = entries.length
 
@@ -140,7 +168,12 @@ export default function JournalPage() {
       )}
 
       {/* LISTE */}
-      {loading ? (
+      {!user ? (
+        <GuestState
+          onAuth={() => navigate('/auth', { state: { from: '/app/journal', reason: 'journal-access' } })}
+          onBack={() => navigate('/app')}
+        />
+      ) : loading ? (
         <div style={{ textAlign: 'center', padding: '40px 20px', color: '#8a7060', fontSize: 13 }}>
           Chargement...
         </div>

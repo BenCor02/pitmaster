@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../context/AuthContext'
 import {
   deleteAllCookSessionsForUser,
@@ -43,7 +44,30 @@ function EmptyState() {
   )
 }
 
+function GuestState({ onAuth, onBack }) {
+  return (
+    <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+      <div style={{ fontSize: 48, marginBottom: 16 }}>☁️</div>
+      <div style={{ fontFamily: 'Syne,sans-serif', fontWeight: 700, fontSize: 16, color: '#8a7060', marginBottom: 8 }}>
+        Connecte-toi pour voir ton historique
+      </div>
+      <div style={{ fontSize: 13, color: '#6a5a4a', lineHeight: 1.6, maxWidth: 420, margin: '0 auto 18px' }}>
+        L’historique sauvegarde tes plans et tes anciennes cuissons. Il est lié à ton compte pour que tu puisses les reprendre et les comparer plus tard.
+      </div>
+      <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+        <button onClick={onAuth} className="filter-btn active" style={{ minWidth: 220 }}>
+          Se connecter
+        </button>
+        <button onClick={onBack} className="filter-btn" style={{ minWidth: 220 }}>
+          Retour au calculateur
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export default function HistoryPage() {
+  const navigate = useNavigate()
   const { user } = useAuth()
   const { snack, showSnack } = useSnack()
   const [sessions, setSessions] = useState([])
@@ -78,7 +102,6 @@ export default function HistoryPage() {
 
   async function deleteSession(id) {
     setDeleting(id)
-    setDeleting(null)
     setConfirmDelete(null)
     try {
       await deleteCookSessionById(id)
@@ -86,6 +109,8 @@ export default function HistoryPage() {
       showSnack('Session supprimée')
     } catch (error) {
       showSnack('Erreur: ' + error.message, 'error')
+    } finally {
+      setDeleting(null)
     }
   }
 
@@ -179,7 +204,12 @@ export default function HistoryPage() {
       )}
 
       {/* LISTE */}
-      {loading ? (
+      {!user ? (
+        <GuestState
+          onAuth={() => navigate('/auth', { state: { from: '/app/history', reason: 'history-access' } })}
+          onBack={() => navigate('/app')}
+        />
+      ) : loading ? (
         <div style={{ textAlign: 'center', padding: '40px 20px', color: '#6a5a4a', fontSize: 13 }}>
           Chargement...
         </div>
