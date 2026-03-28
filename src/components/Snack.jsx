@@ -1,14 +1,3 @@
-import { useEffect, useState } from 'react'
-
-export function useSnack() {
-  const [snack, setSnack] = useState(null)
-  function showSnack(msg, type = 'success') {
-    setSnack({ msg, type })
-    setTimeout(() => setSnack(null), 2800)
-  }
-  return { snack, showSnack }
-}
-
 export default function Snack({ snack }) {
   if (!snack) return null
   const colors = { success: '#22c55e', error: '#ef4444', warning: '#f48c06', info: '#3b82f6' }

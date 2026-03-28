@@ -1,8 +1,9 @@
 // Composant barre d'usage réutilisable — à afficher dans l'app
 import { useNavigate } from 'react-router-dom'
 import { FEATURE_INFO } from '../hooks/usePlan'
+import { getAccessMeta } from '../modules/access/catalog'
 
-export function UsageBar({ featureKey, plan, used, limit, compact = false }) {
+export function UsageBar({ featureKey, used, limit, compact = false }) {
   const navigate = useNavigate()
   const info = FEATURE_INFO[featureKey] || { icon:'⭐', label:'Feature' }
   const isUnlimited = limit === -1 || limit === Infinity
@@ -48,8 +49,8 @@ export function UsageBar({ featureKey, plan, used, limit, compact = false }) {
           {isFull && (
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
               <span style={{ fontSize:11, color:'#ef4444' }}>Limite atteinte</span>
-              <button onClick={() => navigate('/pricing')} style={{ padding:'3px 10px', borderRadius:6, border:'none', background:'#e85d04', color:'#fff', fontFamily:'Syne,sans-serif', fontSize:10, fontWeight:700, cursor:'pointer' }}>
-                Upgrader →
+              <button onClick={() => navigate('/app/billing')} style={{ padding:'3px 10px', borderRadius:6, border:'none', background:'#e85d04', color:'#fff', fontFamily:'Syne,sans-serif', fontSize:10, fontWeight:700, cursor:'pointer' }}>
+                Voir l&apos;acces →
               </button>
             </div>
           )}
@@ -64,8 +65,9 @@ export function UsageBar({ featureKey, plan, used, limit, compact = false }) {
 
 // Widget compact pour la sidebar ou le header
 export function UsageSummary({ usePlanData }) {
-  const { plan, features, getUsage, getLimit, can } = usePlanData
+  const { plan, getUsage, getLimit } = usePlanData
   const navigate = useNavigate()
+  const access = getAccessMeta(plan)
 
   const keyFeatures = ['calc_uses', 'ask_ai_daily', 'session_saves']
   const hasWarning = keyFeatures.some(k => {
@@ -78,9 +80,9 @@ export function UsageSummary({ usePlanData }) {
   return (
     <div style={{ background:'#0e0c0a', border:`1px solid ${hasWarning?'rgba(244,140,6,0.3)':'#1e1a14'}`, borderRadius:10, padding:'12px 14px', marginBottom:12 }}>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
-        <span style={{ fontFamily:'Syne,sans-serif', fontSize:10, fontWeight:700, letterSpacing:'1px', textTransform:'uppercase', color:'#3a2e24' }}>Plan Free</span>
-        <button onClick={() => navigate('/pricing')} style={{ padding:'3px 10px', borderRadius:6, border:'1px solid rgba(232,93,4,0.3)', background:'rgba(232,93,4,0.08)', color:'#e85d04', fontFamily:'Syne,sans-serif', fontSize:10, fontWeight:700, cursor:'pointer' }}>
-          Upgrader
+        <span style={{ fontFamily:'Syne,sans-serif', fontSize:10, fontWeight:700, letterSpacing:'1px', textTransform:'uppercase', color:'#3a2e24' }}>{access.shortLabel}</span>
+        <button onClick={() => navigate('/app/billing')} style={{ padding:'3px 10px', borderRadius:6, border:'1px solid rgba(232,93,4,0.3)', background:'rgba(232,93,4,0.08)', color:'#e85d04', fontFamily:'Syne,sans-serif', fontSize:10, fontWeight:700, cursor:'pointer' }}>
+          Capacites
         </button>
       </div>
       {keyFeatures.map(k => (

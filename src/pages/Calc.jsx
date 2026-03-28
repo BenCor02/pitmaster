@@ -2,25 +2,20 @@ import { useState, useEffect, useMemo } from 'react'
 import { MEAT_IMAGES, SMOKE_IMAGE } from '../lib/images'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { supabase } from '../lib/supabase'
+import { saveCookSession } from '../modules/cooks/repository'
 import { MEATS } from '../lib/meats'
 import { useCalculatorCatalog } from '../hooks/useCalculatorCatalog'
 import {
-  calculateLowSlow, recalibrate, formatDuration, formatTime,
-  addMinutes, validateInput, PHASE_BASES, buildTimeline, COOKING_METHODS,
-  getCookingProfile, getMethodConfig, hhmmToMinutes, minutesToClock, roundMinutesForDisplay,
-} from '../lib/calculator.js'
-import { useSnack } from '../components/Snack'
+  recalibrate, formatDuration, validateInput, PHASE_BASES, COOKING_METHODS,
+  getCookingProfile, getMethodConfig,
+} from '../domain/calculator/engine.js'
+import { buildCookResult, buildCookRoadmap } from '../modules/calculator/planner'
+import { useSnack } from '../components/useSnack'
 import Snack from '../components/Snack'
 
 const MEAT_PROFILES = Object.fromEntries(
   Object.entries(PHASE_BASES).map(([k, v]) => [k, { ...v, method: 'lowslow' }])
 )
-
-const calculateCookTime = (meatKey, weightKg, options = {}, adjustments = {}) => {
-  const calc = calculateLowSlow(meatKey, weightKg, options, adjustments)
-  return { ...calc, phases: buildTimeline(calc, options.smokerTempC || 120) }
-}
 
 const MEAT_CATEGORIES = {
   'Bœuf': ['brisket', 'ribs_beef', 'paleron', 'plat_de_cote'],
@@ -117,20 +112,6 @@ function getAnonymousVisitorId() {
     // PATCH: fallback sans persistance si localStorage indisponible
     return `visitor_${Date.now()}`
   }
-}
-
-function buildServeDate(serveTime) {
-  const [hours, minutes] = String(serveTime || '19:00').split(':').map(v => parseInt(v, 10))
-  const now = new Date()
-  const serve = new Date(now)
-  serve.setSeconds(0, 0)
-  serve.setHours(
-    Number.isFinite(hours) ? hours : 19,
-    Number.isFinite(minutes) ? minutes : 0,
-    0, 0
-  )
-  if (serve.getTime() <= now.getTime()) serve.setDate(serve.getDate() + 1)
-  return serve
 }
 
 // PATCH: petits intertitres pour guider le parcours sans surcharger l'écran
@@ -309,41 +290,6 @@ function formatRangeDisplay(value, unit = 'c') {
   return formatTemperatureDisplay(value, unit)
 }
 
-// PATCH: roadmap visuelle simple branchée sur le moteur et affichée comme un plan d’action
-function buildRoadmap(result) {
-  if (!result) return []
-  const startMinutes = typeof result.preheatStartMinutes === 'number' ? result.preheatStartMinutes : hhmmToMinutes(result.startTime || '19:00')
-  const meatOnSmokerMinutes = typeof result.meatOnSmokerMinutes === 'number' ? result.meatOnSmokerMinutes : startMinutes + (result.preheatMin || 30)
-  const cookDoneMinutes = typeof result.estimatedDoneTimeMinutes === 'number' ? result.estimatedDoneTimeMinutes : meatOnSmokerMinutes + (result.cookMin || 0)
-  const readyAtMinutes = typeof result.readyAfterRestMinutes === 'number' ? result.readyAfterRestMinutes : cookDoneMinutes + (result.restMin || 0)
-  const stallAtMinutes = meatOnSmokerMinutes + Math.round((result.cookMin || 0) * (result.method === 'hot_and_fast' ? 0.5 : 0.55))
-  const wrapAtMinutes = meatOnSmokerMinutes + Math.round((result.cookMin || 0) * 0.45)
-  const probeAtMinutes = meatOnSmokerMinutes + Math.round((result.cookMin || 0) * (result.method === 'hot_and_fast' ? 0.8 : 0.85))
-  const displayClock = (minutes) => minutesToClock(roundMinutesForDisplay(minutes, 10)).replace(':', 'h')
-
-  if (result.meatKey === 'ribs_pork' || result.meatKey === 'ribs_baby_back') {
-    return [
-      { id: 'preheat', icon: '🔥', title: 'Préchauffage', time: displayClock(startMinutes), caption: 'Allume et stabilise le fumoir avant de charger le rack.' },
-      { id: 'load', icon: '🍖', title: 'Poser les ribs', time: displayClock(meatOnSmokerMinutes), caption: `Place les ribs à ${result.smokerTempC}°C et laisse la couleur se construire.` },
-      { id: 'pullback', icon: '🦴', title: 'Pullback', time: null, caption: 'Observe la couleur, le retrait sur l’os et décide si tu veux wrapper.' },
-      { id: 'wrap', icon: '🌯', title: 'Wrap éventuel', time: result.wrapType !== 'none' ? displayClock(wrapAtMinutes) : null, caption: result.wrapType !== 'none' ? 'Emballe si la couleur te plaît et que tu veux une texture plus souple.' : 'Reste à nu si tu veux garder une bark plus marquée.' },
-      { id: 'flex', icon: '🔍', title: 'Flex test', time: null, caption: 'Le vrai signal de fin : le rack plie franchement et commence à fissurer.' },
-      { id: 'rest', icon: '😴', title: 'Repos court', time: displayClock(cookDoneMinutes), caption: 'Laisse reposer quelques minutes avant de couper.' },
-      { id: 'service', icon: '🍽️', title: 'Service', time: displayClock(readyAtMinutes), caption: `Fenêtre conseillée : ${result.serviceWindowStart} → ${result.serviceWindowEnd}.` },
-    ]
-  }
-
-  return [
-    { id: 'preheat', icon: '🔥', title: 'Préchauffage', time: displayClock(startMinutes), caption: 'Allume le fumoir et laisse-le se stabiliser tranquillement.' },
-    { id: 'load', icon: '🥩', title: 'Poser la viande', time: displayClock(meatOnSmokerMinutes), caption: `Charge la viande sur le fumoir à ${result.smokerTempC}°C.` },
-    { id: 'stall', icon: '📍', title: 'Stall attendu', time: result.cues?.stallRange ? displayClock(stallAtMinutes) : null, caption: result.cues?.stallRange ? `Repère utile : ${result.cues.stallRange}. Continue à surveiller la bark.` : 'Surveille surtout la couleur et la texture.' },
-    { id: 'wrap', icon: '📦', title: 'Wrap', time: result.wrapType !== 'none' ? displayClock(wrapAtMinutes) : null, caption: result.wrapType !== 'none' ? `Emballe quand la bark te plaît. Repère : ${result.cues?.wrapRange || 'bonne zone de wrap'}.` : 'Sans wrap : laisse continuer jusqu’à la vraie tendreté.' },
-    { id: 'probe', icon: '🌡️', title: 'Début des tests', time: displayClock(probeAtMinutes), caption: result.cues?.probeTenderRange ? `Commence à tester vers ${result.cues?.probeStart || 'la bonne zone'} puis cherche ${result.cues.probeTenderRange}.` : 'Commence à tester selon la texture recherchée.' },
-    { id: 'rest', icon: '😴', title: 'Repos', time: displayClock(cookDoneMinutes), caption: `Repos recommandé : ${result.cues?.restRange || result.restRecommendation}.` },
-    { id: 'service', icon: '🍽️', title: 'Service', time: displayClock(readyAtMinutes), caption: `Fenêtre conseillée : ${result.serviceWindowStart} → ${result.serviceWindowEnd}.` },
-  ]
-}
-
 export default function Calc() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -401,7 +347,7 @@ export default function Calc() {
   const tempRange = useMemo(() => methodConfig?.smokerTempRange || [100, 160], [methodConfig])
   const displayCategories = useMemo(() => buildMeatCategories(catalogMeats), [catalogMeats])
   const showWrapChoices = cookMethod === 'low_and_slow' && (Boolean(cookingProfile?.temperatureCues?.wrapRangeC) || meatKey === 'ribs_pork' || meatKey === 'ribs_baby_back' || meatKey === 'lamb_leg')
-  const roadmap = buildRoadmap(result)
+  const roadmap = buildCookRoadmap(result)
 
   useEffect(() => {
     setHeroImageSrc(MEAT_IMAGES[meatKey] || MEAT_IMAGES.brisket || SMOKE_IMAGE)
@@ -483,44 +429,11 @@ export default function Calc() {
           marbling,
         }
 
-        const calc = calculateCookTime(meatKey, safeWeight, options)
-        const serve = buildServeDate(serveTime)
-        const probableMin = Number.isFinite(calc.probableMin) ? calc.probableMin : calc.totalMin || calc.cookMin || 0
-        const optimisticMin = Number.isFinite(calc.optimisticMin) ? calc.optimisticMin : probableMin
-        const prudentMin = Number.isFinite(calc.prudentMin) ? calc.prudentMin : probableMin
-
-        const start = addMinutes(serve, -probableMin)
-        const meatOnSmokerAt = addMinutes(start, calc.preheatMin || 30)
-        // PATCH: expose une lecture simple "fin cuisson" puis "prêt après repos"
-        const estimatedCookDoneAt = addMinutes(meatOnSmokerAt, calc.cookMin || 0)
-        const estimatedReadyAt = addMinutes(estimatedCookDoneAt, calc.restMin || 0)
-        const serviceWindowStart = addMinutes(serve, -(prudentMin - probableMin))
-        const serviceWindowEnd = addMinutes(serve, Math.max(optimisticMin - probableMin, 0))
-
-        // PATCH: plus d'heures fixes par étape dans l'UI; on garde seulement les repères de cuisson
-        const tl = calc.phases.map(phase => ({ ...phase }))
-        tl.push({
-          id: 'service', label: '🍽️ Service', isService: true,
-          description: `Sers dans la fenêtre conseillée.`,
-        })
-
+        const calc = buildCookResult(meatKey, safeWeight, options, serveTime)
         const newResult = {
           ...calc,
           weightKg: safeWeight,
           smokerTempC: safeSmokerTemp,
-          startTimeRaw: start.toISOString(),
-          meatOnSmokerAtRaw: meatOnSmokerAt.toISOString(),
-          cookDoneAtRaw: estimatedCookDoneAt.toISOString(),
-          readyAtRaw: estimatedReadyAt.toISOString(),
-          startTime: formatTime(start),
-          meatOnSmokerTime: formatTime(meatOnSmokerAt),
-          cookDoneTime: formatTime(estimatedCookDoneAt),
-          readyAfterRestTime: formatTime(estimatedReadyAt),
-          // PATCH: l'heure de service affichée suit aussi l'arrondi utilisateur global
-          serve: formatTime(serve),
-          serviceWindowStart: formatTime(serviceWindowStart),
-          serviceWindowEnd: formatTime(serviceWindowEnd),
-          probableMin, optimisticMin, prudentMin,
           // PATCH: contexte non visible pour futures analytics anonymes et usage réel
           analyticsContext: {
             visitorId: getAnonymousVisitorId(),
@@ -538,7 +451,7 @@ export default function Calc() {
         } catch {
           // PATCH: résultat mémorisé en best effort uniquement
         }
-        setTimeline(tl)
+        setTimeline(calc.timeline)
         setLoading(false)
         setTimeout(() => document.getElementById('calc-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
       } catch (e) {
@@ -568,20 +481,23 @@ export default function Calc() {
       return
     }
     setSaving(true)
-    const { error } = await supabase.from('sessions').insert({
-      user_id: user.id,
-      meat_key: result.meatKey,
-      meat_name: meatData?.name,
-      weight: result.weightKg,
-      smoker_temp: result.smokerTempC,
-      serve_time: result.serve,
-      start_time: result.startTime,
-      cook_min: result.cookMin,
-      date: new Date().toLocaleDateString('fr-FR'),
-    })
     setSaving(false)
-    if (error) showSnack('Erreur : ' + error.message, 'error')
-    else showSnack('✓ Session sauvegardée !')
+    try {
+      await saveCookSession({
+        user_id: user.id,
+        meat_key: result.meatKey,
+        meat_name: meatData?.name,
+        weight: result.weightKg,
+        smoker_temp: result.smokerTempC,
+        serve_time: result.serve,
+        start_time: result.startTime,
+        cook_min: result.cookMin,
+        date: new Date().toLocaleDateString('fr-FR'),
+      })
+      showSnack('✓ Session sauvegardée !')
+    } catch (error) {
+      showSnack('Erreur : ' + error.message, 'error')
+    }
   }
 
   // PATCH: partage rapide pour favoriser l'usage viral sans forcer la création de compte

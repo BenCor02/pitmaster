@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { deletePageSection, fetchAdminPages, fetchAdminSections, upsertPage, upsertPageSection } from '../../lib/cms'
+import { deletePageSection, fetchAdminPages, fetchAdminSections, upsertPage, upsertPageSection } from '../../modules/cms/repository'
 
 const css = `
   .cms-wrap{display:grid;grid-template-columns:320px minmax(0,1fr);gap:18px}

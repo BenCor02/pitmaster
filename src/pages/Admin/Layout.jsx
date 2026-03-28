@@ -2,10 +2,10 @@ import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 
 const NAV = [
-  { path: '/admin',           icon: '📊', label: 'Dashboard',        end: true },
-  { section: 'BUSINESS' },
+  { path: '/admin',           icon: '📊', label: 'Vue d’ensemble',        end: true },
+  { section: 'ACCES' },
   { path: '/admin/members',   icon: '👥', label: 'Membres' },
-  { path: '/admin/plans',     icon: '💳', label: 'Plans & Pricing' },
+  { path: '/admin/plans',     icon: '🎚️', label: 'Accès & limites' },
   { section: 'CONTENU' },
   { path: '/admin/content',   icon: '📝', label: 'Pages & Sections' },
   { path: '/admin/media',     icon: '🖼️', label: 'Médias' },
@@ -69,8 +69,8 @@ export default function AdminLayout() {
           <div style={{ display:'flex', alignItems:'center', gap:9 }}>
             <div style={{ width:32, height:32, borderRadius:9, background:'linear-gradient(135deg,#f48c06,#c04400)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:15, boxShadow:'0 4px 12px rgba(232,93,4,0.3)' }}>👑</div>
             <div>
-              <div style={{ fontFamily:"'Syne', sans-serif", fontWeight:800, fontSize:14, color:'#fff', lineHeight:1 }}>Admin Panel</div>
-              <div style={{ fontSize:9, color:'#2e2820', fontWeight:600, marginTop:2, letterSpacing:'1.5px', textTransform:'uppercase' }}>PitMaster Pro</div>
+              <div style={{ fontFamily:"'Syne', sans-serif", fontWeight:800, fontSize:14, color:'#fff', lineHeight:1 }}>Atelier admin</div>
+              <div style={{ fontSize:9, color:'#2e2820', fontWeight:600, marginTop:2, letterSpacing:'1.5px', textTransform:'uppercase' }}>Charbon & Flamme</div>
             </div>
           </div>
           <div style={{ marginTop:10, padding:'6px 10px', borderRadius:7, background:'rgba(232,93,4,0.08)', border:'1px solid rgba(232,93,4,0.15)', fontSize:11, color:'#e85d04', fontFamily:"'DM Mono', monospace", overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
@@ -116,7 +116,7 @@ export default function AdminLayout() {
       <div className="adm-main" style={{ flex:1, display:'flex', flexDirection:'column', minWidth:0 }}>
         <header className="adm-topbar" style={{ height:50, background:'rgba(8,7,6,0.95)', backdropFilter:'blur(20px)', borderBottom:'1px solid #181410', alignItems:'center', justifyContent:'space-between', padding:'0 40px', position:'sticky', top:0, zIndex:30 }}>
           <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-            <span style={{ fontSize:10, color:'#3a2e24', fontWeight:600, letterSpacing:'1px', textTransform:'uppercase' }}>Admin</span>
+            <span style={{ fontSize:10, color:'#3a2e24', fontWeight:600, letterSpacing:'1px', textTransform:'uppercase' }}>Atelier</span>
             <span style={{ color:'#2a2218' }}>/</span>
             <span style={{ fontSize:12, color:'#8a7060', fontWeight:600 }}>{currentPage}</span>
           </div>

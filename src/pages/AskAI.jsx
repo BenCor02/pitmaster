@@ -69,7 +69,7 @@ function formatMessage(text) {
 }
 
 export default function AskAI() {
-  const { user } = useAuth()
+  useAuth()
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -109,7 +109,7 @@ export default function AskAI() {
 
       const reply = data.content?.[0]?.text || 'Désolé, je nai pas pu répondre.'
       setMessages(prev => [...prev, { role: 'assistant', content: reply }])
-    } catch (err) {
+    } catch {
       setError('Erreur de connexion. Réessaie dans un instant.')
       setMessages(prev => prev.slice(0, -1))
     } finally {

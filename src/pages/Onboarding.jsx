@@ -4,10 +4,10 @@
  * "Lance ta cuisson à 05:47" en moins de 30 secondes
  */
 
-import { useState, useEffect } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { calculateLowSlow, formatDuration } from '../lib/calculator'
+import { calculateLowSlow, formatDuration } from '../domain/calculator/engine'
 
 // ── Calcul rapide pour la preview ────────────────────────────
 function quickCalc(meatKey, weightKg, smokerTempC, serveHour) {
@@ -51,15 +51,13 @@ export default function Onboarding() {
   const [weight,     setWeight]     = useState(5)
   const [smokerTemp, setSmokerTemp] = useState(120)
   const [serveHour,  setServeHour]  = useState(19)
-  const [calcResult, setCalcResult] = useState(null)
   const [saving,     setSaving]     = useState(false)
   const [experience, setExperience] = useState(null)
 
-  // Preview live
-  useEffect(() => {
-    const r = quickCalc(meatKey, weight, smokerTemp, serveHour)
-    setCalcResult(r)
-  }, [meatKey, weight, smokerTemp, serveHour])
+  const calcResult = useMemo(
+    () => quickCalc(meatKey, weight, smokerTemp, serveHour),
+    [meatKey, weight, smokerTemp, serveHour]
+  )
 
   async function finishOnboarding() {
     setSaving(true)

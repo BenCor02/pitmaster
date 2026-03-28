@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { invalidateSettingsCache } from '../../hooks/useSiteSettings'
-import { useSnack } from '../../components/Snack'
+import { useSnack } from '../../components/useSnack'
 import Snack from '../../components/Snack'
-import { fetchSiteSettingsRow, upsertSiteSettingsRow } from '../../lib/cms'
+import { fetchSiteSettingsRow, upsertSiteSettingsRow } from '../../modules/cms/repository'
 
 const css = `
   .adm-card{background:#171410;border:1px solid #1e1a14;border-radius:14px;padding:20px;margin-bottom:12px}

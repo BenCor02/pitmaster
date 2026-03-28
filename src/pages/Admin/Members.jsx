@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { supabase } from '../../lib/supabase'
-import { useSnack } from '../../components/Snack'
+import { supabase } from '../../modules/supabase/client'
+import { useSnack } from '../../components/useSnack'
 import Snack from '../../components/Snack'
 
 const css = `
@@ -55,7 +55,11 @@ export default function AdminMembers() {
   }, [showSnack])
 
   useEffect(() => {
-    loadMembers()
+    const timeoutId = window.setTimeout(() => {
+      void loadMembers()
+    }, 0)
+
+    return () => window.clearTimeout(timeoutId)
   }, [loadMembers])
 
   async function updateMember(id, patch) {

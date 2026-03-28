@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
-import { supabase } from '../../lib/supabase'
-import { useSnack } from '../../components/Snack'
+import { useState, useEffect, useCallback } from 'react'
+import { supabase } from '../../modules/supabase/client'
+import { useSnack } from '../../components/useSnack'
 import Snack from '../../components/Snack'
 
 const css = `
@@ -20,14 +20,20 @@ export default function AdminSecurity() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
-  useEffect(() => { loadBannedIPs() }, [])
-
-  async function loadBannedIPs() {
+  const loadBannedIPs = useCallback(async () => {
     setLoading(true)
     const { data } = await supabase.from('banned_ips').select('*').order('banned_at', { ascending:false })
     setBannedIPs(data || [])
     setLoading(false)
-  }
+  }, [])
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      void loadBannedIPs()
+    }, 0)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [loadBannedIPs])
 
   async function banIP() {
     if (!newIP.trim()) { showSnack('IP obligatoire', 'error'); return }

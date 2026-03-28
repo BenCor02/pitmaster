@@ -5,9 +5,13 @@
  * - Notifications push locales via Service Worker
  */
 
-import { useState, useEffect, useRef } from 'react'
-import { supabase } from '../lib/supabase'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useAuth } from '../context/AuthContext'
+import {
+  createActiveCookSession,
+  fetchActiveCookSession,
+  updateActiveCookSession,
+} from '../modules/cooks/repository'
 
 // ─────────────────────────────────────────────────────────────
 // NOTIFICATIONS PUSH — Service Worker
@@ -76,12 +80,34 @@ export function useCookSession() {
   const [notifOk, setNotifOk]       = useState(false)
   const timerRef = useRef(null)
 
+  const setupPush = useCallback(async () => {
+    const reg = await registerServiceWorker()
+    setSwReg(reg)
+    const ok = await requestNotifPermission()
+    setNotifOk(ok)
+  }, [])
+
+  const loadActiveSession = useCallback(async () => {
+    if (!user) return
+    setLoading(true)
+    try {
+      const data = await fetchActiveCookSession(user.id)
+      if (data) {
+        setSession(hydrateSession(data))
+      }
+    } catch (err) {
+      // Table non créée ou autre erreur Supabase → on continue sans session
+      console.warn('useCookSession: table active_cook_sessions inaccessible', err?.message)
+    }
+    setLoading(false)
+  }, [user])
+
   // ── Charger la session active au montage
   useEffect(() => {
     if (!user) { setLoading(false); return }
     loadActiveSession()
     setupPush()
-  }, [user])
+  }, [user, loadActiveSession, setupPush])
 
   // ── Timer tick toutes les minutes (mise à jour elapsed)
   useEffect(() => {
@@ -90,37 +116,7 @@ export function useCookSession() {
       setSession(s => s ? { ...s, _tick: Date.now() } : s)
     }, 60000)
     return () => clearInterval(timerRef.current)
-  }, [session?.id])
-
-  async function setupPush() {
-    const reg = await registerServiceWorker()
-    setSwReg(reg)
-    const ok = await requestNotifPermission()
-    setNotifOk(ok)
-  }
-
-  async function loadActiveSession() {
-    setLoading(true)
-    try {
-      const { data, error } = await supabase
-        .from('active_cook_sessions')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single()
-
-      if (data && !error) {
-        setSession(hydrateSession(data))
-      }
-      // error.code === 'PGRST116' = no rows → pas de session active, c'est normal
-    } catch (err) {
-      // Table non créée ou autre erreur Supabase → on continue sans session
-      console.warn('useCookSession: table active_cook_sessions inaccessible', err?.message)
-    }
-    setLoading(false)
-  }
+  }, [session])
 
   // ── Convertir la ligne Supabase en objet session complet
   function hydrateSession(row) {
@@ -216,9 +212,9 @@ export function useCookSession() {
       },
     ]
 
-    const { data, error } = await supabase
-      .from('active_cook_sessions')
-      .insert({
+    let data = null
+    try {
+      data = await createActiveCookSession({
         user_id:      user.id,
         meat_key:     schedule.meatKey,
         meat_label:   schedule.meatLabel,
@@ -244,12 +240,13 @@ export function useCookSession() {
         cook_log:     [],
         status:       'active',
       })
-      .select()
-      .single()
+    } catch (error) {
+      console.warn('Supabase unavailable, using local session fallback', error?.message)
+    }
 
     setSaving(false)
 
-    if (error || !data) {
+    if (!data) {
       console.warn('Supabase unavailable, using local session fallback')
       // Fallback : session locale (sans persistance, mais fonctionnelle)
       const localSession = {
@@ -315,10 +312,7 @@ export function useCookSession() {
 
     // Sauvegarder en base si ce n'est pas une session locale
     if (!session.id?.startsWith('local-')) {
-      await supabase
-        .from('active_cook_sessions')
-        .update({ checkpoints: newCheckpoints, cook_log: newLog })
-        .eq('id', session.id)
+      await updateActiveCookSession(session.id, { checkpoints: newCheckpoints, cook_log: newLog })
         .catch(err => console.warn('Save checkpoint failed:', err?.message))
     }
   }
@@ -330,10 +324,7 @@ export function useCookSession() {
     const newLog = [entry, ...(session.cookLog || [])]
     setSession(s => ({ ...s, cookLog: newLog }))
     if (!session.id?.startsWith('local-')) {
-      await supabase
-        .from('active_cook_sessions')
-        .update({ cook_log: newLog })
-        .eq('id', session.id)
+      await updateActiveCookSession(session.id, { cook_log: newLog })
         .catch(err => console.warn('Save log failed:', err?.message))
     }
   }
@@ -342,10 +333,7 @@ export function useCookSession() {
   async function endSession(status = 'completed') {
     if (!session) return
     if (!session.id?.startsWith('local-')) {
-      await supabase
-        .from('active_cook_sessions')
-        .update({ status })
-        .eq('id', session.id)
+      await updateActiveCookSession(session.id, { status })
         .catch(err => console.warn('End session failed:', err?.message))
     }
     setSession(null)

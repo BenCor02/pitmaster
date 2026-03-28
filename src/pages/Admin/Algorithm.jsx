@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { supabase } from '../../lib/supabase'
+import { supabase } from '../../modules/supabase/client'
 import { invalidateAdjustmentsCache } from '../../lib/engineLoader'
 import { BASE_COEFFS, PHASE_BASES } from '../../lib/calculator'
 
@@ -219,7 +219,7 @@ function TabVersions({ versions, onRefresh }) {
 
   return (
     <div>
-      {versions.map((v, i) => (
+      {versions.map((v) => (
         <Card key={v.id}>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
             <div style={{ flex:1 }}>
@@ -343,7 +343,13 @@ export default function AdminAlgorithm() {
     setLoading(false)
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      void load()
+    }, 0)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [load])
 
   const pendingCount = suggestions.filter(s => s.status === 'pending').length
 

@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { MEATS } from '../lib/meats'
-import { calculateLowSlow, buildTimeline, formatDuration } from '../lib/calculator'
+import { calculateLowSlow, buildTimeline, formatDuration } from '../domain/calculator/engine'
 
 function calculateCookTime(meatKey, weightKg, thicknessCm, smokerTempC = 120, method, willWrap) {
   const calc = calculateLowSlow(meatKey, weightKg, { thicknessCm, smokerTempC, wrapType: willWrap ? 'butcher_paper' : 'none' })
   return { ...calc, phases: buildTimeline(calc, smokerTempC) }
 }
-import { useSnack } from '../components/Snack'
+import { useSnack } from '../components/useSnack'
 import Snack from '../components/Snack'
 
 function playBeep(ctx, freq = 880, dur = 0.3, vol = 0.5) {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { fetchSiteSettingsRow } from '../lib/cms'
+import { fetchSiteSettingsRow } from '../modules/cms/repository'
 
 // Store global partagé entre tous les composants
 let cache = null

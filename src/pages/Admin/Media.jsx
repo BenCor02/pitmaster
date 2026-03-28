@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { deleteMediaAsset, fetchMediaLibrary, uploadMediaAsset } from '../../lib/cms'
+import { deleteMediaAsset, fetchMediaLibrary, uploadMediaAsset } from '../../modules/cms/repository'
 import { useAuth } from '../../context/AuthContext'
 
 const css = `

@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { supabase } from '../lib/supabase'
+import { saveCookParty } from '../modules/cooks/repository'
 import { MEATS } from '../lib/meats'
-import { calculateLowSlow, buildTimeline, formatDuration, formatTime, addMinutes } from '../lib/calculator'
+import { calculateLowSlow, buildTimeline, formatDuration, formatTime, addMinutes } from '../domain/calculator/engine'
 
 // Wrapper local — ancienne signature : (meatKey, weight, thickness, smokerTempC, method, wrap)
 function calculateCookTime(meatKey, weightKg, thicknessCm, smokerTempC = 120, method, willWrap) {
@@ -15,7 +15,7 @@ function calculateCookTime(meatKey, weightKg, thicknessCm, smokerTempC = 120, me
   const phases = buildTimeline(calc, smokerTempC)
   return { ...calc, phases }
 }
-import { useSnack } from '../components/Snack'
+import { useSnack } from '../components/useSnack'
 import Snack from '../components/Snack'
 
 export default function Party() {
@@ -103,17 +103,20 @@ export default function Party() {
   async function saveParty() {
     if (!result || !user) { showSnack('Lance dabord un calcul', 'error'); return }
     setSaving(true)
-    const { error } = await supabase.from('cook_parties').insert({
-      user_id: user.id,
-      name: partyName || 'Cook Party',
-      serve_time: result.serveStr,
-      smoker_temp: result.smokerTemp,
-      meats: result.computed.map(m => ({ key: m.key, name: m.name, weight: m.weight, start: m.startStr, cook_min: m.cookMin })),
-      date: new Date().toLocaleDateString('fr-FR'),
-    })
     setSaving(false)
-    if (error) showSnack('Erreur: ' + error.message, 'error')
-    else showSnack('🎉 Cook Party sauvegardée !')
+    try {
+      await saveCookParty({
+        user_id: user.id,
+        name: partyName || 'Cook Party',
+        serve_time: result.serveStr,
+        smoker_temp: result.smokerTemp,
+        meats: result.computed.map(m => ({ key: m.key, name: m.name, weight: m.weight, start: m.startStr, cook_min: m.cookMin })),
+        date: new Date().toLocaleDateString('fr-FR'),
+      })
+      showSnack('🎉 Cook Party sauvegardée !')
+    } catch (error) {
+      showSnack('Erreur: ' + error.message, 'error')
+    }
   }
 
   const phaseColor = (p) => {

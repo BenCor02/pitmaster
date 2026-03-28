@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useSnack } from '../components/Snack'
+import { useSnack } from '../components/useSnack'
 import Snack from '../components/Snack'
 
 const css = `
@@ -238,7 +238,7 @@ function formatTime(hours) {
 }
 
 export default function Cold() {
-  const { snack, showSnack } = useSnack()
+  const { snack } = useSnack()
   const [product, setProduct] = useState('salmon')
   const [method, setMethod] = useState('ssv')
   const [weight, setWeight] = useState(1.0)
@@ -308,8 +308,6 @@ export default function Cold() {
     const afterSaltage = new Date(startDate.getTime() + saltageH * 3600000)
     const afterRinse = new Date(afterSaltage.getTime() + rinseH * 3600000)
     const afterDry = new Date(afterRinse.getTime() + dryH * 3600000)
-    const endSmoke = new Date(afterDry.getTime() + smokeHours * 3600000)
-
     const ftt = d => d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
 
     setResult({

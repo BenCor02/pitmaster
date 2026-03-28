@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { fetchCalculatorCatalog, upsertCalculatorMeat, upsertCalculatorParameters, upsertCookingMethod } from '../../lib/cms'
+import { fetchCalculatorCatalog, upsertCalculatorMeat, upsertCalculatorParameters, upsertCookingMethod } from '../../modules/cms/repository'
 
 const css = `
   .cat-wrap{display:grid;grid-template-columns:320px minmax(0,1fr);gap:18px}

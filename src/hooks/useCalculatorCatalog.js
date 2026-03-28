@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { fetchCalculatorCatalog } from '../lib/cms'
-import { buildRuntimeProfilesFromCatalog, setRuntimeCalculatorProfiles } from '../lib/calculator'
+import { fetchCalculatorCatalog } from '../modules/cms/repository'
+import { buildRuntimeProfilesFromCatalog, setRuntimeCalculatorProfiles } from '../domain/calculator/catalog'
 
 export function useCalculatorCatalog() {
   const [catalog, setCatalog] = useState({ meats: [], methods: [], parameters: [] })

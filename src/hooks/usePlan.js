@@ -1,6 +1,7 @@
 import { useAuth } from '../context/AuthContext'
 import { useState, useEffect, useCallback } from 'react'
-import { supabase } from '../lib/supabase'
+import { supabase } from '../modules/supabase/client'
+import { CAPABILITY_INFO, getAccessMeta } from '../modules/access/catalog'
 
 // Feature keys
 export const FEATURES = {
@@ -17,16 +18,7 @@ export const FEATURES = {
 }
 
 export const FEATURE_INFO = {
-  calc_uses:        { icon: '🔥', label: 'Calculs BBQ', period: 'total' },
-  session_saves:    { icon: '☁️', label: 'Sessions sauvegardées', period: 'total' },
-  journal_entries:  { icon: '📓', label: 'Entrées journal', period: 'total' },
-  party_meats:      { icon: '🎉', label: 'Viandes Cook Party', period: 'total' },
-  cold_uses:        { icon: '❄️', label: 'Calculs fumage froid', period: 'total' },
-  ask_ai_daily:     { icon: '🤖', label: 'Questions IA', period: 'daily' },
-  history_access:   { icon: '📖', label: 'Accès historique', period: 'total' },
-  export_pdf:       { icon: '📄', label: 'Export PDF', period: 'total' },
-  custom_meats:     { icon: '🥩', label: 'Viandes personnalisées', period: 'total' },
-  advanced_stats:   { icon: '📊', label: 'Statistiques avancées', period: 'total' },
+  ...CAPABILITY_INFO,
 }
 
 export function usePlan() {
@@ -88,7 +80,13 @@ export function usePlan() {
     setLoading(false)
   }, [user])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      void load()
+    }, 0)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [load])
 
   // Vérifier si une feature est accessible
   function can(featureKey) {
@@ -143,11 +141,7 @@ export function usePlan() {
   }
 
   // Plan minimal requis pour une feature
-  function requiredPlan(_featureKey) {
-    if (!planData) return 'pro'
-    for (const _p of planData) {
-      // Trouver le plan le moins cher qui débloque cette feature
-    }
+  function requiredPlan() {
     return 'pro'
   }
 
@@ -160,6 +154,7 @@ export function usePlan() {
 
   return {
     plan, planData, features, usage, loading,
+    accessMeta: getAccessMeta(plan),
     can, getLimit, getUsage, increment, usagePercent, requiredPlan,
     reload: load,
   }

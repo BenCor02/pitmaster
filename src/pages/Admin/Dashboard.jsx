@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { supabase } from '../../lib/supabase'
+import { fetchCookDashboardMetrics } from '../../modules/cooks/repository'
 
 const css = `
   @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -33,51 +33,29 @@ function StatCard({ label, value, sub, color = '#e85d04', icon, trend }) {
 export default function AdminDashboard() {
   const navigate = useNavigate()
   const [stats, setStats] = useState({ users:0, sessions:0, journal:0, parties:0 })
-  const [recentUsers, setRecentUsers] = useState([])
   const [recentSessions, setRecentSessions] = useState([])
   const [meatStats, setMeatStats] = useState([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => { loadStats() }, [])
-
-  async function loadStats() {
+  const loadStats = useCallback(async () => {
     setLoading(true)
-    const [users, sessions, journal, parties] = await Promise.all([
-      supabase.from('sessions').select('user_id', { count:'exact', head:true }),
-      supabase.from('sessions').select('*', { count:'exact', head:true }),
-      supabase.from('cook_journal').select('*', { count:'exact', head:true }),
-      supabase.from('cook_parties').select('*', { count:'exact', head:true }),
-    ])
-
-    // Utilisateurs uniques
-    const { data: uniqueUsers } = await supabase.from('sessions').select('user_id')
-    const unique = new Set(uniqueUsers?.map(u => u.user_id) || []).size
-
-    // Sessions récentes
-    const { data: recentS } = await supabase.from('sessions').select('*').order('created_at', { ascending:false }).limit(8)
-    setRecentSessions(recentS || [])
-
-    // Stats par viande
-    const { data: allSessions } = await supabase.from('sessions').select('meat_name, meat_key')
-    if (allSessions) {
-      const counts = {}
-      allSessions.forEach(s => {
-        const k = s.meat_name || s.meat_key || 'Inconnu'
-        counts[k] = (counts[k] || 0) + 1
-      })
-      const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]).slice(0, 6)
-      const total = allSessions.length
-      setMeatStats(sorted.map(([name, count]) => ({ name, count, pct: Math.round(count/total*100) })))
+    try {
+      const metrics = await fetchCookDashboardMetrics()
+      setStats(metrics.stats)
+      setRecentSessions(metrics.recentSessions)
+      setMeatStats(metrics.meatStats)
+    } finally {
+      setLoading(false)
     }
+  }, [])
 
-    setStats({
-      users: unique,
-      sessions: sessions.count || 0,
-      journal: journal.count || 0,
-      parties: parties.count || 0,
-    })
-    setLoading(false)
-  }
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      void loadStats()
+    }, 0)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [loadStats])
 
   const MEAT_EMOJIS = { Brisket:'🥩', 'Pulled Pork':'🐷', 'Spare Ribs':'🍖', 'Beef Ribs':'🦴', 'Poulet entier':'🐔', 'Cuisses poulet':'🐓', 'Epaule agneau':'🐑', 'Poitrine porc':'🥓' }
 

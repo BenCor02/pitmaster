@@ -1,16 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-const css = `
-  @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-  @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
-  @keyframes pulse{0%,100%{opacity:0.4}50%{opacity:0.7}}
-  .fade-up{animation:fadeUp 0.25s ease both}
-  .blur-overlay{position:relative;overflow:hidden;border-radius:14px}
-  .blur-content{filter:blur(6px);pointer-events:none;user-select:none;opacity:0.4}
-  .shimmer-line{height:12px;border-radius:6px;background:linear-gradient(90deg,#1e1a14 25%,#2a2418 50%,#1e1a14 75%);background-size:200% 100%;animation:shimmer 1.5s infinite}
-`
-
 // ─── LIGNES FAKÉES POUR LE FLOU ───
 function FakeTimeline() {
   const lines = [
@@ -61,7 +51,7 @@ function FakeTips() {
   )
 }
 
-export default function PaywallTeaser({ result, usedCount, freeLimit, onUnlock }) {
+export default function PaywallTeaser({ result, usedCount, freeLimit }) {
   const navigate = useNavigate()
   const [hover, setHover] = useState(false)
   const remaining = freeLimit - usedCount

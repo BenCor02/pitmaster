@@ -4,7 +4,14 @@
  */
 
 import { createContext, useContext, useEffect, useState, useCallback } from 'react'
-import { supabase } from '../lib/supabase'
+import { supabase, supabaseProjectUrl } from '../modules/supabase/client'
+import {
+  fetchMyProfileRpc,
+  fetchProfileByUserId,
+  touchProfileLastSeen,
+  updateProfileByUserId,
+} from '../modules/auth/repository'
+import { isAdminRole, isEditorRole } from '../modules/auth/profileAccess'
 
 const AuthContext = createContext({})
 // PATCH: hook export conservé ici pour ne pas casser tout le projet pendant la migration Supabase-first.
@@ -22,44 +29,33 @@ export function AuthProvider({ children }) {
     if (!userId) { setProfile(null); setRoles([]); return }
     try {
       let nextProfile = null
-      // PATCH: la source de vérité principale doit être le select direct sur profiles.id.
-      // On évite qu'un RPC ou un fallback ancien schéma masque un vrai rôle Supabase.
-      const { data: directProfile, error: directProfileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        // PATCH: certaines bases existantes ont pu garder plusieurs lignes legacy
-        // pour un même id. On prend la plus récente au lieu de tomber en erreur.
-        .order('updated_at', { ascending: false, nullsFirst: false })
-        .order('created_at', { ascending: false, nullsFirst: false })
-        .limit(1)
-        .maybeSingle()
-
-      if (directProfileError) {
-        console.warn('profiles direct select failed', directProfileError)
-      }
-
-      if (directProfile) {
-        nextProfile = {
-          ...directProfile,
-          roles: directProfile.role ? [directProfile.role] : [],
-          source: 'profiles',
+      try {
+        const directProfile = await fetchProfileByUserId(userId)
+        if (directProfile) {
+          nextProfile = {
+            ...directProfile,
+            roles: directProfile.role ? [directProfile.role] : [],
+            source: 'profiles',
+          }
         }
+      } catch (directProfileError) {
+        console.warn('profiles direct select failed', directProfileError)
       }
 
       // PATCH: on garde le RPC en secours seulement, pour les cas où RLS ou schéma
       // existant renvoient mieux via la fonction security definer.
       if (!nextProfile) {
-        const { data: rpcProfile, error: rpcError } = await supabase.rpc('get_my_profile')
-        if (rpcError) {
-          console.warn('get_my_profile rpc failed', rpcError)
-        }
-        if (rpcProfile && !rpcProfile.error) {
-          nextProfile = {
-            ...rpcProfile,
-            roles: rpcProfile.roles || (rpcProfile.role ? [rpcProfile.role] : []),
-            source: 'rpc',
+        try {
+          const rpcProfile = await fetchMyProfileRpc()
+          if (rpcProfile && !rpcProfile.error) {
+            nextProfile = {
+              ...rpcProfile,
+              roles: rpcProfile.roles || (rpcProfile.role ? [rpcProfile.role] : []),
+              source: 'rpc',
+            }
           }
+        } catch (rpcError) {
+          console.warn('get_my_profile rpc failed', rpcError)
         }
       }
 
@@ -90,10 +86,7 @@ export function AuthProvider({ children }) {
       setRoles(nextProfile.roles || (nextProfile.role ? [nextProfile.role] : []))
 
       if (nextProfile.source !== 'fallback') {
-        await supabase
-          .from('profiles')
-          .update({ last_seen_at: new Date().toISOString() })
-          .eq('id', userId)
+        await touchProfileLastSeen(userId)
       }
     } catch (e) {
       console.error('loadProfile error', e)
@@ -147,8 +140,8 @@ export function AuthProvider({ children }) {
     ...(profile?.role ? [profile.role] : []),
   ])
 
-  const isAdmin   = roleSet.has('super_admin') || roleSet.has('admin')
-  const isEditor  = roleSet.has('editor') || roleSet.has('super_admin') || roleSet.has('admin')
+  const isAdmin   = isAdminRole(profile, [...roleSet])
+  const isEditor  = isEditorRole(profile, [...roleSet])
   const isSupport = roleSet.has('support') || roleSet.has('super_admin') || roleSet.has('admin')
   const isPro     = profile?.plan_code !== 'free'
 
@@ -164,7 +157,7 @@ export function AuthProvider({ children }) {
     }
 
     try {
-      const storageKey = `sb-${new URL('https://zkjfuzclkrwyustgsezd.supabase.co').hostname.split('.')[0]}-auth-token`
+      const storageKey = `sb-${new URL(supabaseProjectUrl).hostname.split('.')[0]}-auth-token`
       localStorage.removeItem(storageKey)
       sessionStorage.removeItem(storageKey)
     } catch (error) {
@@ -178,14 +171,13 @@ export function AuthProvider({ children }) {
 
   async function updateProfile(updates) {
     if (!user) return
-    const { data, error } = await supabase
-      .from('profiles')
-      .update({ ...updates, updated_at: new Date().toISOString() })
-      .eq('id', user.id)
-      .select()
-      .single()
-    if (!error && data) setProfile(prev => ({ ...prev, ...data }))
-    return { data, error }
+    try {
+      const data = await updateProfileByUserId(user.id, updates)
+      if (data) setProfile(prev => ({ ...prev, ...data }))
+      return { data, error: null }
+    } catch (error) {
+      return { data: null, error }
+    }
   }
 
   return (

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { fetchPageWithSections } from '../lib/cms'
+import { fetchPageWithSections } from '../modules/cms/repository'
 
 export function usePageContent(slug) {
   const [page, setPage] = useState(null)

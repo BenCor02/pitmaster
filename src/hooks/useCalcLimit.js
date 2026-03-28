@@ -7,7 +7,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { supabase } from '../lib/supabase'
+import { supabase } from '../modules/supabase/client'
 
 const FREE_LIMIT = 5
 const LS_KEY     = 'cf_calc_anon' // { count, month }
@@ -75,7 +75,13 @@ export function useCalcLimit() {
     setLoading(false)
   }, [user, isPro])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      void load()
+    }, 0)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [load])
 
   // Message contextuel
   function statusMessage() {

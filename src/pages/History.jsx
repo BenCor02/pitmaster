@@ -1,7 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { supabase } from '../lib/supabase'
-import { useSnack } from '../components/Snack'
+import {
+  deleteAllCookSessionsForUser,
+  deleteCookSessionById,
+  fetchUserCookSessions,
+} from '../modules/cooks/repository'
+import { useSnack } from '../components/useSnack'
 import Snack from '../components/Snack'
 
 function fd(m) { const h = Math.floor(m / 60), mn = m % 60; return mn === 0 ? `${h}h` : `${h}h${String(mn).padStart(2, '0')}` }
@@ -48,34 +52,51 @@ export default function History() {
   const [deleting, setDeleting] = useState(null)
   const [confirmDelete, setConfirmDelete] = useState(null)
 
-  useEffect(() => { if (user) loadSessions() }, [user])
-
-  async function loadSessions() {
+  const loadSessions = useCallback(async () => {
+    if (!user) {
+      setSessions([])
+      setLoading(false)
+      return
+    }
     setLoading(true)
-    const { data, error } = await supabase
-      .from('sessions')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-    if (!error) setSessions(data || [])
+    try {
+      const data = await fetchUserCookSessions(user.id)
+      setSessions(data)
+    } catch (error) {
+      showSnack('Erreur: ' + error.message, 'error')
+    }
     setLoading(false)
-  }
+  }, [showSnack, user])
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      void loadSessions()
+    }, 0)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [loadSessions])
 
   async function deleteSession(id) {
     setDeleting(id)
-    const { error } = await supabase.from('sessions').delete().eq('id', id)
     setDeleting(null)
     setConfirmDelete(null)
-    if (error) { showSnack('Erreur: ' + error.message, 'error'); return }
-    setSessions(prev => prev.filter(s => s.id !== id))
-    showSnack('Session supprimée')
+    try {
+      await deleteCookSessionById(id)
+      setSessions(prev => prev.filter(s => s.id !== id))
+      showSnack('Session supprimée')
+    } catch (error) {
+      showSnack('Erreur: ' + error.message, 'error')
+    }
   }
 
   async function deleteAll() {
-    const { error } = await supabase.from('sessions').delete().eq('user_id', user.id)
-    if (error) { showSnack('Erreur: ' + error.message, 'error'); return }
-    setSessions([])
-    showSnack('Historique effacé')
+    try {
+      await deleteAllCookSessionsForUser(user.id)
+      setSessions([])
+      showSnack('Historique effacé')
+    } catch (error) {
+      showSnack('Erreur: ' + error.message, 'error')
+    }
   }
 
   // Filtres

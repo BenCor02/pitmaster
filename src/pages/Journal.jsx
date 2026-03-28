@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { supabase } from '../lib/supabase'
-import { useSnack } from '../components/Snack'
+import { deleteJournalEntryById, fetchUserJournalEntries } from '../modules/cooks/repository'
+import { useSnack } from '../components/useSnack'
 import Snack from '../components/Snack'
 
 const css = `
@@ -50,26 +50,40 @@ export default function Journal() {
   const [filter, setFilter] = useState('all')
   const [deleting, setDeleting] = useState(null)
 
-  useEffect(() => { if(user) loadJournal() }, [user])
-
-  async function loadJournal() {
+  const loadJournal = useCallback(async () => {
+    if (!user) {
+      setEntries([])
+      setLoading(false)
+      return
+    }
     setLoading(true)
-    const { data, error } = await supabase
-      .from('cook_journal')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-    if (!error) setEntries(data || [])
+    try {
+      const data = await fetchUserJournalEntries(user.id)
+      setEntries(data)
+    } catch (error) {
+      showSnack('Erreur: ' + error.message, 'error')
+    }
     setLoading(false)
-  }
+  }, [showSnack, user])
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      void loadJournal()
+    }, 0)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [loadJournal])
 
   async function deleteEntry(id) {
     setDeleting(id)
-    const { error } = await supabase.from('cook_journal').delete().eq('id', id)
     setDeleting(null)
-    if (error) { showSnack('Erreur: ' + error.message, 'error'); return }
-    setEntries(prev => prev.filter(e => e.id !== id))
-    showSnack('Entrée supprimée')
+    try {
+      await deleteJournalEntryById(id)
+      setEntries(prev => prev.filter(e => e.id !== id))
+      showSnack('Entrée supprimée')
+    } catch (error) {
+      showSnack('Erreur: ' + error.message, 'error')
+    }
   }
 
   const filtered = filter === 'all' ? entries : entries.filter(e => e.rating >= parseInt(filter))
