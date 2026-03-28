@@ -4,7 +4,7 @@
  */
 
 import { createContext, useContext, useEffect, useState, useCallback } from 'react'
-import { supabase, supabaseProjectUrl } from '../modules/supabase/client'
+import { supabase, supabaseProjectUrl, supabaseStorageKey } from '../modules/supabase/client'
 import {
   fetchMyProfileRpc,
   fetchProfileByUserId,
@@ -173,9 +173,16 @@ export function AuthProvider({ children }) {
     }
 
     try {
-      const storageKey = `sb-${new URL(supabaseProjectUrl).hostname.split('.')[0]}-auth-token`
-      localStorage.removeItem(storageKey)
-      sessionStorage.removeItem(storageKey)
+      const legacyProjectKey = `sb-${new URL(supabaseProjectUrl).hostname.split('.')[0]}-auth-token`
+      const knownKeys = [
+        legacyProjectKey,
+        'cf-supabase-auth',
+        supabaseStorageKey,
+      ]
+      knownKeys.forEach((key) => {
+        localStorage.removeItem(key)
+        sessionStorage.removeItem(key)
+      })
     } catch (error) {
       console.warn('local auth storage cleanup failed:', error)
     }
