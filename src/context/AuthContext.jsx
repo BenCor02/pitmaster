@@ -23,52 +23,52 @@ export function AuthProvider({ children }) {
   const [user,    setUser]    = useState(null)
   const [profile, setProfile] = useState(null)
   const [roles,   setRoles]   = useState([])
-  const [loading, setLoading] = useState(true)
-  const profileRef = useRef(null)
-  const rolesRef = useRef([])
+  const [sessionStatus, setSessionStatus] = useState('loading')
+  const [profileStatus, setProfileStatus] = useState('idle')
+  const [profileError, setProfileError] = useState(null)
   const loadProfileSeqRef = useRef(0)
+  const lastStableProfileRef = useRef(null)
 
-  useEffect(() => {
-    profileRef.current = profile
-  }, [profile])
-
-  useEffect(() => {
-    rolesRef.current = roles
-  }, [roles])
-
-  function scoreProfileQuality(nextProfile) {
-    if (!nextProfile) return 0
-    if (nextProfile.source === 'missing-profile') return 1
-    if (nextProfile.role && nextProfile.role !== 'member') return 5
-    if (nextProfile.role) return 4
-    if (Array.isArray(nextProfile.roles) && nextProfile.roles.length) return 3
-    return 2
+  function clearResolvedProfile() {
+    setProfile(null)
+    setRoles([])
+    setProfileStatus('idle')
+    setProfileError(null)
+    lastStableProfileRef.current = null
   }
 
-  function applyResolvedProfile(userId, nextProfile) {
-    const previousProfile = profileRef.current
-    const previousRoles = rolesRef.current || (previousProfile?.role ? [previousProfile.role] : [])
-
-    if (previousProfile?.id === userId) {
-      const previousScore = scoreProfileQuality(previousProfile)
-      const nextScore = scoreProfileQuality(nextProfile)
-
-      if (nextScore < previousScore) {
-        setProfile(previousProfile)
-        setRoles(previousRoles)
-        return previousProfile
+  function setResolvedProfile(nextProfile, nextStatus = 'loaded') {
+    const nextRoles = nextProfile?.roles || (nextProfile?.role ? [nextProfile.role] : [])
+    setProfile(nextProfile)
+    setRoles(nextRoles)
+    setProfileStatus(nextStatus)
+    setProfileError(null)
+    if (nextProfile?.id && nextProfile?.role) {
+      lastStableProfileRef.current = {
+        ...nextProfile,
+        roles: nextRoles,
       }
     }
-
-    setProfile(nextProfile)
-    setRoles(nextProfile.roles || (nextProfile.role ? [nextProfile.role] : []))
     return nextProfile
+  }
+
+  function getLastStableProfile(userId) {
+    const stableProfile = lastStableProfileRef.current
+    if (stableProfile?.id === userId) return stableProfile
+    return null
   }
 
   const loadProfile = useCallback(async (authUser) => {
     const currentSeq = ++loadProfileSeqRef.current
     const userId = authUser?.id
-    if (!userId) { setProfile(null); setRoles([]); return }
+    if (!userId) {
+      clearResolvedProfile()
+      return null
+    }
+
+    setProfileStatus('loading')
+    setProfileError(null)
+
     try {
       let nextProfile = null
       try {
@@ -118,81 +118,89 @@ export function AuthProvider({ children }) {
         }
       }
 
-      if (!nextProfile) {
-        const previousProfile = profileRef.current
-        if (previousProfile?.id === userId) {
-          applyResolvedProfile(userId, previousProfile)
-          return
-        }
-
-        nextProfile = {
-          id: userId,
-          email: authUser.email || null,
-          first_name: authUser.user_metadata?.first_name || '',
-          last_name: authUser.user_metadata?.last_name || '',
-          role: null,
-          roles: [],
-          status: 'active',
-          account_status: 'active',
-          plan_code: 'free',
-          source: 'missing-profile',
-        }
-      }
-
       if (currentSeq !== loadProfileSeqRef.current) return
-      const resolvedProfile = applyResolvedProfile(userId, nextProfile)
 
-      if (resolvedProfile?.source !== 'fallback') {
+      if (nextProfile) {
+        const resolvedProfile = setResolvedProfile(nextProfile, 'loaded')
         await touchProfileLastSeen(userId)
+        return resolvedProfile
       }
+
+      const stableProfile = getLastStableProfile(userId)
+      if (stableProfile) {
+        setProfile(stableProfile)
+        setRoles(stableProfile.roles || (stableProfile.role ? [stableProfile.role] : []))
+        setProfileStatus('error')
+        setProfileError(new Error('Le profil n’a pas pu être relu depuis Supabase. Le dernier rôle valide est conservé.'))
+        return stableProfile
+      }
+
+      setProfile(null)
+      setRoles([])
+      setProfileStatus('missing')
+      setProfileError(null)
+      return null
     } catch (e) {
       console.error('loadProfile error', e)
       if (currentSeq !== loadProfileSeqRef.current) return
-      const previousProfile = profileRef.current
-      if (previousProfile?.id === userId) {
-        applyResolvedProfile(userId, previousProfile)
-        return
+
+      const stableProfile = getLastStableProfile(userId)
+      if (stableProfile) {
+        setProfile(stableProfile)
+        setRoles(stableProfile.roles || (stableProfile.role ? [stableProfile.role] : []))
+        setProfileStatus('error')
+        setProfileError(e)
+        return stableProfile
       }
+
       setProfile(null)
       setRoles([])
+      setProfileStatus('error')
+      setProfileError(e)
+      return null
     }
   }, [])
 
   useEffect(() => {
     let isMounted = true
-    const safetyTimer = setTimeout(() => {
-      if (isMounted) setLoading(false)
-    }, 4000)
 
     // Session initiale
     supabase.auth.getSession()
       .then(({ data: { session } }) => {
         if (!isMounted) return
-        setUser(session?.user ?? null)
-        return loadProfile(session?.user ?? null)
+        const nextUser = session?.user ?? null
+        setUser(nextUser)
+        setSessionStatus(nextUser ? 'authenticated' : 'unauthenticated')
+        if (!nextUser) {
+          clearResolvedProfile()
+          return null
+        }
+        return loadProfile(nextUser)
       })
       .catch((error) => {
         console.error('getSession error', error)
-      })
-      .finally(() => {
-        if (isMounted) setLoading(false)
+        if (!isMounted) return
+        setUser(null)
+        setSessionStatus('unauthenticated')
+        clearResolvedProfile()
       })
 
     // Écouter les changements auth
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         if (!isMounted) return
-        setUser(session?.user ?? null)
-        try {
-          await loadProfile(session?.user ?? null)
-        } finally {
-          if (isMounted) setLoading(false)
+        const nextUser = session?.user ?? null
+        setUser(nextUser)
+        setSessionStatus(nextUser ? 'authenticated' : 'unauthenticated')
+        if (!nextUser) {
+          clearResolvedProfile()
+          return
         }
+        await loadProfile(nextUser)
       }
     )
     return () => {
       isMounted = false
-      clearTimeout(safetyTimer)
       subscription.unsubscribe()
     }
   }, [loadProfile])
@@ -207,6 +215,10 @@ export function AuthProvider({ children }) {
   const isEditor  = isEditorRole(profile, [...roleSet])
   const isSupport = roleSet.has('support') || roleSet.has('super_admin') || roleSet.has('admin')
   const isPro     = profile?.plan_code !== 'free'
+  const role = profile?.role || null
+  const loading =
+    sessionStatus === 'loading' ||
+    (sessionStatus === 'authenticated' && (profileStatus === 'idle' || profileStatus === 'loading'))
 
   async function signOut() {
     // PATCH: déconnexion locale forcée pour éviter les sessions qui restent accrochées dans le navigateur.
@@ -235,8 +247,8 @@ export function AuthProvider({ children }) {
     }
 
     setUser(null)
-    setProfile(null)
-    setRoles([])
+    setSessionStatus('unauthenticated')
+    clearResolvedProfile()
   }
 
   async function updateProfile(updates) {
@@ -255,7 +267,8 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={{
-      user, profile, roles, loading,
+      user, profile, roles, role, loading,
+      sessionStatus, profileStatus, profileError,
       isAdmin, isEditor, isSupport, isPro,
       signOut, updateProfile, reloadProfile: (nextUser = user) => loadProfile(nextUser),
     }}>

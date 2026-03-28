@@ -11,7 +11,7 @@ import { getAccessMeta } from '../../../modules/access/catalog'
 
 export default function ProfilePage() {
   const navigate = useNavigate()
-  const { user, profile, signOut, updateProfile } = useAuth()
+  const { user, profile, signOut, updateProfile, profileStatus, profileError } = useAuth()
   const { count, remaining, isPro, FREE_LIMIT } = useCalcLimit()
   const hasWorkshopAccess = isPro
   const access = getAccessMeta(hasWorkshopAccess ? 'pro' : 'free')
@@ -136,9 +136,21 @@ export default function ProfilePage() {
         <div style={{ marginBottom:16 }}>
           <label style={S.label}>Rôle</label>
           <div style={{ fontSize:13, color:'var(--text2)', padding:'11px 0' }}>
-            {profile?.role || 'inconnu'}
+            {profileStatus === 'loaded'
+              ? profile?.role
+              : profileStatus === 'missing'
+                ? 'profil manquant'
+                : profileStatus === 'error'
+                  ? 'lecture du profil en erreur'
+                  : 'chargement du profil'}
           </div>
         </div>
+
+        {profileStatus === 'error' && profileError ? (
+          <div style={{ fontSize:12, color:'#f59e0b', background:'rgba(245,158,11,0.08)', border:'1px solid rgba(245,158,11,0.16)', borderRadius:10, padding:'10px 12px', marginBottom:16 }}>
+            {profileError.message}
+          </div>
+        ) : null}
 
         {editing ? (
           <div style={{ display:'flex', gap:8 }}>

@@ -48,7 +48,16 @@ export default function AuthPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const from = location.state?.from || '/app'
-  const { user, signOut, profile, roles, reloadProfile, loading: authLoading } = useAuth()
+  const {
+    user,
+    signOut,
+    profile,
+    roles,
+    reloadProfile,
+    loading: authLoading,
+    profileStatus,
+    profileError,
+  } = useAuth()
 
   const [mode, setMode] = useState('login')
   const [email, setEmail] = useState('')
@@ -146,7 +155,7 @@ export default function AuthPage() {
         <div style={{ marginBottom: 16, color: '#d4c4b0', lineHeight: 1.7, fontSize: 13 }}>
           {user.email}
           <br />
-          Rôle : {profile?.role || 'inconnu'}
+          Rôle : {profileStatus === 'loaded' ? profile?.role : profileStatus === 'missing' ? 'profil manquant' : profileStatus === 'error' ? 'lecture en erreur' : 'chargement'}
           <br />
           User ID : {user.id}
           <br />
@@ -158,6 +167,12 @@ export default function AuthPage() {
         {error ? (
           <div style={{ fontSize: 12, color: '#f87171', marginBottom: 12, padding: '10px 12px', background: 'rgba(248,113,113,0.08)', borderRadius: 10 }}>
             {error}
+          </div>
+        ) : null}
+
+        {!error && profileStatus === 'error' ? (
+          <div style={{ fontSize: 12, color: '#f59e0b', marginBottom: 12, padding: '10px 12px', background: 'rgba(245,158,11,0.08)', borderRadius: 10 }}>
+            {profileError?.message || 'Le profil n’a pas encore été relu correctement depuis Supabase.'}
           </div>
         ) : null}
 
