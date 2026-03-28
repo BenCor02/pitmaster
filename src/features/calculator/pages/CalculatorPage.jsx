@@ -12,6 +12,8 @@ import {
 import { buildCookResult, buildCookRoadmap } from '../../../modules/calculator/planner'
 import { useSnack } from '../../../components/useSnack'
 import Snack from '../../../components/Snack'
+import { useSeoBlocks } from '../../../hooks/useSeoBlocks'
+import SeoBlocksSection from '../components/SeoBlocksSection'
 
 const MEAT_PROFILES = Object.fromEntries(
   Object.entries(PHASE_BASES).map(([k, v]) => [k, { ...v, method: 'lowslow' }])
@@ -348,6 +350,13 @@ export default function CalculatorPage() {
   const displayCategories = useMemo(() => buildMeatCategories(catalogMeats), [catalogMeats])
   const showWrapChoices = cookMethod === 'low_and_slow' && (Boolean(cookingProfile?.temperatureCues?.wrapRangeC) || meatKey === 'ribs_pork' || meatKey === 'ribs_baby_back' || meatKey === 'lamb_leg')
   const roadmap = buildCookRoadmap(result)
+  const seoTargetMeat = result?.meatKey || meatKey
+  const seoTargetMethod = result?.method || cookMethod
+  const { blocks: introSeoBlocks } = useSeoBlocks({ position: 'after_intro', meatSlug: seoTargetMeat, methodKey: seoTargetMethod })
+  const { blocks: afterCalculatorSeoBlocks } = useSeoBlocks({ position: 'after_calculator', meatSlug: seoTargetMeat, methodKey: seoTargetMethod })
+  const { blocks: afterResultSeoBlocks } = useSeoBlocks({ position: 'after_result', meatSlug: seoTargetMeat, methodKey: seoTargetMethod })
+  const { blocks: afterTimelineSeoBlocks } = useSeoBlocks({ position: 'after_timeline', meatSlug: seoTargetMeat, methodKey: seoTargetMethod })
+  const { blocks: bottomSeoBlocks } = useSeoBlocks({ position: 'bottom_page', meatSlug: seoTargetMeat, methodKey: seoTargetMethod })
 
   useEffect(() => {
     setHeroImageSrc(MEAT_IMAGES[meatKey] || MEAT_IMAGES.brisket || SMOKE_IMAGE)
@@ -656,6 +665,12 @@ export default function CalculatorPage() {
         </p>
       </div>
 
+      <SeoBlocksSection
+        title="À lire avant de lancer"
+        kicker="Conseils & Guides"
+        blocks={introSeoBlocks}
+      />
+
       {/* VIANDE + PHOTO */}
       {renderSectionEyebrow('01', 'Choisis ta pièce', 'Commence par la viande. L’outil adapte ensuite la méthode et les repères utiles.')}
       <div className="pm-card" style={{ padding: 0, overflow: 'hidden' }}>
@@ -942,6 +957,12 @@ export default function CalculatorPage() {
           : '🔥 Calculer ma cuisson'}
       </button>
 
+      <SeoBlocksSection
+        title="Guides et matériel utiles"
+        kicker="Après le calculateur"
+        blocks={afterCalculatorSeoBlocks}
+      />
+
       {/* WARNINGS */}
       {warnings.length > 0 && (
         <div style={{ background: 'var(--orange-bg)', border: '1px solid var(--orange-border)', borderRadius: 12, padding: '12px 16px', marginBottom: 14 }}>
@@ -1050,6 +1071,12 @@ export default function CalculatorPage() {
             )}
           </div>
 
+          <SeoBlocksSection
+            title="Pour cette cuisson"
+            kicker="Recommandations"
+            blocks={afterResultSeoBlocks}
+          />
+
 
           {/* PATCH: roadmap visuelle branchée sur la méthode choisie */}
           <div className="pm-roadmap-shell" style={{ marginBottom: 12 }}>
@@ -1083,6 +1110,12 @@ export default function CalculatorPage() {
               </div>
             ))}
           </div>
+
+          <SeoBlocksSection
+            title="Sous la timeline"
+            kicker="Guides & Affiliation"
+            blocks={afterTimelineSeoBlocks}
+          />
 
           {/* TIMELINE */}
           <div className="pm-card" style={{ marginBottom: 12 }}>
@@ -1276,6 +1309,12 @@ export default function CalculatorPage() {
           </div>
         </div>
       )}
+
+      <SeoBlocksSection
+        title="Matériel, guides et conseils pitmaster"
+        kicker="Bas de page"
+        blocks={bottomSeoBlocks}
+      />
 
       <div className="calc-sticky-cta">
         <button onClick={calculate} disabled={loading} className="pm-btn-primary" style={{ width: '100%', padding: '15px 20px' }}>

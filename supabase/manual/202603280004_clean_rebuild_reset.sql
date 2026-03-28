@@ -52,6 +52,8 @@ drop table if exists public.calculator_parameters cascade;
 drop table if exists public.cooking_methods cascade;
 drop table if exists public.meats cascade;
 drop table if exists public.articles cascade;
+drop table if exists public.seo_block_products cascade;
+drop table if exists public.seo_blocks cascade;
 drop table if exists public.faqs cascade;
 drop table if exists public.page_sections cascade;
 drop table if exists public.pages cascade;
@@ -156,6 +158,43 @@ create table public.articles (
   featured_image_url text,
   status text not null default 'draft' check (status in ('draft', 'published', 'archived')),
   published_at timestamptz,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now())
+);
+
+create table public.seo_blocks (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  block_type text not null check (block_type in ('bloc_recommendation_produit', 'bloc_guide', 'bloc_marque', 'bloc_conseil')),
+  position text not null check (position in ('after_result', 'after_timeline', 'bottom_page', 'sidebar', 'after_intro', 'after_calculator')),
+  page_slug text,
+  meat_slug text,
+  method_key text,
+  title_secondary text,
+  content text,
+  image_url text,
+  cta_text text,
+  cta_link text,
+  affiliate_link text,
+  badge text,
+  note text,
+  icon text,
+  settings_json jsonb not null default '{}'::jsonb,
+  display_order integer not null default 0,
+  is_active boolean not null default true,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now())
+);
+
+create table public.seo_block_products (
+  id uuid primary key default gen_random_uuid(),
+  seo_block_id uuid not null references public.seo_blocks(id) on delete cascade,
+  name text not null,
+  image_url text,
+  affiliate_url text,
+  description text,
+  rating numeric(3,2),
+  display_order integer not null default 0,
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now())
 );
@@ -463,6 +502,8 @@ create trigger set_pages_updated_at before update on public.pages for each row e
 create trigger set_page_sections_updated_at before update on public.page_sections for each row execute function public.set_updated_at();
 create trigger set_faqs_updated_at before update on public.faqs for each row execute function public.set_updated_at();
 create trigger set_articles_updated_at before update on public.articles for each row execute function public.set_updated_at();
+create trigger set_seo_blocks_updated_at before update on public.seo_blocks for each row execute function public.set_updated_at();
+create trigger set_seo_block_products_updated_at before update on public.seo_block_products for each row execute function public.set_updated_at();
 create trigger set_meats_updated_at before update on public.meats for each row execute function public.set_updated_at();
 create trigger set_cooking_methods_updated_at before update on public.cooking_methods for each row execute function public.set_updated_at();
 create trigger set_calculator_parameters_updated_at before update on public.calculator_parameters for each row execute function public.set_updated_at();
@@ -684,6 +725,8 @@ alter table public.pages enable row level security;
 alter table public.page_sections enable row level security;
 alter table public.faqs enable row level security;
 alter table public.articles enable row level security;
+alter table public.seo_blocks enable row level security;
+alter table public.seo_block_products enable row level security;
 alter table public.meats enable row level security;
 alter table public.cooking_methods enable row level security;
 alter table public.calculator_parameters enable row level security;
@@ -724,6 +767,15 @@ create policy "pages_public_read" on public.pages for select to anon, authentica
 create policy "sections_public_read" on public.page_sections for select to anon, authenticated using (is_enabled = true);
 create policy "faqs_public_read" on public.faqs for select to anon, authenticated using (is_published = true);
 create policy "articles_public_read" on public.articles for select to anon, authenticated using (status = 'published');
+create policy "seo_blocks_public_read" on public.seo_blocks for select to anon, authenticated using (is_active = true);
+create policy "seo_block_products_public_read" on public.seo_block_products for select to anon, authenticated using (
+  exists (
+    select 1
+    from public.seo_blocks b
+    where b.id = seo_block_id
+      and b.is_active = true
+  )
+);
 create policy "meats_public_read" on public.meats for select to anon, authenticated using (is_active = true);
 create policy "methods_public_read" on public.cooking_methods for select to anon, authenticated using (is_active = true);
 create policy "params_public_read" on public.calculator_parameters for select to anon, authenticated using (true);
@@ -738,6 +790,12 @@ create policy "pages_admin_write" on public.pages for all to authenticated using
 create policy "sections_admin_write" on public.page_sections for all to authenticated using (public.current_user_role() in ('super_admin', 'admin', 'editor')) with check (public.current_user_role() in ('super_admin', 'admin', 'editor'));
 create policy "faqs_admin_write" on public.faqs for all to authenticated using (public.current_user_role() in ('super_admin', 'admin', 'editor')) with check (public.current_user_role() in ('super_admin', 'admin', 'editor'));
 create policy "articles_admin_write" on public.articles for all to authenticated using (public.current_user_role() in ('super_admin', 'admin', 'editor')) with check (public.current_user_role() in ('super_admin', 'admin', 'editor'));
+create policy "seo_blocks_admin_write" on public.seo_blocks for all to authenticated using (public.current_user_role() in ('super_admin', 'admin', 'editor')) with check (public.current_user_role() in ('super_admin', 'admin', 'editor'));
+create policy "seo_block_products_admin_write" on public.seo_block_products for all to authenticated using (
+  public.current_user_role() in ('super_admin', 'admin', 'editor')
+) with check (
+  public.current_user_role() in ('super_admin', 'admin', 'editor')
+);
 create policy "meats_admin_write" on public.meats for all to authenticated using (public.current_user_role() in ('super_admin', 'admin')) with check (public.current_user_role() in ('super_admin', 'admin'));
 create policy "methods_admin_write" on public.cooking_methods for all to authenticated using (public.current_user_role() in ('super_admin', 'admin')) with check (public.current_user_role() in ('super_admin', 'admin'));
 create policy "params_admin_write" on public.calculator_parameters for all to authenticated using (public.current_user_role() in ('super_admin', 'admin')) with check (public.current_user_role() in ('super_admin', 'admin'));

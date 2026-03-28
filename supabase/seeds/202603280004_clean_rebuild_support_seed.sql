@@ -93,3 +93,132 @@ values (
   false
 )
 on conflict do nothing;
+
+delete from public.seo_blocks
+where title in (
+  'Sonde recommandee pour cette cuisson',
+  'Guide : quand wrapper proprement',
+  'Conseil pitmaster : prevoir large',
+  'Materiel recommande pour brisket'
+);
+
+insert into public.seo_blocks (
+  title,
+  block_type,
+  position,
+  page_slug,
+  meat_slug,
+  method_key,
+  content,
+  image_url,
+  cta_text,
+  cta_link,
+  affiliate_link,
+  badge,
+  note,
+  icon,
+  display_order,
+  is_active
+)
+values
+  (
+    'Sonde recommandee pour cette cuisson',
+    'bloc_recommendation_produit',
+    'after_result',
+    'calculator',
+    null,
+    null,
+    'Une bonne sonde te simplifie la vie sur les longues cuissons et t aide a verifier la bonne fenetre de tendrete.',
+    null,
+    'Voir notre selection',
+    '/guides/thermometre-bbq',
+    'https://example.com/affiliate/thermometre',
+    'Selection pitmaster',
+    'Compatible brisket, pulled pork et grosses pieces.',
+    '🌡️',
+    10,
+    true
+  ),
+  (
+    'Guide : quand wrapper proprement',
+    'bloc_guide',
+    'after_timeline',
+    'calculator',
+    null,
+    'low_and_slow',
+    'Papier boucher, alu ou sans wrap : les bons reperes pour ne pas casser la bark et garder le bon rythme de cuisson.',
+    null,
+    'Lire le guide',
+    '/guides/quand-wrapper',
+    null,
+    'Guide cuisson',
+    null,
+    '📚',
+    20,
+    true
+  ),
+  (
+    'Conseil pitmaster : prevoir large',
+    'bloc_conseil',
+    'bottom_page',
+    'calculator',
+    null,
+    null,
+    'Sur une grosse piece, mieux vaut finir un peu en avance et tenir au chaud que courir apres le service.',
+    null,
+    'Voir les conseils',
+    '/guides/repos-hold-bbq',
+    null,
+    null,
+    'Repos et hold',
+    '💡',
+    30,
+    true
+  ),
+  (
+    'Materiel recommande pour brisket',
+    'bloc_recommendation_produit',
+    'bottom_page',
+    'calculator',
+    'brisket',
+    'low_and_slow',
+    'Papier boucher, grande sonde et couteau a trancher : la base pour un service propre.',
+    null,
+    'Voir la selection brisket',
+    '/guides/materiel-brisket',
+    'https://example.com/affiliate/brisket-kit',
+    'Brisket',
+    'Bloc visible seulement sur brisket.',
+    '🥩',
+    40,
+    true
+  )
+on conflict do nothing;
+
+insert into public.seo_block_products (
+  seo_block_id,
+  name,
+  image_url,
+  affiliate_url,
+  description,
+  rating,
+  display_order
+)
+select
+  b.id,
+  p.name,
+  p.image_url,
+  p.affiliate_url,
+  p.description,
+  p.rating,
+  p.display_order
+from public.seo_blocks b
+join (
+  values
+    ('Sonde recommandee pour cette cuisson', 'Thermometre double sonde', null, 'https://example.com/affiliate/thermometre-double', 'Pratique pour suivre la chambre et le coeur en meme temps.', 4.8, 1),
+    ('Sonde recommandee pour cette cuisson', 'Thermometre lecture instantanee', null, 'https://example.com/affiliate/instant-read', 'Ideal pour verifier vite sans rester porte ouverte.', 4.7, 2),
+    ('Materiel recommande pour brisket', 'Papier boucher rose', null, 'https://example.com/affiliate/butcher-paper', 'Le classique pour garder la bark sans etuver la viande.', 4.9, 1),
+    ('Materiel recommande pour brisket', 'Grand couteau a trancher', null, 'https://example.com/affiliate/slicing-knife', 'Pour couper net sans dechirer la tranche.', 4.6, 2)
+) as p(block_title, name, image_url, affiliate_url, description, rating, display_order)
+  on p.block_title = b.title
+on conflict do nothing;

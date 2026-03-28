@@ -114,6 +114,105 @@ export async function deletePageSection(id) {
   if (error) throw error
 }
 
+export async function fetchSeoBlocks({
+  position,
+  meatSlug = null,
+  methodKey = null,
+  pageSlug = 'calculator',
+} = {}) {
+  let query = supabase
+    .from('seo_blocks')
+    .select('*')
+    .eq('is_active', true)
+    .order('display_order', { ascending: true })
+
+  if (position) query = query.eq('position', position)
+
+  const { data: blocks, error } = await query
+  if (error) throw error
+
+  const filteredBlocks = (blocks || []).filter((block) => {
+    const pageOk = !block.page_slug || block.page_slug === pageSlug
+    const meatOk = !block.meat_slug || block.meat_slug === meatSlug
+    const methodOk = !block.method_key || block.method_key === methodKey
+    return pageOk && meatOk && methodOk
+  })
+
+  if (!filteredBlocks.length) return []
+
+  const ids = filteredBlocks.map((block) => block.id)
+  const { data: products, error: productsError } = await supabase
+    .from('seo_block_products')
+    .select('*')
+    .in('seo_block_id', ids)
+    .order('display_order', { ascending: true })
+
+  if (productsError) throw productsError
+
+  const grouped = (products || []).reduce((acc, product) => {
+    if (!acc[product.seo_block_id]) acc[product.seo_block_id] = []
+    acc[product.seo_block_id].push(product)
+    return acc
+  }, {})
+
+  return filteredBlocks.map((block) => ({
+    ...block,
+    products: grouped[block.id] || [],
+  }))
+}
+
+export async function fetchAdminSeoBlocks() {
+  const { data, error } = await supabase
+    .from('seo_blocks')
+    .select('*')
+    .order('display_order', { ascending: true })
+  if (error) throw error
+  return data || []
+}
+
+export async function fetchSeoBlockProducts(seoBlockId) {
+  const { data, error } = await supabase
+    .from('seo_block_products')
+    .select('*')
+    .eq('seo_block_id', seoBlockId)
+    .order('display_order', { ascending: true })
+  if (error) throw error
+  return data || []
+}
+
+export async function upsertSeoBlock(payload) {
+  const body = {
+    ...payload,
+    display_order: Number(payload.display_order) || 0,
+    is_active: payload.is_active !== false,
+    settings_json: payload.settings_json || {},
+  }
+  const { data, error } = await supabase.from('seo_blocks').upsert(body).select().single()
+  if (error) throw error
+  return data
+}
+
+export async function deleteSeoBlock(id) {
+  const { error } = await supabase.from('seo_blocks').delete().eq('id', id)
+  if (error) throw error
+}
+
+export async function upsertSeoBlockProduct(payload) {
+  const body = {
+    ...payload,
+    display_order: Number(payload.display_order) || 0,
+    rating: payload.rating === '' || payload.rating == null ? null : Number(payload.rating),
+  }
+  const { data, error } = await supabase.from('seo_block_products').upsert(body).select().single()
+  if (error) throw error
+  return data
+}
+
+export async function deleteSeoBlockProduct(id) {
+  const { error } = await supabase.from('seo_block_products').delete().eq('id', id)
+  if (error) throw error
+}
+
 export async function fetchMediaLibrary() {
   const { data, error } = await supabase
     .from('media_library')

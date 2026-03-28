@@ -8,6 +8,7 @@ const NAV = [
   { path: '/admin/plans',     icon: '🎚️', label: 'Accès & limites' },
   { section: 'CONTENU' },
   { path: '/admin/content',   icon: '📝', label: 'Pages & Sections' },
+  { path: '/admin/seo',       icon: '🧲', label: 'SEO & affiliation' },
   { path: '/admin/media',     icon: '🖼️', label: 'Médias' },
   { path: '/admin/meats',     icon: '🥩', label: 'Catalogue calculateur' },
   { path: '/admin/algorithm', icon: '🧮', label: 'Algorithme BBQ' },

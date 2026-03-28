@@ -26,6 +26,7 @@ const AccountPage = lazy(() => import('../../features/calculator/pages/AccountPa
 
 const AdminDashboardPage = lazy(() => import('../../features/admin/pages/AdminDashboardPage'))
 const AdminContentPage = lazy(() => import('../../features/admin/pages/AdminContentPage'))
+const AdminSeoBlocksPage = lazy(() => import('../../features/admin/pages/AdminSeoBlocksPage'))
 const AdminMediaPage = lazy(() => import('../../features/admin/pages/AdminMediaPage'))
 const AdminMembersPage = lazy(() => import('../../features/admin/pages/AdminMembersPage'))
 const AdminMeatsPage = lazy(() => import('../../features/admin/pages/AdminMeatsPage'))
@@ -78,6 +79,7 @@ export default function AppRouter() {
         <Route path="/admin" element={<AdminRoute><AdminShell /></AdminRoute>}>
           <Route index element={<AdminDashboardPage />} />
           <Route path="content" element={<AdminContentPage />} />
+          <Route path="seo" element={<AdminSeoBlocksPage />} />
           <Route path="media" element={<AdminMediaPage />} />
           <Route path="members" element={<AdminMembersPage />} />
           <Route path="meats" element={<AdminMeatsPage />} />
