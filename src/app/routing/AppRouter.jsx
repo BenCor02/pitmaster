@@ -7,6 +7,7 @@ const AdminShell = lazy(() => import('../../features/admin/AdminShell'))
 
 const LandingPage = lazy(() => import('../../features/public/pages/LandingPage'))
 const MeatGuidePage = lazy(() => import('../../features/public/pages/MeatGuidePage'))
+const GuidePage = lazy(() => import('../../features/public/pages/GuidePage'))
 const AuthPage = lazy(() => import('../../features/auth/pages/AuthPage'))
 const ForgotPasswordPage = lazy(() => import('../../features/auth/pages/ForgotPasswordPage'))
 const ResetPasswordPage = lazy(() => import('../../features/auth/pages/ResetPasswordPage'))
@@ -41,6 +42,7 @@ export default function AppRouter() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/viandes/:slug" element={<MeatGuidePage />} />
+        <Route path="/guides/:slug" element={<GuidePage />} />
         <Route path="/pricing" element={<Navigate to="/app" replace />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />

@@ -1,3 +1,9 @@
+import { useNavigate } from 'react-router-dom'
+
+function isInternalHref(value) {
+  return typeof value === 'string' && value.startsWith('/')
+}
+
 function ProductCard({ product }) {
   return (
     <a
@@ -32,9 +38,11 @@ function ProductCard({ product }) {
 }
 
 function SeoBlockCard({ block }) {
+  const navigate = useNavigate()
   const hasProducts = Array.isArray(block.products) && block.products.length > 0
   const cardBorder = block.block_type === 'bloc_conseil' ? 'rgba(245,166,35,0.18)' : 'rgba(232,69,11,0.18)'
   const ctaHref = block.affiliate_link || block.cta_link || '#'
+  const isInternalCta = !block.affiliate_link && isInternalHref(ctaHref)
 
   return (
     <article
@@ -90,15 +98,26 @@ function SeoBlockCard({ block }) {
       ) : null}
 
       {block.cta_text ? (
-        <a
-          href={ctaHref}
-          target={block.affiliate_link ? '_blank' : undefined}
-          rel={block.affiliate_link ? 'noreferrer' : undefined}
-          className={block.block_type === 'bloc_conseil' ? 'pm-btn-secondary' : 'pm-btn-primary'}
-          style={{ width: 'auto', padding: '12px 16px', textDecoration: 'none', display: 'inline-flex' }}
-        >
-          {block.cta_text}
-        </a>
+        isInternalCta ? (
+          <button
+            type="button"
+            onClick={() => navigate(ctaHref)}
+            className={block.block_type === 'bloc_conseil' ? 'pm-btn-secondary' : 'pm-btn-primary'}
+            style={{ width: 'auto', padding: '12px 16px' }}
+          >
+            {block.cta_text}
+          </button>
+        ) : (
+          <a
+            href={ctaHref}
+            target={block.affiliate_link ? '_blank' : undefined}
+            rel={block.affiliate_link ? 'noreferrer' : undefined}
+            className={block.block_type === 'bloc_conseil' ? 'pm-btn-secondary' : 'pm-btn-primary'}
+            style={{ width: 'auto', padding: '12px 16px', textDecoration: 'none', display: 'inline-flex' }}
+          >
+            {block.cta_text}
+          </a>
+        )
       ) : null}
     </article>
   )
