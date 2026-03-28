@@ -67,12 +67,12 @@ export function AuthProvider({ children }) {
           email: authUser.email || null,
           first_name: authUser.user_metadata?.first_name || '',
           last_name: authUser.user_metadata?.last_name || '',
-          role: 'member',
-          roles: ['member'],
+          role: null,
+          roles: [],
           status: 'active',
           account_status: 'active',
           plan_code: 'free',
-          source: 'fallback',
+          source: 'missing-profile',
         }
       }
 

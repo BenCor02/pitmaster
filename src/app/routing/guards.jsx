@@ -39,15 +39,18 @@ export function AdminRoute({ children }) {
   if (!user) return <Navigate to="/app" replace />
 
   if (!isAdmin) {
+    const missingProfile = profile?.source === 'missing-profile'
     return (
       <div style={{ minHeight:'100vh', background:'#080706', display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
         <div style={{ maxWidth:460, width:'100%', background:'#14110f', border:'1px solid #241d18', borderRadius:16, padding:24, color:'#f5f1ea', fontFamily:"'DM Sans', sans-serif" }}>
           <div style={{ fontFamily:"'Syne', sans-serif", fontWeight:800, fontSize:28, marginBottom:10 }}>Accès admin refusé</div>
           <div style={{ color:'#b7aea4', lineHeight:1.7, marginBottom:18 }}>
-            Le compte connecté n’a pas de rôle admin actif pour accéder à l’atelier.
+            {missingProfile
+              ? 'Le compte connecté existe bien dans Auth, mais aucun profil public n’a encore été créé dans Supabase.'
+              : 'Le compte connecté n’a pas de rôle admin actif pour accéder à l’atelier.'}
           </div>
           <div style={{ color:'#8a7060', fontSize:13, marginBottom:18 }}>
-            Rôle actuel : {profile?.role || 'member'}
+            {missingProfile ? 'État actuel : profil manquant dans public.profiles' : `Rôle actuel : ${profile?.role || 'inconnu'}`}
           </div>
           <a href="/app" style={{ display:'inline-flex', alignItems:'center', justifyContent:'center', minHeight:44, padding:'0 18px', borderRadius:12, border:'1px solid #2b2b2b', background:'#161616', color:'#f5f1ea', textDecoration:'none', fontWeight:700 }}>
             Retour au calculateur

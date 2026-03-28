@@ -567,6 +567,37 @@ create trigger on_auth_user_created
 after insert on auth.users
 for each row execute procedure public.handle_new_user();
 
+-- IMPORTANT:
+-- le reset recrée public.profiles, mais ne supprime pas auth.users.
+-- On resynchronise donc tous les comptes auth existants vers profiles,
+-- sinon un utilisateur historique peut se connecter sans avoir de profil.
+insert into public.profiles (
+  id,
+  email,
+  first_name,
+  last_name,
+  role,
+  status,
+  account_status,
+  plan_code
+)
+select
+  u.id,
+  u.email,
+  coalesce(u.raw_user_meta_data ->> 'first_name', ''),
+  coalesce(u.raw_user_meta_data ->> 'last_name', ''),
+  'member',
+  'active',
+  'active',
+  'free'
+from auth.users u
+on conflict (id) do update
+set
+  email = excluded.email,
+  first_name = coalesce(nullif(public.profiles.first_name, ''), excluded.first_name),
+  last_name = coalesce(nullif(public.profiles.last_name, ''), excluded.last_name),
+  updated_at = timezone('utc', now());
+
 create or replace function public.check_and_increment_quota(p_user_id uuid default auth.uid())
 returns jsonb
 language plpgsql
