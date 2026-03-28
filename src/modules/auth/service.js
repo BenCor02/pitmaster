@@ -1,6 +1,10 @@
 import { supabase, supabaseProjectUrl } from '../supabase/client'
 
-export const authRedirectUrl = `${window.location.origin}/app`
+const configuredAppUrl = import.meta.env.VITE_APP_URL || 'https://www.charbonetflamme.fr'
+const appOrigin = configuredAppUrl.replace(/\/+$/, '')
+
+export const authRedirectUrl = `${appOrigin}/app`
+export const resetPasswordRedirectUrl = `${appOrigin}/reset-password`
 
 export async function signInWithGoogle() {
   return supabase.auth.signInWithOAuth({
@@ -30,7 +34,7 @@ export async function signUpWithPassword(email, password) {
 
 export async function requestPasswordReset(email) {
   return supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/reset-password`,
+    redirectTo: resetPasswordRedirectUrl,
   })
 }
 
