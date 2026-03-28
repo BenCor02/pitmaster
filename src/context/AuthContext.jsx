@@ -22,6 +22,7 @@ export function AuthProvider({ children }) {
     if (!userId) { setProfile(null); setRoles([]); return }
     try {
       let nextProfile = null
+      let directProfileError = null
 
       const { data } = await supabase.rpc('get_my_profile')
       if (data && !data.error) {
@@ -30,11 +31,13 @@ export function AuthProvider({ children }) {
 
       // PATCH: fallback robuste pour les comptes existants avant la migration profiles/roles
       if (!nextProfile) {
-        const { data: directProfile } = await supabase
+        const { data: directProfile, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', userId)
           .maybeSingle()
+
+        directProfileError = error
 
         if (directProfile) {
           nextProfile = {
@@ -44,8 +47,9 @@ export function AuthProvider({ children }) {
         }
       }
 
-      // PATCH: si le profil n'existe pas encore, on le crée côté app pour éviter un admin noir sur les anciens comptes
-      if (!nextProfile) {
+      // PATCH: on ne crée un profil fallback QUE s'il n'existe réellement pas.
+      // On évite absolument d'écraser un super_admin existant avec un fallback member.
+      if (!nextProfile && !directProfileError) {
         const fallbackProfile = {
           id: userId,
           email: authUser.email || null,
@@ -84,6 +88,12 @@ export function AuthProvider({ children }) {
         } else {
           nextProfile = fallbackProfile
         }
+      }
+
+      if (!nextProfile) {
+        setProfile(null)
+        setRoles([])
+        return
       }
 
       setProfile(nextProfile)
