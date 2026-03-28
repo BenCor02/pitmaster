@@ -1,21 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '../../../context/AuthContext'
 
-const SYSTEM_PROMPT = `Tu es PitMaster AI, un expert en BBQ américain, fumage low & slow, et cuisine au feu. Tu réponds uniquement en français, de manière concise et pratique.
-
-Tu maîtrises parfaitement :
-- Le fumage low & slow (brisket, pulled pork, ribs, beef ribs, volaille, agneau)
-- Les températures internes et de fumoir
-- Les techniques de wrap (Texas Crutch, papier boucher)
-- Les rubs, sauces et marinades BBQ
-- Les bois de fumage et leurs associations
-- La méthode 3-2-1 pour les ribs
-- Le stall et comment le gérer
-- Le matériel (fumoir offset, kamado, kettle, pellet grill)
-- Les recettes et accompagnements BBQ
-
-Tu es passionné, direct et pratique. Tu donnes des conseils précis avec des températures, des durées et des techniques concrètes. Tu peux utiliser des emojis BBQ avec parcimonie. Tu ne réponds qu’aux questions liées au BBQ, fumage, grill et cuisine au feu.`
-
 const SUGGESTIONS = [
   'Comment gérer le stall sur un brisket ?',
   'Quelle température pour un pulled pork ?',
@@ -78,6 +63,109 @@ function formatMessage(text) {
     .replace(/(<li>.*<\/li>)+/g, (match) => `<ul>${match}</ul>`)
 }
 
+function buildPitmasterReply(question) {
+  const q = (question || '').toLowerCase()
+
+  if (q.includes('stall')) {
+    return `**Le stall est normal.**
+
+- Il arrive souvent autour de **65 à 75°C** internes.
+- Ne monte pas le fumoir brutalement juste parce que ça ralentit.
+- Si la bark te plaît, tu peux **wrapper** pour raccourcir cette phase.
+- Sinon, laisse passer le plateau et garde un feu stable.
+
+**Repère terrain :** tant que la couleur continue de se poser et que le fumoir reste propre, tu n’es pas en train de rater la cuisson.`
+  }
+
+  if (q.includes('wrap') || q.includes('wrapper')) {
+    return `**Wrap au bon moment, pas au bon chiffre uniquement.**
+
+- Commence à y penser quand la bark te plaît vraiment.
+- Sur une grosse pièce type brisket ou paleron, un repère utile est souvent **autour de 70 à 75°C** internes.
+- **Papier boucher** : garde mieux la bark.
+- **Aluminium** : accélère davantage, texture plus fondante.
+
+**Règle simple :** si la couleur n’est pas encore là, attends.`
+  }
+
+  if (q.includes('brisket')) {
+    return `**Brisket : vise la régularité avant tout.**
+
+1. Fumoir stable autour de **115 à 125°C**.
+2. Wrap seulement quand la bark est bien posée.
+3. Commence les tests de tendreté vers **92 à 96°C**.
+4. Fais un vrai repos, idéalement **1 à 3 heures** si tu peux.
+
+**Le bon signal final n’est pas seulement la température :** la sonde doit rentrer presque sans résistance.`
+  }
+
+  if (q.includes('pulled pork') || q.includes('pork shoulder') || q.includes('effiloch')) {
+    return `**Pour un pulled pork propre :**
+
+- Cuisson low & slow autour de **110 à 125°C**.
+- Wrap possible si tu veux raccourcir le stall.
+- Commence à tester vers **93 à 96°C**.
+- Cherche une viande qui s’effiloche sans forcer, pas juste un chiffre affiché.
+
+**Important :** un repos de **45 à 90 minutes** aide vraiment avant l’effilochage.`
+  }
+
+  if (q.includes('ribs')) {
+    return `**Sur les ribs, regarde d’abord le visuel et la souplesse.**
+
+- La couleur doit être bien posée.
+- Tu dois voir un léger retrait sur les os.
+- Le rack doit plier franchement quand tu le soulèves.
+- Le wrap reste un choix de texture, pas une obligation.
+
+**Repère pratique :** préfère le **flex test** et le rendu de surface à une simple température interne.`
+  }
+
+  if (q.includes('bois') || q.includes('fumage')) {
+    return `**Bois de fumage : reste simple.**
+
+- **Bœuf** : chêne, hickory.
+- **Porc** : pommier, cerisier, chêne léger.
+- **Volaille** : pommier, érable, cerisier léger.
+- **Agneau** : chêne ou fruitier doux.
+
+**Conseil pitmaster :** mieux vaut une fumée fine et propre qu’un goût trop lourd.`
+  }
+
+  if (q.includes('kamado') || q.includes('offset') || q.includes('pellet')) {
+    return `**Chaque fumoir a sa logique.**
+
+- **Kamado** : très stable, peu gourmand, parfait pour les longues cuissons.
+- **Offset** : plus vivant, plus exigeant, super rendu feu/fumée.
+- **Pellet** : très simple pour tenir une température régulière.
+
+Si tu veux, pose ta question en précisant **ton fumoir**, **la viande**, **le poids** et **l’heure de service**.`
+  }
+
+  if (q.includes('repos') || q.includes('hold')) {
+    return `**Le repos fait partie de la cuisson.**
+
+- Petite pièce : souvent **20 à 40 min**.
+- Grosse pièce BBQ : souvent **45 à 180 min** selon la taille et ta fenêtre de service.
+- Le repos aide à stabiliser les jus et rend la découpe plus nette.
+
+**Quand tu as de l’avance, profite-en pour tenir la viande au chaud plutôt que servir trop tôt.**`
+  }
+
+  return `**Donne-moi un peu plus de contexte et je te réponds comme au bord du fumoir.**
+
+Précise si possible :
+
+- la **viande**
+- le **poids**
+- la **température du fumoir**
+- si tu veux **wrapper ou non**
+- l’**heure de service**
+
+Exemple :
+**"Brisket 5,5 kg à 121°C, service à 19h, quand wrapper et combien de repos ?"**`
+}
+
 export default function AskPitmasterPage() {
   const { user } = useAuth()
   const [messages, setMessages] = useState([])
@@ -102,24 +190,11 @@ export default function AskPitmasterPage() {
     setLoading(true)
 
     try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
-          system: SYSTEM_PROMPT,
-          messages: newMessages.map((m) => ({ role: m.role, content: m.content })),
-        }),
-      })
-
-      const data = await response.json()
-      if (data.error) throw new Error(data.error.message)
-
-      const reply = data.content?.[0]?.text || 'Désolé, je n’ai pas pu répondre.'
+      await new Promise((resolve) => window.setTimeout(resolve, 450))
+      const reply = buildPitmasterReply(q)
       setMessages((prev) => [...prev, { role: 'assistant', content: reply }])
     } catch {
-      setError('Erreur de connexion. Réessaie dans un instant.')
+      setError('Impossible de générer une réponse pour le moment.')
       setMessages((prev) => prev.slice(0, -1))
     } finally {
       setLoading(false)
@@ -143,7 +218,7 @@ export default function AskPitmasterPage() {
       <style>{css}</style>
 
       <div className="pm-hero-shell" style={{ marginBottom: 18 }}>
-        <div className="pm-kicker" style={{ marginBottom: 12 }}>Ask the Pitmaster</div>
+        <div className="pm-kicker" style={{ marginBottom: 12 }}>Conseil pitmaster</div>
         <h1 style={{ marginBottom: 8 }}>
           Une réponse <span style={{ color: 'var(--ember)' }}>BBQ directe et terrain</span>
         </h1>

@@ -1,7 +1,7 @@
 import { Outlet, NavLink, useLocation } from 'react-router-dom'
 import { useSiteSettings } from '../hooks/useSiteSettings'
 import { useAuth } from '../context/AuthContext'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import BrandMark from './BrandMark'
 
 const NAV = [
@@ -17,7 +17,7 @@ const NAV = [
     { path: '/app/quantity', icon: '⚖️', label: 'Quantités' },
     { path: '/app/journal', icon: '📓', label: 'Journal' },
     { path: '/app/history', icon: '🕘', label: 'Historique' },
-    { path: '/app/ask', icon: '🤠', label: 'Ask the Pitmaster' },
+    { path: '/app/ask', icon: '🤠', label: 'Conseil pitmaster' },
   ]},
 ]
 
@@ -27,6 +27,12 @@ const MOBILE_NAV = [
   { path: '/app/journal', icon: '📓', label: 'Journal' },
   { path: '/app/cold', icon: '❄️', label: 'Froid' },
 ]
+
+const HIDDEN_PAGE_LABELS = {
+  '/app/profile': 'Mon profil',
+  '/app/access': 'Accès atelier',
+  '/app/billing': 'Accès atelier',
+}
 
 const css = `
   .pm-sb { display: flex; }
@@ -67,6 +73,11 @@ export default function Layout() {
   const username = user?.email?.split('@')[0] || 'Invité'
   const allItems = NAV.flatMap(s => s.items)
   const currentPage = allItems.find(i => i.end ? location.pathname === i.path : location.pathname.startsWith(i.path))
+  const currentPageLabel = currentPage?.label || HIDDEN_PAGE_LABELS[location.pathname] || 'Atelier'
+
+  useEffect(() => {
+    setMoreOpen(false)
+  }, [location.pathname])
 
   return (
     <div style={{ display:'flex', minHeight:'100vh', background:'var(--bg)', fontFamily:"'DM Sans',sans-serif", position:'relative' }}>
@@ -125,7 +136,7 @@ export default function Layout() {
             <NavLink to="/admin" style={{ textDecoration:'none', display:'block', marginBottom:8 }}>
               <div style={{ display:'flex', alignItems:'center', gap:10, padding:'9px 14px', borderRadius:50, background:'var(--orange-bg)', border:'1px solid var(--orange-border)', cursor:'pointer', transition:'all 0.15s' }}>
                 <span style={{ fontSize:14 }}>👑</span>
-                <span style={{ fontSize:13, fontWeight:700, color:'var(--orange)', fontFamily:'Syne,sans-serif' }}>Admin Panel</span>
+                <span style={{ fontSize:13, fontWeight:700, color:'var(--orange)', fontFamily:'Syne,sans-serif' }}>Atelier admin</span>
               </div>
             </NavLink>
           )}
@@ -181,7 +192,7 @@ export default function Layout() {
           <div style={{ display:'flex', alignItems:'center', gap:8 }}>
             <span style={{ fontSize:12, fontWeight:600, color:'var(--text3)' }}>{siteName}</span>
             <span style={{ color:'var(--border2)', fontSize:16 }}>/</span>
-            <span style={{ fontSize:13, fontWeight:600, color:'var(--text2)' }}>{currentPage?.label}</span>
+            <span style={{ fontSize:13, fontWeight:600, color:'var(--text2)' }}>{currentPageLabel}</span>
           </div>
           <div style={{ display:'flex', alignItems:'center', gap:10 }}>
             <div style={{ background:'rgba(255,255,255,0.03)', border:'1px solid var(--border)', borderRadius:50, padding:'9px 18px', display:'flex', alignItems:'center', gap:8, color:'var(--text3)', fontSize:13, minWidth:180 }}>
