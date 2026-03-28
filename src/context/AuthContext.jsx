@@ -28,6 +28,11 @@ export function AuthProvider({ children }) {
         .from('profiles')
         .select('*')
         .eq('id', userId)
+        // PATCH: certaines bases existantes ont pu garder plusieurs lignes legacy
+        // pour un même id. On prend la plus récente au lieu de tomber en erreur.
+        .order('updated_at', { ascending: false, nullsFirst: false })
+        .order('created_at', { ascending: false, nullsFirst: false })
+        .limit(1)
         .maybeSingle()
 
       if (directProfileError) {

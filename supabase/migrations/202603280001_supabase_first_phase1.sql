@@ -16,7 +16,13 @@ returns text
 language sql
 stable
 as $$
-  select coalesce((select role from public.profiles where id = auth.uid()), 'member');
+  select coalesce((
+    select role
+    from public.profiles
+    where id = auth.uid()
+    order by updated_at desc nulls last, created_at desc nulls last
+    limit 1
+  ), 'member');
 $$;
 
 create or replace function public.is_adminish()
@@ -91,7 +97,9 @@ as $$
     'updated_at', p.updated_at
   )
   from public.profiles p
-  where p.id = auth.uid();
+  where p.id = auth.uid()
+  order by p.updated_at desc nulls last, p.created_at desc nulls last
+  limit 1;
 $$;
 
 create table if not exists public.site_settings (
