@@ -200,7 +200,7 @@ export function AuthProvider({ children }) {
     <AuthContext.Provider value={{
       user, profile, roles, loading,
       isAdmin, isEditor, isSupport, isPro,
-      signOut, updateProfile, reloadProfile: () => loadProfile(user),
+      signOut, updateProfile, reloadProfile: (nextUser = user) => loadProfile(nextUser),
     }}>
       {children}
     </AuthContext.Provider>

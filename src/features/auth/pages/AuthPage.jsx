@@ -85,7 +85,7 @@ export default function AuthPage() {
         setLoading('')
         return
       }
-      await reloadProfile()
+      await reloadProfile(data.session.user)
       navigate(from, { replace: true })
       return
     }
@@ -136,7 +136,7 @@ export default function AuthPage() {
         <div style={{ marginBottom: 16, color: '#d4c4b0', lineHeight: 1.7, fontSize: 13 }}>
           {user.email}
           <br />
-          Rôle : {profile?.role || 'member'}
+          Rôle : {profile?.role || 'inconnu'}
           <br />
           User ID : {user.id}
           <br />
@@ -155,7 +155,7 @@ export default function AuthPage() {
           <button type="button" onClick={() => navigate(from, { replace: true })} style={PRIMARY_BUTTON}>
             Continuer vers l’app
           </button>
-          <button type="button" onClick={reloadProfile} style={SECONDARY_BUTTON}>
+          <button type="button" onClick={() => reloadProfile(user)} style={SECONDARY_BUTTON}>
             Recharger le profil
           </button>
           <button type="button" onClick={handleSignOut} disabled={loading === 'signout'} style={{ ...SECONDARY_BUTTON, color: '#f87171', borderColor: 'rgba(248,113,113,0.22)' }}>
