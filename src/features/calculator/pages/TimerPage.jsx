@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
-import { MEATS } from '../../../domain/content/meats'
 import { calculateLowSlow, buildTimeline, formatDuration } from '../../../domain/calculator/engine'
+import { useCalculatorCatalog } from '../../../hooks/useCalculatorCatalog'
 
 function calculateCookTime(meatKey, weightKg, thicknessCm, smokerTempC = 120, method, willWrap) {
   const calc = calculateLowSlow(meatKey, weightKg, { thicknessCm, smokerTempC, wrapType: willWrap ? 'butcher_paper' : 'none' })
@@ -137,6 +137,7 @@ function TimerCard({ timer, onRemove, onToggle, onReset }) {
 
 export default function TimerPage() {
   const { snack, showSnack } = useSnack()
+  const { meats, meatsBySlug } = useCalculatorCatalog()
   const [timers, setTimers] = useState([])
   const [mode, setMode] = useState('manual')
   const [label, setLabel] = useState('')
@@ -147,6 +148,14 @@ export default function TimerPage() {
   const [meatWeight, setMeatWeight] = useState(3)
   const [smokerTemp, setSmokerTemp] = useState(110)
   const audioRef = useRef(null)
+
+  const meatOptions = (meats || []).filter((entry) => entry.is_active !== false)
+
+  useEffect(() => {
+    if (!meatOptions.length) return
+    if (meatOptions.some((entry) => entry.slug === meatKey)) return
+    setMeatKey(meatOptions[0].slug)
+  }, [meatOptions, meatKey])
 
   function initAudio() {
     if (!audioRef.current) audioRef.current = new (window.AudioContext || window.webkitAudioContext)()
@@ -187,7 +196,7 @@ export default function TimerPage() {
     initAudio()
     const weight = parseFloat(meatWeight) || 3
     const temp = parseInt(smokerTemp) || 110
-    const meat = MEATS[meatKey]
+    const meat = meatsBySlug[meatKey]
     if (!meat) { showSnack('Viande introuvable', 'error'); return }
 
     let calc
@@ -328,7 +337,7 @@ export default function TimerPage() {
             <div style={{ marginBottom:12 }}>
               <label className="pm-field-label">Viande</label>
               <select className="pm-input" value={meatKey} onChange={e => setMeatKey(e.target.value)}>
-                {Object.entries(MEATS).map(([k, m]) => <option key={k} value={k}>{m.full}</option>)}
+                {meatOptions.map((meat) => <option key={meat.slug} value={meat.slug}>{meat.name}</option>)}
               </select>
             </div>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:12 }}>

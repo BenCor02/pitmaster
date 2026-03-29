@@ -1,10 +1,10 @@
 import { useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { MEAT_IMAGES, SMOKE_IMAGE } from '../../../domain/content/images'
-import { MEATS } from '../../../domain/content/meats'
 import { usePageContent } from '../../../hooks/usePageContent'
 import { useSeoBlocks } from '../../../hooks/useSeoBlocks'
 import SeoBlocksSection from '../../calculator/components/SeoBlocksSection'
+import { useCalculatorCatalog } from '../../../hooks/useCalculatorCatalog'
 
 const FALLBACK_GUIDES = {
   brisket: {
@@ -37,11 +37,12 @@ function getSettingsItems(section) {
 export default function MeatGuidePage() {
   const { slug } = useParams()
   const navigate = useNavigate()
+  const { meatsBySlug } = useCalculatorCatalog()
   const { page, sections } = usePageContent(slug)
   const { blocks: topBlocks } = useSeoBlocks({ position: 'after_intro', meatSlug: slug, pageSlug: slug })
   const { blocks: bottomBlocks } = useSeoBlocks({ position: 'bottom_page', meatSlug: slug, pageSlug: slug })
 
-  const meat = MEATS[slug]
+  const meat = meatsBySlug[slug]
   const fallback = useMemo(() => (
     FALLBACK_GUIDES[slug] || {
       title: meat?.full || meat?.name || 'Guide cuisson',

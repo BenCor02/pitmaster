@@ -60,7 +60,9 @@ export default function AdminMediaPage() {
             <label style={{ display: 'block', fontSize: 10, fontWeight: 700, letterSpacing: '1.4px', textTransform: 'uppercase', color: '#6a5a4a', marginBottom: 7 }}>Bucket</label>
             <select className="media-select" value={bucket} onChange={(e) => setBucket(e.target.value)}>
               <option value="site-media">site-media</option>
+              <option value="seo-media">seo-media</option>
               <option value="article-media">article-media</option>
+              <option value="affiliate-media">affiliate-media</option>
               <option value="calculator-media">calculator-media</option>
               <option value="user-uploads">user-uploads</option>
             </select>

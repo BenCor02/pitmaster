@@ -3,7 +3,6 @@ import { MEAT_IMAGES, SMOKE_IMAGE } from '../../../domain/content/images'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../context/AuthContext'
 import { saveCookSession, saveJournalEntry } from '../../../modules/cooks/repository'
-import { MEATS } from '../../../domain/content/meats'
 import { useCalculatorCatalog } from '../../../hooks/useCalculatorCatalog'
 import {
   recalibrate, formatDuration, validateInput, PHASE_BASES, COOKING_METHODS,
@@ -19,16 +18,8 @@ const MEAT_PROFILES = Object.fromEntries(
   Object.entries(PHASE_BASES).map(([k, v]) => [k, { ...v, method: 'lowslow' }])
 )
 
-const MEAT_CATEGORIES = {
-  'Bœuf': ['brisket', 'ribs_beef', 'paleron', 'plat_de_cote'],
-  'Porc': ['pork_shoulder', 'ribs_pork', 'ribs_baby_back'],
-  'Agneau': ['lamb_shoulder'],
-  'Volaille': ['whole_chicken', 'chicken_pieces'],
-  'Gigot': ['lamb_leg'],
-}
-
 function buildMeatCategories(catalogMeats) {
-  if (!catalogMeats?.length) return MEAT_CATEGORIES
+  if (!catalogMeats?.length) return {}
   return catalogMeats.reduce((acc, meat) => {
     const label = meat.category ? meat.category.charAt(0).toUpperCase() + meat.category.slice(1) : 'Autres'
     if (!acc[label]) acc[label] = []
@@ -287,17 +278,8 @@ export default function CalculatorPage() {
   const [meatImageSrc, setMeatImageSrc] = useState(() => MEAT_IMAGES.brisket || SMOKE_IMAGE)
 
   const profile = MEAT_PROFILES[meatKey]
-  const availableMeatKeys = catalogMeats.length ? catalogMeats.map((entry) => entry.slug) : Object.keys(MEATS)
-  const meatData = meatsBySlug[meatKey]
-    ? {
-        ...MEATS[meatKey],
-        name: meatsBySlug[meatKey].name,
-        full: meatsBySlug[meatKey].name,
-        category: meatsBySlug[meatKey].category,
-        icon: meatsBySlug[meatKey].icon,
-        description: meatsBySlug[meatKey].description,
-      }
-    : MEATS[meatKey]
+  const availableMeatKeys = catalogMeats.map((entry) => entry.slug)
+  const meatData = meatsBySlug[meatKey] || null
   const isLowSlow = profile?.method === 'lowslow'
   const cookingProfile = getCookingProfile(meatKey)
   const methodConfig = useMemo(() => getMethodConfig(meatKey, cookMethod), [meatKey, cookMethod])
@@ -468,7 +450,7 @@ export default function CalculatorPage() {
         weight: result.weightKg,
         cook_min: result.cookMin,
         notes: [
-          `Plan ${meatData?.full || result.meatLabel}`,
+          `Plan ${meatData?.name || result.meatLabel}`,
           `Méthode: ${result.methodVariantLabel || result.methodLabel}`,
           `Fenêtre de service: ${result.serviceWindowStart} → ${result.serviceWindowEnd}`,
         ].join(' · '),
@@ -487,7 +469,7 @@ export default function CalculatorPage() {
   async function sharePlan() {
     if (!result) return
     setSharing(true)
-    const text = `BBQ plan ${meatData?.full || result.meatLabel} · départ ${result.startTime} · service ${result.serve} · fumoir ${result.smokerTempC}°C`
+    const text = `BBQ plan ${meatData?.name || result.meatLabel} · départ ${result.startTime} · service ${result.serve} · fumoir ${result.smokerTempC}°C`
     try {
       if (navigator.share) {
         await navigator.share({
@@ -510,7 +492,7 @@ export default function CalculatorPage() {
     const lines = [
       'Charbon & Flamme — Calculateur BBQ Pitmaster',
       '',
-      `Viande: ${meatData?.full || result.meatLabel}`,
+      `Viande: ${meatData?.name || result.meatLabel}`,
       `Poids: ${result.weightKg} kg`,
       `Fumoir: ${result.smokerTempC}°C`,
       `Service: ${result.serve}`,
@@ -605,7 +587,7 @@ export default function CalculatorPage() {
           <div style={{ position:'relative', minHeight:220, borderRadius:24, overflow:'hidden', border:'1px solid rgba(255,255,255,0.08)' }}>
             <img
               src={heroImageSrc}
-              alt={meatData?.full || 'BBQ'}
+              alt={meatData?.name || 'BBQ'}
               onError={() => setHeroImageSrc(SMOKE_IMAGE)}
               style={{ width:'100%', height:'100%', objectFit:'cover', display:'block', filter:'saturate(.96) contrast(1.06)' }}
             />
@@ -617,11 +599,11 @@ export default function CalculatorPage() {
               </div>
               <div style={{ padding:'8px 10px', borderRadius:14, background:'rgba(8,8,8,0.64)', border:'1px solid rgba(255,255,255,0.08)', backdropFilter:'blur(10px)' }}>
                 <div style={{ fontSize:9, color:'rgba(255,255,255,0.62)', textTransform:'uppercase', marginBottom:3 }}>Service</div>
-                <div style={{ fontFamily:'DM Mono, monospace', fontWeight:700, fontSize:12, color:'#fff' }}>{serveTime.replace(':', 'h')}</div>
-              </div>
+              <div style={{ fontFamily:'DM Mono, monospace', fontWeight:700, fontSize:12, color:'#fff' }}>{serveTime.replace(':', 'h')}</div>
             </div>
-            <div style={{ position:'absolute', left:16, right:16, bottom:16 }}>
-              <div className="pm-kicker" style={{ marginBottom: 10 }}>{meatData?.full || 'Cuisson low & slow'}</div>
+          </div>
+          <div style={{ position:'absolute', left:16, right:16, bottom:16 }}>
+              <div className="pm-kicker" style={{ marginBottom: 10 }}>{meatData?.name || 'Cuisson low & slow'}</div>
               <div style={{ fontFamily:'Syne, sans-serif', fontSize:26, fontWeight:800, color:'#fff', lineHeight:1.05, marginBottom:6 }}>
                 {smokerTemp}°C · {wrapType === 'none' ? 'Sans wrap' : wrapType === 'foil' ? 'Wrap alu' : 'Wrap papier'}
               </div>
@@ -653,7 +635,7 @@ export default function CalculatorPage() {
           <div style={{ position: 'relative', height: 160, overflow: 'hidden' }}>
             <img
               src={meatImageSrc}
-              alt={meatData?.full || meatKey}
+              alt={meatData?.name || meatKey}
               onError={() => setMeatImageSrc(SMOKE_IMAGE)}
               style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'opacity 0.4s' }}
               loading="lazy"
@@ -663,7 +645,7 @@ export default function CalculatorPage() {
             {/* Nom de la viande sur la photo */}
             <div style={{ position: 'absolute', bottom: 12, left: 16, right: 16 }}>
               <div style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: 18, color: '#fff', lineHeight: 1.2 }}>
-                {meatData?.full}
+                {meatData?.name || meatKey}
               </div>
               {profile && (
                 <span style={{ display: 'inline-block', marginTop: 4, padding: '2px 8px', borderRadius: 50, background: 'rgba(232,69,11,0.88)', fontSize: 10, fontWeight: 700, color: '#fff', letterSpacing: '1px' }}>
@@ -686,13 +668,15 @@ export default function CalculatorPage() {
             {Object.entries(displayCategories).map(([cat, keys]) => (
               <optgroup key={cat} label={cat}>
                 {keys.map((k) => {
-                  const fallback = MEATS[k]
                   const catalog = meatsBySlug[k]
-                  const label = catalog?.name || fallback?.full || k
+                  const label = catalog?.name || k
                   return label ? <option key={k} value={k}>{label}</option> : null
                 })}
               </optgroup>
             ))}
+            {!Object.keys(displayCategories).length ? (
+              <option value={meatKey}>Catalogue Supabase indisponible</option>
+            ) : null}
           </select>
         </div>
       </div>

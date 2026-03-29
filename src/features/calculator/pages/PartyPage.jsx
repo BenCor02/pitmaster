@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../../../context/AuthContext'
 import { saveCookParty } from '../../../modules/cooks/repository'
-import { MEATS } from '../../../domain/content/meats'
 import { calculateLowSlow, buildTimeline, formatDuration, formatTime, addMinutes } from '../../../domain/calculator/engine'
+import { useCalculatorCatalog } from '../../../hooks/useCalculatorCatalog'
 
 // Wrapper local — ancienne signature : (meatKey, weight, thickness, smokerTempC, method, wrap)
 function calculateCookTime(meatKey, weightKg, thicknessCm, smokerTempC = 120, method, willWrap) {
@@ -20,6 +20,7 @@ import Snack from '../../../components/Snack'
 
 export default function PartyPage() {
   const { user } = useAuth()
+  const { meats, meatsBySlug } = useCalculatorCatalog()
   const { snack, showSnack } = useSnack()
   const [partyName, setPartyName] = useState('')
   const [serveTime, setServeTime] = useState('19:00')
@@ -32,17 +33,39 @@ export default function PartyPage() {
   const [saving, setSaving] = useState(false)
   const [openSteps, setOpenSteps] = useState({})
 
+  const meatOptions = useMemo(
+    () =>
+      (meats || [])
+        .filter((entry) => entry.is_active !== false)
+        .map((entry) => ({
+          key: entry.slug,
+          name: entry.name,
+          full: entry.name,
+          emoji: entry.icon || '🥩',
+        })),
+    [meats]
+  )
+
+  useEffect(() => {
+    if (!meatOptions.length) return
+    if (meatOptions.some((option) => option.key === selectedMeat)) return
+    const timeoutId = setTimeout(() => {
+      setSelectedMeat(meatOptions[0].key)
+    }, 0)
+    return () => clearTimeout(timeoutId)
+  }, [meatOptions, selectedMeat])
+
   function toggleSteps(id) { setOpenSteps(p => ({ ...p, [id]: !p[id] })) }
 
   function addMeat() {
-    const meat = MEATS[selectedMeat]
+    const meat = meatsBySlug[selectedMeat]
     if (!meat) return
     setMeatList(prev => [...prev, {
       id: Date.now(),
       key: selectedMeat,
       name: meat.name,
-      full: meat.full,
-      emoji: meat.emoji || '🥩',
+      full: meat.name,
+      emoji: meat.icon || '🥩',
       weight: selectedWeight,
     }])
   }
@@ -170,8 +193,8 @@ export default function PartyPage() {
           <div>
             <label className="pm-field-label">Viande</label>
             <select className="pm-input" value={selectedMeat} onChange={e => setSelectedMeat(e.target.value)}>
-              {Object.entries(MEATS).map(([k, m]) => (
-                <option key={k} value={k}>{m.full}</option>
+              {meatOptions.map((meat) => (
+                <option key={meat.key} value={meat.key}>{meat.full}</option>
               ))}
             </select>
           </div>

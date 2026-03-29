@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../context/AuthContext'
 import { calculateLowSlow, formatDuration } from '../../../domain/calculator/engine'
+import { useCalculatorCatalog } from '../../../hooks/useCalculatorCatalog'
 
 function quickCalc(meatKey, weightKg, smokerTempC, serveHour) {
   try {
@@ -29,15 +30,6 @@ function quickCalc(meatKey, weightKg, smokerTempC, serveHour) {
     return null
   }
 }
-
-const MEATS = [
-  { key: 'brisket', label: 'Brisket', emoji: '🥩' },
-  { key: 'pork_shoulder', label: 'Pulled Pork', emoji: '🐷' },
-  { key: 'ribs_pork', label: 'Spare Ribs', emoji: '🍖' },
-  { key: 'ribs_beef', label: 'Beef Ribs', emoji: '🦴' },
-  { key: 'lamb_shoulder', label: 'Épaule Agneau', emoji: '🐑' },
-  { key: 'paleron', label: 'Paleron', emoji: '🥩' },
-]
 
 const SMOKER_TYPES = [
   { value: 'pellet', label: 'Pellet' },
@@ -73,6 +65,7 @@ const S = {
 export default function OnboardingPage() {
   const { user, profile, updateProfile } = useAuth()
   const navigate = useNavigate()
+  const { meats } = useCalculatorCatalog()
 
   const [phase, setPhase] = useState('calc')
   const [meatKey, setMeatKey] = useState('brisket')
@@ -88,6 +81,24 @@ export default function OnboardingPage() {
   const [bbqFrequency, setBbqFrequency] = useState(profile?.bbq_frequency || 'regular')
   const [marketingOptIn, setMarketingOptIn] = useState(Boolean(profile?.marketing_opt_in))
   const [saveError, setSaveError] = useState('')
+
+  const onboardingMeats = useMemo(
+    () =>
+      (meats || [])
+        .filter((entry) => entry.is_active !== false)
+        .map((entry) => ({
+          key: entry.slug,
+          label: entry.name,
+          emoji: entry.icon || '🥩',
+        })),
+    [meats]
+  )
+
+  useEffect(() => {
+    if (!onboardingMeats.length) return
+    if (onboardingMeats.some((entry) => entry.key === meatKey)) return
+    setMeatKey(onboardingMeats[0].key)
+  }, [onboardingMeats, meatKey])
 
   const calcResult = useMemo(
     () => quickCalc(meatKey, weight, smokerTemp, serveHour),
@@ -140,7 +151,7 @@ export default function OnboardingPage() {
           <div style={{ marginBottom: 16 }}>
             <label style={S.label}>Viande</label>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
-              {MEATS.map((meat) => (
+              {onboardingMeats.map((meat) => (
                 <button
                   key={meat.key}
                   onClick={() => setMeatKey(meat.key)}
