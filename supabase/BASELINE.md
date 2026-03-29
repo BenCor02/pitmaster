@@ -1,16 +1,16 @@
 # Baseline Supabase canonique
 
-La référence SQL unique pour stabiliser le projet est:
+La reference SQL unique pour stabiliser le projet est:
 
 - [202603291730_unified_supabase_baseline.sql](/Users/benjamincorette/pitmaster/supabase/migrations/202603291730_unified_supabase_baseline.sql)
 
 Ce fichier couvre:
 
-- schéma complet (tables runtime réellement utilisées)
-- fonctions auth/profil/rôles/quota
+- schema complet (tables runtime reellement utilisees)
+- fonctions auth/profil/roles/quota
 - triggers `updated_at`
 - RLS + policies
 - buckets/policies Storage
 - seed minimal runtime (`site_settings`, `plans`, `plan_features`)
 
-Les scripts dans `supabase/manual/` restent en historique, mais ne sont plus la source de vérité.
+Les scripts dans `supabase/manual/` restent en historique, mais ne sont plus la source de verite.

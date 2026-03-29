@@ -1,4 +1,4 @@
--- Charbon & Flamme — Unified Supabase baseline (single source of truth)
+-- Charbon & Flamme - Unified Supabase baseline (single source of truth)
 -- Idempotent: safe to run on a fresh or partially initialized project.
 -- This migration intentionally consolidates auth/profile/CMS/calculator/admin runtime tables.
 
@@ -1044,38 +1044,38 @@ on conflict (id) do nothing;
 
 insert into public.plans (key, name, description, badge, color, sort_order, is_active)
 values
-  ('free', 'Découverte', 'Pour démarrer avec le calculateur', null, '#8a7060', 1, true),
+  ('free', 'Decouverte', 'Pour demarrer avec le calculateur', null, '#8a7060', 1, true),
   ('pro', 'Atelier Feu', 'Pour cuisiner souvent et sauvegarder plus', 'PRO', '#e85d04', 2, true),
-  ('ultra', 'Service Braise', 'Pour usage intensif et équipe', 'ULTRA', '#f48c06', 3, true)
+  ('ultra', 'Service Braise', 'Pour usage intensif et equipe', 'ULTRA', '#f48c06', 3, true)
 on conflict (key) do nothing;
 
 insert into public.plan_features (plan_key, feature_key, label, limit_value)
 values
   ('free', 'calc_uses', 'Calculs BBQ', 5),
-  ('free', 'session_saves', 'Sessions sauvegardées', 3),
-  ('free', 'journal_entries', 'Entrées journal', 10),
-  ('free', 'party_meats', 'Viandes simultanées', 3),
-  ('free', 'cold_uses', 'Fumage à froid', 5),
+  ('free', 'session_saves', 'Sessions sauvegardees', 3),
+  ('free', 'journal_entries', 'Entrees journal', 10),
+  ('free', 'party_meats', 'Viandes simultanees', 3),
+  ('free', 'cold_uses', 'Fumage a froid', 5),
   ('free', 'ask_ai_daily', 'Questions pitmaster', 3),
   ('free', 'history_access', 'Historique', 1),
   ('free', 'export_pdf', 'Exports', 0),
   ('free', 'custom_meats', 'Viandes custom', 0),
   ('free', 'advanced_stats', 'Stats cuisson', 0),
   ('pro', 'calc_uses', 'Calculs BBQ', -1),
-  ('pro', 'session_saves', 'Sessions sauvegardées', -1),
-  ('pro', 'journal_entries', 'Entrées journal', -1),
-  ('pro', 'party_meats', 'Viandes simultanées', 8),
-  ('pro', 'cold_uses', 'Fumage à froid', -1),
+  ('pro', 'session_saves', 'Sessions sauvegardees', -1),
+  ('pro', 'journal_entries', 'Entrees journal', -1),
+  ('pro', 'party_meats', 'Viandes simultanees', 8),
+  ('pro', 'cold_uses', 'Fumage a froid', -1),
   ('pro', 'ask_ai_daily', 'Questions pitmaster', 40),
   ('pro', 'history_access', 'Historique', -1),
   ('pro', 'export_pdf', 'Exports', -1),
   ('pro', 'custom_meats', 'Viandes custom', 25),
   ('pro', 'advanced_stats', 'Stats cuisson', 1),
   ('ultra', 'calc_uses', 'Calculs BBQ', -1),
-  ('ultra', 'session_saves', 'Sessions sauvegardées', -1),
-  ('ultra', 'journal_entries', 'Entrées journal', -1),
-  ('ultra', 'party_meats', 'Viandes simultanées', -1),
-  ('ultra', 'cold_uses', 'Fumage à froid', -1),
+  ('ultra', 'session_saves', 'Sessions sauvegardees', -1),
+  ('ultra', 'journal_entries', 'Entrees journal', -1),
+  ('ultra', 'party_meats', 'Viandes simultanees', -1),
+  ('ultra', 'cold_uses', 'Fumage a froid', -1),
   ('ultra', 'ask_ai_daily', 'Questions pitmaster', -1),
   ('ultra', 'history_access', 'Historique', -1),
   ('ultra', 'export_pdf', 'Exports', -1),
