@@ -1,4 +1,360 @@
 {
+  "brisket_4kg_120_wrap_kamado": {
+    "meatKey": "brisket",
+    "cookMin": 426,
+    "totalMin": 546,
+    "restMin": 90,
+    "targetTempC": 96,
+    "wrapType": "butcher_paper",
+    "wrapTempC": 71,
+    "cues": {
+      "style": "temperature_and_visual",
+      "stallRange": "65°C – 75°C",
+      "wrapRange": "68°C – 74°C",
+      "probeStart": "90°C",
+      "probeTenderRange": "92°C – 97°C",
+      "restRange": "60 min – 120 min",
+      "visuals": [
+        "Couleur / bark",
+        "Stall normal",
+        "Sonde qui glisse presque sans résistance"
+      ]
+    },
+    "timeline": [
+      {
+        "id": "bark",
+        "label": "Bark en formation",
+        "isRest": false,
+        "isService": false,
+        "isStall": false
+      },
+      {
+        "id": "stall",
+        "label": "Stall / ralentissement",
+        "isRest": false,
+        "isService": false,
+        "isStall": true
+      },
+      {
+        "id": "wrap",
+        "label": "Wrap (emballage)",
+        "isRest": false,
+        "isService": false,
+        "isStall": false
+      },
+      {
+        "id": "probe",
+        "label": "Test de tendreté",
+        "isRest": false,
+        "isService": false,
+        "isStall": false
+      },
+      {
+        "id": "rest",
+        "label": "Rest / Hold",
+        "isRest": true,
+        "isService": false,
+        "isStall": false
+      }
+    ]
+  },
+  "brisket_6kg_120_wrap_kamado": {
+    "meatKey": "brisket",
+    "cookMin": 639,
+    "totalMin": 759,
+    "restMin": 90,
+    "targetTempC": 96,
+    "wrapType": "butcher_paper",
+    "wrapTempC": 71,
+    "cues": {
+      "style": "temperature_and_visual",
+      "stallRange": "65°C – 75°C",
+      "wrapRange": "68°C – 74°C",
+      "probeStart": "90°C",
+      "probeTenderRange": "92°C – 97°C",
+      "restRange": "60 min – 120 min",
+      "visuals": [
+        "Couleur / bark",
+        "Stall normal",
+        "Sonde qui glisse presque sans résistance"
+      ]
+    },
+    "timeline": [
+      {
+        "id": "bark",
+        "label": "Bark en formation",
+        "isRest": false,
+        "isService": false,
+        "isStall": false
+      },
+      {
+        "id": "stall",
+        "label": "Stall / ralentissement",
+        "isRest": false,
+        "isService": false,
+        "isStall": true
+      },
+      {
+        "id": "wrap",
+        "label": "Wrap (emballage)",
+        "isRest": false,
+        "isService": false,
+        "isStall": false
+      },
+      {
+        "id": "probe",
+        "label": "Test de tendreté",
+        "isRest": false,
+        "isService": false,
+        "isStall": false
+      },
+      {
+        "id": "rest",
+        "label": "Rest / Hold",
+        "isRest": true,
+        "isService": false,
+        "isStall": false
+      }
+    ]
+  },
+  "brisket_7kg_120_wrap_kamado": {
+    "meatKey": "brisket",
+    "cookMin": 768,
+    "totalMin": 888,
+    "restMin": 90,
+    "targetTempC": 96,
+    "wrapType": "butcher_paper",
+    "wrapTempC": 71,
+    "cues": {
+      "style": "temperature_and_visual",
+      "stallRange": "65°C – 75°C",
+      "wrapRange": "68°C – 74°C",
+      "probeStart": "90°C",
+      "probeTenderRange": "92°C – 97°C",
+      "restRange": "60 min – 120 min",
+      "visuals": [
+        "Couleur / bark",
+        "Stall normal",
+        "Sonde qui glisse presque sans résistance"
+      ]
+    },
+    "timeline": [
+      {
+        "id": "bark",
+        "label": "Bark en formation",
+        "isRest": false,
+        "isService": false,
+        "isStall": false
+      },
+      {
+        "id": "stall",
+        "label": "Stall / ralentissement",
+        "isRest": false,
+        "isService": false,
+        "isStall": true
+      },
+      {
+        "id": "wrap",
+        "label": "Wrap (emballage)",
+        "isRest": false,
+        "isService": false,
+        "isStall": false
+      },
+      {
+        "id": "probe",
+        "label": "Test de tendreté",
+        "isRest": false,
+        "isService": false,
+        "isStall": false
+      },
+      {
+        "id": "rest",
+        "label": "Rest / Hold",
+        "isRest": true,
+        "isService": false,
+        "isStall": false
+      }
+    ]
+  },
+  "ribs_120_wrap": {
+    "meatKey": "ribs_pork",
+    "cookMin": 352,
+    "totalMin": 397,
+    "restMin": 15,
+    "targetTempC": 96,
+    "wrapType": "foil",
+    "wrapTempC": null,
+    "cues": {
+      "style": "visual",
+      "stallRange": null,
+      "wrapRange": null,
+      "probeStart": null,
+      "probeTenderRange": null,
+      "restRange": "10 min – 20 min",
+      "visuals": [
+        "Couleur / bark",
+        "Pullback / retrait sur l’os",
+        "Wrap facultatif",
+        "Flex test",
+        "Glaze optionnelle"
+      ]
+    },
+    "timeline": [
+      {
+        "id": "bark",
+        "label": "Phase de fumée nue",
+        "isRest": false,
+        "isService": false,
+        "isStall": false
+      },
+      {
+        "id": "wrap",
+        "label": "Wrap / braisage",
+        "isRest": false,
+        "isService": false,
+        "isStall": false
+      },
+      {
+        "id": "flex",
+        "label": "Finition / flex test",
+        "isRest": false,
+        "isService": false,
+        "isStall": false
+      },
+      {
+        "id": "glaze",
+        "label": "Glaze / sauce",
+        "isRest": false,
+        "isService": false,
+        "isStall": false
+      },
+      {
+        "id": "rest",
+        "label": "Repos court / service",
+        "isRest": true,
+        "isService": false,
+        "isStall": false
+      }
+    ]
+  },
+  "short_ribs_3_5kg_120_wrap": {
+    "meatKey": "ribs_beef",
+    "cookMin": 508,
+    "totalMin": 583,
+    "restMin": 45,
+    "targetTempC": 96,
+    "wrapType": "butcher_paper",
+    "wrapTempC": 71,
+    "cues": {
+      "style": "temperature_and_visual",
+      "stallRange": "66°C – 74°C",
+      "wrapRange": "68°C – 74°C",
+      "probeStart": "92°C",
+      "probeTenderRange": "93°C – 98°C",
+      "restRange": "30 min – 60 min",
+      "visuals": [
+        "Couleur / bark",
+        "Stall normal",
+        "Sonde qui glisse presque sans résistance"
+      ]
+    },
+    "timeline": [
+      {
+        "id": "bark",
+        "label": "Bark en formation",
+        "isRest": false,
+        "isService": false,
+        "isStall": false
+      },
+      {
+        "id": "stall",
+        "label": "Stall / ralentissement",
+        "isRest": false,
+        "isService": false,
+        "isStall": true
+      },
+      {
+        "id": "wrap",
+        "label": "Wrap (emballage)",
+        "isRest": false,
+        "isService": false,
+        "isStall": false
+      },
+      {
+        "id": "probe",
+        "label": "Test de tendreté",
+        "isRest": false,
+        "isService": false,
+        "isStall": false
+      },
+      {
+        "id": "rest",
+        "label": "Rest / Hold",
+        "isRest": true,
+        "isService": false,
+        "isStall": false
+      }
+    ]
+  },
+  "paleron_3kg_120_wrap": {
+    "meatKey": "paleron",
+    "cookMin": 361,
+    "totalMin": 481,
+    "restMin": 90,
+    "targetTempC": 96,
+    "wrapType": "butcher_paper",
+    "wrapTempC": 74,
+    "cues": {
+      "style": "temperature_and_visual",
+      "stallRange": "66°C – 74°C",
+      "wrapRange": "71°C – 77°C",
+      "probeStart": "91°C",
+      "probeTenderRange": "91°C – 96°C",
+      "restRange": "60 min – 120 min",
+      "visuals": [
+        "Couleur / bark",
+        "Stall normal",
+        "Sonde qui glisse presque sans résistance"
+      ]
+    },
+    "timeline": [
+      {
+        "id": "bark",
+        "label": "Couleur / fumée",
+        "isRest": false,
+        "isService": false,
+        "isStall": false
+      },
+      {
+        "id": "stall",
+        "label": "Stall / ralentissement",
+        "isRest": false,
+        "isService": false,
+        "isStall": true
+      },
+      {
+        "id": "wrap",
+        "label": "Wrap / finition couverte",
+        "isRest": false,
+        "isService": false,
+        "isStall": false
+      },
+      {
+        "id": "probe",
+        "label": "Test de tendreté",
+        "isRest": false,
+        "isService": false,
+        "isStall": false
+      },
+      {
+        "id": "rest",
+        "label": "Rest / Hold",
+        "isRest": true,
+        "isService": false,
+        "isStall": false
+      }
+    ]
+  },
   "brisket_ls_nowrap": {
     "meatKey": "brisket",
     "cookMin": 928,
