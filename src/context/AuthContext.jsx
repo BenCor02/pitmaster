@@ -16,6 +16,18 @@ import { isAdminRole, isEditorRole } from '../modules/auth/profileAccess'
 import { PROFILE_STATUS, SESSION_STATUS, isProfilePending } from '../modules/auth/state'
 
 const AuthContext = createContext({})
+const PROFILE_REQUEST_TIMEOUT_MS = 12000
+const SESSION_REQUEST_TIMEOUT_MS = 10000
+
+function withTimeout(promise, timeoutMs, label = 'request') {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => {
+      setTimeout(() => reject(new Error(`${label}_timeout`)), timeoutMs)
+    }),
+  ])
+}
+
 // PATCH: hook export conservé ici pour ne pas casser tout le projet pendant la migration Supabase-first.
 // eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext)
@@ -74,7 +86,11 @@ export function AuthProvider({ children }) {
       let nextProfile = null
       let hadLookupError = false
       try {
-        const directProfile = await fetchProfileByUserId(userId)
+        const directProfile = await withTimeout(
+          fetchProfileByUserId(userId),
+          PROFILE_REQUEST_TIMEOUT_MS,
+          'profiles_select'
+        )
         if (directProfile) {
           nextProfile = {
             ...directProfile,
@@ -91,7 +107,11 @@ export function AuthProvider({ children }) {
       // existant renvoient mieux via la fonction security definer.
       if (!nextProfile) {
         try {
-          const rpcProfile = await fetchMyProfileRpc()
+          const rpcProfile = await withTimeout(
+            fetchMyProfileRpc(),
+            PROFILE_REQUEST_TIMEOUT_MS,
+            'profile_rpc'
+          )
           if (rpcProfile && !rpcProfile.error) {
             nextProfile = {
               ...rpcProfile,
@@ -109,7 +129,11 @@ export function AuthProvider({ children }) {
       // Si auth.users existe mais que public.profiles manque, on répare la ligne self.
       if (!nextProfile) {
         try {
-          const bootstrappedProfile = await ensureProfileForAuthUser(authUser)
+          const bootstrappedProfile = await withTimeout(
+            ensureProfileForAuthUser(authUser),
+            PROFILE_REQUEST_TIMEOUT_MS,
+            'profile_bootstrap'
+          )
           if (bootstrappedProfile) {
             nextProfile = {
               ...bootstrappedProfile,
@@ -128,7 +152,11 @@ export function AuthProvider({ children }) {
       if (nextProfile) {
         const resolvedProfile = setResolvedProfile(nextProfile, PROFILE_STATUS.LOADED)
         try {
-          await touchProfileLastSeen(userId)
+          await withTimeout(
+            touchProfileLastSeen(userId),
+            PROFILE_REQUEST_TIMEOUT_MS,
+            'touch_last_seen'
+          )
         } catch (touchError) {
           console.warn('touchProfileLastSeen failed', touchError)
         }
@@ -178,11 +206,31 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
+  const refreshAuthState = useCallback(async () => {
+    const { data: { session } } = await withTimeout(
+      supabase.auth.getSession(),
+      SESSION_REQUEST_TIMEOUT_MS,
+      'auth_get_session'
+    )
+    const nextUser = session?.user ?? null
+    setUser(nextUser)
+    setSessionStatus(nextUser ? SESSION_STATUS.AUTHENTICATED : SESSION_STATUS.UNAUTHENTICATED)
+    if (!nextUser) {
+      clearResolvedProfile()
+      return null
+    }
+    return loadProfile(nextUser)
+  }, [loadProfile])
+
   useEffect(() => {
     let isMounted = true
 
     // Session initiale
-    supabase.auth.getSession()
+    withTimeout(
+      supabase.auth.getSession(),
+      SESSION_REQUEST_TIMEOUT_MS,
+      'auth_get_session'
+    )
       .then(({ data: { session } }) => {
         if (!isMounted) return
         const nextUser = session?.user ?? null
@@ -213,7 +261,10 @@ export function AuthProvider({ children }) {
           clearResolvedProfile()
           return
         }
-        await loadProfile(nextUser)
+        loadProfile(nextUser)
+          .catch((error) => {
+            console.warn('onAuthStateChange profile load failed', error)
+          })
       }
     )
     return () => {
@@ -221,6 +272,31 @@ export function AuthProvider({ children }) {
       subscription.unsubscribe()
     }
   }, [loadProfile])
+
+  useEffect(() => {
+    if (!user || sessionStatus !== SESSION_STATUS.AUTHENTICATED) return
+
+    const resyncIfNeeded = () => {
+      if (!isProfilePending(profileStatus)) return
+      refreshAuthState().catch((error) => {
+        console.warn('resume auth sync failed', error)
+      })
+    }
+
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') resyncIfNeeded()
+    }
+
+    window.addEventListener('focus', resyncIfNeeded)
+    window.addEventListener('online', resyncIfNeeded)
+    document.addEventListener('visibilitychange', onVisibility)
+
+    return () => {
+      window.removeEventListener('focus', resyncIfNeeded)
+      window.removeEventListener('online', resyncIfNeeded)
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
+  }, [user, sessionStatus, profileStatus, refreshAuthState])
 
   // Helpers rôles
   const roleSet = new Set([

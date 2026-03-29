@@ -13,8 +13,9 @@ export function LoadingScreen({ label = 'Chargement...' }) {
 
 export function PrivateRoute({ children, redirectTo = '/' }) {
   const { user, profile, loading, sessionStatus, profileStatus, profileError, reloadProfile } = useAuth()
+  const shouldWaitProfile = sessionStatus === SESSION_STATUS.AUTHENTICATED && !!user && isProfilePending(profileStatus)
 
-  if (loading || sessionStatus === SESSION_STATUS.LOADING || isProfilePending(profileStatus)) return <LoadingScreen />
+  if (loading || sessionStatus === SESSION_STATUS.LOADING || shouldWaitProfile) return <LoadingScreen />
   if (sessionStatus === SESSION_STATUS.UNAUTHENTICATED || !user) return <Navigate to={redirectTo} replace />
   if (profileStatus === PROFILE_STATUS.ERROR && !profile) {
     return (
@@ -50,6 +51,7 @@ export function PrivateRoute({ children, redirectTo = '/' }) {
 export function AdminRoute({ children }) {
   const { user, isAdmin, loading, profile, reloadProfile, sessionStatus, profileStatus, profileError } = useAuth()
   const retriedRef = useRef(false)
+  const shouldWaitProfile = sessionStatus === SESSION_STATUS.AUTHENTICATED && !!user && isProfilePending(profileStatus)
 
   useEffect(() => {
     if (!user || loading || isAdmin || retriedRef.current) return
@@ -63,7 +65,7 @@ export function AdminRoute({ children }) {
       })
   }, [user, loading, isAdmin, profileStatus, reloadProfile])
 
-  if (loading || sessionStatus === SESSION_STATUS.LOADING || isProfilePending(profileStatus)) {
+  if (loading || sessionStatus === SESSION_STATUS.LOADING || shouldWaitProfile) {
     return <LoadingScreen label="Chargement de l’atelier admin..." />
   }
 
