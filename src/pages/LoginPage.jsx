@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from '../modules/auth/AuthContext.jsx'
 import { useNavigate, useLocation } from 'react-router-dom'
-import FlameIcon from '../components/FlameIcon.jsx'
+import { LogoIcon } from '../components/Logo.jsx'
 
 export default function LoginPage() {
   const { signIn, signUp } = useAuth()
@@ -39,10 +39,10 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-sm animate-fade-in-up">
         <div className="text-center mb-8">
-          <div className="flex justify-center mb-3">
-            <FlameIcon size={48} />
+          <div className="flex justify-center mb-4">
+            <LogoIcon size={52} />
           </div>
-          <h1 className="text-2xl font-bold brand-gradient mb-1">Charbon & Flamme</h1>
+          <h1 className="text-2xl font-extrabold text-white tracking-tight mb-0.5">CHARBON <span className="text-orange-400">&</span> FLAMME</h1>
           <p className="text-zinc-500 text-sm">
             {mode === 'login' ? 'Connexion' : 'Créer un compte'}
           </p>

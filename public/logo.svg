@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="flame-grad" x1="0.5" y1="1" x2="0.5" y2="0">
+      <stop offset="0%" stop-color="#c2410c"/>
+      <stop offset="50%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#fb923c"/>
+    </linearGradient>
+    <linearGradient id="inner-grad" x1="0.5" y1="1" x2="0.5" y2="0">
+      <stop offset="0%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#fdba74"/>
+    </linearGradient>
+  </defs>
+  <!-- Flamme principale — forme géométrique épurée -->
+  <path d="M256 42
+    C256 42 164 148 164 268
+    C164 318 182 358 212 386
+    C218 340 236 308 256 290
+    C276 308 294 340 300 386
+    C330 358 348 318 348 268
+    C348 148 256 42 256 42Z"
+    fill="url(#flame-grad)"/>
+  <!-- Flamme intérieure — accent lumineux -->
+  <path d="M256 190
+    C256 190 214 252 214 310
+    C214 340 230 366 256 380
+    C282 366 298 340 298 310
+    C298 252 256 190 256 190Z"
+    fill="url(#inner-grad)" opacity="0.9"/>
+  <!-- Point de braise central -->
+  <circle cx="256" cy="340" r="18" fill="#fff" opacity="0.85"/>
+  <!-- Texte -->
+  <text x="256" y="468" text-anchor="middle"
+    font-family="system-ui, -apple-system, 'Segoe UI', sans-serif"
+    font-weight="800" font-size="52" letter-spacing="6"
+    fill="#fafafa" text-transform="uppercase">CHARBON &amp; FLAMME</text>
+</svg>

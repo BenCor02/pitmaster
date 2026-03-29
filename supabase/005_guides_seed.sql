@@ -84,7 +84,7 @@ Laissez reposer **30 à 60 minutes** minimum. Effilochez avec des griffes à via
 | Emballage | 74°C (optionnel) |
 | Repos | 30–60 min minimum |
 | Durée totale | 10–14h selon poids |',
-'https://images.unsplash.com/photo-1623653387945-2fd25214f8fc?w=800&h=400&fit=crop',
+'https://images.pexels.com/photos/1212277/pexels-photo-1212277.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop',
 'viande', '{pulled_pork,echine,palette,epaule,low_and_slow,stall,effilochage}', 'pulled_pork',
 'Guide pulled pork au fumoir — Échine ou épaule de porc — Charbon & Flamme',
 'Comment réussir un pulled pork au fumoir : échine, palette ou épaule entière. Le guide complet adapté aux bouchers français.',
@@ -143,7 +143,7 @@ Reposez **30 à 45 minutes** sous aluminium lâche. Servez avec l''os — c''est
 | Emballage | optionnel à 74°C |
 | Repos | 30–45 min |
 | Durée totale | 6–10h selon taille |',
-'https://images.unsplash.com/photo-1544025162-d76694265947?w=800&h=400&fit=crop',
+'https://images.pexels.com/photos/8250702/pexels-photo-8250702.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop',
 'viande', '{beef_short_ribs,plat_de_cotes,beef_ribs,low_and_slow,boeuf}', 'beef_short_ribs',
 'Guide plat de côtes de bœuf (beef ribs) au fumoir — Charbon & Flamme',
 'Comment fumer un plat de côtes de bœuf (beef ribs) au barbecue : découpe, assaisonnement et cuisson lente.',
@@ -206,7 +206,7 @@ C''est la méthode la plus fiable pour les débutants :
 | Méthode | 3-2-1 |
 | Test | Flexion + torsion |
 | Durée totale | 6 heures |',
-'https://images.unsplash.com/photo-1606728035253-49e8a23146de?w=800&h=400&fit=crop',
+'https://images.pexels.com/photos/410648/pexels-photo-410648.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop',
 'viande', '{spare_ribs,3-2-1,ribs,low_and_slow,porc}', 'spare_ribs',
 'Guide spare ribs au fumoir (méthode 3-2-1) — Charbon & Flamme',
 'Comment réussir des spare ribs au fumoir avec la méthode 3-2-1 : préparation, fumage, emballage et glaçage.',
@@ -274,7 +274,7 @@ Adaptée du 3-2-1 pour les baby back plus fines :
 | Méthode | 2-2-1 |
 | Test | Test de flexion |
 | Durée totale | 5 heures |',
-'https://images.unsplash.com/photo-1558030006-450675393462?w=800&h=400&fit=crop',
+'https://images.pexels.com/photos/7613432/pexels-photo-7613432.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop',
 'viande', '{baby_back_ribs,loin_ribs,2-2-1,low_and_slow,porc}', 'baby_back_ribs',
 'Guide baby back ribs au fumoir (méthode 2-2-1) — Charbon & Flamme',
 'Baby back ribs au fumoir : méthode 2-2-1, préparation, rub et glaçage. Le guide pour des ribs tendres.',
@@ -339,7 +339,7 @@ C''est la pièce parfaite pour **débuter le BBQ bœuf** avant de se lancer sur 
 | Emballage | optionnel à 74°C |
 | Repos | 20–30 min |
 | Durée totale | 4–6h selon poids |',
-'https://images.unsplash.com/photo-1588168333986-5078d3ae3976?w=800&h=400&fit=crop',
+'https://images.pexels.com/photos/4765772/pexels-photo-4765772.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop',
 'viande', '{chuck_roast,paleron,pulled_beef,low_and_slow,boeuf,debutant}', 'chuck_roast',
 'Guide paleron de bœuf au fumoir — Charbon & Flamme',
 'Comment fumer un paleron de bœuf : le brisket du malin disponible chez tous les bouchers français. Guide complet.',
@@ -408,7 +408,7 @@ Les 10 dernières minutes, montez à **200°C** ou finissez sous le grill du fou
 | Format | Papillon recommandé |
 | Bois | Pommier, cerisier, vigne |
 | Durée totale | 1 h 30 – 3h |',
-'https://images.unsplash.com/photo-1598103442097-8b74394b95c6?w=800&h=400&fit=crop',
+'https://images.pexels.com/photos/13458086/pexels-photo-13458086.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop',
 'viande', '{whole_chicken,poulet,papillon,volaille,peau_croustillante}', 'whole_chicken',
 'Guide poulet entier au fumoir — Charbon & Flamme',
 'Comment fumer un poulet entier au barbecue : technique du papillon, bois de vigne et peau croustillante.',
@@ -472,7 +472,7 @@ Retirez la ficelle, séparez les os. Tranchez en tranches de **1 à 1,5 cm**. Fl
 | Méthode | Saisie inversée |
 | Repos | 20–30 min |
 | Durée totale | 3–5h + saisie |',
-'https://images.unsplash.com/photo-1504973960431-1c1c6264cb63?w=800&h=400&fit=crop',
+'https://images.pexels.com/photos/769289/pexels-photo-769289.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop',
 'viande', '{prime_rib,cote_de_boeuf,saisie_inversee,roti,fete}', 'prime_rib',
 'Guide côte de bœuf au fumoir (saisie inversée) — Charbon & Flamme',
 'Comment fumer une côte de bœuf (train de côtes) au barbecue avec la saisie inversée.',
@@ -540,7 +540,7 @@ Détachez la viande de l''os. Tranchez en lamelles de 1 cm contre le grain. Repl
 | Cible à point rosé | 54°C à cœur |
 | Saisie | 45–90 sec / face |
 | Durée totale | 1 h 30 – 2 h 30 + saisie |',
-'https://images.unsplash.com/photo-1558030006-450675393462?w=800&h=400&fit=crop',
+'https://images.pexels.com/photos/12261087/pexels-photo-12261087.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop',
 'viande', '{tomahawk,steak,saisie_inversee,entrecote,boeuf}', 'tomahawk',
 'Guide tomahawk au fumoir (saisie inversée) — Charbon & Flamme',
 'Comment fumer et saisir un tomahawk parfait : saisie inversée, températures et finition au beurre.',
@@ -583,7 +583,7 @@ Fumez à **135–150°C**. Le stall existe toujours mais dure beaucoup moins lon
 | Plat de côtes (beef ribs) | 65–77°C, 1–3h |
 | Poulet | Pas de stall notable |
 | Ribs | Stall léger possible |',
-'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&h=400&fit=crop',
+'https://images.pexels.com/photos/1927383/pexels-photo-1927383.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop',
 'technique', '{stall,plateau_thermique,emballage,texas_crutch,debutant}', null,
 'Comprendre le stall (plateau thermique) en BBQ — Charbon & Flamme',
 'Le stall expliqué : pourquoi la température stagne, combien de temps ça dure et comment le gérer.',
@@ -630,7 +630,7 @@ Emballez quand la **croûte est formée** :
 | Vitesse | Rapide | Plus rapide | Lent |
 | Jutosité | Bonne | Excellente | Variable |
 | Idéal pour | Brisket | Ribs, pulled pork | Beef ribs |',
-'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&h=400&fit=crop',
+'https://images.pexels.com/photos/5237010/pexels-photo-5237010.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop',
 'technique', '{emballage,texas_crutch,papier_kraft,aluminium,croute}', null,
 'Papier kraft vs aluminium pour l''emballage au fumoir — Charbon & Flamme',
 'Papier kraft ou aluminium ? Quand et comment emballer sa viande au fumoir.',
@@ -687,7 +687,7 @@ Pour les fumoirs au charbon (Weber Smokey Mountain, bouilloire) :
 - Visez **±5°C** autour de votre cible
 - Ajustez par **petits incréments**, attendez 15 minutes avant de retoucher
 - N''ouvrez le couvercle que si nécessaire (chaque ouverture = 10-15 min de récupération)',
-'https://images.unsplash.com/photo-1470753937643-360eb5ae9b34?w=800&h=400&fit=crop',
+'https://images.pexels.com/photos/69056/pexels-photo-69056.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop',
 'technique', '{feu,charbon,bois,ventilation,temperature,minion,fumoir}', null,
 'Maîtriser le feu au barbecue — Charbon & Flamme',
 'Gérer le feu au fumoir : charbon, bois français, ventilation et méthode Minion.',
@@ -727,7 +727,7 @@ La température continue à monter pendant le repos :
 - Entrecôtes fines : +2°C
 - Tomahawk / côte de bœuf : +3 à 5°C
 - Brisket / pulled pork : +1 à 2°C',
-'https://images.unsplash.com/photo-1432139509613-5c4255a1d197?w=800&h=400&fit=crop',
+'https://images.pexels.com/photos/9424951/pexels-photo-9424951.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop',
 'technique', '{repos,carryover,glaciere,jus,tendrete}', null,
 'Le repos de la viande au barbecue — Charbon & Flamme',
 'Pourquoi et comment reposer sa viande : durées, méthode de la glacière et cuisson résiduelle.',
@@ -789,7 +789,7 @@ Fumoir céramique polyvalent et performant.
 - **Kamado** : revendeurs agréés Big Green Egg ou Kamado Joe
 
 Le meilleur fumoir est celui que vous **utilisez**. Une bouilloire à 200€ entre de bonnes mains bat un offset à 2 000€ qui reste au garage.',
-'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800&h=400&fit=crop',
+'https://images.pexels.com/photos/2491272/pexels-photo-2491272.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop',
 'equipement', '{fumoir,weber,offset,granules,kamado,bouilloire,debutant}', null,
 'Quel fumoir choisir pour débuter en France ? — Charbon & Flamme',
 'Comparatif des fumoirs en France : offset, bouilloire, granulés, vertical et kamado.',
@@ -831,7 +831,7 @@ Pour les grosses pièces, la température ne suffit pas. Insérez le thermomètr
 
 - **Eau glacée** : doit afficher 0°C
 - **Eau bouillante** : doit afficher 100°C',
-'https://images.unsplash.com/photo-1585325701165-351af916e581?w=800&h=400&fit=crop',
+'https://images.pexels.com/photos/792027/pexels-photo-792027.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop',
 'equipement', '{thermometre,sonde,temperature,thermoworks,thermopro}', null,
 'Guide thermomètre barbecue — Charbon & Flamme',
 'Quel thermomètre BBQ choisir, où placer la sonde et comment faire le test de tendreté.',

@@ -1,3 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <text font-size="56" y="52" x="4">🔥</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="fg" x1="0.5" y1="1" x2="0.5" y2="0">
+      <stop offset="0%" stop-color="#c2410c"/>
+      <stop offset="50%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#fb923c"/>
+    </linearGradient>
+    <linearGradient id="ig" x1="0.5" y1="1" x2="0.5" y2="0">
+      <stop offset="0%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#fdba74"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#09090b"/>
+  <path d="M32 8
+    C32 8 18 22 18 38
+    C18 44.5 20.2 49.5 24 53
+    C24.8 47.2 27.2 43.2 32 40
+    C36.8 43.2 39.2 47.2 40 53
+    C43.8 49.5 46 44.5 46 38
+    C46 22 32 8 32 8Z"
+    fill="url(#fg)"/>
+  <path d="M32 26
+    C32 26 26.5 33.8 26.5 39.5
+    C26.5 42.8 28.5 45.6 32 47.2
+    C35.5 45.6 37.5 42.8 37.5 39.5
+    C37.5 33.8 32 26 32 26Z"
+    fill="url(#ig)" opacity="0.9"/>
+  <circle cx="32" cy="43.5" r="2.5" fill="#fff" opacity="0.85"/>
 </svg>

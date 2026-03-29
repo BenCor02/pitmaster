@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../modules/auth/AuthContext.jsx'
-import FlameIcon from './FlameIcon.jsx'
+import { LogoIcon, LogoFull } from './Logo.jsx'
 
 /* ── Icon components ── */
 function IconCalculator({ active }) {
@@ -79,14 +79,8 @@ export default function Layout({ children }) {
 
         {/* ── Brand header ── */}
         <div className="px-5 pt-6 pb-4">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center shadow-lg shadow-orange-500/20 group-hover:shadow-orange-500/30 transition-shadow">
-              <FlameIcon size={18} />
-            </div>
-            <div>
-              <p className="text-[15px] font-bold text-white tracking-tight leading-none">Charbon & Flamme</p>
-              <p className="text-[10px] text-zinc-500 mt-0.5 font-medium tracking-wide uppercase">Pitmaster Tools</p>
-            </div>
+          <Link to="/" className="group">
+            <LogoFull iconSize={28} className="group-hover:opacity-90 transition-opacity" />
           </Link>
         </div>
 
@@ -192,11 +186,8 @@ export default function Layout({ children }) {
       {/* ══════════ MOBILE HEADER ══════════ */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 glass border-b border-white/[0.06]">
         <div className="flex items-center justify-between px-4 h-14">
-          <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
-              <FlameIcon size={14} />
-            </div>
-            <span className="text-[14px] font-bold text-white">Charbon & Flamme</span>
+          <Link to="/">
+            <LogoFull iconSize={22} />
           </Link>
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
