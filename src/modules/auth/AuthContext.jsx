@@ -51,7 +51,16 @@ export function AuthProvider({ children }) {
   }, [session?.user?.id])
 
   const signIn = async (email, password) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { error, data } = await supabase.auth.signInWithPassword({ email, password })
+    if (!error && data?.user?.id) {
+      // Charger le profil immédiatement pour éviter la race condition
+      const { data: p } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', data.user.id)
+        .single()
+      if (p) setProfile(p)
+    }
     return { error }
   }
 
