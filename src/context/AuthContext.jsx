@@ -41,6 +41,8 @@ export function AuthProvider({ children }) {
   const loadProfileSeqRef = useRef(0)
   const lastStableProfileRef = useRef(null)
   const lastResyncAtRef = useRef(0)
+  const profileRef = useRef(null)
+  const profileStatusRef = useRef(PROFILE_STATUS.IDLE)
 
   function clearResolvedProfile() {
     setProfile(null)
@@ -71,7 +73,8 @@ export function AuthProvider({ children }) {
     return null
   }
 
-  const loadProfile = useCallback(async (authUser) => {
+  const loadProfile = useCallback(async (authUser, options = {}) => {
+    const silent = options.silent === true
     const currentSeq = ++loadProfileSeqRef.current
     const userId = authUser?.id
     if (!userId) {
@@ -79,8 +82,14 @@ export function AuthProvider({ children }) {
       return null
     }
 
-    setProfileStatus(PROFILE_STATUS.LOADING)
-    setProfileError(null)
+    const sameUserStable =
+      profileRef.current?.id === userId &&
+      profileStatusRef.current === PROFILE_STATUS.LOADED
+
+    if (!(silent && sameUserStable)) {
+      setProfileStatus(PROFILE_STATUS.LOADING)
+      setProfileError(null)
+    }
 
     try {
       let nextProfile = null
@@ -183,7 +192,7 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
-  const refreshAuthState = useCallback(async () => {
+  const refreshAuthState = useCallback(async ({ silent = false } = {}) => {
     const { data: { session } } = await withTimeout(
       supabase.auth.getSession(),
       SESSION_REQUEST_TIMEOUT_MS,
@@ -196,7 +205,7 @@ export function AuthProvider({ children }) {
       clearResolvedProfile()
       return null
     }
-    return loadProfile(nextUser)
+    return loadProfile(nextUser, { silent })
   }, [loadProfile])
 
   useEffect(() => {
@@ -238,7 +247,8 @@ export function AuthProvider({ children }) {
           clearResolvedProfile()
           return
         }
-        loadProfile(nextUser)
+        const silent = _event === 'TOKEN_REFRESHED'
+        loadProfile(nextUser, { silent })
           .catch((error) => {
             console.warn('onAuthStateChange profile load failed', error)
           })
@@ -257,7 +267,7 @@ export function AuthProvider({ children }) {
       const now = Date.now()
       if (now - lastResyncAtRef.current < 2500) return
       lastResyncAtRef.current = now
-      refreshAuthState().catch((error) => {
+      refreshAuthState({ silent: true }).catch((error) => {
         console.warn('resume auth sync failed', error)
       })
     }
@@ -276,6 +286,11 @@ export function AuthProvider({ children }) {
       document.removeEventListener('visibilitychange', onVisibility)
     }
   }, [user, sessionStatus, refreshAuthState])
+
+  useEffect(() => {
+    profileRef.current = profile
+    profileStatusRef.current = profileStatus
+  }, [profile, profileStatus])
 
   // Helpers rôles
   const roleSet = new Set([
