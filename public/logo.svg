@@ -1,36 +1,55 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
   <defs>
-    <linearGradient id="flame-grad" x1="0.5" y1="1" x2="0.5" y2="0">
-      <stop offset="0%" stop-color="#c2410c"/>
-      <stop offset="50%" stop-color="#f97316"/>
-      <stop offset="100%" stop-color="#fb923c"/>
-    </linearGradient>
-    <linearGradient id="inner-grad" x1="0.5" y1="1" x2="0.5" y2="0">
-      <stop offset="0%" stop-color="#f97316"/>
+    <linearGradient id="fm" x1="0.5" y1="1" x2="0.5" y2="0">
+      <stop offset="0%" stop-color="#7c2d12"/>
+      <stop offset="40%" stop-color="#c2410c"/>
+      <stop offset="75%" stop-color="#f97316"/>
       <stop offset="100%" stop-color="#fdba74"/>
     </linearGradient>
+    <linearGradient id="fl" x1="0.3" y1="1" x2="0.7" y2="0">
+      <stop offset="0%" stop-color="#9a3412"/>
+      <stop offset="100%" stop-color="#fb923c"/>
+    </linearGradient>
+    <linearGradient id="fr" x1="0.7" y1="1" x2="0.3" y2="0">
+      <stop offset="0%" stop-color="#9a3412"/>
+      <stop offset="100%" stop-color="#f97316"/>
+    </linearGradient>
+    <linearGradient id="fc" x1="0.5" y1="1" x2="0.5" y2="0">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#fef3c7"/>
+    </linearGradient>
   </defs>
-  <!-- Flamme principale — forme géométrique épurée -->
-  <path d="M256 42
-    C256 42 164 148 164 268
-    C164 318 182 358 212 386
-    C218 340 236 308 256 290
-    C276 308 294 340 300 386
-    C330 358 348 318 348 268
-    C348 148 256 42 256 42Z"
-    fill="url(#flame-grad)"/>
-  <!-- Flamme intérieure — accent lumineux -->
-  <path d="M256 190
-    C256 190 214 252 214 310
-    C214 340 230 366 256 380
-    C282 366 298 340 298 310
-    C298 252 256 190 256 190Z"
-    fill="url(#inner-grad)" opacity="0.9"/>
-  <!-- Point de braise central -->
-  <circle cx="256" cy="340" r="18" fill="#fff" opacity="0.85"/>
+  <!-- Mèche gauche -->
+  <path d="M160 416 C112 352 80 288 104 208 C120 160 160 128 176 176 C192 224 176 288 192 336 C200 368 176 400 160 416Z"
+    fill="url(#fl)" opacity="0.7"/>
+  <!-- Mèche droite -->
+  <path d="M352 416 C400 352 432 288 408 208 C392 160 352 128 336 176 C320 224 336 288 320 336 C312 368 336 400 352 416Z"
+    fill="url(#fr)" opacity="0.7"/>
+  <!-- Flamme principale BBQ -->
+  <path d="M256 32
+    C256 32 128 144 128 288
+    C128 336 148 376 184 408
+    C184 352 208 304 256 272
+    C304 304 328 352 328 408
+    C364 376 384 336 384 288
+    C384 144 256 32 256 32Z"
+    fill="url(#fm)"/>
+  <!-- Coeur jaune vif -->
+  <path d="M256 224
+    C256 224 200 288 200 336
+    C200 368 224 392 256 400
+    C288 392 312 368 312 336
+    C312 288 256 224 256 224Z"
+    fill="url(#fc)" opacity="0.85"/>
+  <!-- Braises -->
+  <circle cx="192" cy="448" r="20" fill="#f97316" opacity="0.5"/>
+  <circle cx="256" cy="464" r="16" fill="#fb923c" opacity="0.4"/>
+  <circle cx="320" cy="448" r="20" fill="#f97316" opacity="0.5"/>
+  <circle cx="224" cy="456" r="12" fill="#fdba74" opacity="0.3"/>
+  <circle cx="288" cy="456" r="12" fill="#fdba74" opacity="0.3"/>
   <!-- Texte -->
-  <text x="256" y="468" text-anchor="middle"
+  <text x="256" y="500" text-anchor="middle"
     font-family="system-ui, -apple-system, 'Segoe UI', sans-serif"
-    font-weight="800" font-size="52" letter-spacing="6"
-    fill="#fafafa" text-transform="uppercase">CHARBON &amp; FLAMME</text>
+    font-weight="800" font-size="42" letter-spacing="6"
+    fill="#fafafa">CHARBON &amp; FLAMME</text>
 </svg>

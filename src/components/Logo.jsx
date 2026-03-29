@@ -1,44 +1,72 @@
 /**
- * Logo Charbon & Flamme — Flamme géométrique minimaliste
- * Variantes : icon (flamme seule), full (flamme + texte)
+ * Logo Charbon & Flamme — Flamme BBQ agressive, style premium
+ * Flamme large et dynamique (pas bougie), avec braises
  */
 
 export function LogoIcon({ size = 32, className = '' }) {
   return (
     <svg
-      viewBox="0 0 48 56"
+      viewBox="0 0 64 64"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       width={size}
-      height={size * (56/48)}
-      className={className}
+      height={size}
+      className={`shrink-0 ${className}`}
+      aria-hidden="true"
     >
       <defs>
-        <linearGradient id="logo-fg" x1="0.5" y1="1" x2="0.5" y2="0">
-          <stop offset="0%" stopColor="#c2410c"/>
-          <stop offset="50%" stopColor="#f97316"/>
-          <stop offset="100%" stopColor="#fb923c"/>
-        </linearGradient>
-        <linearGradient id="logo-ig" x1="0.5" y1="1" x2="0.5" y2="0">
-          <stop offset="0%" stopColor="#f97316"/>
+        <linearGradient id="lf-main" x1="0.5" y1="1" x2="0.5" y2="0">
+          <stop offset="0%" stopColor="#7c2d12"/>
+          <stop offset="40%" stopColor="#c2410c"/>
+          <stop offset="75%" stopColor="#f97316"/>
           <stop offset="100%" stopColor="#fdba74"/>
         </linearGradient>
+        <linearGradient id="lf-left" x1="0.3" y1="1" x2="0.7" y2="0">
+          <stop offset="0%" stopColor="#9a3412"/>
+          <stop offset="100%" stopColor="#fb923c"/>
+        </linearGradient>
+        <linearGradient id="lf-right" x1="0.7" y1="1" x2="0.3" y2="0">
+          <stop offset="0%" stopColor="#9a3412"/>
+          <stop offset="100%" stopColor="#f97316"/>
+        </linearGradient>
+        <linearGradient id="lf-core" x1="0.5" y1="1" x2="0.5" y2="0">
+          <stop offset="0%" stopColor="#fbbf24"/>
+          <stop offset="100%" stopColor="#fef3c7"/>
+        </linearGradient>
       </defs>
-      <path d="M24 2
-        C24 2 8 18 8 34
-        C8 41 10.5 47 15 51
-        C16 44.5 18.5 40 24 37
-        C29.5 40 32 44.5 33 51
-        C37.5 47 40 41 40 34
-        C40 18 24 2 24 2Z"
-        fill="url(#logo-fg)"/>
-      <path d="M24 20
-        C24 20 17.5 29 17.5 36
-        C17.5 39.5 19.5 43 24 45
-        C28.5 43 30.5 39.5 30.5 36
-        C30.5 29 24 20 24 20Z"
-        fill="url(#logo-ig)" opacity="0.9"/>
-      <circle cx="24" cy="40.5" r="2.8" fill="#fff" opacity="0.85"/>
+
+      {/* Flamme gauche — mèche qui part sur le côté */}
+      <path d="M20 52 C14 44 10 36 13 26 C15 20 20 16 22 22 C24 28 22 36 24 42 C25 46 22 50 20 52Z"
+        fill="url(#lf-left)" opacity="0.7"/>
+
+      {/* Flamme droite — mèche symétrique */}
+      <path d="M44 52 C50 44 54 36 51 26 C49 20 44 16 42 22 C40 28 42 36 40 42 C39 46 42 50 44 52Z"
+        fill="url(#lf-right)" opacity="0.7"/>
+
+      {/* Flamme principale — large, BBQ style */}
+      <path d="M32 4
+        C32 4 16 18 16 36
+        C16 42 18.5 47 23 51
+        C23 44 26 38 32 34
+        C38 38 41 44 41 51
+        C45.5 47 48 42 48 36
+        C48 18 32 4 32 4Z"
+        fill="url(#lf-main)"/>
+
+      {/* Coeur jaune vif — chaleur intense */}
+      <path d="M32 28
+        C32 28 25 36 25 42
+        C25 46 28 49 32 50
+        C36 49 39 46 39 42
+        C39 36 32 28 32 28Z"
+        fill="url(#lf-core)" opacity="0.85"/>
+
+      {/* Braises en bas */}
+      <circle cx="24" cy="56" r="2.5" fill="#f97316" opacity="0.5"/>
+      <circle cx="32" cy="58" r="2" fill="#fb923c" opacity="0.4"/>
+      <circle cx="40" cy="56" r="2.5" fill="#f97316" opacity="0.5"/>
+      <circle cx="28" cy="57" r="1.5" fill="#fdba74" opacity="0.3"/>
+      <circle cx="36" cy="57" r="1.5" fill="#fdba74" opacity="0.3"/>
     </svg>
   )
 }
