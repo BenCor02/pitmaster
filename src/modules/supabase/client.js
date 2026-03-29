@@ -1,13 +1,15 @@
 import { createClient } from '@supabase/supabase-js'
 
-const DEFAULT_SUPABASE_URL = 'https://stsvkjveuhfvsfxjowcu.supabase.co'
-const DEFAULT_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_CZrjgKG6Vlo3mSj5HH9_iw_dUiCu85g'
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL
+const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL || '').trim()
 const supabaseKey =
-  import.meta.env.VITE_SUPABASE_ANON_KEY ||
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-  DEFAULT_SUPABASE_PUBLISHABLE_KEY
+  (import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '').trim()
+
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error(
+    'Supabase config manquante: définir VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY (ou VITE_SUPABASE_PUBLISHABLE_KEY) dans .env.local'
+  )
+}
+
 const projectRef = new URL(supabaseUrl).hostname.split('.')[0]
 const authStorageKey = `cf-supabase-auth-${projectRef}`
 
