@@ -7,6 +7,7 @@ import {
   calculateLowSlow,
   buildTimeline,
 } from '../src/domain/calculator/engine.js'
+import { CALIBRATION_TARGETS } from '../src/domain/calculator/calibrationTargets.js'
 import { CALCULATOR_REFERENCE_SCENARIOS } from '../src/domain/calculator/referenceScenarios.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -76,4 +77,24 @@ if (!fs.existsSync(snapshotPath)) {
 
 const expected = JSON.parse(fs.readFileSync(snapshotPath, 'utf8'))
 assert.deepStrictEqual(next, expected)
+
+for (const scenario of CALCULATOR_REFERENCE_SCENARIOS) {
+  const target = CALIBRATION_TARGETS[scenario.id]
+  if (!target) continue
+
+  const result = calculateLowSlow(
+    scenario.meatKey,
+    scenario.weightKg,
+    scenario.options,
+  )
+
+  for (const [field, [min, max]] of Object.entries(target)) {
+    const value = result[field]
+    assert.ok(
+      value >= min && value <= max,
+      `${scenario.id} -> ${field}=${value} hors plage attendue [${min}, ${max}]`,
+    )
+  }
+}
+
 console.log(`Calculator regression OK (${Object.keys(expected).length} scenarios)`)

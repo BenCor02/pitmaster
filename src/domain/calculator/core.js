@@ -116,13 +116,13 @@ const LONG_COOK_PROFILES = {
         method: 'low_and_slow',
         smokerTempRange: [107, 121],
         smokerTempDefault: 115,
-        minutesPerKgRange: [145, 200],
-        restMinutes: [90, 240],
-        restTargetMin: 120,
+        minutesPerKgRange: [125, 165],
+        restMinutes: [60, 120],
+        restTargetMin: 90,
         holdMinutes: [60, 300],
         wrapFriendly: true,
         wrapTemp: 71,
-        wrapReduction: { none: 1, butcher_paper: 0.92, foil_boat: 0.9, foil: 0.86 },
+        wrapReduction: { none: 1, butcher_paper: 0.95, foil_boat: 0.93, foil: 0.88 },
         timelineWeights: [0.42, 0.18, 0.4],
         notes: 'Base empirique croisee Franklin-style, Meat Church, AmazingRibs, ThermoWorks et terrain.',
       },
@@ -130,9 +130,9 @@ const LONG_COOK_PROFILES = {
         method: 'hot_and_fast',
         smokerTempRange: [135, 152],
         smokerTempDefault: 145,
-        minutesPerKgRange: [95, 145],
-        restMinutes: [60, 150],
-        restTargetMin: 90,
+        minutesPerKgRange: [80, 115],
+        restMinutes: [45, 90],
+        restTargetMin: 60,
         holdMinutes: [30, 150],
         wrapFriendly: false,
         wrapTemp: null,
@@ -166,13 +166,13 @@ const LONG_COOK_PROFILES = {
         method: 'low_and_slow',
         smokerTempRange: [107, 121],
         smokerTempDefault: 115,
-        minutesPerKgRange: [165, 235],
-        restMinutes: [60, 180],
+        minutesPerKgRange: [150, 225],
+        restMinutes: [60, 120],
         restTargetMin: 90,
         holdMinutes: [60, 240],
         wrapFriendly: true,
         wrapTemp: 74,
-        wrapReduction: { none: 1, butcher_paper: 0.93, foil_boat: 0.9, foil: 0.86 },
+        wrapReduction: { none: 1, butcher_paper: 0.95, foil_boat: 0.93, foil: 0.88 },
         timelineWeights: [0.42, 0.2, 0.38],
         notes: 'Toujours juger la texture finale, pas seulement le chiffre.',
       },
@@ -216,13 +216,13 @@ const LONG_COOK_PROFILES = {
         method: 'low_and_slow',
         smokerTempRange: [107, 121],
         smokerTempDefault: 110,
-        fixedCookRange: [300, 360],
+        fixedCookRange: [300, 390],
         restMinutes: [10, 20],
         restTargetMin: 15,
         holdMinutes: [0, 45],
         wrapFriendly: true,
         wrapTemp: null,
-        wrapReduction: { none: 1, butcher_paper: 0.97, foil_boat: 0.95, foil: 0.92 },
+        wrapReduction: { none: 1, butcher_paper: 1, foil_boat: 1, foil: 1 },
         timelineWeights: [0.5, 0.18, 0.32],
         notes: 'La methode 3-2-1 reste un squelette, pas une verite absolue.',
       },
@@ -272,7 +272,7 @@ const LONG_COOK_PROFILES = {
         holdMinutes: [0, 30],
         wrapFriendly: true,
         wrapTemp: null,
-        wrapReduction: { none: 1, butcher_paper: 0.98, foil_boat: 0.96, foil: 0.93 },
+        wrapReduction: { none: 1, butcher_paper: 1, foil_boat: 1, foil: 1 },
         timelineWeights: [0.48, 0.16, 0.36],
         notes: 'La logique 2-2-1 sert de repere, pas d’horloge.',
       },
@@ -316,13 +316,13 @@ const LONG_COOK_PROFILES = {
         method: 'low_and_slow',
         smokerTempRange: [107, 121],
         smokerTempDefault: 115,
-        minutesPerKgRange: [150, 210],
-        restMinutes: [30, 90],
+        minutesPerKgRange: [170, 240],
+        restMinutes: [30, 60],
         restTargetMin: 45,
         holdMinutes: [30, 120],
         wrapFriendly: true,
         wrapTemp: 72,
-        wrapReduction: { none: 1, butcher_paper: 0.94, foil_boat: 0.91, foil: 0.88 },
+        wrapReduction: { none: 1, butcher_paper: 0.95, foil_boat: 0.93, foil: 0.9 },
         timelineWeights: [0.42, 0.16, 0.42],
         notes: 'Tres tolerantes, mais encore meilleures quand on attend le vrai probe tender.',
       },
@@ -366,13 +366,13 @@ const LONG_COOK_PROFILES = {
         method: 'low_and_slow',
         smokerTempRange: [107, 121],
         smokerTempDefault: 115,
-        minutesPerKgRange: [150, 210],
-        restMinutes: [45, 120],
-        restTargetMin: 60,
+        minutesPerKgRange: [140, 210],
+        restMinutes: [60, 120],
+        restTargetMin: 90,
         holdMinutes: [45, 180],
         wrapFriendly: true,
         wrapTemp: 74,
-        wrapReduction: { none: 1, butcher_paper: 0.93, foil_boat: 0.9, foil: 0.87 },
+        wrapReduction: { none: 1, butcher_paper: 0.95, foil_boat: 0.93, foil: 0.88 },
         timelineWeights: [0.43, 0.15, 0.42],
         notes: 'Tres bon candidat pour un plan simple et fiable a la maison.',
       },
@@ -416,13 +416,13 @@ const LONG_COOK_PROFILES = {
         method: 'low_and_slow',
         smokerTempRange: [107, 121],
         smokerTempDefault: 115,
-        minutesPerKgRange: [160, 220],
-        restMinutes: [45, 120],
-        restTargetMin: 60,
+        minutesPerKgRange: [180, 250],
+        restMinutes: [30, 60],
+        restTargetMin: 45,
         holdMinutes: [45, 180],
         wrapFriendly: true,
         wrapTemp: 72,
-        wrapReduction: { none: 1, butcher_paper: 0.94, foil_boat: 0.91, foil: 0.88 },
+        wrapReduction: { none: 1, butcher_paper: 0.95, foil_boat: 0.93, foil: 0.9 },
         timelineWeights: [0.42, 0.16, 0.42],
         notes: 'Se rapproche des beef ribs cote planning.',
       },
@@ -466,13 +466,13 @@ const LONG_COOK_PROFILES = {
         method: 'low_and_slow',
         smokerTempRange: [107, 121],
         smokerTempDefault: 115,
-        minutesPerKgRange: [125, 180],
-        restMinutes: [30, 90],
+        minutesPerKgRange: [115, 170],
+        restMinutes: [30, 60],
         restTargetMin: 45,
         holdMinutes: [30, 120],
         wrapFriendly: true,
         wrapTemp: 75,
-        wrapReduction: { none: 1, butcher_paper: 0.94, foil_boat: 0.91, foil: 0.88 },
+        wrapReduction: { none: 1, butcher_paper: 0.95, foil_boat: 0.93, foil: 0.88 },
         timelineWeights: [0.42, 0.14, 0.44],
         notes: 'Approche terrain proche des epaules longues mais moins lourde a planifier.',
       },
@@ -713,15 +713,6 @@ function estimateWeightThickness(weightKg, meatKey) {
   return Number(clamp(thickness, 2, 20).toFixed(1))
 }
 
-function smokerTempFactor(methodProfile, smokerTempC) {
-  const min = methodProfile.smokerTempRange[0]
-  const max = methodProfile.smokerTempRange[1]
-  const center = avg(min, max)
-  const span = Math.max(max - min, 1)
-  const normalized = clamp((clamp(toNumber(smokerTempC, center), min, max) - center) / span, -0.5, 0.5)
-  return clamp(1 - normalized * 0.35, 0.84, 1.16)
-}
-
 function buildScenarioProfile(profile, options = {}) {
   if (profile.id !== 'lamb_leg' || options.lambLegStyle !== 'pulled') return profile
 
@@ -775,15 +766,25 @@ function buildScenarioProfile(profile, options = {}) {
 }
 
 function weightInertiaFactor(weightKg, profile) {
-  const threshold = Math.max((profile.defaultWeightKg || 3) + 1, 4)
+  const threshold = Math.max((profile.defaultWeightKg || 3) + 1.5, 4.5)
   if (weightKg <= threshold) return 1
-  return 1 + (weightKg - threshold) * 0.025
+  return clamp(1 + (weightKg - threshold) * 0.012, 1, 1.06)
 }
 
 function thicknessFactor(thicknessCm, profile) {
   const reference = profile.thicknessReferenceCm || 7
-  const ratio = clamp(thicknessCm / Math.max(reference, 1), 0.65, 1.4)
-  return clamp(0.9 + (ratio - 0.65) * 0.32, 0.92, 1.12)
+  const ratio = clamp(thicknessCm / Math.max(reference, 1), 0.75, 1.25)
+  return clamp(1 + (ratio - 1) * 0.08, 0.96, 1.05)
+}
+
+function interpolateCookValue(range, smokerTempRange, smokerTempC) {
+  if (!Array.isArray(range) || range.length !== 2) return 0
+  const [rangeMin, rangeMax] = range
+  const [tempMin, tempMax] = smokerTempRange
+  const safeTemp = clamp(toNumber(smokerTempC, avg(tempMin, tempMax)), tempMin, tempMax)
+  const normalized = (safeTemp - tempMin) / Math.max(tempMax - tempMin, 1)
+  const curved = Math.pow(clamp(normalized, 0, 1), 0.7)
+  return rangeMax + (rangeMin - rangeMax) * curved
 }
 
 function getMethodProfile(profile, requestedMethod = null, smokerTempC = null) {
@@ -989,35 +990,46 @@ function getDisplayStep(totalMinutes) {
 function calculateCookRange(profile, methodProfile, weightKg, options) {
   const smokerTypeFactor = BASE_COEFFS.smoker[options.smokerType || 'pellet'] ?? 1
   const marblingFactor = BASE_COEFFS.marbling[options.marbling || 'medium'] ?? 1
-  const smokerTempAdj = smokerTempFactor(methodProfile, options.smokerTempC)
   const thicknessCm = parseOptionalNumber(options.thicknessCm, estimateWeightThickness(weightKg, profile.id))
   const thicknessAdj = thicknessFactor(thicknessCm, profile)
   const inertiaAdj = weightInertiaFactor(weightKg, profile)
-  const wrapFactor = methodProfile.wrapFriendly
+  const wrapFactor = methodProfile.fixedCookRange
+    ? 1
+    : methodProfile.wrapFriendly
     ? (methodProfile.wrapReduction?.[options.wrapType || 'none'] ?? 1)
     : 1
 
-  let minCook
-  let maxCook
+  const totalFactor = methodProfile.fixedCookRange
+    ? clamp(smokerTypeFactor, 0.94, 1.08)
+    : clamp(smokerTypeFactor * marblingFactor * thicknessAdj * inertiaAdj * wrapFactor, 0.82, 1.18)
+
+  let probableCook
+  let variability
 
   if (methodProfile.fixedCookRange) {
-    minCook = methodProfile.fixedCookRange[0]
-    maxCook = methodProfile.fixedCookRange[1]
+    const baseCook = avg(...methodProfile.fixedCookRange)
+    probableCook = round(clamp(baseCook * totalFactor, 20, 24 * 60))
+    variability = Math.max(18, round(probableCook * 0.12))
   } else {
-    minCook = weightKg * methodProfile.minutesPerKgRange[0]
-    maxCook = weightKg * methodProfile.minutesPerKgRange[1]
+    const baseMinutesPerKg = interpolateCookValue(
+      methodProfile.minutesPerKgRange,
+      methodProfile.smokerTempRange,
+      options.smokerTempC,
+    )
+    let baseCook = weightKg * baseMinutesPerKg
+    if (weightKg > 6) baseCook *= 1 + (weightKg - 6) * 0.03
+    probableCook = round(clamp(baseCook * totalFactor, 20, 24 * 60))
+    variability = Math.max(20, round(probableCook * 0.12))
   }
-
-  const totalFactor = smokerTypeFactor * marblingFactor * smokerTempAdj * thicknessAdj * inertiaAdj * wrapFactor
 
   return {
     thicknessCm,
-    cookMin: round(clamp(minCook * totalFactor, 20, 24 * 60)),
-    cookMax: round(clamp(maxCook * totalFactor, 25, 30 * 60)),
+    probableCookMin: probableCook,
+    cookMin: round(clamp(probableCook - variability, 20, 24 * 60)),
+    cookMax: round(clamp(probableCook + variability, 25, 30 * 60)),
     factors: {
       smokerTypeFactor: Number(smokerTypeFactor.toFixed(3)),
       marblingFactor: Number(marblingFactor.toFixed(3)),
-      smokerTempAdj: Number(smokerTempAdj.toFixed(3)),
       thicknessAdj: Number(thicknessAdj.toFixed(3)),
       inertiaAdj: Number(inertiaAdj.toFixed(3)),
       wrapFactor: Number(wrapFactor.toFixed(3)),
@@ -1080,12 +1092,12 @@ export function calculateLowSlow(meatKey, weightKg, options = {}, approvedAdjust
 
   const cookMin = round(cookRange.cookMin * adjustmentHook)
   const cookMax = round(cookRange.cookMax * adjustmentHook)
-  const probableCookMin = round(avg(cookMin, cookMax))
+  const probableCookMin = round(cookRange.probableCookMin * adjustmentHook)
   const restRange = [...methodProfile.restMinutes]
   const restMin = round(methodProfile.restTargetMin ?? avg(...restRange))
   const holdRange = methodProfile.holdMinutes || [0, 0]
-  const optimisticMin = preheatMin + cookMin + restRange[0]
-  const prudentMin = preheatMin + cookMax + restRange[1]
+  const optimisticMin = preheatMin + cookMin + restMin
+  const prudentMin = preheatMin + cookMax + restMin
   const probableMin = preheatMin + probableCookMin + restMin
   const phases = buildPhaseMinutes(profile, methodProfile, probableCookMin, wrapType)
   const cues = buildCues(profile, methodProfile, wrapType)
