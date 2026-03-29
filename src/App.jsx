@@ -4,6 +4,8 @@ import Layout from './components/Layout.jsx'
 import CalculatorPage from './pages/CalculatorPage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import AdminPage from './pages/AdminPage.jsx'
+import GuidesListPage from './pages/GuidesListPage.jsx'
+import GuidePage from './pages/GuidePage.jsx'
 
 function AdminGuard({ children }) {
   const { isLoading, isAuthenticated, isAdmin } = useAuth()
@@ -20,9 +22,11 @@ export default function App() {
     <Layout>
       <Routes>
         <Route path="/" element={<CalculatorPage />} />
+        <Route path="/guides" element={<GuidesListPage />} />
+        <Route path="/guides/:slug" element={<GuidePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route
-          path="/admin"
+          path="/admin/*"
           element={
             <AdminGuard>
               <AdminPage />

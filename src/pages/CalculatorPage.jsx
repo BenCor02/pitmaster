@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useCallback } from 'react'
 import { useCalculatorData } from '../modules/calculator/useCalculatorData.js'
 import { calculateCookPlan } from '../modules/calculator/engine.js'
 import { DONENESS_LABELS } from '../modules/calculator/data.js'
+import ContentBlocks from '../components/content/ContentBlocks.jsx'
 
 const CAT_LABELS = { boeuf: 'Boeuf', porc: 'Porc', volaille: 'Volaille', agneau: 'Agneau' }
 
@@ -365,6 +366,14 @@ export default function CalculatorPage() {
 
         {/* ══════════ RESULTS ══════════ */}
         {result && <ResultView result={result} />}
+
+        {/* Blocs contextuels CMS : SEO, FAQ, Affiliation, Guides */}
+        {result && (
+          <ContentBlocks
+            meatType={result.profileId}
+            cookingMethod={result.cookType}
+          />
+        )}
       </div>
     </div>
   )
