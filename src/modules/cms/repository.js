@@ -93,6 +93,11 @@ export async function fetchSeoBlocks({
   methodKey = null,
   pageSlug = 'calculator',
 } = {}) {
+  function getScopeSpecificity(scopeValue, requestedValue, weight) {
+    if (!scopeValue) return 0
+    return scopeValue === requestedValue ? weight : Number.NEGATIVE_INFINITY
+  }
+
   let query = supabase
     .from('seo_blocks')
     .select('*')
@@ -104,12 +109,22 @@ export async function fetchSeoBlocks({
   const { data: blocks, error } = await query
   if (error) throw error
 
-  const filteredBlocks = (blocks || []).filter((block) => {
-    const pageOk = !block.page_slug || block.page_slug === pageSlug
-    const meatOk = !block.meat_slug || block.meat_slug === meatSlug
-    const methodOk = !block.method_key || block.method_key === methodKey
-    return pageOk && meatOk && methodOk
-  })
+  const filteredBlocks = (blocks || [])
+    .map((block) => {
+      const specificity =
+        getScopeSpecificity(block.page_slug, pageSlug, 8) +
+        getScopeSpecificity(block.meat_slug, meatSlug, 4) +
+        getScopeSpecificity(block.method_key, methodKey, 2)
+
+      return Number.isFinite(specificity)
+        ? { ...block, __specificity: specificity }
+        : null
+    })
+    .filter(Boolean)
+    .sort((left, right) => {
+      if (right.__specificity !== left.__specificity) return right.__specificity - left.__specificity
+      return (left.display_order || 0) - (right.display_order || 0)
+    })
 
   if (!filteredBlocks.length) return []
 
@@ -128,10 +143,13 @@ export async function fetchSeoBlocks({
     return acc
   }, {})
 
-  return filteredBlocks.map((block) => ({
-    ...block,
-    products: grouped[block.id] || [],
-  }))
+  return filteredBlocks.map((block) => {
+    const { __specificity, ...cleanBlock } = block
+    return {
+      ...cleanBlock,
+      products: grouped[block.id] || [],
+    }
+  })
 }
 
 export async function fetchAdminSeoBlocks() {
