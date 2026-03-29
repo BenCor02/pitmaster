@@ -1,9 +1,41 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import { useCalculatorData } from '../modules/calculator/useCalculatorData.js'
 import { calculateCookPlan } from '../modules/calculator/engine.js'
 import { DONENESS_LABELS } from '../modules/calculator/data.js'
 
 const CAT_LABELS = { boeuf: 'Boeuf', porc: 'Porc', volaille: 'Volaille', agneau: 'Agneau' }
+
+/** Encode les params de cuisson dans l'URL pour survivre au refresh */
+function saveToURL(params) {
+  const url = new URL(window.location)
+  if (params) {
+    url.searchParams.set('m', params.profileId)
+    url.searchParams.set('w', params.weightKg)
+    url.searchParams.set('t', params.cookTempC)
+    url.searchParams.set('wr', params.wrapped ? '1' : '0')
+    if (params.doneness) url.searchParams.set('d', params.doneness)
+  } else {
+    url.searchParams.delete('m')
+    url.searchParams.delete('w')
+    url.searchParams.delete('t')
+    url.searchParams.delete('wr')
+    url.searchParams.delete('d')
+  }
+  window.history.replaceState({}, '', url)
+}
+
+function readFromURL() {
+  const params = new URLSearchParams(window.location.search)
+  const m = params.get('m')
+  if (!m) return null
+  return {
+    profileId: m,
+    weightKg: params.get('w') || '',
+    cookTempC: Number(params.get('t')) || 110,
+    wrapped: params.get('wr') === '1',
+    doneness: params.get('d') || 'medium_rare',
+  }
+}
 
 export default function CalculatorPage() {
   const { profiles, loading } = useCalculatorData()
@@ -15,6 +47,34 @@ export default function CalculatorPage() {
   const [doneness, setDoneness] = useState('medium_rare')
   const [result, setResult] = useState(null)
   const [step, setStep] = useState(1)
+
+  // ── Restore depuis URL au chargement ──
+  useEffect(() => {
+    if (!profiles || profiles.length === 0) return
+    const saved = readFromURL()
+    if (!saved) return
+    const p = profiles.find(m => m.id === saved.profileId)
+    if (!p) return
+    setSelectedProfile(p)
+    setWeightKg(saved.weightKg)
+    setCookTempC(saved.cookTempC)
+    setWrapped(saved.wrapped)
+    setDoneness(saved.doneness)
+    setStep(2)
+    // Lancer le calcul automatiquement
+    const isFixed = !!p.fixed_times
+    const isRS = p.cook_type === 'reverse_sear'
+    if (isFixed || saved.weightKg) {
+      const plan = calculateCookPlan({
+        profile: p,
+        weightKg: isFixed ? 0 : parseFloat(saved.weightKg),
+        cookTempC: isFixed ? 0 : saved.cookTempC,
+        wrapped: saved.wrapped,
+        doneness: isRS ? saved.doneness : null,
+      })
+      setResult(plan)
+    }
+  }, [profiles])
 
   const profilesByCategory = useMemo(() => {
     if (!profiles) return {}
@@ -52,6 +112,14 @@ export default function CalculatorPage() {
       doneness: isReverseSear ? doneness : null,
     })
     setResult(plan)
+    // Sauvegarder dans l'URL
+    saveToURL({
+      profileId: selectedProfile.id,
+      weightKg,
+      cookTempC,
+      wrapped,
+      doneness: isReverseSear ? doneness : null,
+    })
   }
 
   const handleReset = () => {
@@ -59,6 +127,7 @@ export default function CalculatorPage() {
     setStep(1)
     setSelectedProfile(null)
     setWeightKg('')
+    saveToURL(null)
   }
 
   if (loading) {
