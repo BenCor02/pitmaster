@@ -82,23 +82,95 @@ export default function CalculatorPage() {
   return (
     <div className="min-h-screen">
 
-      {/* ══════════ HEADER BAR ══════════ */}
-      <div className="px-6 lg:px-10 py-5 border-b border-white/[0.06]">
-        <div className="max-w-4xl flex items-center justify-between">
-          <div>
-            <h1 className="text-[20px] font-bold text-white tracking-tight">Calculateur</h1>
-            <p className="text-[13px] text-zinc-500 mt-0.5">Planifie ta cuisson BBQ en quelques clics</p>
+      {/* ══════════ HERO SECTION ══════════ */}
+      {!result && step === 1 && !selectedProfile && (
+        <div className="relative overflow-hidden">
+          {/* Background image */}
+          <div className="absolute inset-0">
+            <img
+              src="https://images.unsplash.com/photo-1544025162-d76694265947?w=1400&h=600&fit=crop&q=80"
+              alt=""
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#09090b] via-[#09090b]/85 to-[#09090b]/40" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-transparent to-[#09090b]/30" />
           </div>
-          {result && (
+
+          {/* Hero content */}
+          <div className="relative px-6 lg:px-10 py-12 lg:py-16 max-w-4xl">
+            <div className="animate-fade-up">
+              <div className="badge badge-accent mb-4">
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-500 mr-2 animate-pulse" />
+                Calculateur BBQ
+              </div>
+
+              <h1 className="text-[32px] lg:text-[42px] font-extrabold text-white tracking-tight leading-[1.1] mb-3">
+                Planifie ta cuisson,<br />
+                <span className="text-gradient">pas de surprise.</span>
+              </h1>
+
+              <p className="text-[15px] lg:text-[16px] text-zinc-400 max-w-md leading-relaxed mb-8">
+                Sélectionne ta viande, règle ton fumoir. Le calculateur te donne l'heure de départ, la fenêtre de service et les repères terrain.
+              </p>
+
+              {/* Quick stats */}
+              <div className="flex gap-6 mb-8">
+                <div>
+                  <p className="text-[24px] font-bold text-white">9</p>
+                  <p className="text-[11px] text-zinc-500 font-medium">Profils viande</p>
+                </div>
+                <div className="w-px bg-white/[0.08]" />
+                <div>
+                  <p className="text-[24px] font-bold text-white">2</p>
+                  <p className="text-[11px] text-zinc-500 font-medium">Méthodes</p>
+                </div>
+                <div className="w-px bg-white/[0.08]" />
+                <div>
+                  <p className="text-[24px] font-bold text-orange-400">100%</p>
+                  <p className="text-[11px] text-zinc-500 font-medium">Honnête</p>
+                </div>
+              </div>
+
+              {/* Quick access chips */}
+              <div>
+                <p className="text-[11px] text-zinc-600 font-medium uppercase tracking-wider mb-3">Accès rapide</p>
+                <div className="flex flex-wrap gap-2">
+                  {profiles?.slice(0, 5).map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => handleProfileSelect(p.id)}
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.06] hover:border-white/[0.12] text-[13px] font-medium text-zinc-300 hover:text-white transition-all group"
+                    >
+                      <span className="text-base group-hover:scale-110 transition-transform">{p.icon}</span>
+                      {p.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════ HEADER BAR (when in wizard or results) ══════════ */}
+      {(result || selectedProfile) && (
+        <div className="px-6 lg:px-10 py-5 border-b border-white/[0.06]">
+          <div className="max-w-4xl flex items-center justify-between">
+            <div>
+              <h1 className="text-[20px] font-bold text-white tracking-tight">Calculateur</h1>
+              <p className="text-[13px] text-zinc-500 mt-0.5">
+                {result ? 'Résultat de ta cuisson' : 'Configure les paramètres'}
+              </p>
+            </div>
             <button
               onClick={handleReset}
               className="text-[13px] font-medium text-zinc-400 hover:text-white px-4 py-2 rounded-xl hover:bg-white/[0.04] transition-all"
             >
-              ← Nouvelle cuisson
+              ← {result ? 'Nouvelle cuisson' : 'Retour'}
             </button>
-          )}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="px-6 lg:px-10 py-8 max-w-4xl">
 
