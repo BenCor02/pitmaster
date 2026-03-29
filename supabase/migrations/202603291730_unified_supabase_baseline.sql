@@ -65,11 +65,24 @@ create table if not exists public.site_settings (
   id integer primary key default 1 check (id = 1),
   site_name text not null default 'Charbon & Flamme',
   site_tagline text,
+  site_description text,
+  seo_title text,
+  seo_keywords text,
+  og_image text,
   default_seo_title text,
   default_seo_description text,
   logo_url text,
   favicon_url text,
   support_email text,
+  maintenance_mode boolean not null default false,
+  allow_signups boolean not null default true,
+  max_sessions_free integer not null default 10,
+  max_journal_free integer not null default 5,
+  ask_ai_free_limit integer not null default 3,
+  ask_ai_pro_limit integer not null default 50,
+  primary_color text not null default '#e85d04',
+  accent_color text not null default '#f48c06',
+  announcement text,
   social_links_json jsonb not null default '{}'::jsonb,
   branding_json jsonb not null default '{}'::jsonb,
   updated_at timestamptz not null default timezone('utc', now())
@@ -77,11 +90,24 @@ create table if not exists public.site_settings (
 
 alter table if exists public.site_settings add column if not exists site_name text not null default 'Charbon & Flamme';
 alter table if exists public.site_settings add column if not exists site_tagline text;
+alter table if exists public.site_settings add column if not exists site_description text;
+alter table if exists public.site_settings add column if not exists seo_title text;
+alter table if exists public.site_settings add column if not exists seo_keywords text;
+alter table if exists public.site_settings add column if not exists og_image text;
 alter table if exists public.site_settings add column if not exists default_seo_title text;
 alter table if exists public.site_settings add column if not exists default_seo_description text;
 alter table if exists public.site_settings add column if not exists logo_url text;
 alter table if exists public.site_settings add column if not exists favicon_url text;
 alter table if exists public.site_settings add column if not exists support_email text;
+alter table if exists public.site_settings add column if not exists maintenance_mode boolean not null default false;
+alter table if exists public.site_settings add column if not exists allow_signups boolean not null default true;
+alter table if exists public.site_settings add column if not exists max_sessions_free integer not null default 10;
+alter table if exists public.site_settings add column if not exists max_journal_free integer not null default 5;
+alter table if exists public.site_settings add column if not exists ask_ai_free_limit integer not null default 3;
+alter table if exists public.site_settings add column if not exists ask_ai_pro_limit integer not null default 50;
+alter table if exists public.site_settings add column if not exists primary_color text not null default '#e85d04';
+alter table if exists public.site_settings add column if not exists accent_color text not null default '#f48c06';
+alter table if exists public.site_settings add column if not exists announcement text;
 alter table if exists public.site_settings add column if not exists social_links_json jsonb not null default '{}'::jsonb;
 alter table if exists public.site_settings add column if not exists branding_json jsonb not null default '{}'::jsonb;
 alter table if exists public.site_settings add column if not exists updated_at timestamptz not null default timezone('utc', now());
