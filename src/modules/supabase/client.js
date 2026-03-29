@@ -1,12 +1,16 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL || '').trim()
-const supabaseKey =
-  (import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '').trim()
+// Source de vérité runtime: projet Supabase actuel fourni par l'équipe.
+// On évite les bascules involontaires vers d'anciennes clés locales.
+const SUPABASE_URL = 'https://stsvkjveuhfvsfxjowcu.supabase.co'
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_CZrjgKG6Vlo3mSj5HH9_iw_dUiCu85g'
+
+const supabaseUrl = SUPABASE_URL.trim()
+const supabaseKey = SUPABASE_PUBLISHABLE_KEY.trim()
 
 if (!supabaseUrl || !supabaseKey) {
   throw new Error(
-    'Supabase config manquante: définir VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY (ou VITE_SUPABASE_PUBLISHABLE_KEY) dans .env.local'
+    'Supabase config manquante: vérifier SUPABASE_URL et SUPABASE_PUBLISHABLE_KEY dans src/modules/supabase/client.js'
   )
 }
 
