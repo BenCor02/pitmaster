@@ -110,13 +110,12 @@ export function calculateCookPlan({ profile, weightKg, cookTempC, wrapped, donen
   const tolerance = weightKg > 6 ? 0.20 : weightKg > 3 ? 0.15 : 0.10
 
   // ── 7. Durée totale ───────────────────────────────────
-  // Philosophie pitmaster : mieux vaut finir 1h trop tôt que 1h trop tard.
-  // On décale la fourchette vers le haut (+60 min) pour encourager
-  // un démarrage plus tôt → repos plus long → meilleur résultat.
+  // On retire 1h de l'estimation pour que le service tombe
+  // au bon moment. Avant, la viande finissait 1h trop tôt.
   const totalCookMin = Math.round(cookMinutes)
-  const EARLY_BUFFER = 60 // 1h de marge "service idéal plus tard"
-  const totalLow = Math.round(totalCookMin * (1 - tolerance) + restMin + EARLY_BUFFER)
-  const totalHigh = Math.round(totalCookMin * (1 + tolerance) + restMax + EARLY_BUFFER)
+  const SERVICE_ADJUST = -60 // décaler le service 1h plus tard
+  const totalLow = Math.max(0, Math.round(totalCookMin * (1 - tolerance) + restMin + SERVICE_ADJUST))
+  const totalHigh = Math.round(totalCookMin * (1 + tolerance) + restMax + SERVICE_ADJUST)
 
   // ── 8. Construction des phases ────────────────────────
   const phases = buildPhases(profile, totalCookMin, tolerance, wrapped, {
