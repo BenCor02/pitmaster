@@ -2,7 +2,10 @@ import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import { useCalculatorData } from '../modules/calculator/useCalculatorData.js'
 import { calculateCookPlan } from '../modules/calculator/engine.js'
 import { DONENESS_LABELS } from '../modules/calculator/data.js'
+import { useNavigate, Link } from 'react-router-dom'
+import { useAuth } from '../modules/auth/AuthContext.jsx'
 import ContentBlocks from '../components/content/ContentBlocks.jsx'
+import { journal } from '../lib/journal.js'
 
 const CAT_LABELS = { boeuf: 'Boeuf', porc: 'Porc', volaille: 'Volaille', agneau: 'Agneau' }
 
@@ -550,6 +553,9 @@ export default function CalculatorPage() {
         <div ref={resultRef} className="scroll-mt-20" />
         {result && <ResultView result={result} />}
 
+        {/* ══════════ SAVE SESSION ══════════ */}
+        {result && <SaveSessionCTA result={result} />}
+
         {/* Blocs contextuels CMS : SEO, FAQ, Affiliation, Guides */}
         {result && (
           <ContentBlocks
@@ -586,6 +592,48 @@ function SectionHeader({ title, description }) {
     <div className="mb-6">
       <h2 className="text-[18px] font-bold text-white tracking-tight">{title}</h2>
       {description && <p className="text-[13px] text-zinc-500 mt-1">{description}</p>}
+    </div>
+  )
+}
+
+function SaveSessionCTA({ result }) {
+  const { isAuthenticated } = useAuth()
+  const navigate = useNavigate()
+
+  const handleSave = () => {
+    const prefill = journal.fromCalculatorResult(result)
+    const encoded = encodeURIComponent(JSON.stringify(prefill))
+    navigate(`/journal?prefill=${encoded}`)
+  }
+
+  return (
+    <div className="surface p-5 mt-6">
+      <div className="flex items-center gap-4">
+        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-orange-500/15 to-amber-500/10 flex items-center justify-center shrink-0">
+          <span className="text-xl">📓</span>
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[14px] font-semibold text-white">Enregistrer cette session</p>
+          <p className="text-[12px] text-zinc-500">
+            {isAuthenticated
+              ? 'Note ta cuisson, ce qui a marché et ce qu\'il faut améliorer.'
+              : 'Connecte-toi pour sauvegarder tes sessions de cuisson.'}
+          </p>
+        </div>
+        {isAuthenticated ? (
+          <button onClick={handleSave} className="btn-primary px-5 py-2.5 text-[13px] shrink-0">
+            Enregistrer
+          </button>
+        ) : (
+          <Link
+            to="/login"
+            state={{ from: '/' }}
+            className="btn-primary px-5 py-2.5 text-[13px] shrink-0 inline-flex items-center"
+          >
+            Se connecter
+          </Link>
+        )}
+      </div>
     </div>
   )
 }

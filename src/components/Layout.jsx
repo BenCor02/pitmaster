@@ -120,13 +120,13 @@ export default function Layout({ children }) {
               sublabel="BBQ & Techniques"
               active={location.pathname.startsWith('/guides')}
             />
-            <div className="px-3 py-2.5 rounded-xl text-zinc-700 flex items-center gap-3 cursor-not-allowed">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" /></svg>
-              <div>
-                <span className="text-[13px]">Mes cuissons</span>
-                <span className="ml-2 text-[9px] font-medium bg-white/[0.04] px-1.5 py-0.5 rounded text-zinc-600">Soon</span>
-              </div>
-            </div>
+            <NavItem
+              to="/journal"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={location.pathname === '/journal' ? '#f97316' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" /></svg>}
+              label="Mon journal"
+              sublabel="Sessions de cuisson"
+              active={location.pathname === '/journal'}
+            />
           </div>
 
           {/* Admin */}
@@ -219,6 +219,16 @@ export default function Layout({ children }) {
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
               Guides
+            </Link>
+            <Link
+              to="/journal"
+              onClick={() => setMobileOpen(false)}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
+                isActive('/journal') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
+              }`}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" /></svg>
+              Mon journal
             </Link>
             {isAdmin && (
               <Link

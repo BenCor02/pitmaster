@@ -6,6 +6,7 @@ import LoginPage from './pages/LoginPage.jsx'
 import AdminPage from './pages/AdminPage.jsx'
 import GuidesListPage from './pages/GuidesListPage.jsx'
 import GuidePage from './pages/GuidePage.jsx'
+import JournalPage from './pages/JournalPage.jsx'
 
 function AdminGuard({ children }) {
   const { isLoading, isAuthenticated, isAdmin, profile } = useAuth()
@@ -27,6 +28,7 @@ export default function App() {
         <Route path="/" element={<CalculatorPage />} />
         <Route path="/guides" element={<GuidesListPage />} />
         <Route path="/guides/:slug" element={<GuidePage />} />
+        <Route path="/journal" element={<JournalPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route
           path="/admin/*"
