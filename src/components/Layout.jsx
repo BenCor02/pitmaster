@@ -2,22 +2,63 @@ import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../modules/auth/AuthContext.jsx'
 import FlameIcon from './FlameIcon.jsx'
-import EmberParticles from './EmberParticles.jsx'
 
-const NAV_SECTIONS = [
-  {
-    label: 'CUISSON',
-    items: [
-      { path: '/', label: 'Calculateur', icon: '🔥', active: true },
-    ],
-  },
-]
+/* ── Icon components ── */
+function IconCalculator({ active }) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={active ? '#f97316' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" />
+      <path d="M7 7h10" /><path d="M7 12h3" /><path d="M14 12h3" />
+      <path d="M7 17h3" /><path d="M14 17h3" />
+    </svg>
+  )
+}
 
-const ADMIN_SECTION = {
-  label: null,
-  items: [
-    { path: '/admin', label: 'Atelier admin', icon: '🔧' },
-  ],
+function IconSettings() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+    </svg>
+  )
+}
+
+function IconLogout() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <polyline points="16 17 21 12 16 7" />
+      <line x1="21" y1="12" x2="9" y2="12" />
+    </svg>
+  )
+}
+
+function IconMenu() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <line x1="3" y1="6" x2="21" y2="6" />
+      <line x1="3" y1="12" x2="21" y2="12" />
+      <line x1="3" y1="18" x2="21" y2="18" />
+    </svg>
+  )
+}
+
+function IconClose() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  )
+}
+
+function IconUser() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+  )
 }
 
 export default function Layout({ children }) {
@@ -26,179 +67,222 @@ export default function Layout({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   const isActive = (path) => location.pathname === path
+  const userName = profile?.display_name || profile?.email || 'Utilisateur'
+  const userInitial = userName[0].toUpperCase()
+  const userRole = profile?.role === 'admin' || profile?.role === 'super_admin' ? 'Pit Master' : 'Membre'
 
   return (
-    <div className="min-h-screen flex">
-      {/* ── SIDEBAR DESKTOP ── */}
-      <aside className="hidden lg:flex flex-col w-60 shrink-0 border-r border-zinc-800/40 bg-zinc-950 relative overflow-hidden">
-        <EmberParticles count={4} />
+    <div className="min-h-screen flex bg-[#09090b]">
 
-        {/* Brand */}
-        <div className="px-5 pt-6 pb-5">
-          <Link to="/" className="flex items-center gap-3">
-            <FlameIcon size={32} />
+      {/* ══════════ SIDEBAR DESKTOP ══════════ */}
+      <aside className="hidden lg:flex flex-col w-[260px] shrink-0 bg-[#111113] border-r border-white/[0.06] relative">
+
+        {/* ── Brand header ── */}
+        <div className="px-5 pt-6 pb-4">
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center shadow-lg shadow-orange-500/20 group-hover:shadow-orange-500/30 transition-shadow">
+              <FlameIcon size={18} />
+            </div>
             <div>
-              <h1 className="font-display text-lg font-bold text-zinc-100 leading-tight">
-                Charbon &<br />Flamme
-              </h1>
-              <p className="text-[9px] uppercase tracking-[0.15em] text-zinc-500 mt-0.5">
-                Calculateur BBQ / Fumage
-              </p>
+              <p className="text-[15px] font-bold text-white tracking-tight leading-none">Charbon & Flamme</p>
+              <p className="text-[10px] text-zinc-500 mt-0.5 font-medium tracking-wide uppercase">Pitmaster Tools</p>
             </div>
           </Link>
         </div>
 
-        {/* Pitmaster brief */}
-        <div className="mx-4 mb-4 px-4 py-3 rounded-xl bg-brand-500/8 border border-brand-500/10">
-          <p className="text-[10px] uppercase tracking-wider text-brand-400/70 font-semibold mb-1">Pitmaster brief</p>
-          <p className="text-xs text-zinc-400 leading-relaxed">
-            Heure de départ, fenêtre de service et repères terrain. Rien de plus.
+        {/* ── Separator ── */}
+        <div className="mx-5 h-px bg-white/[0.06]" />
+
+        {/* ── Quick status card ── */}
+        <div className="mx-4 mt-4 mb-2 px-4 py-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+          <div className="flex items-center gap-2 mb-1.5">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">Calculateur actif</span>
+          </div>
+          <p className="text-[12px] text-zinc-400 leading-relaxed">
+            Planifie ta cuisson. Temps, repères, fenêtre de service.
           </p>
         </div>
 
-        {/* Navigation sections */}
-        <nav className="flex-1 px-3">
-          {NAV_SECTIONS.map((section) => (
-            <div key={section.label} className="mb-4">
-              <p className="text-[10px] uppercase tracking-wider text-zinc-600 font-semibold px-3 mb-2">
-                {section.label}
-              </p>
-              <div className="space-y-0.5">
-                {section.items.map((item) => (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
-                      isActive(item.path)
-                        ? 'bg-zinc-800/80 text-zinc-100 font-medium'
-                        : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/50'
-                    }`}
-                  >
-                    <span className="text-base w-6 text-center">{item.icon}</span>
-                    <span>{item.label}</span>
-                  </Link>
-                ))}
+        {/* ── Navigation ── */}
+        <nav className="flex-1 px-3 mt-4">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-600 px-3 mb-2">Outils</p>
+
+          <NavItem
+            to="/"
+            icon={<IconCalculator active={isActive('/')} />}
+            label="Calculateur"
+            sublabel="BBQ & Fumage"
+            active={isActive('/')}
+          />
+
+          {/* Future nav items placeholder structure */}
+          <div className="mt-6">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-600 px-3 mb-2">Bientôt</p>
+            <div className="px-3 py-2.5 rounded-xl text-zinc-700 flex items-center gap-3 cursor-not-allowed">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+              <div>
+                <span className="text-[13px]">Guides</span>
+                <span className="ml-2 text-[9px] font-medium bg-white/[0.04] px-1.5 py-0.5 rounded text-zinc-600">Soon</span>
               </div>
             </div>
-          ))}
+            <div className="px-3 py-2.5 rounded-xl text-zinc-700 flex items-center gap-3 cursor-not-allowed">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" /></svg>
+              <div>
+                <span className="text-[13px]">Mes cuissons</span>
+                <span className="ml-2 text-[9px] font-medium bg-white/[0.04] px-1.5 py-0.5 rounded text-zinc-600">Soon</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Admin */}
+          {isAdmin && (
+            <div className="mt-6">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-600 px-3 mb-2">Admin</p>
+              <NavItem
+                to="/admin"
+                icon={<IconSettings />}
+                label="Atelier"
+                sublabel="CMS & Profils"
+                active={isActive('/admin')}
+              />
+            </div>
+          )}
         </nav>
 
-        {/* Admin */}
-        {isAdmin && (
-          <div className="px-3 mb-3">
-            <Link
-              to="/admin"
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
-                isActive('/admin')
-                  ? 'bg-brand-600/15 text-brand-400 border border-brand-500/20'
-                  : 'bg-zinc-900/40 text-brand-400/60 hover:text-brand-400 border border-zinc-800/40 hover:border-brand-500/20'
-              }`}
-            >
-              <span className="text-base w-6 text-center">🔧</span>
-              <span className="font-medium">Atelier admin</span>
-            </Link>
-          </div>
-        )}
+        {/* ── Separator ── */}
+        <div className="mx-5 h-px bg-white/[0.06]" />
 
-        {/* User profile */}
-        <div className="px-4 py-4 border-t border-zinc-800/40">
+        {/* ── User section ── */}
+        <div className="p-4">
           {isAuthenticated ? (
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-blue-600/20 border border-blue-500/20 flex items-center justify-center text-xs text-blue-400 font-semibold shrink-0">
-                {(profile?.display_name || profile?.email || 'U')[0].toUpperCase()}
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-zinc-700 to-zinc-800 flex items-center justify-center text-[13px] font-bold text-zinc-300 border border-white/[0.06] shrink-0">
+                {userInitial}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-zinc-200 truncate">
-                  {profile?.display_name || profile?.email}
-                </p>
-                <p className="text-[10px] text-zinc-600 uppercase tracking-wider">
-                  {profile?.role === 'admin' || profile?.role === 'super_admin' ? 'Pit Master' : 'Membre'}
-                </p>
+                <p className="text-[13px] font-semibold text-zinc-200 truncate">{userName}</p>
+                <p className="text-[10px] text-zinc-600 font-medium">{userRole}</p>
               </div>
               <button
                 onClick={signOut}
-                className="text-zinc-600 hover:text-zinc-400 transition-colors p-1"
+                className="text-zinc-600 hover:text-zinc-400 transition-colors p-1.5 rounded-lg hover:bg-white/[0.04]"
                 title="Déconnexion"
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                  <polyline points="16 17 21 12 16 7" />
-                  <line x1="21" y1="12" x2="9" y2="12" />
-                </svg>
+                <IconLogout />
               </button>
             </div>
           ) : (
             <Link
               to="/login"
-              className="flex items-center gap-3 text-sm text-zinc-500 hover:text-zinc-300 transition-colors"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.03] transition-all"
             >
-              <div className="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs">
-                🔐
+              <div className="w-9 h-9 rounded-xl bg-zinc-800/60 border border-white/[0.06] flex items-center justify-center">
+                <IconUser />
               </div>
-              <span>Connexion</span>
+              <div>
+                <span className="text-[13px] font-medium">Se connecter</span>
+                <p className="text-[10px] text-zinc-600">Sauvegarder ses cuissons</p>
+              </div>
             </Link>
           )}
         </div>
       </aside>
 
-      {/* ── MOBILE HEADER ── */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-zinc-950/95 backdrop-blur-md border-b border-zinc-800/40">
-        <div className="flex items-center justify-between px-4 py-3">
-          <Link to="/" className="flex items-center gap-2">
-            <FlameIcon size={24} />
-            <span className="font-display text-sm font-bold text-zinc-100">Charbon & Flamme</span>
+      {/* ══════════ MOBILE HEADER ══════════ */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 glass border-b border-white/[0.06]">
+        <div className="flex items-center justify-between px-4 h-14">
+          <Link to="/" className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+              <FlameIcon size={14} />
+            </div>
+            <span className="text-[14px] font-bold text-white">Charbon & Flamme</span>
           </Link>
-          <button onClick={() => setMobileOpen(!mobileOpen)} className="text-zinc-400 p-2">
-            {mobileOpen ? '✕' : '☰'}
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="text-zinc-400 p-2 -mr-2 hover:text-white transition-colors"
+          >
+            {mobileOpen ? <IconClose /> : <IconMenu />}
           </button>
         </div>
+
+        {/* Mobile dropdown */}
         {mobileOpen && (
-          <div className="animate-fade-in border-t border-zinc-800/40 px-4 py-3 space-y-1">
-            <Link to="/" onClick={() => setMobileOpen(false)}
-              className={`block px-3 py-2 rounded-lg text-sm ${isActive('/') ? 'text-zinc-100 bg-zinc-800/60' : 'text-zinc-500'}`}>
-              🔥 Calculateur
+          <div className="animate-fade border-t border-white/[0.06] px-4 py-3 space-y-1 bg-[#111113]">
+            <Link
+              to="/"
+              onClick={() => setMobileOpen(false)}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
+                isActive('/') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
+              }`}
+            >
+              <IconCalculator active={isActive('/')} />
+              Calculateur
             </Link>
             {isAdmin && (
-              <Link to="/admin" onClick={() => setMobileOpen(false)}
-                className={`block px-3 py-2 rounded-lg text-sm ${isActive('/admin') ? 'text-brand-400 bg-brand-500/10' : 'text-zinc-500'}`}>
-                🔧 Admin
+              <Link
+                to="/admin"
+                onClick={() => setMobileOpen(false)}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
+                  isActive('/admin') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
+                }`}
+              >
+                <IconSettings />
+                Admin
               </Link>
             )}
+            <div className="h-px bg-white/[0.06] my-2" />
             {isAuthenticated ? (
-              <button onClick={() => { signOut(); setMobileOpen(false) }}
-                className="block w-full text-left px-3 py-2 text-sm text-zinc-600">
+              <button
+                onClick={() => { signOut(); setMobileOpen(false) }}
+                className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-zinc-500 w-full"
+              >
+                <IconLogout />
                 Déconnexion
               </button>
             ) : (
-              <Link to="/login" onClick={() => setMobileOpen(false)}
-                className="block px-3 py-2 text-sm text-zinc-500">
-                🔐 Connexion
+              <Link
+                to="/login"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-zinc-400"
+              >
+                <IconUser />
+                Se connecter
               </Link>
             )}
           </div>
         )}
       </div>
 
-      {/* ── MAIN ── */}
+      {/* ══════════ MAIN CONTENT ══════════ */}
       <main className="flex-1 min-w-0 lg:pt-0 pt-14">
-        {/* Top bar desktop */}
-        <div className="hidden lg:flex items-center justify-between px-8 py-4 border-b border-zinc-800/30">
-          <div className="flex items-center gap-2 text-sm text-zinc-500">
-            <Link to="/" className="hover:text-zinc-300 transition-colors">Charbon & Flamme</Link>
-            <span className="text-zinc-700">/</span>
-            <span className="text-zinc-300">Calculateur</span>
-          </div>
-          <div className="flex items-center gap-3">
-            {!isAuthenticated && (
-              <Link to="/login" className="px-5 py-2 text-sm font-medium text-brand-400 bg-brand-500/10 hover:bg-brand-500/15 border border-brand-500/20 rounded-full transition-all">
-                Mon compte
-              </Link>
-            )}
-          </div>
-        </div>
-
         {children}
       </main>
     </div>
+  )
+}
+
+/* ── Nav item component ── */
+function NavItem({ to, icon, label, sublabel, active }) {
+  return (
+    <Link
+      to={to}
+      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group ${
+        active
+          ? 'bg-white/[0.06] text-white'
+          : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.03]'
+      }`}
+    >
+      <span className={`transition-colors ${active ? 'text-orange-500' : 'text-zinc-500 group-hover:text-zinc-400'}`}>
+        {icon}
+      </span>
+      <div className="flex-1 min-w-0">
+        <span className={`text-[13px] ${active ? 'font-semibold' : 'font-medium'}`}>{label}</span>
+        {sublabel && (
+          <p className={`text-[10px] ${active ? 'text-zinc-400' : 'text-zinc-600'}`}>{sublabel}</p>
+        )}
+      </div>
+      {active && <div className="w-1 h-5 rounded-full bg-orange-500" />}
+    </Link>
   )
 }
