@@ -11,7 +11,7 @@ function AdminGuard({ children }) {
   const { isLoading, isAuthenticated, isAdmin } = useAuth()
 
   if (isLoading) return <div className="min-h-screen flex items-center justify-center text-zinc-400">Chargement...</div>
-  if (!isAuthenticated) return <Navigate to="/login" replace />
+  if (!isAuthenticated) return <Navigate to="/login" state={{ from: '/admin' }} replace />
   if (!isAdmin) return <Navigate to="/" replace />
 
   return children

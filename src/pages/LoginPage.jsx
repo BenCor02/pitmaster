@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { useAuth } from '../modules/auth/AuthContext.jsx'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import FlameIcon from '../components/FlameIcon.jsx'
 
 export default function LoginPage() {
   const { signIn, signUp } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const from = location.state?.from || '/'
   const [mode, setMode] = useState('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -29,7 +31,7 @@ export default function LoginPage() {
     if (result.error) {
       setError(result.error.message)
     } else {
-      navigate('/')
+      navigate(from, { replace: true })
     }
   }
 
