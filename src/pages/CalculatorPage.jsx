@@ -344,57 +344,88 @@ function WrapOption({ active, onClick, title, description, icon }) {
 }
 
 /* ══════════════════════════════════════════════════════
-   RESULT VIEW — Phases, pas de timeline horaire
+   RESULT VIEW — Premium, visuel, immersif
    ══════════════════════════════════════════════════════ */
 
+const PHASE_THEMES = {
+  1: { color: 'from-amber-500 to-orange-600', bg: 'bg-amber-500/[0.06]', border: 'border-amber-500/[0.15]', text: 'text-amber-400', icon: '🔥' },
+  2: { color: 'from-yellow-500 to-amber-500', bg: 'bg-yellow-500/[0.06]', border: 'border-yellow-500/[0.15]', text: 'text-yellow-400', icon: '⏳' },
+  3: { color: 'from-blue-500 to-cyan-500', bg: 'bg-blue-500/[0.06]', border: 'border-blue-500/[0.15]', text: 'text-blue-400', icon: '📦' },
+  4: { color: 'from-emerald-500 to-green-500', bg: 'bg-emerald-500/[0.06]', border: 'border-emerald-500/[0.15]', text: 'text-emerald-400', icon: '🧈' },
+  5: { color: 'from-purple-500 to-violet-500', bg: 'bg-purple-500/[0.06]', border: 'border-purple-500/[0.15]', text: 'text-purple-400', icon: '😴' },
+}
+
+const HERO_IMAGES = {
+  boeuf: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=900&h=400&fit=crop&q=80',
+  porc: 'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=900&h=400&fit=crop&q=80',
+  volaille: 'https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=900&h=400&fit=crop&q=80',
+}
+
 function ResultView({ result }) {
+  const category = result.profileId?.includes('chicken') ? 'volaille' :
+    ['pulled_pork', 'spare_ribs', 'baby_back_ribs'].includes(result.profileId) ? 'porc' : 'boeuf'
+  const heroImg = HERO_IMAGES[category]
+
   return (
-    <div className="animate-fade-up space-y-4">
+    <div className="animate-fade-up space-y-5">
 
-      {/* ── Estimation globale ── */}
-      <div className="surface p-6 relative overflow-hidden">
-        <div className="absolute -top-20 -right-20 w-60 h-60 bg-orange-500/[0.03] rounded-full blur-3xl" />
-        <div className="relative">
-          <div className="flex items-center gap-3 mb-5">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center animate-pulse-glow">
-              <span className="text-lg">🔥</span>
-            </div>
-            <div>
-              <h2 className="text-[18px] font-bold text-white">Estimation de cuisson</h2>
-              <p className="text-[12px] text-zinc-500">
-                {result.profile}
-                {result.weightKg > 0 ? ` · ${result.weightKg} kg` : ''}
-                {result.cookTempC > 0 ? ` · ${result.cookTempC}°C` : ''}
-                {result.wrapped ? ' · Wrappé' : ''}
-              </p>
-            </div>
+      {/* ── Hero banner avec image ── */}
+      <div className="relative rounded-2xl overflow-hidden">
+        <div className="absolute inset-0">
+          <img src={heroImg} alt="" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#09090b]/95 via-[#09090b]/80 to-[#09090b]/50" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-transparent to-transparent" />
+        </div>
+        <div className="relative p-6 sm:p-8">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-2xl animate-float">🔥</span>
+            <span className="badge badge-accent">Assistant Cuisson</span>
           </div>
+          <h2 className="text-[24px] sm:text-[30px] font-extrabold text-white tracking-tight leading-tight mb-1">
+            {result.profile}
+          </h2>
+          <p className="text-[13px] text-zinc-400 mb-6">
+            {result.weightKg > 0 ? `${result.weightKg} kg · ` : ''}
+            {result.cookTempC > 0 ? `${result.cookTempC}°C · ` : ''}
+            {result.wrapped ? 'Wrappé · ' : ''}
+            {result.cookType === 'reverse_sear' ? 'Reverse sear' : 'Low & slow'}
+          </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="rounded-xl p-5 bg-orange-500/[0.06] border border-orange-500/[0.12]">
-              <p className="text-[10px] font-semibold text-orange-400/70 uppercase tracking-[0.08em] mb-1">Durée totale estimée</p>
-              <p className="text-[22px] font-bold text-orange-400">{result.totalEstimate}</p>
-              <p className="text-[11px] text-zinc-500 mt-1">Cuisson + repos inclus</p>
+          {/* Big stats */}
+          <div className="grid grid-cols-2 gap-3 max-w-md">
+            <div className="rounded-xl p-4 bg-orange-500/[0.1] border border-orange-500/[0.2] backdrop-blur-sm">
+              <p className="text-[10px] font-semibold text-orange-300/70 uppercase tracking-[0.08em] mb-0.5">Durée totale</p>
+              <p className="text-[20px] sm:text-[24px] font-extrabold text-orange-400 leading-tight">{result.totalEstimate}</p>
+              <p className="text-[10px] text-zinc-500 mt-0.5">Cuisson + repos</p>
             </div>
-            <div className="rounded-xl p-5 bg-white/[0.02] border border-white/[0.04]">
-              <p className="text-[10px] font-semibold text-zinc-600 uppercase tracking-[0.08em] mb-1">Repos conseillé</p>
-              <p className="text-[22px] font-bold text-zinc-200">{result.restEstimate}</p>
-              <p className="text-[11px] text-zinc-500 mt-1">Essentiel pour le jus</p>
+            <div className="rounded-xl p-4 bg-white/[0.06] border border-white/[0.08] backdrop-blur-sm">
+              <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-[0.08em] mb-0.5">Repos</p>
+              <p className="text-[20px] sm:text-[24px] font-extrabold text-white leading-tight">{result.restEstimate}</p>
+              <p className="text-[10px] text-zinc-500 mt-0.5">Essentiel</p>
             </div>
-          </div>
-
-          <div className="mt-4 px-4 py-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-            <p className="text-[12px] text-zinc-400">
-              <span className="text-orange-400 font-semibold">Prêt dans environ {result.totalEstimate.replace('~', '')}</span> — les durées sont des estimations basées sur l'expérience terrain. Chaque cuisson est unique.
-            </p>
           </div>
         </div>
       </div>
 
+      {/* ── Disclaimer pitmaster ── */}
+      <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-orange-500/[0.04] border border-orange-500/[0.08]">
+        <span className="text-sm mt-0.5">💡</span>
+        <p className="text-[12px] text-zinc-400 leading-relaxed">
+          <span className="text-orange-400 font-semibold">Prêt dans environ {result.totalEstimate.replace('~', '')}</span> — ces durées sont des estimations terrain. Chaque cuisson est unique, fie-toi à la viande, pas au chrono.
+        </p>
+      </div>
+
+      {/* ── Phases section title ── */}
+      <div className="flex items-center gap-3 pt-2">
+        <div className="h-px flex-1 bg-white/[0.06]" />
+        <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-[0.1em]">Phases de cuisson</p>
+        <div className="h-px flex-1 bg-white/[0.06]" />
+      </div>
+
       {/* ── Phases ── */}
-      <div className="space-y-3">
+      <div className="space-y-3 stagger">
         {result.phases.map((phase) => (
-          <PhaseCard key={phase.num} phase={phase} />
+          <PhaseCard key={phase.num} phase={phase} total={result.phases.length} />
         ))}
       </div>
 
@@ -406,18 +437,25 @@ function ResultView({ result }) {
 
       {/* ── Tips ── */}
       {result.tips?.length > 0 && (
-        <div className="surface p-6">
-          <h3 className="text-[15px] font-bold text-white mb-4 flex items-center gap-2">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2" strokeLinecap="round"><path d="M12 2v1m0 18v1m-9-10H2m20 0h-1M5.6 5.6l-.7-.7m13.5 13.5l-.7-.7M5.6 18.4l-.7.7M18.4 5.6l.7-.7" /><circle cx="12" cy="12" r="4" /></svg>
-            Conseils du pitmaster
-          </h3>
-          <div className="space-y-3">
-            {result.tips.map((tip, i) => (
-              <div key={i} className="flex gap-3 items-start">
-                <div className="w-1.5 h-1.5 rounded-full bg-orange-500/50 mt-1.5 shrink-0" />
-                <p className="text-[13px] text-zinc-400 leading-relaxed">{tip}</p>
+        <div className="surface p-6 relative overflow-hidden">
+          <div className="absolute -bottom-16 -right-16 w-40 h-40 bg-orange-500/[0.03] rounded-full blur-3xl" />
+          <div className="relative">
+            <div className="flex items-center gap-2 mb-5">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+                <span className="text-sm">💡</span>
               </div>
-            ))}
+              <h3 className="text-[15px] font-bold text-white">Conseils du pitmaster</h3>
+            </div>
+            <div className="space-y-3">
+              {result.tips.map((tip, i) => (
+                <div key={i} className="flex gap-3 items-start group">
+                  <div className="w-5 h-5 rounded-full bg-white/[0.04] flex items-center justify-center text-[10px] font-bold text-zinc-600 shrink-0 mt-0.5 group-hover:bg-orange-500/10 group-hover:text-orange-400 transition-colors">
+                    {i + 1}
+                  </div>
+                  <p className="text-[13px] text-zinc-400 leading-relaxed">{tip}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -426,30 +464,50 @@ function ResultView({ result }) {
 }
 
 /* ── Phase card ── */
-function PhaseCard({ phase }) {
+function PhaseCard({ phase, total }) {
+  const theme = PHASE_THEMES[phase.num] || PHASE_THEMES[1]
+  const progress = (phase.num / total) * 100
+
   return (
-    <div className="surface p-5 group">
+    <div className={`surface p-5 relative overflow-hidden group hover:border-white/[0.1] transition-all`}>
+      {/* Progress indicator */}
+      <div className="absolute top-0 left-0 h-[2px] rounded-full bg-gradient-to-r opacity-60" style={{
+        width: `${progress}%`,
+        backgroundImage: `linear-gradient(to right, var(--tw-gradient-stops))`,
+      }}>
+        <div className={`h-full rounded-full bg-gradient-to-r ${theme.color}`} />
+      </div>
+
       <div className="flex items-start gap-4">
-        <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center text-[13px] font-bold text-orange-400 shrink-0 mt-0.5">
-          {phase.num}
+        {/* Phase number with icon */}
+        <div className="flex flex-col items-center gap-1 shrink-0">
+          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${theme.color} flex items-center justify-center shadow-lg`}
+            style={{ boxShadow: `0 4px 15px rgba(249,115,22,0.15)` }}>
+            <span className="text-base">{theme.icon}</span>
+          </div>
+          <span className="text-[9px] font-bold text-zinc-600">{phase.num}/{total}</span>
         </div>
+
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 mb-1 flex-wrap">
-            <h3 className="text-[14px] font-bold text-white">{phase.title}</h3>
+          {/* Header */}
+          <div className="flex items-center gap-3 mb-1.5 flex-wrap">
+            <h3 className="text-[15px] font-bold text-white">{phase.title}</h3>
             {phase.duration && (
-              <span className="badge badge-accent">{phase.duration}</span>
+              <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold ${theme.bg} ${theme.border} ${theme.text} border`}>
+                {phase.duration}
+              </span>
             )}
           </div>
 
           {phase.objective && (
-            <p className="text-[12px] text-zinc-400 mb-3">{phase.objective}</p>
+            <p className="text-[12px] text-zinc-500 mb-3 leading-relaxed">{phase.objective}</p>
           )}
 
           {/* Markers */}
           {phase.markers?.length > 0 && (
-            <div className="space-y-1.5 mb-3">
+            <div className="space-y-2 mb-3">
               {phase.markers.map((m, i) => (
-                <div key={i} className="flex items-start gap-2">
+                <div key={i} className="flex items-start gap-2.5 rounded-lg px-3 py-2 bg-white/[0.02] border border-white/[0.03]">
                   <MarkerIcon type={m.type} />
                   <p className="text-[12px] text-zinc-300 leading-relaxed">{m.text}</p>
                 </div>
@@ -459,9 +517,9 @@ function PhaseCard({ phase }) {
 
           {/* Advice */}
           {phase.advice && (
-            <div className="mt-3 px-3 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.04]">
-              <p className="text-[11px] text-zinc-500 leading-relaxed">
-                <span className="text-orange-400/70 font-semibold">Conseil :</span> {phase.advice}
+            <div className="px-3 py-2.5 rounded-lg bg-orange-500/[0.04] border border-orange-500/[0.08]">
+              <p className="text-[11px] text-zinc-400 leading-relaxed">
+                <span className="text-orange-400 font-semibold">Conseil :</span> {phase.advice}
               </p>
             </div>
           )}
@@ -473,50 +531,70 @@ function PhaseCard({ phase }) {
 
 function MarkerIcon({ type }) {
   if (type === 'temp') {
-    return <span className="text-[11px] mt-0.5 shrink-0">🌡️</span>
+    return (
+      <div className="w-5 h-5 rounded-md bg-red-500/10 flex items-center justify-center shrink-0 mt-0.5">
+        <span className="text-[10px]">🌡️</span>
+      </div>
+    )
   }
   if (type === 'visual') {
-    return <span className="text-[11px] mt-0.5 shrink-0">👁️</span>
+    return (
+      <div className="w-5 h-5 rounded-md bg-blue-500/10 flex items-center justify-center shrink-0 mt-0.5">
+        <span className="text-[10px]">👁️</span>
+      </div>
+    )
   }
-  return <span className="text-[11px] mt-0.5 shrink-0">ℹ️</span>
+  return (
+    <div className="w-5 h-5 rounded-md bg-zinc-500/10 flex items-center justify-center shrink-0 mt-0.5">
+      <span className="text-[10px]">ℹ️</span>
+    </div>
+  )
 }
 
 /* ── Ribs method card ── */
 function RibsMethodCard({ method }) {
   return (
-    <div className="surface p-6">
-      <h3 className="text-[15px] font-bold text-white mb-1 flex items-center gap-2">
-        🍖 {method.title}
-      </h3>
-      <p className="text-[11px] text-zinc-500 mb-4">Température fumoir : {method.temp}</p>
+    <div className="surface p-6 relative overflow-hidden">
+      <div className="absolute -top-10 -right-10 w-32 h-32 bg-amber-500/[0.04] rounded-full blur-2xl" />
+      <div className="relative">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-xl">🍖</span>
+          <h3 className="text-[16px] font-bold text-white">{method.title}</h3>
+        </div>
+        <p className="text-[12px] text-zinc-500 mb-5">Température fumoir : <span className="text-amber-400 font-semibold">{method.temp}</span></p>
 
-      <div className="space-y-2 mb-4">
-        {method.steps.map((s, i) => (
-          <div key={i} className="flex items-center gap-3">
-            <div className="w-14 shrink-0 text-right">
-              <span className="text-[13px] font-bold text-orange-400">{s.time}</span>
+        <div className="space-y-0 mb-5">
+          {method.steps.map((s, i) => (
+            <div key={i} className="flex items-stretch gap-4">
+              <div className="flex flex-col items-center">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-[12px] font-bold text-white shadow-md shrink-0">
+                  {s.time}
+                </div>
+                {i < method.steps.length - 1 && <div className="w-px flex-1 bg-amber-500/20 my-1" />}
+              </div>
+              <div className="pb-4 pt-1.5">
+                <p className="text-[13px] text-zinc-200 font-medium leading-relaxed">{s.desc}</p>
+              </div>
             </div>
-            <div className="w-px h-4 bg-white/[0.08]" />
-            <p className="text-[13px] text-zinc-300">{s.desc}</p>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      <div className="px-3 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.04] mb-3">
-        <p className="text-[12px] text-zinc-400">
-          <span className="font-semibold text-zinc-300">Résultat :</span> {method.result}
-        </p>
-      </div>
-
-      <p className="text-[11px] text-zinc-600 italic">{method.note}</p>
-
-      {method.alternative && (
-        <div className="mt-3 px-3 py-2.5 rounded-lg bg-white/[0.02] border border-white/[0.04]">
-          <p className="text-[11px] text-zinc-500">
-            <span className="font-semibold text-zinc-400">Alternative : {method.alternative.name}</span> — {method.alternative.desc}
+        <div className="rounded-xl p-4 bg-amber-500/[0.05] border border-amber-500/[0.1] mb-3">
+          <p className="text-[12px] text-zinc-300">
+            <span className="font-bold text-amber-400">Résultat :</span> {method.result}
           </p>
         </div>
-      )}
+
+        <p className="text-[11px] text-zinc-600 italic">{method.note}</p>
+
+        {method.alternative && (
+          <div className="mt-3 rounded-xl p-3 bg-white/[0.02] border border-white/[0.04]">
+            <p className="text-[11px] text-zinc-500">
+              <span className="font-semibold text-zinc-400">Alternative : {method.alternative.name}</span> — {method.alternative.desc}
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -524,56 +602,65 @@ function RibsMethodCard({ method }) {
 /* ── Reverse sear card ── */
 function ReverseSearCard({ guide }) {
   return (
-    <div className="surface p-6 border-orange-500/[0.12]">
-      <div className="flex items-center gap-2 mb-1">
-        <h3 className="text-[15px] font-bold text-white">{guide.title}</h3>
-      </div>
-      <p className="badge badge-accent mb-4">{guide.badge}</p>
+    <div className="surface p-6 border-orange-500/[0.15] relative overflow-hidden">
+      <div className="absolute -top-10 -left-10 w-40 h-40 bg-orange-500/[0.04] rounded-full blur-3xl" />
+      <div className="relative">
+        <div className="flex items-center gap-3 mb-1">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center shadow-lg shadow-orange-500/20">
+            <span className="text-lg">🔥</span>
+          </div>
+          <div>
+            <h3 className="text-[16px] font-bold text-white">Reverse Sear</h3>
+            <p className="badge badge-accent mt-0.5">{guide.badge}</p>
+          </div>
+        </div>
 
-      {/* Principle steps */}
-      <div className="mb-5">
-        <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-[0.08em] mb-3">Principe</p>
-        <div className="space-y-2">
-          {guide.principle.map((step, i) => (
-            <div key={i} className="flex items-start gap-3">
-              <div className="w-5 h-5 rounded-full bg-white/[0.04] flex items-center justify-center text-[10px] font-bold text-zinc-500 shrink-0 mt-0.5">
-                {i + 1}
+        {/* Principle steps */}
+        <div className="mt-5 mb-5">
+          <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-[0.08em] mb-3">Principe</p>
+          <div className="space-y-2">
+            {guide.principle.map((step, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-orange-500/20 to-red-500/20 flex items-center justify-center text-[10px] font-bold text-orange-400 shrink-0 mt-0.5 border border-orange-500/10">
+                  {i + 1}
+                </div>
+                <p className="text-[13px] text-zinc-300 leading-relaxed">{step}</p>
               </div>
-              <p className="text-[13px] text-zinc-300">{step}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* Temperature targets */}
-      <div className="mb-5">
-        <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-[0.08em] mb-3">Températures pull (avant saisie)</p>
-        <div className="flex gap-2 flex-wrap">
-          {Object.entries(guide.targets).map(([key, t]) => (
-            <div key={key} className={`px-4 py-2.5 rounded-xl border transition-all ${
-              guide.selectedDoneness === key
-                ? 'bg-orange-500/8 border-orange-500/25'
-                : 'border-white/[0.06] bg-white/[0.02]'
-            }`}>
-              <p className={`text-[13px] font-semibold ${guide.selectedDoneness === key ? 'text-orange-400' : 'text-zinc-300'}`}>
-                {t.label}
-              </p>
-              <p className="text-[11px] text-zinc-500">{t.temp - 8}°C pull → {t.temp}°C final</p>
-            </div>
-          ))}
+        {/* Temperature targets */}
+        <div className="mb-5">
+          <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-[0.08em] mb-3">Températures pull</p>
+          <div className="grid grid-cols-3 gap-2">
+            {Object.entries(guide.targets).map(([key, t]) => (
+              <div key={key} className={`rounded-xl p-3 border text-center transition-all ${
+                guide.selectedDoneness === key
+                  ? 'bg-orange-500/[0.08] border-orange-500/25 shadow-lg shadow-orange-500/5'
+                  : 'border-white/[0.06] bg-white/[0.02]'
+              }`}>
+                <p className={`text-[13px] font-bold ${guide.selectedDoneness === key ? 'text-orange-400' : 'text-zinc-300'}`}>
+                  {t.label}
+                </p>
+                <p className="text-[20px] font-extrabold text-white mt-0.5">{t.temp}°C</p>
+                <p className="text-[10px] text-zinc-600 mt-0.5">Pull à {t.temp - 8}°C</p>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* Advantages */}
-      <div>
-        <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-[0.08em] mb-3">Avantages</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {guide.advantages.map((a, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12" /></svg>
-              <p className="text-[12px] text-zinc-400">{a}</p>
-            </div>
-          ))}
+        {/* Advantages */}
+        <div>
+          <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-[0.08em] mb-3">Avantages</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {guide.advantages.map((a, i) => (
+              <div key={i} className="flex items-center gap-2.5 rounded-lg px-3 py-2 bg-white/[0.02] border border-white/[0.03]">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12" /></svg>
+                <p className="text-[12px] text-zinc-300">{a}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
