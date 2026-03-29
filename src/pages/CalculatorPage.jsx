@@ -1,10 +1,175 @@
-import { useState, useMemo, useEffect, useCallback } from 'react'
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
 import { useCalculatorData } from '../modules/calculator/useCalculatorData.js'
 import { calculateCookPlan } from '../modules/calculator/engine.js'
 import { DONENESS_LABELS } from '../modules/calculator/data.js'
 import ContentBlocks from '../components/content/ContentBlocks.jsx'
 
 const CAT_LABELS = { boeuf: 'Boeuf', porc: 'Porc', volaille: 'Volaille', agneau: 'Agneau' }
+
+/**
+ * Rubs inspirés de grands pitmasters — adaptés au public français
+ * Sources : Aaron Franklin, Malcom Reed, Tuffy Stone, Myron Mixon,
+ * Le Barbecue de Rafa, Pit's BBQ (Xavier Pincemin)
+ */
+const RUB_SUGGESTIONS = {
+  brisket: [
+    {
+      name: 'Dalmatien (Aaron Franklin)',
+      origin: 'Franklin Barbecue, Austin TX',
+      ingredients: 'Sel + poivre noir concassé, parts égales',
+      tip: 'Le rub le plus simple et le plus respecté. Laisse le bœuf parler. ~60g de chaque pour un 5kg.',
+      badge: 'Classique',
+    },
+    {
+      name: 'Texas Bold',
+      origin: 'Inspiré Harry Soo',
+      ingredients: 'Sel, poivre noir, ail en poudre, oignon en poudre, piment de Cayenne',
+      tip: 'Un cran au-dessus du dalmatien. L\'ail et l\'oignon renforcent la bark.',
+      badge: 'Pitmaster',
+    },
+  ],
+  pulled_pork: [
+    {
+      name: 'Sweet Smoke (Malcom Reed)',
+      origin: 'HowToBBQRight',
+      ingredients: 'Paprika fumé, cassonade, sel, poivre, ail, oignon, cumin, moutarde en poudre',
+      tip: 'La cassonade caramélise et forme une bark sombre et sucrée-salée. Badigeonner de moutarde jaune avant d\'appliquer.',
+      badge: 'Classique',
+    },
+    {
+      name: 'Le Rafa (style français)',
+      origin: 'Le Barbecue de Rafa',
+      ingredients: 'Paprika doux, sel, poivre, herbes de Provence, miel en finition',
+      tip: 'Version française plus subtile. Les herbes de Provence apportent une touche méditerranéenne unique.',
+      badge: 'FR',
+    },
+  ],
+  beef_short_ribs: [
+    {
+      name: 'Dalmatien (Aaron Franklin)',
+      origin: 'Franklin Barbecue, Austin TX',
+      ingredients: 'Sel + poivre noir concassé, parts égales',
+      tip: 'Comme pour le brisket — le bœuf de qualité n\'a besoin de rien d\'autre.',
+      badge: 'Classique',
+    },
+    {
+      name: 'Coffee Rub',
+      origin: 'Inspiré Tuffy Stone',
+      ingredients: 'Café moulu fin, poivre noir, sel, cacao en poudre, paprika fumé',
+      tip: 'Le café crée une bark sombre et profonde. Aucun goût de café dans le résultat, juste de l\'umami.',
+      badge: 'Audacieux',
+    },
+  ],
+  spare_ribs: [
+    {
+      name: 'Memphis Dry Rub',
+      origin: 'Tradition Memphis',
+      ingredients: 'Paprika, cassonade, sel, poivre, ail, oignon, cumin, piment de Cayenne',
+      tip: 'Le rub classique des compétitions Memphis. Appliquer généreusement la veille.',
+      badge: 'Classique',
+    },
+    {
+      name: 'Kansas City Sweet',
+      origin: 'Inspiré Myron Mixon',
+      ingredients: 'Paprika, cassonade, moutarde en poudre, ail, oignon, cumin, poivre, cannelle',
+      tip: 'Plus sucré que Memphis. Parfait avec un glaze BBQ en fin de cuisson.',
+      badge: 'Compétition',
+    },
+  ],
+  baby_back_ribs: [
+    {
+      name: 'Memphis Dry Rub',
+      origin: 'Tradition Memphis',
+      ingredients: 'Paprika, cassonade, sel, poivre, ail, oignon, cumin, piment de Cayenne',
+      tip: 'Même base que les spare ribs. Les baby back étant plus tendres, réduire légèrement le sel.',
+      badge: 'Classique',
+    },
+    {
+      name: 'Honey Garlic',
+      origin: 'Inspiré Malcom Reed',
+      ingredients: 'Ail en poudre, paprika doux, sel, poivre, miel en finition',
+      tip: 'Badigeonner de miel 30 min avant la fin pour un glacé doré. Simple et efficace.',
+      badge: 'Facile',
+    },
+  ],
+  chuck_roast: [
+    {
+      name: 'Dalmatien renforcé',
+      origin: 'Inspiré Aaron Franklin',
+      ingredients: 'Sel, poivre noir, ail en poudre',
+      tip: 'Le paleron est une pièce persillée — l\'ail en poudre sublime le gras fondu.',
+      badge: 'Classique',
+    },
+    {
+      name: 'Chili Rub',
+      origin: 'Style Tex-Mex',
+      ingredients: 'Piment ancho, cumin, ail, oignon, paprika fumé, sel, poivre, origan',
+      tip: 'Parfait si tu veux effilocher le paleron façon tacos. L\'ancho apporte un côté fruité sans trop de piquant.',
+      badge: 'Audacieux',
+    },
+  ],
+  whole_chicken: [
+    {
+      name: 'Poulet fumé classique',
+      origin: 'Weber Academy',
+      ingredients: 'Paprika, sel, poivre, ail, oignon, thym séché, un filet d\'huile d\'olive',
+      tip: 'Glisser du beurre aux herbes sous la peau pour un résultat juteux. Poulet fermier Label Rouge obligatoire.',
+      badge: 'Classique',
+    },
+    {
+      name: 'Cajun',
+      origin: 'Louisiane',
+      ingredients: 'Paprika, ail, oignon, thym, origan, cayenne, sel, poivre blanc',
+      tip: 'Plus relevé. Le poivre blanc fait la différence — il pique sans dominer.',
+      badge: 'Épicé',
+    },
+  ],
+  prime_rib: [
+    {
+      name: 'Sel + herbes (Rafa style)',
+      origin: 'Le Barbecue de Rafa',
+      ingredients: 'Gros sel, poivre concassé, romarin frais, ail frais haché, huile d\'olive',
+      tip: 'Appliquer 12h avant et laisser au frigo à découvert. La surface sèche = meilleure croûte.',
+      badge: 'Classique',
+    },
+    {
+      name: 'Au Roquefort (finition)',
+      origin: 'Tradition française',
+      ingredients: 'Sel, poivre pour la cuisson. Beurre + Roquefort fondu en finition',
+      tip: 'Après la saisie inversée, napper d\'un beurre au Roquefort. Accord bœuf + fromage puissant.',
+      badge: 'FR',
+    },
+  ],
+  tomahawk: [
+    {
+      name: 'Dalmatien (Aaron Franklin)',
+      origin: 'La référence pour le bœuf',
+      ingredients: 'Sel + poivre noir concassé, parts égales',
+      tip: 'Sur une pièce de cette qualité, la simplicité est reine. Saler 1h avant minimum.',
+      badge: 'Classique',
+    },
+    {
+      name: 'Beurre noisette & ail',
+      origin: 'Finition Pitmaster',
+      ingredients: 'Sel, poivre pour la cuisson. Beurre noisette, ail, thym et romarin pour arroser',
+      tip: 'Pendant la saisie finale, arroser à la cuillère avec un beurre noisette + ail écrasé + herbes fraîches.',
+      badge: 'Premium',
+    },
+  ],
+}
+
+// Mapping meat_type des profiles → clé dans RUB_SUGGESTIONS
+const PROFILE_TO_RUB_KEY = {
+  brisket: 'brisket',
+  pulled_pork: 'pulled_pork',
+  beef_short_ribs: 'beef_short_ribs',
+  spare_ribs: 'spare_ribs',
+  baby_back_ribs: 'baby_back_ribs',
+  chuck_roast: 'chuck_roast',
+  whole_chicken: 'whole_chicken',
+  prime_rib: 'prime_rib',
+  tomahawk: 'tomahawk',
+}
 
 /** Encode les params de cuisson dans l'URL pour survivre au refresh */
 function saveToURL(params) {
@@ -48,6 +213,10 @@ export default function CalculatorPage() {
   const [doneness, setDoneness] = useState('medium_rare')
   const [result, setResult] = useState(null)
   const [step, setStep] = useState(1)
+
+  // Refs pour auto-scroll
+  const step2Ref = useRef(null)
+  const resultRef = useRef(null)
 
   // ── Restore depuis URL au chargement ──
   useEffect(() => {
@@ -97,6 +266,10 @@ export default function CalculatorPage() {
     setWrapped(p?.supports_wrap || false)
     setResult(null)
     setStep(2)
+    // Auto-scroll vers l'étape 2
+    setTimeout(() => {
+      step2Ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 100)
   }
 
   const isReverseSear = selectedProfile?.cook_type === 'reverse_sear'
@@ -113,6 +286,10 @@ export default function CalculatorPage() {
       doneness: isReverseSear ? doneness : null,
     })
     setResult(plan)
+    // Auto-scroll vers les résultats
+    setTimeout(() => {
+      resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 100)
     // Sauvegarder dans l'URL
     saveToURL({
       profileId: selectedProfile.id,
@@ -276,7 +453,7 @@ export default function CalculatorPage() {
 
             {/* STEP 2: Settings */}
             {step >= 2 && selectedProfile && (
-              <div className="mt-10 animate-fade-up">
+              <div ref={step2Ref} className="mt-10 animate-fade-up scroll-mt-20">
                 <SectionHeader title="Règle ta cuisson" description="Ajuste les paramètres. Durées approximatives, pas de fausse précision." />
                 <div className="space-y-4">
 
@@ -289,6 +466,11 @@ export default function CalculatorPage() {
                     </div>
                     <button onClick={() => { setStep(1); setSelectedProfile(null); setResult(null) }} className="text-[12px] text-zinc-500 hover:text-orange-400 font-medium transition-colors">Changer</button>
                   </div>
+
+                  {/* Rub suggestions */}
+                  {RUB_SUGGESTIONS[PROFILE_TO_RUB_KEY[selectedProfile.id]] && (
+                    <RubSection rubs={RUB_SUGGESTIONS[PROFILE_TO_RUB_KEY[selectedProfile.id]]} meatName={selectedProfile.name} />
+                  )}
 
                   {/* Weight */}
                   {!isFixedTime && (
@@ -365,6 +547,7 @@ export default function CalculatorPage() {
         )}
 
         {/* ══════════ RESULTS ══════════ */}
+        <div ref={resultRef} className="scroll-mt-20" />
         {result && <ResultView result={result} />}
 
         {/* Blocs contextuels CMS : SEO, FAQ, Affiliation, Guides */}
@@ -403,6 +586,73 @@ function SectionHeader({ title, description }) {
     <div className="mb-6">
       <h2 className="text-[18px] font-bold text-white tracking-tight">{title}</h2>
       {description && <p className="text-[13px] text-zinc-500 mt-1">{description}</p>}
+    </div>
+  )
+}
+
+function RubSection({ rubs, meatName }) {
+  const [expanded, setExpanded] = useState(false)
+
+  if (!rubs || rubs.length === 0) return null
+
+  return (
+    <div className="surface p-5">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-orange-500/20 to-red-500/10 flex items-center justify-center">
+            <span className="text-xs">🧂</span>
+          </div>
+          <div>
+            <h3 className="text-[13px] font-bold text-white">Rubs suggérés</h3>
+            <p className="text-[10px] text-zinc-600">Inspirés de grands pitmasters</p>
+          </div>
+        </div>
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="text-[11px] font-medium text-orange-400/70 hover:text-orange-400 transition-colors"
+        >
+          {expanded ? 'Réduire' : 'Voir les recettes'}
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        {rubs.map((rub, i) => (
+          <div key={i} className="rounded-xl p-3.5 bg-white/[0.02] border border-white/[0.06] hover:border-orange-500/15 transition-all">
+            <div className="flex items-start justify-between mb-2">
+              <p className="text-[13px] font-semibold text-white leading-tight">{rub.name}</p>
+              {rub.badge && (
+                <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded shrink-0 ml-2 ${
+                  rub.badge === 'Classique' ? 'bg-orange-500/10 text-orange-400' :
+                  rub.badge === 'FR' ? 'bg-blue-500/10 text-blue-400' :
+                  rub.badge === 'Compétition' ? 'bg-purple-500/10 text-purple-400' :
+                  rub.badge === 'Premium' ? 'bg-yellow-500/10 text-yellow-400' :
+                  'bg-white/[0.06] text-zinc-400'
+                }`}>
+                  {rub.badge}
+                </span>
+              )}
+            </div>
+            <p className="text-[10px] text-zinc-600 mb-1.5">{rub.origin}</p>
+
+            {expanded && (
+              <div className="animate-fade space-y-2 mt-3 pt-3 border-t border-white/[0.04]">
+                <div>
+                  <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-1">Ingrédients</p>
+                  <p className="text-[12px] text-zinc-300 leading-relaxed">{rub.ingredients}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-1">Conseil</p>
+                  <p className="text-[12px] text-zinc-400 leading-relaxed">{rub.tip}</p>
+                </div>
+              </div>
+            )}
+
+            {!expanded && (
+              <p className="text-[11px] text-zinc-500 leading-relaxed">{rub.ingredients}</p>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
