@@ -1,57 +1,57 @@
 {
   "brisket_4kg_120_wrap_kamado": {
     "meatKey": "brisket",
-    "cookMin": 426,
-    "totalMin": 546,
-    "restMin": 90,
-    "targetTempC": 96,
+    "cookMin": 513,
+    "totalMin": 663,
+    "restMin": 120,
+    "targetTempC": 95,
     "wrapType": "butcher_paper",
     "wrapTempC": 71,
     "cues": {
       "style": "temperature_and_visual",
-      "stallRange": "65°C – 75°C",
-      "wrapRange": "68°C – 74°C",
+      "stallRange": "66°C – 74°C",
+      "wrapRange": "68°C – 75°C",
       "probeStart": "90°C",
-      "probeTenderRange": "92°C – 97°C",
-      "restRange": "60 min – 120 min",
+      "probeTenderRange": "92°C – 96°C",
+      "restRange": "90 min – 240 min",
       "visuals": [
-        "Couleur / bark",
-        "Stall normal",
-        "Sonde qui glisse presque sans résistance"
+        "Bark bien prise et sèche avant de penser au wrap",
+        "Stall normal au milieu de cuisson",
+        "Probe tender dans le flat avant de sortir"
       ]
     },
     "timeline": [
       {
         "id": "bark",
-        "label": "Bark en formation",
+        "label": "Bark / phase principale",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "stall",
-        "label": "Stall / ralentissement",
+        "label": "Stall attendu",
         "isRest": false,
         "isService": false,
         "isStall": true
       },
       {
         "id": "wrap",
-        "label": "Wrap (emballage)",
+        "label": "Wrap",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "probe",
-        "label": "Test de tendreté",
+        "label": "Tests de tendrete",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "rest",
-        "label": "Rest / Hold",
+        "label": "Repos / hold",
         "isRest": true,
         "isService": false,
         "isStall": false
@@ -60,57 +60,57 @@
   },
   "brisket_6kg_120_wrap_kamado": {
     "meatKey": "brisket",
-    "cookMin": 639,
-    "totalMin": 759,
-    "restMin": 90,
-    "targetTempC": 96,
+    "cookMin": 795,
+    "totalMin": 945,
+    "restMin": 120,
+    "targetTempC": 95,
     "wrapType": "butcher_paper",
     "wrapTempC": 71,
     "cues": {
       "style": "temperature_and_visual",
-      "stallRange": "65°C – 75°C",
-      "wrapRange": "68°C – 74°C",
+      "stallRange": "66°C – 74°C",
+      "wrapRange": "68°C – 75°C",
       "probeStart": "90°C",
-      "probeTenderRange": "92°C – 97°C",
-      "restRange": "60 min – 120 min",
+      "probeTenderRange": "92°C – 96°C",
+      "restRange": "90 min – 240 min",
       "visuals": [
-        "Couleur / bark",
-        "Stall normal",
-        "Sonde qui glisse presque sans résistance"
+        "Bark bien prise et sèche avant de penser au wrap",
+        "Stall normal au milieu de cuisson",
+        "Probe tender dans le flat avant de sortir"
       ]
     },
     "timeline": [
       {
         "id": "bark",
-        "label": "Bark en formation",
+        "label": "Bark / phase principale",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "stall",
-        "label": "Stall / ralentissement",
+        "label": "Stall attendu",
         "isRest": false,
         "isService": false,
         "isStall": true
       },
       {
         "id": "wrap",
-        "label": "Wrap (emballage)",
+        "label": "Wrap",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "probe",
-        "label": "Test de tendreté",
+        "label": "Tests de tendrete",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "rest",
-        "label": "Rest / Hold",
+        "label": "Repos / hold",
         "isRest": true,
         "isService": false,
         "isStall": false
@@ -119,57 +119,57 @@
   },
   "brisket_7kg_120_wrap_kamado": {
     "meatKey": "brisket",
-    "cookMin": 768,
-    "totalMin": 888,
-    "restMin": 90,
-    "targetTempC": 96,
+    "cookMin": 969,
+    "totalMin": 1119,
+    "restMin": 120,
+    "targetTempC": 95,
     "wrapType": "butcher_paper",
     "wrapTempC": 71,
     "cues": {
       "style": "temperature_and_visual",
-      "stallRange": "65°C – 75°C",
-      "wrapRange": "68°C – 74°C",
+      "stallRange": "66°C – 74°C",
+      "wrapRange": "68°C – 75°C",
       "probeStart": "90°C",
-      "probeTenderRange": "92°C – 97°C",
-      "restRange": "60 min – 120 min",
+      "probeTenderRange": "92°C – 96°C",
+      "restRange": "90 min – 240 min",
       "visuals": [
-        "Couleur / bark",
-        "Stall normal",
-        "Sonde qui glisse presque sans résistance"
+        "Bark bien prise et sèche avant de penser au wrap",
+        "Stall normal au milieu de cuisson",
+        "Probe tender dans le flat avant de sortir"
       ]
     },
     "timeline": [
       {
         "id": "bark",
-        "label": "Bark en formation",
+        "label": "Bark / phase principale",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "stall",
-        "label": "Stall / ralentissement",
+        "label": "Stall attendu",
         "isRest": false,
         "isService": false,
         "isStall": true
       },
       {
         "id": "wrap",
-        "label": "Wrap (emballage)",
+        "label": "Wrap",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "probe",
-        "label": "Test de tendreté",
+        "label": "Tests de tendrete",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "rest",
-        "label": "Rest / Hold",
+        "label": "Repos / hold",
         "isRest": true,
         "isService": false,
         "isStall": false
@@ -178,10 +178,10 @@
   },
   "ribs_120_wrap": {
     "meatKey": "ribs_pork",
-    "cookMin": 352,
-    "totalMin": 397,
+    "cookMin": 253,
+    "totalMin": 298,
     "restMin": 15,
-    "targetTempC": 96,
+    "targetTempC": null,
     "wrapType": "foil",
     "wrapTempC": null,
     "cues": {
@@ -192,45 +192,36 @@
       "probeTenderRange": null,
       "restRange": "10 min – 20 min",
       "visuals": [
-        "Couleur / bark",
-        "Pullback / retrait sur l’os",
-        "Wrap facultatif",
-        "Flex test",
-        "Glaze optionnelle"
+        "Couleur acajou et bark propre",
+        "Retrait de viande sur l’os",
+        "Bend test / flex test au lieu d’une heure magique"
       ]
     },
     "timeline": [
       {
         "id": "bark",
-        "label": "Phase de fumée nue",
+        "label": "Fumee / couleur",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "wrap",
-        "label": "Wrap / braisage",
+        "label": "Wrap facultatif",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "flex",
-        "label": "Finition / flex test",
-        "isRest": false,
-        "isService": false,
-        "isStall": false
-      },
-      {
-        "id": "glaze",
-        "label": "Glaze / sauce",
+        "label": "Flex test",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "rest",
-        "label": "Repos court / service",
+        "label": "Repos court",
         "isRest": true,
         "isService": false,
         "isStall": false
@@ -239,57 +230,57 @@
   },
   "short_ribs_3_5kg_120_wrap": {
     "meatKey": "ribs_beef",
-    "cookMin": 508,
-    "totalMin": 583,
+    "cookMin": 485,
+    "totalMin": 560,
     "restMin": 45,
-    "targetTempC": 96,
+    "targetTempC": 95,
     "wrapType": "butcher_paper",
-    "wrapTempC": 71,
+    "wrapTempC": 72,
     "cues": {
       "style": "temperature_and_visual",
       "stallRange": "66°C – 74°C",
-      "wrapRange": "68°C – 74°C",
+      "wrapRange": "70°C – 76°C",
       "probeStart": "92°C",
-      "probeTenderRange": "93°C – 98°C",
-      "restRange": "30 min – 60 min",
+      "probeTenderRange": "94°C – 98°C",
+      "restRange": "30 min – 90 min",
       "visuals": [
-        "Couleur / bark",
-        "Stall normal",
-        "Sonde qui glisse presque sans résistance"
+        "Gras bien fondu mais viande encore juteuse",
+        "Probe tender sur plusieurs points",
+        "Repos plus court qu’une brisket, mais reel"
       ]
     },
     "timeline": [
       {
         "id": "bark",
-        "label": "Bark en formation",
+        "label": "Bark / phase principale",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "stall",
-        "label": "Stall / ralentissement",
+        "label": "Stall attendu",
         "isRest": false,
         "isService": false,
         "isStall": true
       },
       {
         "id": "wrap",
-        "label": "Wrap (emballage)",
+        "label": "Wrap",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "probe",
-        "label": "Test de tendreté",
+        "label": "Tests de tendrete",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "rest",
-        "label": "Rest / Hold",
+        "label": "Repos / hold",
         "isRest": true,
         "isService": false,
         "isStall": false
@@ -298,57 +289,57 @@
   },
   "paleron_3kg_120_wrap": {
     "meatKey": "paleron",
-    "cookMin": 361,
-    "totalMin": 481,
-    "restMin": 90,
-    "targetTempC": 96,
+    "cookMin": 438,
+    "totalMin": 528,
+    "restMin": 60,
+    "targetTempC": 95,
     "wrapType": "butcher_paper",
     "wrapTempC": 74,
     "cues": {
       "style": "temperature_and_visual",
       "stallRange": "66°C – 74°C",
-      "wrapRange": "71°C – 77°C",
-      "probeStart": "91°C",
-      "probeTenderRange": "91°C – 96°C",
-      "restRange": "60 min – 120 min",
+      "wrapRange": "72°C – 77°C",
+      "probeStart": "90°C",
+      "probeTenderRange": "92°C – 96°C",
+      "restRange": "45 min – 120 min",
       "visuals": [
-        "Couleur / bark",
-        "Stall normal",
-        "Sonde qui glisse presque sans résistance"
+        "Poor man’s brisket: bark puis texture",
+        "Finition couverte utile si la couleur est deja la",
+        "Tranchable ou effilochable selon cuisson poussee"
       ]
     },
     "timeline": [
       {
         "id": "bark",
-        "label": "Couleur / fumée",
+        "label": "Bark / phase principale",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "stall",
-        "label": "Stall / ralentissement",
+        "label": "Stall attendu",
         "isRest": false,
         "isService": false,
         "isStall": true
       },
       {
         "id": "wrap",
-        "label": "Wrap / finition couverte",
+        "label": "Wrap",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "probe",
-        "label": "Test de tendreté",
+        "label": "Tests de tendrete",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "rest",
-        "label": "Rest / Hold",
+        "label": "Repos / hold",
         "isRest": true,
         "isService": false,
         "isStall": false
@@ -357,50 +348,50 @@
   },
   "brisket_ls_nowrap": {
     "meatKey": "brisket",
-    "cookMin": 928,
-    "totalMin": 1048,
-    "restMin": 90,
-    "targetTempC": 96,
+    "cookMin": 1104,
+    "totalMin": 1254,
+    "restMin": 120,
+    "targetTempC": 95,
     "wrapType": "none",
     "wrapTempC": null,
     "cues": {
       "style": "temperature_and_visual",
-      "stallRange": "65°C – 75°C",
-      "wrapRange": "66°C – 74°C",
+      "stallRange": "66°C – 74°C",
+      "wrapRange": "68°C – 75°C",
       "probeStart": "90°C",
-      "probeTenderRange": "92°C – 97°C",
-      "restRange": "60 min – 120 min",
+      "probeTenderRange": "92°C – 96°C",
+      "restRange": "90 min – 240 min",
       "visuals": [
-        "Couleur / bark",
-        "Stall normal",
-        "Sonde qui glisse presque sans résistance"
+        "Bark bien prise et sèche avant de penser au wrap",
+        "Stall normal au milieu de cuisson",
+        "Probe tender dans le flat avant de sortir"
       ]
     },
     "timeline": [
       {
         "id": "bark",
-        "label": "Bark en formation",
+        "label": "Bark / phase principale",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "stall",
-        "label": "Stall / ralentissement",
+        "label": "Stall attendu",
         "isRest": false,
         "isService": false,
         "isStall": true
       },
       {
         "id": "probe",
-        "label": "Test de tendreté",
+        "label": "Tests de tendrete",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "rest",
-        "label": "Rest / Hold",
+        "label": "Repos / hold",
         "isRest": true,
         "isService": false,
         "isStall": false
@@ -409,57 +400,57 @@
   },
   "brisket_ls_paper": {
     "meatKey": "brisket",
-    "cookMin": 796,
-    "totalMin": 916,
-    "restMin": 90,
-    "targetTempC": 96,
+    "cookMin": 1016,
+    "totalMin": 1166,
+    "restMin": 120,
+    "targetTempC": 95,
     "wrapType": "butcher_paper",
     "wrapTempC": 71,
     "cues": {
       "style": "temperature_and_visual",
-      "stallRange": "65°C – 75°C",
-      "wrapRange": "68°C – 74°C",
+      "stallRange": "66°C – 74°C",
+      "wrapRange": "68°C – 75°C",
       "probeStart": "90°C",
-      "probeTenderRange": "92°C – 97°C",
-      "restRange": "60 min – 120 min",
+      "probeTenderRange": "92°C – 96°C",
+      "restRange": "90 min – 240 min",
       "visuals": [
-        "Couleur / bark",
-        "Stall normal",
-        "Sonde qui glisse presque sans résistance"
+        "Bark bien prise et sèche avant de penser au wrap",
+        "Stall normal au milieu de cuisson",
+        "Probe tender dans le flat avant de sortir"
       ]
     },
     "timeline": [
       {
         "id": "bark",
-        "label": "Bark en formation",
+        "label": "Bark / phase principale",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "stall",
-        "label": "Stall / ralentissement",
+        "label": "Stall attendu",
         "isRest": false,
         "isService": false,
         "isStall": true
       },
       {
         "id": "wrap",
-        "label": "Wrap (emballage)",
+        "label": "Wrap",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "probe",
-        "label": "Test de tendreté",
+        "label": "Tests de tendrete",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "rest",
-        "label": "Rest / Hold",
+        "label": "Repos / hold",
         "isRest": true,
         "isService": false,
         "isStall": false
@@ -468,50 +459,50 @@
   },
   "pork_shoulder_ls": {
     "meatKey": "pork_shoulder",
-    "cookMin": 707,
-    "totalMin": 827,
+    "cookMin": 769,
+    "totalMin": 889,
     "restMin": 90,
     "targetTempC": 96,
     "wrapType": "none",
     "wrapTempC": null,
     "cues": {
       "style": "temperature_and_visual",
-      "stallRange": "63°C – 74°C",
-      "wrapRange": "72°C – 75°C",
-      "probeStart": "90°C",
-      "probeTenderRange": "92°C – 96°C",
-      "restRange": "60 min – 120 min",
+      "stallRange": "66°C – 74°C",
+      "wrapRange": "71°C – 77°C",
+      "probeStart": "92°C",
+      "probeTenderRange": "94°C – 98°C",
+      "restRange": "60 min – 180 min",
       "visuals": [
-        "Couleur / bark",
-        "Stall normal",
-        "Sonde qui glisse presque sans résistance"
+        "Bark foncee et fixee avant wrap",
+        "Os qui bouge ou texture qui se defait facilement",
+        "Effilochage propre sans fibres seches"
       ]
     },
     "timeline": [
       {
         "id": "bark",
-        "label": "Bark / fumée",
+        "label": "Bark / phase principale",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "stall",
-        "label": "Stall / ralentissement",
+        "label": "Stall attendu",
         "isRest": false,
         "isService": false,
         "isStall": true
       },
       {
         "id": "probe",
-        "label": "Test d’effilochage / tendreté",
+        "label": "Tests d’effilochage",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "rest",
-        "label": "Repos",
+        "label": "Repos / hold",
         "isRest": true,
         "isService": false,
         "isStall": false
@@ -520,10 +511,10 @@
   },
   "spare_ribs_fixed": {
     "meatKey": "ribs_pork",
-    "cookMin": 389,
-    "totalMin": 434,
+    "cookMin": 341,
+    "totalMin": 386,
     "restMin": 15,
-    "targetTempC": 96,
+    "targetTempC": null,
     "wrapType": "foil",
     "wrapTempC": null,
     "cues": {
@@ -534,45 +525,36 @@
       "probeTenderRange": null,
       "restRange": "10 min – 20 min",
       "visuals": [
-        "Couleur / bark",
-        "Pullback / retrait sur l’os",
-        "Wrap facultatif",
-        "Flex test",
-        "Glaze optionnelle"
+        "Couleur acajou et bark propre",
+        "Retrait de viande sur l’os",
+        "Bend test / flex test au lieu d’une heure magique"
       ]
     },
     "timeline": [
       {
         "id": "bark",
-        "label": "Phase de fumée nue",
+        "label": "Fumee / couleur",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "wrap",
-        "label": "Wrap / braisage",
+        "label": "Wrap facultatif",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "flex",
-        "label": "Finition / flex test",
-        "isRest": false,
-        "isService": false,
-        "isStall": false
-      },
-      {
-        "id": "glaze",
-        "label": "Glaze / sauce",
+        "label": "Flex test",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "rest",
-        "label": "Repos court / service",
+        "label": "Repos court",
         "isRest": true,
         "isService": false,
         "isStall": false
@@ -581,10 +563,10 @@
   },
   "baby_back_fixed": {
     "meatKey": "ribs_baby_back",
-    "cookMin": 324,
-    "totalMin": 367,
-    "restMin": 13,
-    "targetTempC": 96,
+    "cookMin": 283,
+    "totalMin": 325,
+    "restMin": 12,
+    "targetTempC": null,
     "wrapType": "foil",
     "wrapTempC": null,
     "cues": {
@@ -595,45 +577,36 @@
       "probeTenderRange": null,
       "restRange": "10 min – 15 min",
       "visuals": [
-        "Couleur / bark",
-        "Pullback / retrait sur l’os",
-        "Wrap facultatif",
-        "Flex test",
-        "Glaze optionnelle"
+        "Couleur uniforme sans sucre brule",
+        "Flex test plus important qu’un chrono fixe",
+        "Cuisson plus courte que spare ribs"
       ]
     },
     "timeline": [
       {
         "id": "bark",
-        "label": "Phase de fumée nue",
+        "label": "Fumee / couleur",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "wrap",
-        "label": "Wrap / braisage",
+        "label": "Wrap facultatif",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "flex",
-        "label": "Finition / flex test",
-        "isRest": false,
-        "isService": false,
-        "isStall": false
-      },
-      {
-        "id": "glaze",
-        "label": "Glaze / sauce",
+        "label": "Flex test",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "rest",
-        "label": "Repos court / service",
+        "label": "Repos court",
         "isRest": true,
         "isService": false,
         "isStall": false
@@ -642,50 +615,50 @@
   },
   "beef_ribs_hot": {
     "meatKey": "ribs_beef",
-    "cookMin": 388,
-    "totalMin": 463,
-    "restMin": 45,
-    "targetTempC": 96,
+    "cookMin": 461,
+    "totalMin": 521,
+    "restMin": 30,
+    "targetTempC": 95,
     "wrapType": "none",
     "wrapTempC": null,
     "cues": {
       "style": "temperature_and_visual",
       "stallRange": "66°C – 74°C",
-      "wrapRange": "71°C – 74°C",
+      "wrapRange": "70°C – 76°C",
       "probeStart": "92°C",
-      "probeTenderRange": "93°C – 98°C",
-      "restRange": "30 min – 60 min",
+      "probeTenderRange": "94°C – 98°C",
+      "restRange": "20 min – 60 min",
       "visuals": [
-        "Couleur / bark",
-        "Stall normal",
-        "Sonde qui glisse presque sans résistance"
+        "Gras bien fondu mais viande encore juteuse",
+        "Probe tender sur plusieurs points",
+        "Repos plus court qu’une brisket, mais reel"
       ]
     },
     "timeline": [
       {
         "id": "bark",
-        "label": "Bark en formation",
+        "label": "Bark / phase principale",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "stall",
-        "label": "Stall / ralentissement",
+        "label": "Stall attendu",
         "isRest": false,
         "isService": false,
         "isStall": true
       },
       {
         "id": "probe",
-        "label": "Test de tendreté",
+        "label": "Tests de tendrete",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "rest",
-        "label": "Rest / Hold",
+        "label": "Repos / hold",
         "isRest": true,
         "isService": false,
         "isStall": false
@@ -694,57 +667,57 @@
   },
   "paleron_ls": {
     "meatKey": "paleron",
-    "cookMin": 264,
-    "totalMin": 384,
-    "restMin": 90,
-    "targetTempC": 96,
+    "cookMin": 313,
+    "totalMin": 403,
+    "restMin": 60,
+    "targetTempC": 95,
     "wrapType": "butcher_paper",
     "wrapTempC": 74,
     "cues": {
       "style": "temperature_and_visual",
       "stallRange": "66°C – 74°C",
-      "wrapRange": "71°C – 77°C",
-      "probeStart": "91°C",
-      "probeTenderRange": "91°C – 96°C",
-      "restRange": "60 min – 120 min",
+      "wrapRange": "72°C – 77°C",
+      "probeStart": "90°C",
+      "probeTenderRange": "92°C – 96°C",
+      "restRange": "45 min – 120 min",
       "visuals": [
-        "Couleur / bark",
-        "Stall normal",
-        "Sonde qui glisse presque sans résistance"
+        "Poor man’s brisket: bark puis texture",
+        "Finition couverte utile si la couleur est deja la",
+        "Tranchable ou effilochable selon cuisson poussee"
       ]
     },
     "timeline": [
       {
         "id": "bark",
-        "label": "Couleur / fumée",
+        "label": "Bark / phase principale",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "stall",
-        "label": "Stall / ralentissement",
+        "label": "Stall attendu",
         "isRest": false,
         "isService": false,
         "isStall": true
       },
       {
         "id": "wrap",
-        "label": "Wrap / finition couverte",
+        "label": "Wrap",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "probe",
-        "label": "Test de tendreté",
+        "label": "Tests de tendrete",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "rest",
-        "label": "Rest / Hold",
+        "label": "Repos / hold",
         "isRest": true,
         "isService": false,
         "isStall": false
@@ -753,57 +726,57 @@
   },
   "lamb_shoulder_ls": {
     "meatKey": "lamb_shoulder",
-    "cookMin": 335,
-    "totalMin": 410,
+    "cookMin": 414,
+    "totalMin": 489,
     "restMin": 45,
-    "targetTempC": 96,
+    "targetTempC": 94,
     "wrapType": "butcher_paper",
-    "wrapTempC": 74,
+    "wrapTempC": 75,
     "cues": {
       "style": "temperature_and_visual",
       "stallRange": "66°C – 74°C",
-      "wrapRange": "71°C – 77°C",
-      "probeStart": "88°C – 90°C",
+      "wrapRange": "72°C – 78°C",
+      "probeStart": "88°C",
       "probeTenderRange": "90°C – 96°C",
-      "restRange": "30 min – 60 min",
+      "restRange": "30 min – 90 min",
       "visuals": [
-        "Couleur / bark",
-        "Stall normal",
-        "Sonde qui glisse presque sans résistance"
+        "Comportement voisin du pulled pork mais plus souple",
+        "Texture fondante plutot qu’un chiffre sec",
+        "Wrap utile si bark deja jolie et repas approche"
       ]
     },
     "timeline": [
       {
         "id": "bark",
-        "label": "Couleur / fumée",
+        "label": "Bark / phase principale",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "stall",
-        "label": "Stall / ralentissement",
+        "label": "Stall attendu",
         "isRest": false,
         "isService": false,
         "isStall": true
       },
       {
         "id": "wrap",
-        "label": "Wrap (emballage)",
+        "label": "Wrap",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "probe",
-        "label": "Test de tendreté",
+        "label": "Tests de tendrete",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "rest",
-        "label": "Rest / Hold",
+        "label": "Repos / hold",
         "isRest": true,
         "isService": false,
         "isStall": false
@@ -812,8 +785,8 @@
   },
   "whole_chicken_hot": {
     "meatKey": "whole_chicken",
-    "cookMin": 100,
-    "totalMin": 145,
+    "cookMin": 148,
+    "totalMin": 183,
     "restMin": 15,
     "targetTempC": 74,
     "wrapType": "none",
@@ -823,32 +796,32 @@
       "stallRange": null,
       "wrapRange": null,
       "probeStart": "70°C",
-      "probeTenderRange": "74°C – 76°C",
+      "probeTenderRange": "73°C – 76°C",
       "restRange": "10 min – 20 min",
       "visuals": [
-        "Couleur / bark",
-        "Stall normal",
-        "Sonde qui glisse presque sans résistance"
+        "Peau bien doree",
+        "Jus clairs dans la partie la plus epaisse",
+        "Repos court avant decoupe"
       ]
     },
     "timeline": [
       {
         "id": "bark",
-        "label": "Bark en formation",
+        "label": "Cuisson principale",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "probe",
-        "label": "Test de tendreté",
+        "label": "Tests de tendrete",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "rest",
-        "label": "Rest / Hold",
+        "label": "Repos / hold",
         "isRest": true,
         "isService": false,
         "isStall": false
@@ -857,43 +830,43 @@
   },
   "lamb_leg_medium": {
     "meatKey": "lamb_leg",
-    "cookMin": 126,
-    "totalMin": 179,
-    "restMin": 23,
-    "targetTempC": 63,
+    "cookMin": 166,
+    "totalMin": 206,
+    "restMin": 20,
+    "targetTempC": 60,
     "wrapType": "none",
     "wrapTempC": null,
     "cues": {
       "style": "temperature_and_visual",
       "stallRange": null,
       "wrapRange": null,
-      "probeStart": "55°C",
+      "probeStart": "54°C",
       "probeTenderRange": "57°C – 63°C",
       "restRange": "15 min – 30 min",
       "visuals": [
-        "Belle couleur extérieure",
-        "Cuisson rosée au centre",
-        "Repos avant découpe"
+        "Traitement de roti, pas d’epaule a effilocher",
+        "Thermometre et repos plus utiles qu’un horaire detaille",
+        "Belle cuisson rosée au centre"
       ]
     },
     "timeline": [
       {
         "id": "bark",
-        "label": "Bark en formation",
+        "label": "Cuisson principale",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "probe",
-        "label": "Test de tendreté",
+        "label": "Tests de tendrete",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "rest",
-        "label": "Rest / Hold",
+        "label": "Repos / hold",
         "isRest": true,
         "isService": false,
         "isStall": false
@@ -902,57 +875,57 @@
   },
   "lamb_leg_pulled": {
     "meatKey": "lamb_leg",
-    "cookMin": 202,
-    "totalMin": 255,
-    "restMin": 23,
-    "targetTempC": 96,
+    "cookMin": 303,
+    "totalMin": 368,
+    "restMin": 45,
+    "targetTempC": 95,
     "wrapType": "foil",
-    "wrapTempC": null,
+    "wrapTempC": 74,
     "cues": {
       "style": "temperature_and_visual",
       "stallRange": "66°C – 74°C",
-      "wrapRange": "71°C – 74°C",
+      "wrapRange": "72°C – 77°C",
       "probeStart": "90°C",
-      "probeTenderRange": "94°C – 97°C",
-      "restRange": "30 min – 60 min",
+      "probeTenderRange": "93°C – 97°C",
+      "restRange": "30 min – 75 min",
       "visuals": [
-        "Bark / couleur",
-        "Wrap utile si la surface te plaît",
-        "Texture effilochable et moelleuse"
+        "Traite le gigot comme une petite epaule si tu veux l'effilocher",
+        "Bark d'abord, puis wrap si besoin",
+        "Texture filandreuse et moelleuse avant sortie"
       ]
     },
     "timeline": [
       {
         "id": "bark",
-        "label": "Bark en formation",
+        "label": "Cuisson principale",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "stall",
-        "label": "Stall / ralentissement",
+        "label": "Stall attendu",
         "isRest": false,
         "isService": false,
         "isStall": true
       },
       {
         "id": "wrap",
-        "label": "Wrap (emballage)",
+        "label": "Wrap",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "probe",
-        "label": "Test de tendreté",
+        "label": "Tests de tendrete",
         "isRest": false,
         "isService": false,
         "isStall": false
       },
       {
         "id": "rest",
-        "label": "Rest / Hold",
+        "label": "Repos / hold",
         "isRest": true,
         "isService": false,
         "isStall": false

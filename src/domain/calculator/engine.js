@@ -1,8 +1,3 @@
-// PATCH: new clean calculator domain entrypoint.
-// This file is the strangler-layer around the current sacred engine.
-// The implementation still delegates to the proven core while the rest of the
-// app is rebuilt around it progressively.
-
 export {
   PITMASTER_PROFILES,
   COOKING_METHODS,
@@ -31,4 +26,4 @@ export {
   carryover,
   validateInput,
   generateSuggestion,
-} from '../../lib/calculator.js'
+} from './core.js'
