@@ -4,7 +4,7 @@
  */
 
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react'
-import { supabase, supabaseProjectUrl, supabaseStorageKey } from '../modules/supabase/client'
+import { supabase } from '../modules/supabase/client'
 import {
   fetchMyProfileRpc,
   fetchProfileByUserId,
@@ -314,7 +314,7 @@ export function AuthProvider({ children }) {
     (sessionStatus === SESSION_STATUS.AUTHENTICATED && isProfilePending(profileStatus))
 
   async function signOut() {
-    // PATCH: déconnexion locale forcée pour éviter les sessions qui restent accrochées dans le navigateur.
+    // Déconnexion Supabase (source de vérité auth/session)
     try {
       await Promise.race([
         supabase.auth.signOut({ scope: 'local' }),
@@ -322,21 +322,6 @@ export function AuthProvider({ children }) {
       ])
     } catch (error) {
       console.warn('signOut fallback:', error)
-    }
-
-    try {
-      const legacyProjectKey = `sb-${new URL(supabaseProjectUrl).hostname.split('.')[0]}-auth-token`
-      const knownKeys = [
-        legacyProjectKey,
-        'cf-supabase-auth',
-        supabaseStorageKey,
-      ]
-      knownKeys.forEach((key) => {
-        localStorage.removeItem(key)
-        sessionStorage.removeItem(key)
-      })
-    } catch (error) {
-      console.warn('local auth storage cleanup failed:', error)
     }
 
     setUser(null)

@@ -71,49 +71,8 @@ const toInt = (value, fallback = 0) => {
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max)
 
-// PATCH: persistance locale réduite aux brouillons de formulaire uniquement
-function getCalcDraft() {
-  try {
-    return JSON.parse(localStorage.getItem('pm_calc') || '{}')
-  } catch {
-    return {}
-  }
-}
-
-// PATCH: restauration du dernier résultat pour retrouver rapidement son plan
-function getLastCalcResult() {
-  try {
-    return JSON.parse(localStorage.getItem('pm_calc_result') || 'null')
-  } catch {
-    return null
-  }
-}
-
-// PATCH: bridge temporaire pour une future persistence membre/Supabase des sessions
-function savePendingSession(payload) {
-  try {
-    sessionStorage.setItem('pm_active_session', JSON.stringify({
-      ...payload,
-      savedAt: new Date().toISOString(),
-      source: 'calculator',
-    }))
-  } catch {
-    // PATCH: session best effort seulement
-  }
-}
-
-// PATCH: identifiant visiteur local pour préparer une analytics anonyme sans friction
-function getAnonymousVisitorId() {
-  try {
-    const existing = localStorage.getItem('pm_visitor_id')
-    if (existing) return existing
-    const next = `visitor_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
-    localStorage.setItem('pm_visitor_id', next)
-    return next
-  } catch {
-    // PATCH: fallback sans persistance si localStorage indisponible
-    return `visitor_${Date.now()}`
-  }
+function buildTransientVisitorId() {
+  return `visitor_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
 }
 
 // PATCH: petits intertitres pour guider le parcours sans surcharger l'écran
@@ -299,38 +258,33 @@ export default function CalculatorPage() {
   const { snack, showSnack } = useSnack()
   const { meats: catalogMeats, meatsBySlug } = useCalculatorCatalog()
 
-  // PATCH: seul le brouillon de formulaire reste restauré depuis localStorage
-  const [meatKey,    setMeatKey]    = useState(() => getCalcDraft().meatKey || 'brisket')
-  const [weight,     setWeight]     = useState(() => getCalcDraft().weight ?? 4)
-  const [thickness,  setThickness]  = useState(() => getCalcDraft().thickness || '')
-  const [smokerTemp, setSmokerTemp] = useState(() => getCalcDraft().smokerTemp ?? 110)
-  const [serveTime,  setServeTime]  = useState(() => getCalcDraft().serveTime || '19:00')
-  const [cookMethod, setCookMethod] = useState(() => {
-    const savedMethod = getCalcDraft().cookMethod || DEFAULT_METHOD
-    return savedMethod === 'texas_crutch' ? 'low_and_slow' : savedMethod
-  })
-  const [displayUnit, setDisplayUnit] = useState(() => getCalcDraft().displayUnit || 'c')
-  const [lambLegStyle, setLambLegStyle] = useState(() => getCalcDraft().lambLegStyle || 'medium')
-  const [smokerType, setSmokerType] = useState(() => getCalcDraft().smokerType || 'pellet')
-  const [wrapType,   setWrapType]   = useState(() => getCalcDraft().wrapType || 'none')
-  const [marbling,   setMarbling]   = useState(() => getCalcDraft().marbling || 'medium')
-  const [startTemp,  setStartTemp]  = useState(() => getCalcDraft().startTemp ?? 4)
+  const [meatKey,    setMeatKey]    = useState('brisket')
+  const [weight,     setWeight]     = useState(4)
+  const [thickness,  setThickness]  = useState('')
+  const [smokerTemp, setSmokerTemp] = useState(110)
+  const [serveTime,  setServeTime]  = useState('19:00')
+  const [cookMethod, setCookMethod] = useState(DEFAULT_METHOD)
+  const [displayUnit, setDisplayUnit] = useState('c')
+  const [lambLegStyle, setLambLegStyle] = useState('medium')
+  const [smokerType, setSmokerType] = useState('pellet')
+  const [wrapType,   setWrapType]   = useState('none')
+  const [marbling,   setMarbling]   = useState('medium')
+  const [startTemp,  setStartTemp]  = useState(4)
   const [showAdvanced,   setShowAdvanced]   = useState(false)
   const [showRecal,      setShowRecal]      = useState(false)
   const [currentTempC,   setCurrentTempC]   = useState('')
   const [elapsedMin,     setElapsedMin]     = useState('')
   const [currentPitTemp, setCurrentPitTemp] = useState('')
   const [recalResult,    setRecalResult]    = useState(null)
-  // PATCH: le résultat n'est plus restauré depuis localStorage pour éviter d'en faire une base produit fragile
-  const [result,   setResult]   = useState(() => getLastCalcResult())
+  const [result,   setResult]   = useState(null)
   const [timeline, setTimeline] = useState([])
   const [warnings, setWarnings] = useState([])
   const [loading,  setLoading]  = useState(false)
   const [saving,   setSaving]   = useState(false)
   const [savingJournal, setSavingJournal] = useState(false)
   const [sharing,  setSharing]  = useState(false)
-  const [heroImageSrc, setHeroImageSrc] = useState(() => MEAT_IMAGES[getCalcDraft().meatKey || 'brisket'] || MEAT_IMAGES.brisket || SMOKE_IMAGE)
-  const [meatImageSrc, setMeatImageSrc] = useState(() => MEAT_IMAGES[getCalcDraft().meatKey || 'brisket'] || MEAT_IMAGES.brisket || SMOKE_IMAGE)
+  const [heroImageSrc, setHeroImageSrc] = useState(() => MEAT_IMAGES.brisket || SMOKE_IMAGE)
+  const [meatImageSrc, setMeatImageSrc] = useState(() => MEAT_IMAGES.brisket || SMOKE_IMAGE)
 
   const profile = MEAT_PROFILES[meatKey]
   const availableMeatKeys = catalogMeats.length ? catalogMeats.map((entry) => entry.slug) : Object.keys(MEATS)
@@ -382,18 +336,6 @@ export default function CalculatorPage() {
     setRecalResult(null)
   }, [location.state, meatKey, availableMeatKeys])
 
-  // ── Sauvegarde automatique des inputs dans localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem('pm_calc', JSON.stringify({
-        meatKey, weight, thickness, smokerTemp, serveTime,
-        cookMethod, displayUnit, lambLegStyle, smokerType, wrapType, marbling, startTemp,
-      }))
-    } catch {
-      // PATCH: persistance best effort seulement
-    }
-  }, [meatKey, weight, thickness, smokerTemp, serveTime, cookMethod, displayUnit, lambLegStyle, smokerType, wrapType, marbling, startTemp])
-
   // PATCH: changement de viande = poids et méthode ramenés sur quelque chose de crédible
   useEffect(() => {
     const nextProfile = getCookingProfile(meatKey)
@@ -444,9 +386,9 @@ export default function CalculatorPage() {
           ...calc,
           weightKg: safeWeight,
           smokerTempC: safeSmokerTemp,
-          // PATCH: contexte non visible pour futures analytics anonymes et usage réel
+          // Contexte analytics sans persistance locale
           analyticsContext: {
-            visitorId: getAnonymousVisitorId(),
+            visitorId: user?.id || buildTransientVisitorId(),
             calculatedAt: new Date().toISOString(),
             isAnonymous: !user,
             entryPoint: 'calculator',
@@ -456,11 +398,6 @@ export default function CalculatorPage() {
           },
         }
         setResult(newResult)
-        try {
-          localStorage.setItem('pm_calc_result', JSON.stringify(newResult))
-        } catch {
-          // PATCH: résultat mémorisé en best effort uniquement
-        }
         setTimeline(calc.timeline)
         setLoading(false)
         setTimeout(() => document.getElementById('calc-result')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
@@ -1333,12 +1270,10 @@ export default function CalculatorPage() {
               ↩ Nouveau calcul
             </button>
             <button onClick={() => {
-              // PATCH: la session se transmet par navigation + brouillon sessionStorage, pour limiter la fragilité du state seul
               const sessionPayload = {
                 schedule: { ...result },
                 startedAt: new Date().toISOString(),
               }
-              savePendingSession(sessionPayload)
               navigate('/app/session', { state: sessionPayload })
             }} style={{ width: '100%', padding: '14px', borderRadius: 50, border: 'none',
               background: 'linear-gradient(135deg,#22c55e,#16a34a)', color: '#fff',

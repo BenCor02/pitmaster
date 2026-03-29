@@ -1,7 +1,7 @@
 /**
  * useCalcLimit — Phase 2
  * Quota vérifié CÔTÉ SERVEUR via RPC check_and_increment_quota
- * localStorage uniquement pour les anonymes (pas de compte)
+ * Aucun stockage local applicatif
  * Connecté → Supabase → infalsifiable
  */
 
@@ -10,25 +10,7 @@ import { useAuth } from '../context/AuthContext'
 import { supabase } from '../modules/supabase/client'
 
 const FREE_LIMIT = 5
-const LS_KEY     = 'cf_calc_anon' // { count, month }
-
-function currentMonth() {
-  return new Date().toISOString().slice(0, 7)
-}
-
-function getAnonUsage() {
-  try {
-    const raw = localStorage.getItem(LS_KEY)
-    if (!raw) return { count: 0, month: currentMonth() }
-    const d = JSON.parse(raw)
-    if (d.month !== currentMonth()) return { count: 0, month: currentMonth() }
-    return d
-  } catch { return { count: 0, month: currentMonth() } }
-}
-
-function setAnonUsage(count) {
-  localStorage.setItem(LS_KEY, JSON.stringify({ count, month: currentMonth() }))
-}
+const periodStart = () => `${new Date().toISOString().slice(0, 7)}-01`
 
 export function useCalcLimit() {
   const { user, profile } = useAuth()
@@ -54,7 +36,7 @@ export function useCalcLimit() {
         .from('user_usage_monthly')
         .select('calculations_used, calculations_limit')
         .eq('user_id', user.id)
-        .eq('period_start', new Date().toISOString().slice(0, 7) + '-01')
+        .eq('period_start', periodStart())
         .single()
 
       if (data) {
@@ -66,10 +48,9 @@ export function useCalcLimit() {
         setRemaining(FREE_LIMIT)
       }
     } else {
-      // Anonyme → localStorage
-      const anon = getAnonUsage()
-      setCount(anon.count)
-      setRemaining(Math.max(FREE_LIMIT - anon.count, 0))
+      // Anonyme → état mémoire seulement (pas de persistance locale)
+      setCount(0)
+      setRemaining(FREE_LIMIT)
     }
     setLoading(false)
   }, [user, isPro])
@@ -110,14 +91,11 @@ export function useCalcLimit() {
       }
       return data
     } else {
-      // Anonyme → localStorage
-      const anon = getAnonUsage()
-      if (anon.count >= FREE_LIMIT) return { allowed: false, reason: 'quota_exceeded' }
-      const newCount = anon.count + 1
-      setAnonUsage(newCount)
-      setCount(newCount)
-      setRemaining(FREE_LIMIT - newCount)
-      return { allowed: true, remaining: FREE_LIMIT - newCount }
+      // Anonyme → état mémoire seulement (pas de persistance locale)
+      if (remaining <= 0) return { allowed: false, reason: 'quota_exceeded' }
+      setCount((prev) => prev + 1)
+      setRemaining((prev) => Math.max(prev - 1, 0))
+      return { allowed: true, remaining: Math.max(remaining - 1, 0) }
     }
   }
 

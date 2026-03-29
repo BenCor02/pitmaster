@@ -28,35 +28,6 @@ const fmt    = (d) => formatDisplayTimeRounded(d)
 const fmtDur = (m) => formatDuration(Math.max(0, Math.round(m)))
 const isRibsCook = (meatKey) => meatKey === 'ribs_pork' || meatKey === 'ribs_baby_back'
 
-// PATCH: bridge temporaire avant persistence membre; sessionStorage plutôt que localStorage produit
-function loadPendingSession() {
-  try {
-    const raw = sessionStorage.getItem('pm_active_session')
-    return raw ? JSON.parse(raw) : null
-  } catch {
-    return null
-  }
-}
-
-function savePendingSession(payload) {
-  try {
-    sessionStorage.setItem('pm_active_session', JSON.stringify({
-      ...payload,
-      savedAt: new Date().toISOString(),
-    }))
-  } catch {
-    // PATCH: persistance best effort
-  }
-}
-
-function clearPendingSession() {
-  try {
-    sessionStorage.removeItem('pm_active_session')
-  } catch {
-    // PATCH: nettoyage best effort
-  }
-}
-
 function toDisplayTime(isoValue) {
   if (!isoValue) return '—'
   return formatDisplayTimeRounded(new Date(isoValue))
@@ -565,13 +536,23 @@ export default function CookSessionPage() {
   const location = useLocation()
   const navigate = useNavigate()
   const { user } = useAuth()
-  const { session: persistedSession, loading: persistedSessionLoading } = useCookSession()
+  const {
+    session: persistedSession,
+    loading: persistedSessionLoading,
+    startSession,
+    validateCheckpoint: persistCheckpoint,
+    addLogEntry: persistLogEntry,
+  } = useCookSession()
+  const sessionBootstrapRef = useRef(false)
 
-  // PATCH: priorité à la navigation courante, fallback sessionStorage pour éviter une dépendance fragile à location.state
-  const pendingSession = loadPendingSession()
-  const schedule  = location.state?.schedule || pendingSession?.schedule || buildScheduleFromPersistedSession(persistedSession)
+  const schedule  = location.state?.schedule || buildScheduleFromPersistedSession(persistedSession)
 
-  const [checkpoints,   setCheckpoints]   = useState(() => schedule ? buildCheckpoints(schedule) : [])
+  const [checkpoints,   setCheckpoints]   = useState(() => {
+    if (!schedule) return []
+    return Array.isArray(schedule.checkpoints) && schedule.checkpoints.length
+      ? schedule.checkpoints
+      : buildCheckpoints(schedule)
+  })
   const [currentIndex,  setCurrentIndex]  = useState(0)
   const [results,       setResults]       = useState({})
   // PATCH: structure ETA sans ambiguïté entre total, restant et temps écoulé
@@ -581,11 +562,11 @@ export default function CookSessionPage() {
     updatedAt: null,
   } : null)
   const [elapsed,       setElapsed]       = useState(0)
-  const [cookStarted,   setCookStarted]   = useState(() => Boolean(location.state?.startedAt || pendingSession?.startedAt || persistedSession?.startedAt))
-  const [cookStartTime, setCookStartTime] = useState(() => location.state?.startedAt || pendingSession?.startedAt || persistedSession?.startedAt || null)
+  const [cookStarted,   setCookStarted]   = useState(() => Boolean(location.state?.startedAt || persistedSession?.startedAt))
+  const [cookStartTime, setCookStartTime] = useState(() => location.state?.startedAt || persistedSession?.startedAt || null)
   const [restTimer,     setRestTimer]     = useState(null)
   const [log,           setLog]           = useState([])
-  const [sessionImageSrc, setSessionImageSrc] = useState(() => MEAT_IMAGES[schedule?.meatKey] || SMOKER_IMAGE)
+  const sessionImageSrc = MEAT_IMAGES[schedule?.meatKey] || SMOKER_IMAGE
   const timerRef = useRef(null)
 
   // ── Timer tick toutes les minutes
@@ -598,54 +579,60 @@ export default function CookSessionPage() {
   }, [cookStarted, cookStartTime])
 
   useEffect(() => {
-    if (currentIndex >= checkpoints.length && checkpoints.length > 0) clearPendingSession()
-  }, [currentIndex, checkpoints.length])
-
-  useEffect(() => {
-    if (!schedule?.meatKey) return
-    setSessionImageSrc(MEAT_IMAGES[schedule.meatKey] || SMOKER_IMAGE)
-  }, [schedule?.meatKey])
-
-  useEffect(() => {
     if (!persistedSession?.startedAt) return
-    if (!cookStartTime) setCookStartTime(persistedSession.startedAt)
-    if (!cookStarted) setCookStarted(true)
+    const timeoutId = setTimeout(() => {
+      if (!cookStartTime) setCookStartTime(persistedSession.startedAt)
+      if (!cookStarted) setCookStarted(true)
+    }, 0)
+    return () => clearTimeout(timeoutId)
   }, [persistedSession, cookStartTime, cookStarted])
 
-  // PATCH: persistance transitoire de session pour ne pas dépendre seulement du state de navigation
+  // Bootstrap Supabase session when arriving from calculator state.
+  useEffect(() => {
+    if (sessionBootstrapRef.current) return
+    if (!user) return
+    if (!location.state?.schedule) return
+    if (persistedSession?.id) return
+    sessionBootstrapRef.current = true
+    startSession(
+      location.state.schedule,
+      location.state.startedAt || new Date().toISOString()
+    ).catch((error) => {
+      console.warn('startSession bootstrap failed', error?.message || error)
+      sessionBootstrapRef.current = false
+    })
+  }, [user, location.state, persistedSession?.id, startSession])
+
   useEffect(() => {
     if (!schedule) return
-    savePendingSession({
-      schedule,
-      startedAt: cookStartTime,
-      progress: {
-        checkpoints,
-        currentIndex,
-        results,
-        eta,
-        elapsed,
-        restTimer,
-        log,
-      },
-    })
-  }, [schedule, cookStartTime, checkpoints, currentIndex, results, eta, elapsed, restTimer, log])
+    const timeoutId = setTimeout(() => {
+      const nextCheckpoints = Array.isArray(schedule.checkpoints) && schedule.checkpoints.length
+        ? schedule.checkpoints
+        : buildCheckpoints(schedule)
+      setCheckpoints(nextCheckpoints)
 
-  // PATCH: restauration légère si la page est rechargée au milieu d'une session
-  useEffect(() => {
-    const progress = pendingSession?.progress
-    if (!progress) return
-    if (progress.checkpoints?.length) setCheckpoints(progress.checkpoints)
-    if (Number.isInteger(progress.currentIndex)) setCurrentIndex(progress.currentIndex)
-    if (progress.results) setResults(progress.results)
-    if (progress.eta) setEta(progress.eta)
-    if (Number.isFinite(progress.elapsed)) setElapsed(progress.elapsed)
-    if (progress.restTimer) setRestTimer(progress.restTimer)
-    if (Array.isArray(progress.log)) setLog(progress.log)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+      const nextCurrentIndex = nextCheckpoints.findIndex((checkpoint) => !checkpoint.validated)
+      setCurrentIndex(nextCurrentIndex === -1 ? nextCheckpoints.length : nextCurrentIndex)
+
+      if (Array.isArray(schedule.cookLog)) {
+        setLog(
+          schedule.cookLog.map((entry) => ({
+            at: entry.at || new Date().toISOString(),
+            message: entry.message || entry.type || 'Étape validée',
+          }))
+        )
+      } else {
+        setLog([])
+      }
+    }, 0)
+    return () => clearTimeout(timeoutId)
+  }, [schedule])
 
   function addLog(message) {
     setLog(l => [{ at: new Date().toISOString(), message }, ...l])
+    persistLogEntry(message).catch((error) => {
+      console.warn('persist log failed', error?.message || error)
+    })
   }
 
   // ── Validation d'un checkpoint
@@ -786,6 +773,9 @@ export default function CookSessionPage() {
     setResults(r => ({ ...r, [id]: { message, payload: userResponse, capturedAt: new Date().toISOString() } }))
     setCheckpoints(cps => cps.map(c => c.id === id ? { ...c, validated: true } : c))
     setCurrentIndex(i => i + 1)
+    persistCheckpoint(id, userResponse, { message: message || id }).catch((error) => {
+      console.warn('persist checkpoint failed', error?.message || error)
+    })
   }
 
   // ─── Pas de session active
@@ -845,7 +835,10 @@ export default function CookSessionPage() {
           <img
             src={sessionImageSrc}
             alt={schedule.meatLabel}
-            onError={() => setSessionImageSrc(SMOKER_IMAGE)}
+            onError={(event) => {
+              event.currentTarget.onerror = null
+              event.currentTarget.src = SMOKER_IMAGE
+            }}
             style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
             loading="eager"
           />
@@ -1057,7 +1050,7 @@ export default function CookSessionPage() {
       )}
 
       {/* ── TERMINER */}
-      <button onClick={() => { clearPendingSession(); navigate('/app') }} style={{ width: '100%', padding: '14px', borderRadius: 50, border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text3)', fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: 13, cursor: 'pointer', marginTop: 16 }}>
+      <button onClick={() => { navigate('/app') }} style={{ width: '100%', padding: '14px', borderRadius: 50, border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text3)', fontFamily: "'Syne',sans-serif", fontWeight: 700, fontSize: 13, cursor: 'pointer', marginTop: 16 }}>
         ↩ Retour au calculateur
       </button>
     </div>

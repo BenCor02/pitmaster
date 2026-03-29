@@ -252,43 +252,13 @@ export function useCookSession() {
         status:       'active',
       })
     } catch (error) {
-      console.warn('Supabase unavailable, using local session fallback', error?.message)
+      console.warn('Supabase unavailable for active session', error?.message)
     }
 
     setSaving(false)
 
     if (!data) {
-      console.warn('Supabase unavailable, using local session fallback')
-      // Fallback : session locale (sans persistance, mais fonctionnelle)
-      const localSession = {
-        id: 'local-' + Date.now(),
-        userId: user.id,
-        meatKey:     schedule.meatKey,
-        meatLabel:   schedule.meatLabel,
-        weightKg:    schedule.weightKg,
-        smokerTempC: schedule.smokerTempC,
-        smokerType:  schedule.smokerType,
-        wrapType:    schedule.wrapType,
-        marbling:    schedule.marbling,
-        waterPan:    schedule.waterPan,
-        startedAt,
-        serviceTime: schedule.serve,
-        phase1Min:   schedule.phase1Min,
-        stallMin:    schedule.stallMin,
-        phase3Min:   schedule.phase3Min,
-        cookMin:     schedule.cookMin,
-        bufferMin:   schedule.bufferMin,
-        restMin:     schedule.restMin,
-        totalMin:    schedule.totalMin,
-        stallStartC: schedule.stallStartC,
-        targetC:     schedule.targetC,
-        wrapTempC:   schedule.wrapTempC,
-        checkpoints,
-        cookLog:     [],
-        status:      'active',
-      }
-      setSession(localSession)
-      return localSession
+      return null
     }
 
     const hydrated = hydrateSession(data)
@@ -321,11 +291,8 @@ export function useCookSession() {
 
     setSession(s => ({ ...s, checkpoints: newCheckpoints, cookLog: newLog }))
 
-    // Sauvegarder en base si ce n'est pas une session locale
-    if (!session.id?.startsWith('local-')) {
-      await updateActiveCookSession(session.id, { checkpoints: newCheckpoints, cook_log: newLog })
-        .catch(err => console.warn('Save checkpoint failed:', err?.message))
-    }
+    await updateActiveCookSession(session.id, { checkpoints: newCheckpoints, cook_log: newLog })
+      .catch(err => console.warn('Save checkpoint failed:', err?.message))
   }
 
   // ── Ajouter une entrée au journal
@@ -334,19 +301,15 @@ export function useCookSession() {
     const entry = { at: new Date().toISOString(), type, message }
     const newLog = [entry, ...(session.cookLog || [])]
     setSession(s => ({ ...s, cookLog: newLog }))
-    if (!session.id?.startsWith('local-')) {
-      await updateActiveCookSession(session.id, { cook_log: newLog })
-        .catch(err => console.warn('Save log failed:', err?.message))
-    }
+    await updateActiveCookSession(session.id, { cook_log: newLog })
+      .catch(err => console.warn('Save log failed:', err?.message))
   }
 
   // ── Terminer la session
   async function endSession(status = 'completed') {
     if (!session) return
-    if (!session.id?.startsWith('local-')) {
-      await updateActiveCookSession(session.id, { status })
-        .catch(err => console.warn('End session failed:', err?.message))
-    }
+    await updateActiveCookSession(session.id, { status })
+      .catch(err => console.warn('End session failed:', err?.message))
     setSession(null)
   }
 

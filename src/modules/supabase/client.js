@@ -8,16 +8,14 @@ const supabaseKey =
   import.meta.env.VITE_SUPABASE_ANON_KEY ||
   import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
   DEFAULT_SUPABASE_PUBLISHABLE_KEY
-const projectRef = new URL(supabaseUrl).hostname.split('.')[0]
-export const supabaseStorageKey = `cf-supabase-auth-${projectRef}`
 
 // PATCH: single canonical Supabase client for the rebuilt architecture.
 export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
-    persistSession: true,
+    // Supabase remains source of truth; no app-level local/session storage persistence.
+    persistSession: false,
     autoRefreshToken: true,
     detectSessionInUrl: true,
-    storageKey: supabaseStorageKey,
   },
 })
 
