@@ -6,7 +6,6 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react'
 import { supabase } from '../modules/supabase/client'
 import {
-  fetchMyProfileRpc,
   fetchProfileByUserId,
   ensureProfileForAuthUser,
   touchProfileLastSeen,
@@ -41,6 +40,7 @@ export function AuthProvider({ children }) {
   const [profileError, setProfileError] = useState(null)
   const loadProfileSeqRef = useRef(0)
   const lastStableProfileRef = useRef(null)
+  const lastResyncAtRef = useRef(0)
 
   function clearResolvedProfile() {
     setProfile(null)
@@ -103,29 +103,6 @@ export function AuthProvider({ children }) {
         console.warn('profiles direct select failed', directProfileError)
       }
 
-      // PATCH: on garde le RPC en secours seulement, pour les cas où RLS ou schéma
-      // existant renvoient mieux via la fonction security definer.
-      if (!nextProfile) {
-        try {
-          const rpcProfile = await withTimeout(
-            fetchMyProfileRpc(),
-            PROFILE_REQUEST_TIMEOUT_MS,
-            'profile_rpc'
-          )
-          if (rpcProfile && !rpcProfile.error) {
-            nextProfile = {
-              ...rpcProfile,
-              roles: rpcProfile.roles || (rpcProfile.role ? [rpcProfile.role] : []),
-              source: 'rpc',
-            }
-          }
-        } catch (rpcError) {
-          hadLookupError = true
-          console.warn('get_my_profile rpc failed', rpcError)
-        }
-      }
-
-      // PATCH: base saine après reset.
       // Si auth.users existe mais que public.profiles manque, on répare la ligne self.
       if (!nextProfile) {
         try {
@@ -276,27 +253,29 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (!user || sessionStatus !== SESSION_STATUS.AUTHENTICATED) return
 
-    const resyncIfNeeded = () => {
-      if (!isProfilePending(profileStatus)) return
+    const resync = () => {
+      const now = Date.now()
+      if (now - lastResyncAtRef.current < 2500) return
+      lastResyncAtRef.current = now
       refreshAuthState().catch((error) => {
         console.warn('resume auth sync failed', error)
       })
     }
 
     const onVisibility = () => {
-      if (document.visibilityState === 'visible') resyncIfNeeded()
+      if (document.visibilityState === 'visible') resync()
     }
 
-    window.addEventListener('focus', resyncIfNeeded)
-    window.addEventListener('online', resyncIfNeeded)
+    window.addEventListener('focus', resync)
+    window.addEventListener('online', resync)
     document.addEventListener('visibilitychange', onVisibility)
 
     return () => {
-      window.removeEventListener('focus', resyncIfNeeded)
-      window.removeEventListener('online', resyncIfNeeded)
+      window.removeEventListener('focus', resync)
+      window.removeEventListener('online', resync)
       document.removeEventListener('visibilitychange', onVisibility)
     }
-  }, [user, sessionStatus, profileStatus, refreshAuthState])
+  }, [user, sessionStatus, refreshAuthState])
 
   // Helpers rôles
   const roleSet = new Set([
