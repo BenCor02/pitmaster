@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from '../../../context/AuthContext'
 import { saveCookParty } from '../../../modules/cooks/repository'
-import { MEATS } from '../../../lib/meats'
+import { MEATS } from '../../../domain/content/meats'
 import { calculateLowSlow, buildTimeline, formatDuration, formatTime, addMinutes } from '../../../domain/calculator/engine'
 
 // Wrapper local — ancienne signature : (meatKey, weight, thickness, smokerTempC, method, wrap)

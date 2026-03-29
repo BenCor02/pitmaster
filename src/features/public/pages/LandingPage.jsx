@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { HERO_IMAGE, MEAT_IMAGES, SMOKE_IMAGE, SMOKER_IMAGE } from '../../../lib/images'
+import { HERO_IMAGE, MEAT_IMAGES, SMOKE_IMAGE, SMOKER_IMAGE } from '../../../domain/content/images'
 import BrandMark from '../../../components/BrandMark'
 import { usePageContent } from '../../../hooks/usePageContent'
 

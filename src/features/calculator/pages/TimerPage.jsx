@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { MEATS } from '../../../lib/meats'
+import { MEATS } from '../../../domain/content/meats'
 import { calculateLowSlow, buildTimeline, formatDuration } from '../../../domain/calculator/engine'
 
 function calculateCookTime(meatKey, weightKg, thicknessCm, smokerTempC = 120, method, willWrap) {

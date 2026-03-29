@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo } from 'react'
-import { MEAT_IMAGES, SMOKE_IMAGE } from '../../../lib/images'
+import { MEAT_IMAGES, SMOKE_IMAGE } from '../../../domain/content/images'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../context/AuthContext'
 import { saveCookSession, saveJournalEntry } from '../../../modules/cooks/repository'
-import { MEATS } from '../../../lib/meats'
+import { MEATS } from '../../../domain/content/meats'
 import { useCalculatorCatalog } from '../../../hooks/useCalculatorCatalog'
 import {
   recalibrate, formatDuration, validateInput, PHASE_BASES, COOKING_METHODS,

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../../../modules/supabase/client'
 import { invalidateAdjustmentsCache } from '../../../lib/engineLoader'
-import { BASE_COEFFS, PHASE_BASES } from '../../../lib/calculator'
+import { BASE_COEFFS, PHASE_BASES } from '../../../domain/calculator/engine'
 
 const MEAT_LABELS = {
   brisket:'Brisket', pork_shoulder:'Épaule Porc', ribs_pork:'Spare Ribs',

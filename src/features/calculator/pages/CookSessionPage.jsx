@@ -12,8 +12,8 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { recalibrate, formatDuration, formatDisplayTimeRounded } from '../../../lib/calculator'
-import { MEAT_IMAGES, SMOKER_IMAGE } from '../../../lib/images'
+import { recalibrate, formatDuration, formatDisplayTimeRounded } from '../../../domain/calculator/engine'
+import { MEAT_IMAGES, SMOKER_IMAGE } from '../../../domain/content/images'
 import { useAuth } from '../../../context/AuthContext'
 import { useCookSession } from '../../../hooks/useCookSession'
 
