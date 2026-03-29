@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../context/AuthContext'
 import { useCalcLimit } from '../../../hooks/useCalcLimit'
 import { getAccessMeta } from '../../../modules/access/catalog'
+import { getRoleDisplayLabel, PROFILE_STATUS } from '../../../modules/auth/state'
 
 export default function ProfilePage() {
   const navigate = useNavigate()
@@ -136,17 +137,11 @@ export default function ProfilePage() {
         <div style={{ marginBottom:16 }}>
           <label style={S.label}>Rôle</label>
           <div style={{ fontSize:13, color:'var(--text2)', padding:'11px 0' }}>
-            {profileStatus === 'loaded'
-              ? profile?.role
-              : profileStatus === 'missing'
-                ? 'profil manquant'
-                : profileStatus === 'error'
-                  ? 'lecture du profil en erreur'
-                  : 'chargement du profil'}
+            {getRoleDisplayLabel(profileStatus, profile?.role)}
           </div>
         </div>
 
-        {profileStatus === 'error' && profileError ? (
+        {profileStatus === PROFILE_STATUS.ERROR && profileError ? (
           <div style={{ fontSize:12, color:'#f59e0b', background:'rgba(245,158,11,0.08)', border:'1px solid rgba(245,158,11,0.16)', borderRadius:10, padding:'10px 12px', marginBottom:16 }}>
             {profileError.message}
           </div>

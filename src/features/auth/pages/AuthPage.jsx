@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../context/AuthContext'
 import AuthShell from '../../../modules/auth/AuthShell'
+import { getRoleDisplayLabel, PROFILE_STATUS } from '../../../modules/auth/state'
 import {
   signInWithApple,
   signInWithGoogle,
@@ -155,7 +156,7 @@ export default function AuthPage() {
         <div style={{ marginBottom: 16, color: '#d4c4b0', lineHeight: 1.7, fontSize: 13 }}>
           {user.email}
           <br />
-          Rôle : {profileStatus === 'loaded' ? profile?.role : profileStatus === 'missing' ? 'profil manquant' : profileStatus === 'error' ? 'lecture en erreur' : 'chargement'}
+          Rôle : {getRoleDisplayLabel(profileStatus, profile?.role)}
           <br />
           User ID : {user.id}
           <br />
@@ -170,7 +171,7 @@ export default function AuthPage() {
           </div>
         ) : null}
 
-        {!error && profileStatus === 'error' ? (
+        {!error && profileStatus === PROFILE_STATUS.ERROR ? (
           <div style={{ fontSize: 12, color: '#f59e0b', marginBottom: 12, padding: '10px 12px', background: 'rgba(245,158,11,0.08)', borderRadius: 10 }}>
             {profileError?.message || 'Le profil n’a pas encore été relu correctement depuis Supabase.'}
           </div>

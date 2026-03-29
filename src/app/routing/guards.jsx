@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import { PROFILE_STATUS, SESSION_STATUS, hasStableProfile, isProfilePending } from '../../modules/auth/state'
 
 export function LoadingScreen({ label = 'Chargement...' }) {
   return (
@@ -13,9 +14,9 @@ export function LoadingScreen({ label = 'Chargement...' }) {
 export function PrivateRoute({ children, redirectTo = '/' }) {
   const { user, profile, loading, sessionStatus, profileStatus, profileError, reloadProfile } = useAuth()
 
-  if (loading || sessionStatus === 'loading' || profileStatus === 'loading') return <LoadingScreen />
-  if (sessionStatus === 'unauthenticated' || !user) return <Navigate to={redirectTo} replace />
-  if (profileStatus === 'error' && !profile) {
+  if (loading || sessionStatus === SESSION_STATUS.LOADING || isProfilePending(profileStatus)) return <LoadingScreen />
+  if (sessionStatus === SESSION_STATUS.UNAUTHENTICATED || !user) return <Navigate to={redirectTo} replace />
+  if (profileStatus === PROFILE_STATUS.ERROR && !profile) {
     return (
       <div style={{ minHeight:'100vh', background:'#080706', display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
         <div style={{ textAlign:'center', maxWidth:440 }}>
@@ -53,7 +54,7 @@ export function AdminRoute({ children }) {
 
   useEffect(() => {
     if (!user || loading || isAdmin || retriedRef.current) return
-    if (profileStatus === 'loaded' || profileStatus === 'missing') return
+    if (hasStableProfile(profileStatus)) return
 
     retriedRef.current = true
     setSyncingProfile(true)
@@ -67,13 +68,13 @@ export function AdminRoute({ children }) {
       })
   }, [user, loading, isAdmin, profile, reloadProfile])
 
-  if (loading || sessionStatus === 'loading' || profileStatus === 'loading' || syncingProfile) {
+  if (loading || sessionStatus === SESSION_STATUS.LOADING || isProfilePending(profileStatus) || syncingProfile) {
     return <LoadingScreen label="Chargement de l’atelier admin..." />
   }
 
-  if (sessionStatus === 'unauthenticated' || !user) return <Navigate to="/app" replace />
+  if (sessionStatus === SESSION_STATUS.UNAUTHENTICATED || !user) return <Navigate to="/app" replace />
 
-  if (profileStatus === 'error' && !isAdmin) {
+  if (profileStatus === PROFILE_STATUS.ERROR && !isAdmin) {
     return (
       <div style={{ minHeight:'100vh', background:'#080706', display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
         <div style={{ maxWidth:460, width:'100%', background:'#14110f', border:'1px solid #241d18', borderRadius:16, padding:24, color:'#f5f1ea', fontFamily:"'DM Sans', sans-serif" }}>
@@ -98,7 +99,7 @@ export function AdminRoute({ children }) {
   }
 
   if (!isAdmin) {
-    const missingProfile = profileStatus === 'missing'
+    const missingProfile = profileStatus === PROFILE_STATUS.MISSING
     return (
       <div style={{ minHeight:'100vh', background:'#080706', display:'flex', alignItems:'center', justifyContent:'center', padding:24 }}>
         <div style={{ maxWidth:460, width:'100%', background:'#14110f', border:'1px solid #241d18', borderRadius:16, padding:24, color:'#f5f1ea', fontFamily:"'DM Sans', sans-serif" }}>

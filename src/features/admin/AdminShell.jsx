@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import { PROFILE_STATUS } from '../../modules/auth/state'
 
 const NAV = [
   { path: '/admin',           icon: '📊', label: 'Vue d’ensemble',        end: true },
@@ -47,7 +48,7 @@ export default function AdminShell() {
             Le compte connecté n’a pas de rôle admin actif.
           </div>
           <div style={{ color:'#8a7060', fontSize:13, marginBottom:18 }}>
-            {profileStatus === 'missing' ? 'Profil public manquant' : profileStatus === 'error' ? 'Profil en erreur de lecture' : `Rôle détecté : ${profile?.role}`}
+            {profileStatus === PROFILE_STATUS.MISSING ? 'Profil public manquant' : profileStatus === PROFILE_STATUS.ERROR ? 'Profil en erreur de lecture' : `Rôle détecté : ${profile?.role}`}
           </div>
           <button onClick={() => navigate('/app')} style={{ minHeight:44, padding:'0 18px', borderRadius:12, border:'1px solid #2b2b2b', background:'#161616', color:'#f5f1ea', fontWeight:700, cursor:'pointer' }}>
             Retour à l’app

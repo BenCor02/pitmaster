@@ -13,6 +13,7 @@ import {
   updateProfileByUserId,
 } from '../modules/auth/repository'
 import { isAdminRole, isEditorRole } from '../modules/auth/profileAccess'
+import { PROFILE_STATUS, SESSION_STATUS, isProfilePending } from '../modules/auth/state'
 
 const AuthContext = createContext({})
 // PATCH: hook export conservé ici pour ne pas casser tout le projet pendant la migration Supabase-first.
@@ -23,8 +24,8 @@ export function AuthProvider({ children }) {
   const [user,    setUser]    = useState(null)
   const [profile, setProfile] = useState(null)
   const [roles,   setRoles]   = useState([])
-  const [sessionStatus, setSessionStatus] = useState('loading')
-  const [profileStatus, setProfileStatus] = useState('idle')
+  const [sessionStatus, setSessionStatus] = useState(SESSION_STATUS.LOADING)
+  const [profileStatus, setProfileStatus] = useState(PROFILE_STATUS.IDLE)
   const [profileError, setProfileError] = useState(null)
   const loadProfileSeqRef = useRef(0)
   const lastStableProfileRef = useRef(null)
@@ -32,12 +33,12 @@ export function AuthProvider({ children }) {
   function clearResolvedProfile() {
     setProfile(null)
     setRoles([])
-    setProfileStatus('idle')
+    setProfileStatus(PROFILE_STATUS.IDLE)
     setProfileError(null)
     lastStableProfileRef.current = null
   }
 
-  function setResolvedProfile(nextProfile, nextStatus = 'loaded') {
+  function setResolvedProfile(nextProfile, nextStatus = PROFILE_STATUS.LOADED) {
     const nextRoles = nextProfile?.roles || (nextProfile?.role ? [nextProfile.role] : [])
     setProfile(nextProfile)
     setRoles(nextRoles)
@@ -66,7 +67,7 @@ export function AuthProvider({ children }) {
       return null
     }
 
-    setProfileStatus('loading')
+    setProfileStatus(PROFILE_STATUS.LOADING)
     setProfileError(null)
 
     try {
@@ -121,7 +122,7 @@ export function AuthProvider({ children }) {
       if (currentSeq !== loadProfileSeqRef.current) return
 
       if (nextProfile) {
-        const resolvedProfile = setResolvedProfile(nextProfile, 'loaded')
+        const resolvedProfile = setResolvedProfile(nextProfile, PROFILE_STATUS.LOADED)
         await touchProfileLastSeen(userId)
         return resolvedProfile
       }
@@ -130,14 +131,14 @@ export function AuthProvider({ children }) {
       if (stableProfile) {
         setProfile(stableProfile)
         setRoles(stableProfile.roles || (stableProfile.role ? [stableProfile.role] : []))
-        setProfileStatus('error')
+        setProfileStatus(PROFILE_STATUS.ERROR)
         setProfileError(new Error('Le profil n’a pas pu être relu depuis Supabase. Le dernier rôle valide est conservé.'))
         return stableProfile
       }
 
       setProfile(null)
       setRoles([])
-      setProfileStatus('missing')
+      setProfileStatus(PROFILE_STATUS.MISSING)
       setProfileError(null)
       return null
     } catch (e) {
@@ -148,14 +149,14 @@ export function AuthProvider({ children }) {
       if (stableProfile) {
         setProfile(stableProfile)
         setRoles(stableProfile.roles || (stableProfile.role ? [stableProfile.role] : []))
-        setProfileStatus('error')
+        setProfileStatus(PROFILE_STATUS.ERROR)
         setProfileError(e)
         return stableProfile
       }
 
       setProfile(null)
       setRoles([])
-      setProfileStatus('error')
+      setProfileStatus(PROFILE_STATUS.ERROR)
       setProfileError(e)
       return null
     }
@@ -170,7 +171,7 @@ export function AuthProvider({ children }) {
         if (!isMounted) return
         const nextUser = session?.user ?? null
         setUser(nextUser)
-        setSessionStatus(nextUser ? 'authenticated' : 'unauthenticated')
+        setSessionStatus(nextUser ? SESSION_STATUS.AUTHENTICATED : SESSION_STATUS.UNAUTHENTICATED)
         if (!nextUser) {
           clearResolvedProfile()
           return null
@@ -181,7 +182,7 @@ export function AuthProvider({ children }) {
         console.error('getSession error', error)
         if (!isMounted) return
         setUser(null)
-        setSessionStatus('unauthenticated')
+        setSessionStatus(SESSION_STATUS.UNAUTHENTICATED)
         clearResolvedProfile()
       })
 
@@ -191,7 +192,7 @@ export function AuthProvider({ children }) {
         if (!isMounted) return
         const nextUser = session?.user ?? null
         setUser(nextUser)
-        setSessionStatus(nextUser ? 'authenticated' : 'unauthenticated')
+        setSessionStatus(nextUser ? SESSION_STATUS.AUTHENTICATED : SESSION_STATUS.UNAUTHENTICATED)
         if (!nextUser) {
           clearResolvedProfile()
           return
@@ -217,8 +218,8 @@ export function AuthProvider({ children }) {
   const isPro     = profile?.plan_code !== 'free'
   const role = profile?.role || null
   const loading =
-    sessionStatus === 'loading' ||
-    (sessionStatus === 'authenticated' && (profileStatus === 'idle' || profileStatus === 'loading'))
+    sessionStatus === SESSION_STATUS.LOADING ||
+    (sessionStatus === SESSION_STATUS.AUTHENTICATED && isProfilePending(profileStatus))
 
   async function signOut() {
     // PATCH: déconnexion locale forcée pour éviter les sessions qui restent accrochées dans le navigateur.
@@ -247,7 +248,7 @@ export function AuthProvider({ children }) {
     }
 
     setUser(null)
-    setSessionStatus('unauthenticated')
+    setSessionStatus(SESSION_STATUS.UNAUTHENTICATED)
     clearResolvedProfile()
   }
 
