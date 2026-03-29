@@ -1,5 +1,14 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/sitemap.xml", "destination": "/api/sitemap" },
+    { "source": "/((?!api|assets|favicon).*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/api/sitemap",
+      "headers": [
+        { "key": "Content-Type", "value": "application/xml" }
+      ]
+    }
   ]
 }
