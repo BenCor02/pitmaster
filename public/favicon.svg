@@ -1,26 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <defs>
-    <linearGradient id="fm" x1="0.5" y1="1" x2="0.5" y2="0">
-      <stop offset="0%" stop-color="#7c2d12"/>
-      <stop offset="40%" stop-color="#c2410c"/>
-      <stop offset="75%" stop-color="#f97316"/>
-      <stop offset="100%" stop-color="#fdba74"/>
-    </linearGradient>
-    <linearGradient id="fc" x1="0.5" y1="1" x2="0.5" y2="0">
-      <stop offset="0%" stop-color="#fbbf24"/>
-      <stop offset="100%" stop-color="#fef3c7"/>
-    </linearGradient>
-  </defs>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <rect width="64" height="64" rx="14" fill="#09090b"/>
-  <!-- Mèches latérales -->
-  <path d="M22 50 C18 44 15 38 17 30 C18.5 25 22 22 23 26 C24 30 23 37 24.5 42 C25 45 23 48 22 50Z" fill="#fb923c" opacity="0.5"/>
-  <path d="M42 50 C46 44 49 38 47 30 C45.5 25 42 22 41 26 C40 30 41 37 39.5 42 C39 45 41 48 42 50Z" fill="#fb923c" opacity="0.5"/>
-  <!-- Flamme principale -->
-  <path d="M32 8 C32 8 19 19 19 34 C19 39 21 43 24 46 C24 41 27 37 32 34 C37 37 40 41 40 46 C43 43 45 39 45 34 C45 19 32 8 32 8Z" fill="url(#fm)"/>
-  <!-- Coeur -->
-  <path d="M32 26 C32 26 27 32 27 37 C27 40 29 42 32 43 C35 42 37 40 37 37 C37 32 32 26 32 26Z" fill="url(#fc)" opacity="0.85"/>
-  <!-- Braises -->
-  <circle cx="26" cy="52" r="2" fill="#f97316" opacity="0.5"/>
-  <circle cx="32" cy="53" r="1.5" fill="#fb923c" opacity="0.4"/>
-  <circle cx="38" cy="52" r="2" fill="#f97316" opacity="0.5"/>
+  <path d="M22 50 C18 44 15 38 17 30 C18.5 25 22 22 23 26 C24 30 23 37 24.5 42 C25 45 23 48 22 50Z" fill="#ea580c" opacity="0.5"/>
+  <path d="M42 50 C46 44 49 38 47 30 C45.5 25 42 22 41 26 C40 30 41 37 39.5 42 C39 45 41 48 42 50Z" fill="#ea580c" opacity="0.5"/>
+  <path d="M32 8 C32 8 19 19 19 34 C19 39 21 43 24 46 C24 41 27 37 32 34 C37 37 40 41 40 46 C43 43 45 39 45 34 C45 19 32 8 32 8Z" fill="#f97316"/>
+  <path d="M32 26 C32 26 27 32 27 37 C27 40 29 42 32 43 C35 42 37 40 37 37 C37 32 32 26 32 26Z" fill="#fbbf24" opacity="0.9"/>
+  <circle cx="26" cy="52" r="2" fill="#f97316" opacity="0.45"/>
+  <circle cx="32" cy="53" r="1.5" fill="#fb923c" opacity="0.35"/>
+  <circle cx="38" cy="52" r="2" fill="#f97316" opacity="0.45"/>
 </svg>
