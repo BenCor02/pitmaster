@@ -111,7 +111,7 @@ export default function OnboardingPage() {
       if (error) throw error
       navigate('/app')
     } catch {
-      setSaveError("Le profil n'a pas pu être enregistré pour l'instant. Exécute le patch SQL marketing/profil, puis réessaie.")
+      setSaveError("Le profil n'a pas pu être enregistré pour l'instant. Réessaie dans quelques secondes.")
     } finally {
       setSaving(false)
     }

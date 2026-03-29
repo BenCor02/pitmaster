@@ -88,25 +88,36 @@ export function useCookSession() {
   }, [])
 
   const loadActiveSession = useCallback(async () => {
-    if (!user) return
+    if (!user) {
+      setSession(null)
+      setLoading(false)
+      return
+    }
     setLoading(true)
     try {
       const data = await fetchActiveCookSession(user.id)
       if (data) {
         setSession(hydrateSession(data))
+      } else {
+        setSession(null)
       }
     } catch (err) {
       // Table non créée ou autre erreur Supabase → on continue sans session
       console.warn('useCookSession: table active_cook_sessions inaccessible', err?.message)
+      setSession(null)
     }
     setLoading(false)
   }, [user])
 
   // ── Charger la session active au montage
   useEffect(() => {
-    if (!user) { setLoading(false); return }
-    loadActiveSession()
-    setupPush()
+    if (!user) { setSession(null); setLoading(false); return }
+    loadActiveSession().catch((error) => {
+      console.warn('loadActiveSession failed', error?.message || error)
+    })
+    setupPush().catch((error) => {
+      console.warn('setupPush failed', error?.message || error)
+    })
   }, [user, loadActiveSession, setupPush])
 
   // ── Timer tick toutes les minutes (mise à jour elapsed)

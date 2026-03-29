@@ -1,7 +1,13 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = 'https://stsvkjveuhfvsfxjowcu.supabase.co'
-const supabaseKey = 'sb_publishable_CZrjgKG6Vlo3mSj5HH9_iw_dUiCu85g'
+const DEFAULT_SUPABASE_URL = 'https://stsvkjveuhfvsfxjowcu.supabase.co'
+const DEFAULT_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_CZrjgKG6Vlo3mSj5HH9_iw_dUiCu85g'
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || DEFAULT_SUPABASE_URL
+const supabaseKey =
+  import.meta.env.VITE_SUPABASE_ANON_KEY ||
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  DEFAULT_SUPABASE_PUBLISHABLE_KEY
 const projectRef = new URL(supabaseUrl).hostname.split('.')[0]
 export const supabaseStorageKey = `cf-supabase-auth-${projectRef}`
 

@@ -18,6 +18,20 @@ function pickSafeProfileUpdates(updates = {}) {
   )
 }
 
+function getMissingColumn(error) {
+  if (error?.code !== '42703') return null
+  const raw = `${error?.message || ''} ${error?.details || ''}`.trim()
+  const match = raw.match(/column "([^"]+)"/i)
+  return match?.[1] || null
+}
+
+function withoutField(payload, field) {
+  if (!field || !(field in payload)) return null
+  const next = { ...payload }
+  delete next[field]
+  return next
+}
+
 export async function fetchProfileByUserId(userId) {
   if (!userId) return null
   const { data, error } = await supabase
@@ -86,12 +100,30 @@ export async function updateProfileByUserId(userId, updates) {
   const existingProfile = await fetchProfileByUserId(userId)
 
   if (existingProfile) {
-    const { data, error } = await supabase
+    let updatePayload = { ...safeUpdates, updated_at: updatedAt }
+
+    let { data, error } = await supabase
       .from('profiles')
-      .update({ ...safeUpdates, updated_at: updatedAt })
+      .update(updatePayload)
       .eq('id', userId)
       .select()
       .single()
+
+    if (error) {
+      const missingColumn = getMissingColumn(error)
+      const fallbackPayload = withoutField(updatePayload, missingColumn)
+      if (fallbackPayload) {
+        updatePayload = fallbackPayload
+        const retry = await supabase
+          .from('profiles')
+          .update(updatePayload)
+          .eq('id', userId)
+          .select()
+          .single()
+        data = retry.data
+        error = retry.error
+      }
+    }
 
     if (error) throw error
     return data
@@ -118,11 +150,27 @@ export async function updateProfileByUserId(userId, updates) {
     ...safeUpdates,
   }
 
-  const { data, error } = await supabase
+  let insertPayload = payload
+  let { data, error } = await supabase
     .from('profiles')
-    .insert(payload)
+    .insert(insertPayload)
     .select()
     .single()
+
+  if (error) {
+    const missingColumn = getMissingColumn(error)
+    const fallbackInsert = withoutField(insertPayload, missingColumn)
+    if (fallbackInsert) {
+      insertPayload = fallbackInsert
+      const retryInsert = await supabase
+        .from('profiles')
+        .insert(insertPayload)
+        .select()
+        .single()
+      data = retryInsert.data
+      error = retryInsert.error
+    }
+  }
 
   if (error) {
     if (error.code === '23505') {

@@ -29,7 +29,9 @@ export function useSiteSettings() {
   useEffect(() => {
     // Charger si pas encore en cache
     if (!cache) {
-      fetchSettings()
+      fetchSettings().catch((error) => {
+        console.warn('site settings load failed', error)
+      })
     }
 
     // S'abonner aux mises à jour globales

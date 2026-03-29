@@ -38,6 +38,12 @@ create table if not exists public.profiles (
   email text,
   first_name text,
   last_name text,
+  smoker_type text,
+  experience_level text,
+  bbq_frequency text,
+  favorite_meats jsonb not null default '[]'::jsonb,
+  marketing_opt_in boolean not null default false,
+  source_channel text,
   role text not null default 'member' check (role in ('super_admin', 'admin', 'editor', 'member')),
   status text not null default 'active' check (status in ('active', 'disabled', 'pending')),
   account_status text not null default 'active' check (account_status in ('active', 'suspended', 'pending')),
@@ -86,6 +92,12 @@ as $$
     'email', p.email,
     'first_name', p.first_name,
     'last_name', p.last_name,
+    'smoker_type', p.smoker_type,
+    'experience_level', p.experience_level,
+    'bbq_frequency', p.bbq_frequency,
+    'favorite_meats', p.favorite_meats,
+    'marketing_opt_in', p.marketing_opt_in,
+    'source_channel', p.source_channel,
     'role', p.role,
     'roles', jsonb_build_array(p.role),
     'status', p.status,
@@ -297,7 +309,7 @@ with check (auth.uid() = id or public.current_user_role() in ('super_admin', 'ad
 
 drop policy if exists "profiles_insert_admin_only" on public.profiles;
 create policy "profiles_insert_admin_only" on public.profiles
-for insert with check (public.current_user_role() in ('super_admin', 'admin'));
+for insert with check (auth.uid() = id or public.current_user_role() in ('super_admin', 'admin'));
 
 drop policy if exists "site_settings_public_read" on public.site_settings;
 create policy "site_settings_public_read" on public.site_settings
