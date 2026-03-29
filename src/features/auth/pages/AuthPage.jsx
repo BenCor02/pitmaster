@@ -9,6 +9,7 @@ import {
   signInWithPassword,
   signUpWithPassword,
 } from '../../../modules/auth/service'
+import { supabaseProjectUrl } from '../../../modules/supabase/client'
 
 const FIELD_STYLE = {
   width: '100%',
@@ -43,6 +44,20 @@ const SECONDARY_BUTTON = {
   background: '#161616',
   border: '1px solid #2b2b2b',
   boxShadow: 'none',
+}
+
+function mapSignInError(nextError) {
+  const raw = `${nextError?.message || ''}`.toLowerCase()
+  if (raw.includes('email not confirmed')) {
+    return 'Ton email n’est pas encore confirmé. Vérifie ta boîte mail et clique le lien de confirmation.'
+  }
+  if (raw.includes('invalid login credentials')) {
+    return 'Identifiants invalides sur ce projet Supabase. Vérifie ton mot de passe ou utilise Google/Apple si le compte a été créé en OAuth.'
+  }
+  if (raw.includes('invalid email')) {
+    return 'Adresse email invalide.'
+  }
+  return nextError?.message || 'Connexion impossible pour le moment.'
 }
 
 export default function AuthPage() {
@@ -86,7 +101,7 @@ export default function AuthPage() {
     if (mode === 'login') {
       const { data, error: nextError } = await signInWithPassword(email, password)
       if (nextError) {
-        setError('Email ou mot de passe incorrect')
+        setError(mapSignInError(nextError))
         setLoading('')
         return
       }
@@ -249,6 +264,9 @@ export default function AuthPage() {
         <Link to="/forgot-password" style={{ color: '#b7aea4', fontSize: 12, textDecoration: 'none' }}>
           Mot de passe oublié ?
         </Link>
+      </div>
+      <div style={{ marginTop: 10, textAlign: 'left', fontSize: 10, color: '#6a5a4a' }}>
+        Projet Supabase : {supabaseProjectUrl}
       </div>
     </AuthShell>
   )
