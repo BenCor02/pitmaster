@@ -407,6 +407,58 @@ function ResultView({ result }) {
         </div>
       </div>
 
+      {/* ── Quick brief : comment cuire ── */}
+      <div className="surface p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
+            <span className="text-xs">🔥</span>
+          </div>
+          <h3 className="text-[14px] font-bold text-white">Comment cuire</h3>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {result.cookTempC > 0 && (
+            <div className="rounded-xl p-3 bg-white/[0.03] border border-white/[0.05]">
+              <p className="text-[9px] font-semibold text-zinc-600 uppercase tracking-wider">Fumoir</p>
+              <p className="text-[18px] font-extrabold text-white mt-0.5">{result.cookTempC}°C</p>
+              <p className="text-[10px] text-zinc-600">{Math.round(result.cookTempC * 9/5 + 32)}°F</p>
+            </div>
+          )}
+          <div className="rounded-xl p-3 bg-white/[0.03] border border-white/[0.05]">
+            <p className="text-[9px] font-semibold text-zinc-600 uppercase tracking-wider">Méthode</p>
+            <p className="text-[14px] font-bold text-white mt-0.5">{result.cookType === 'reverse_sear' ? 'Reverse sear' : 'Low & slow'}</p>
+            <p className="text-[10px] text-zinc-600">Zone indirecte</p>
+          </div>
+          {result.wrapped && (
+            <div className="rounded-xl p-3 bg-white/[0.03] border border-white/[0.05]">
+              <p className="text-[9px] font-semibold text-zinc-600 uppercase tracking-wider">Wrap</p>
+              <p className="text-[14px] font-bold text-white mt-0.5">Oui</p>
+              <p className="text-[10px] text-zinc-600">Papier boucher</p>
+            </div>
+          )}
+          {result.cues?.target_temp_min && (
+            <div className="rounded-xl p-3 bg-white/[0.03] border border-white/[0.05]">
+              <p className="text-[9px] font-semibold text-zinc-600 uppercase tracking-wider">Cible interne</p>
+              <p className="text-[18px] font-extrabold text-white mt-0.5">{result.cues.target_temp_min}°C</p>
+              <p className="text-[10px] text-zinc-600">à {result.cues.target_temp_max}°C</p>
+            </div>
+          )}
+          {result.targetFinalTemp && (
+            <div className="rounded-xl p-3 bg-white/[0.03] border border-white/[0.05]">
+              <p className="text-[9px] font-semibold text-zinc-600 uppercase tracking-wider">Cible finale</p>
+              <p className="text-[18px] font-extrabold text-white mt-0.5">{result.targetFinalTemp}°C</p>
+              <p className="text-[10px] text-zinc-600">Après saisie</p>
+            </div>
+          )}
+          {result.weightKg > 0 && (
+            <div className="rounded-xl p-3 bg-white/[0.03] border border-white/[0.05]">
+              <p className="text-[9px] font-semibold text-zinc-600 uppercase tracking-wider">Poids</p>
+              <p className="text-[18px] font-extrabold text-white mt-0.5">{result.weightKg} kg</p>
+              <p className="text-[10px] text-zinc-600">{result.tolerance > 0.15 ? 'Grosse pièce' : 'Pièce standard'}</p>
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* ── Disclaimer pitmaster ── */}
       <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-orange-500/[0.04] border border-orange-500/[0.08]">
         <span className="text-sm mt-0.5">💡</span>
