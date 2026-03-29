@@ -275,7 +275,7 @@ export default function CalculatorPage() {
                     <div className="surface p-5">
                       <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-[0.08em] mb-3 block">Emballage (Texas crutch)</label>
                       <div className="grid grid-cols-2 gap-3">
-                        <WrapOption active={wrapped} onClick={() => { setWrapped(true); setResult(null) }} title="Avec wrap" description="Plus rapide, moins de bark" icon="📦" />
+                        <WrapOption active={wrapped} onClick={() => { setWrapped(true); setResult(null) }} title="Avec wrap" description="Plus rapide, moins de bark" icon="🥩" />
                         <WrapOption active={!wrapped} onClick={() => { setWrapped(false); setResult(null) }} title="Sans wrap" description="Plus long, bark prononcée" icon="🔥" />
                       </div>
                     </div>
@@ -349,10 +349,10 @@ function WrapOption({ active, onClick, title, description, icon }) {
 
 const PHASE_THEMES = {
   1: { color: 'from-amber-500 to-orange-600', bg: 'bg-amber-500/[0.06]', border: 'border-amber-500/[0.15]', text: 'text-amber-400', icon: '🔥' },
-  2: { color: 'from-yellow-500 to-amber-500', bg: 'bg-yellow-500/[0.06]', border: 'border-yellow-500/[0.15]', text: 'text-yellow-400', icon: '⏳' },
-  3: { color: 'from-blue-500 to-cyan-500', bg: 'bg-blue-500/[0.06]', border: 'border-blue-500/[0.15]', text: 'text-blue-400', icon: '📦' },
+  2: { color: 'from-yellow-500 to-amber-500', bg: 'bg-yellow-500/[0.06]', border: 'border-yellow-500/[0.15]', text: 'text-yellow-400', icon: '🥵' },
+  3: { color: 'from-rose-500 to-pink-500', bg: 'bg-rose-500/[0.06]', border: 'border-rose-500/[0.15]', text: 'text-rose-400', icon: '🥩' },
   4: { color: 'from-emerald-500 to-green-500', bg: 'bg-emerald-500/[0.06]', border: 'border-emerald-500/[0.15]', text: 'text-emerald-400', icon: '🧈' },
-  5: { color: 'from-purple-500 to-violet-500', bg: 'bg-purple-500/[0.06]', border: 'border-purple-500/[0.15]', text: 'text-purple-400', icon: '😴' },
+  5: { color: 'from-purple-500 to-violet-500', bg: 'bg-purple-500/[0.06]', border: 'border-purple-500/[0.15]', text: 'text-purple-400', icon: '🍽️' },
 }
 
 const HERO_IMAGES = {
