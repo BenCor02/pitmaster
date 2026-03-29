@@ -224,16 +224,14 @@ export default function CalculatorPage() {
                   {!isFixedTime && (
                     <div className="surface p-5">
                       <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-[0.08em] mb-3 block">Poids de la pièce</label>
-                      <div className="flex items-center gap-4">
-                        <div className="relative flex-1 max-w-[200px]">
-                          <input type="number" step="0.1" min="0.5" max="20" value={weightKg} onChange={(e) => { setWeightKg(e.target.value); setResult(null) }} placeholder="4.0" className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-[18px] font-semibold text-white placeholder-zinc-700 focus:outline-none focus:border-orange-500/30 focus:bg-white/[0.04] transition-all" />
-                          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[13px] text-zinc-600 font-medium">kg</span>
-                        </div>
-                        <div className="flex gap-1.5 flex-wrap">
-                          {[2, 3, 4, 5, 6, 8].map((w) => (
-                            <button key={w} onClick={() => { setWeightKg(String(w)); setResult(null) }} className={`px-3 py-2 rounded-lg text-[12px] font-medium border transition-all ${weightKg === String(w) ? 'border-orange-500/30 bg-orange-500/8 text-orange-400' : 'border-white/[0.06] text-zinc-500 hover:text-zinc-300 hover:border-white/[0.1]'}`}>{w}kg</button>
-                          ))}
-                        </div>
+                      <div className="relative max-w-[200px] mb-3">
+                        <input type="number" inputMode="decimal" step="0.1" min="0.5" max="20" value={weightKg} onChange={(e) => { setWeightKg(e.target.value); setResult(null) }} placeholder="4.0" className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-[18px] font-semibold text-white placeholder-zinc-700 focus:outline-none focus:border-orange-500/30 focus:bg-white/[0.04] transition-all" />
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[13px] text-zinc-600 font-medium">kg</span>
+                      </div>
+                      <div className="flex gap-1.5 flex-wrap">
+                        {[2, 3, 4, 5, 6, 8].map((w) => (
+                          <button key={w} onClick={() => { setWeightKg(String(w)); setResult(null) }} className={`px-3 py-2 rounded-lg text-[12px] font-medium border transition-all ${weightKg === String(w) ? 'border-orange-500/30 bg-orange-500/8 text-orange-400' : 'border-white/[0.06] text-zinc-500 hover:text-zinc-300 hover:border-white/[0.1]'}`}>{w}kg</button>
+                        ))}
                       </div>
                     </div>
                   )}
