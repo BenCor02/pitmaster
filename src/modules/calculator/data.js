@@ -35,7 +35,7 @@ export const MEAT_PROFILES = [
     ],
     wrap_reduction_percent: 15,
     rest_min: 60,
-    rest_max: 240,   // Franklin recommande 2-4h de rest en cooler, consensus reddit = 3-4h optimal
+    rest_max: 120,   // 1-2h de rest typique. Au-delà c'est un bonus, pas la norme
     cues: {
       stall_temp_min: 65,    // stall commence parfois dès 65°C (150°F) — consensus élargi
       stall_temp_max: 77,    // peut durer jusqu'à 77°C (170°F) sur gros brisket
@@ -62,7 +62,7 @@ export const MEAT_PROFILES = [
     ],
     wrap_reduction_percent: 10,
     rest_min: 30,
-    rest_max: 90,    // augmenté : les short ribs bénéficient d'un bon repos
+    rest_max: 60,    // short ribs : repos modéré
     cues: {
       stall_temp_min: 65,
       stall_temp_max: 77,
@@ -88,8 +88,8 @@ export const MEAT_PROFILES = [
       { temp_c: 135, min_per_kg: 85 },
     ],
     wrap_reduction_percent: 12,
-    rest_min: 45,
-    rest_max: 120,
+    rest_min: 30,
+    rest_max: 60,
     cues: {
       stall_temp_min: 65,
       stall_temp_max: 77,
@@ -174,7 +174,7 @@ export const MEAT_PROFILES = [
     ],
     wrap_reduction_percent: 12,
     rest_min: 45,
-    rest_max: 180,   // augmenté : le pulled pork tient très bien en cooler 2-3h
+    rest_max: 90,    // 45min-1h30 typique. Au-delà c'est du bonus en cooler
     cues: {
       stall_temp_min: 63,    // le porc stalle parfois dès 63°C (145°F)
       stall_temp_max: 74,

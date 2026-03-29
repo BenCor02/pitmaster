@@ -108,15 +108,17 @@ export function calculateCookPlan({ profile, weightKg, cookTempC, wrapped, donen
   }
 
   // ── 6. Tolérance selon poids ──────────────────────────
-  const tolerance = weightKg > 6 ? 0.20 : weightKg > 3 ? 0.15 : 0.10
+  // Resserré : plage réaliste, pas une fourchette inutilisable
+  const tolerance = weightKg > 6 ? 0.12 : weightKg > 3 ? 0.10 : 0.08
 
   // ── 7. Durée totale ───────────────────────────────────
-  // On retire 1h de l'estimation pour que le service tombe
-  // au bon moment. Avant, la viande finissait 1h trop tôt.
+  // totalHigh utilise le rest MOYEN (pas le max) pour éviter
+  // des plages absurdement larges. Le rest_max reste dispo
+  // dans l'UI pour info mais ne gonfle plus l'estimation haute.
   const totalCookMin = Math.round(cookMinutes)
-  const SERVICE_ADJUST = -60 // décaler le service 1h plus tard
-  const totalLow = Math.max(0, Math.round(totalCookMin * (1 - tolerance) + restMin + SERVICE_ADJUST))
-  const totalHigh = Math.round(totalCookMin * (1 + tolerance) + restMax + SERVICE_ADJUST)
+  const restAvg = Math.round((restMin + restMax) / 2)
+  const totalLow = Math.max(0, Math.round(totalCookMin * (1 - tolerance) + restMin))
+  const totalHigh = Math.round(totalCookMin * (1 + tolerance) + restAvg)
 
   // ── 8. Construction des phases ────────────────────────
   const phases = buildPhases(profile, totalCookMin, tolerance, wrapped, {
