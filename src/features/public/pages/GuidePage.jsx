@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { usePageContent } from '../../../hooks/usePageContent'
 import SeoBlocksSection from '../../calculator/components/SeoBlocksSection'
@@ -93,14 +93,16 @@ export default function GuidePage() {
   const { blocks: topBlocks } = useSeoBlocks({ position: 'after_intro', pageSlug: slug })
   const { blocks: bottomBlocks } = useSeoBlocks({ position: 'bottom_page', pageSlug: slug })
 
-  const fallback = FALLBACK_GUIDES[slug] || {
-    kicker: 'Guide BBQ',
-    title: 'Guide cuisson',
-    intro: 'Retrouve un repère simple, puis retourne vers le calculateur pour obtenir ton heure de départ et ta fenêtre de service.',
-    bullets: ['Heure de départ', 'Wrap', 'Repos', 'Fenêtre de service'],
-    ctaText: 'Retour au calculateur',
-    ctaLink: '/app',
-  }
+  const fallback = useMemo(() => (
+    FALLBACK_GUIDES[slug] || {
+      kicker: 'Guide BBQ',
+      title: 'Guide cuisson',
+      intro: 'Retrouve un repère simple, puis retourne vers le calculateur pour obtenir ton heure de départ et ta fenêtre de service.',
+      bullets: ['Heure de départ', 'Wrap', 'Repos', 'Fenêtre de service'],
+      ctaText: 'Retour au calculateur',
+      ctaLink: '/app',
+    }
+  ), [slug])
 
   const heroSection = sections.find((section) => section.section_type === 'hero')
   const tipsSection = sections.find((section) => section.section_type === 'tips')

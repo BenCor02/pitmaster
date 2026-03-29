@@ -54,12 +54,13 @@ export async function ensureProfileForAuthUser(authUser) {
 
   const { data, error } = await supabase
     .from('profiles')
-    .insert(payload)
+    .upsert(payload, { onConflict: 'id', ignoreDuplicates: true })
     .select('*')
-    .single()
+    .maybeSingle()
 
   if (error) throw error
-  return data
+  if (data) return data
+  return fetchProfileByUserId(userId)
 }
 
 export async function fetchMyProfileRpc() {
@@ -119,10 +120,24 @@ export async function updateProfileByUserId(userId, updates) {
 
   const { data, error } = await supabase
     .from('profiles')
-    .upsert(payload, { onConflict: 'id' })
+    .insert(payload)
     .select()
     .single()
 
-  if (error) throw error
+  if (error) {
+    if (error.code === '23505') {
+      // Row appeared concurrently; never overwrite role/plan with a fallback payload.
+      const { data: retryData, error: retryError } = await supabase
+        .from('profiles')
+        .update({ ...safeUpdates, updated_at: updatedAt })
+        .eq('id', userId)
+        .select()
+        .single()
+
+      if (retryError) throw retryError
+      return retryData
+    }
+    throw error
+  }
   return data
 }

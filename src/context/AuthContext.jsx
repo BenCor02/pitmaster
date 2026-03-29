@@ -72,6 +72,7 @@ export function AuthProvider({ children }) {
 
     try {
       let nextProfile = null
+      let hadLookupError = false
       try {
         const directProfile = await fetchProfileByUserId(userId)
         if (directProfile) {
@@ -82,6 +83,7 @@ export function AuthProvider({ children }) {
           }
         }
       } catch (directProfileError) {
+        hadLookupError = true
         console.warn('profiles direct select failed', directProfileError)
       }
 
@@ -98,6 +100,7 @@ export function AuthProvider({ children }) {
             }
           }
         } catch (rpcError) {
+          hadLookupError = true
           console.warn('get_my_profile rpc failed', rpcError)
         }
       }
@@ -115,6 +118,7 @@ export function AuthProvider({ children }) {
             }
           }
         } catch (bootstrapError) {
+          hadLookupError = true
           console.warn('profile bootstrap failed', bootstrapError)
         }
       }
@@ -123,7 +127,11 @@ export function AuthProvider({ children }) {
 
       if (nextProfile) {
         const resolvedProfile = setResolvedProfile(nextProfile, PROFILE_STATUS.LOADED)
-        await touchProfileLastSeen(userId)
+        try {
+          await touchProfileLastSeen(userId)
+        } catch (touchError) {
+          console.warn('touchProfileLastSeen failed', touchError)
+        }
         return resolvedProfile
       }
 
@@ -134,6 +142,14 @@ export function AuthProvider({ children }) {
         setProfileStatus(PROFILE_STATUS.ERROR)
         setProfileError(new Error('Le profil n’a pas pu être relu depuis Supabase. Le dernier rôle valide est conservé.'))
         return stableProfile
+      }
+
+      if (hadLookupError) {
+        setProfile(null)
+        setRoles([])
+        setProfileStatus(PROFILE_STATUS.ERROR)
+        setProfileError(new Error('Lecture du profil en erreur. Supabase reste la source de vérité et sera relu automatiquement.'))
+        return null
       }
 
       setProfile(null)

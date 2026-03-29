@@ -1,7 +1,7 @@
 import { Outlet, NavLink, useLocation } from 'react-router-dom'
 import { useSiteSettings } from '../hooks/useSiteSettings'
 import { useAuth } from '../context/AuthContext'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import BrandMark from './BrandMark'
 
 const NAV = [
@@ -74,10 +74,6 @@ export default function Layout() {
   const allItems = NAV.flatMap(s => s.items)
   const currentPage = allItems.find(i => i.end ? location.pathname === i.path : location.pathname.startsWith(i.path))
   const currentPageLabel = currentPage?.label || HIDDEN_PAGE_LABELS[location.pathname] || 'Atelier'
-
-  useEffect(() => {
-    setMoreOpen(false)
-  }, [location.pathname])
 
   return (
     <div style={{ display:'flex', minHeight:'100vh', background:'var(--bg)', fontFamily:"'DM Sans',sans-serif", position:'relative' }}>

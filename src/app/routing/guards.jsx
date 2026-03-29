@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { PROFILE_STATUS, SESSION_STATUS, hasStableProfile, isProfilePending } from '../../modules/auth/state'
@@ -50,25 +50,20 @@ export function PrivateRoute({ children, redirectTo = '/' }) {
 export function AdminRoute({ children }) {
   const { user, isAdmin, loading, profile, reloadProfile, sessionStatus, profileStatus, profileError } = useAuth()
   const retriedRef = useRef(false)
-  const [syncingProfile, setSyncingProfile] = useState(false)
 
   useEffect(() => {
     if (!user || loading || isAdmin || retriedRef.current) return
     if (hasStableProfile(profileStatus)) return
 
     retriedRef.current = true
-    setSyncingProfile(true)
 
     Promise.resolve(reloadProfile?.())
       .catch((error) => {
         console.warn('admin profile sync failed', error)
       })
-      .finally(() => {
-        setSyncingProfile(false)
-      })
-  }, [user, loading, isAdmin, profile, reloadProfile])
+  }, [user, loading, isAdmin, profileStatus, reloadProfile])
 
-  if (loading || sessionStatus === SESSION_STATUS.LOADING || isProfilePending(profileStatus) || syncingProfile) {
+  if (loading || sessionStatus === SESSION_STATUS.LOADING || isProfilePending(profileStatus)) {
     return <LoadingScreen label="Chargement de l’atelier admin..." />
   }
 

@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { MEAT_IMAGES, SMOKE_IMAGE } from '../../../domain/content/images'
 import { MEATS } from '../../../domain/content/meats'
@@ -42,12 +42,14 @@ export default function MeatGuidePage() {
   const { blocks: bottomBlocks } = useSeoBlocks({ position: 'bottom_page', meatSlug: slug, pageSlug: slug })
 
   const meat = MEATS[slug]
-  const fallback = FALLBACK_GUIDES[slug] || {
-    title: meat?.full || meat?.name || 'Guide cuisson',
-    subtitle: 'Guide viande',
-    intro: 'Retrouve les repères utiles de cuisson, puis lance le calculateur avec cette viande déjà préselectionnée.',
-    bullets: ['Heure de départ', 'Fenêtre de service', 'Repos', 'Repères de cuisson'],
-  }
+  const fallback = useMemo(() => (
+    FALLBACK_GUIDES[slug] || {
+      title: meat?.full || meat?.name || 'Guide cuisson',
+      subtitle: 'Guide viande',
+      intro: 'Retrouve les repères utiles de cuisson, puis lance le calculateur avec cette viande déjà préselectionnée.',
+      bullets: ['Heure de départ', 'Fenêtre de service', 'Repos', 'Repères de cuisson'],
+    }
+  ), [slug, meat?.full, meat?.name])
 
   const heroSection = sections.find((section) => section.section_type === 'hero')
   const tipsSection = sections.find((section) => section.section_type === 'tips')
