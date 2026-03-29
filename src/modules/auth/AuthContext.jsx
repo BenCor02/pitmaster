@@ -73,6 +73,18 @@ export function AuthProvider({ children }) {
     return { error }
   }
 
+  const updateProfile = async (updates) => {
+    if (!session?.user?.id) return { error: 'Non connecté' }
+    const { data, error } = await supabase
+      .from('profiles')
+      .update(updates)
+      .eq('id', session.user.id)
+      .select()
+      .single()
+    if (!error && data) setProfile(data)
+    return { data, error }
+  }
+
   const signOut = async () => {
     await supabase.auth.signOut()
   }
@@ -92,6 +104,7 @@ export function AuthProvider({ children }) {
         signIn,
         signUp,
         signOut,
+        updateProfile,
       }}
     >
       {children}

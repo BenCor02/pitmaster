@@ -71,6 +71,11 @@ export default function Layout({ children }) {
   const userInitial = userName[0].toUpperCase()
   const userRole = profile?.role === 'admin' || profile?.role === 'super_admin' ? 'Pit Master' : 'Membre'
 
+  const SMOKER_LABELS = { offset: 'Offset', wsm: 'WSM', kamado: 'Kamado', kettle: 'Kettle', pellet: 'Pellet', electric: 'Électrique', gas: 'Gaz', other: 'Autre' }
+  const LEVEL_LABELS = { debutant: 'Débutant', intermediaire: 'Intermédiaire', avance: 'Avancé', pitmaster: 'Pitmaster' }
+  const smokerLabel = profile?.smoker_type ? SMOKER_LABELS[profile.smoker_type] : null
+  const levelLabel = profile?.experience_level ? LEVEL_LABELS[profile.experience_level] : null
+
   return (
     <div className="min-h-screen flex bg-[#09090b]">
 
@@ -157,6 +162,12 @@ export default function Layout({ children }) {
               <div className="min-w-0 flex-1">
                 <p className="text-[13px] font-semibold text-zinc-200 truncate">{userName}</p>
                 <p className="text-[10px] text-zinc-600 font-medium">{userRole}</p>
+                {(smokerLabel || levelLabel) && (
+                  <div className="flex items-center gap-1.5 mt-1">
+                    {smokerLabel && <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-orange-500/10 text-orange-400 font-medium">{smokerLabel}</span>}
+                    {levelLabel && <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-zinc-700/50 text-zinc-400 font-medium">{levelLabel}</span>}
+                  </div>
+                )}
               </div>
               <button
                 onClick={signOut}
