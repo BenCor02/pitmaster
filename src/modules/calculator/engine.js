@@ -44,8 +44,9 @@ export function formatApproxDuration(minutes, tolerancePercent = 15) {
 
 /** Minutes → "Xh" ou "Xh30" lisible */
 export function formatHours(minutes) {
-  const h = Math.floor(minutes / 60)
-  const m = Math.round((minutes % 60) / 30) * 30
+  let h = Math.floor(minutes / 60)
+  let m = Math.round((minutes % 60) / 30) * 30
+  if (m === 60) { h += 1; m = 0 }
   if (h === 0 && m === 0) return '30 min'
   if (h === 0) return `${Math.round(minutes)} min`
   if (m === 0) return `${h}h`
@@ -421,7 +422,7 @@ function buildReverseSearGuide(profile, doneness) {
     badge: 'Technique utilisée en compétition BBQ',
     principle: [
       'Cuisson indirecte basse température (100–120°C)',
-      `Monter jusqu'à ${temps[d] ? (temps[d] - 8) + '°C' : '~46–52°C'} interne`,
+      `Monter jusqu'à ${temps[d] ? (temps[d] - (profile.reverse_sear?.pull_before_target_c || 6)) + '°C' : '~46–52°C'} interne`,
       'Retirer la viande du fumoir',
       'Monter le grill très fort (250–300°C)',
       'Saisir 45–60 secondes par face',

@@ -362,9 +362,34 @@ const HERO_IMAGES = {
 }
 
 function ResultView({ result }) {
+  const [serviceHour, setServiceHour] = useState(19)
   const category = result.profileId?.includes('chicken') ? 'volaille' :
     ['pulled_pork', 'spare_ribs', 'baby_back_ribs'].includes(result.profileId) ? 'porc' : 'boeuf'
   const heroImg = HERO_IMAGES[category]
+
+  // Formate des heures décimales en "Xh" ou "XhMM" proprement
+  const fmtTime = (raw) => {
+    // Convertir en minutes totales pour éviter les erreurs d'arrondi
+    let totalMin = Math.round(raw * 60)
+    let negative = totalMin < 0
+    if (negative) totalMin = 24 * 60 + totalMin // wrap sur 24h
+    let h = Math.floor(totalMin / 60) % 24
+    let m = totalMin % 60
+    // Arrondir au quart d'heure le plus proche pour lisibilité
+    m = Math.round(m / 15) * 15
+    if (m === 60) { h = (h + 1) % 24; m = 0 }
+    const suffix = negative ? ' (veille)' : ''
+    return m === 0 ? `${h}h${suffix}` : `${h}h${String(m).padStart(2, '0')}${suffix}`
+  }
+
+  // Calcul heure de démarrage à partir de l'heure de service
+  const avgTotalMin = Math.round((result.totalLowMinutes + result.totalHighMinutes) / 2)
+  const startHourRaw = serviceHour - avgTotalMin / 60
+  const startDisplay = fmtTime(startHourRaw)
+
+  // Plage : heure de démarrage pessimiste (totalHigh) et optimiste (totalLow)
+  const startEarlyRaw = serviceHour - result.totalHighMinutes / 60
+  const startLateRaw = serviceHour - result.totalLowMinutes / 60
 
   return (
     <div className="animate-fade-up space-y-5">
@@ -405,6 +430,54 @@ function ResultView({ result }) {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* ── Heure de démarrage ── */}
+      <div className="surface p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+            <span className="text-xs">🕐</span>
+          </div>
+          <h3 className="text-[14px] font-bold text-white">Quand allumer le fumoir ?</h3>
+        </div>
+
+        <div className="flex items-center gap-3 mb-4">
+          <p className="text-[13px] text-zinc-400">Je veux manger à</p>
+          <div className="flex items-center gap-1.5">
+            {[12, 13, 14, 17, 18, 19, 20, 21].map((h) => (
+              <button
+                key={h}
+                onClick={() => setServiceHour(h)}
+                className={`px-2.5 py-1.5 rounded-lg text-[12px] font-semibold border transition-all ${
+                  serviceHour === h
+                    ? 'border-blue-500/30 bg-blue-500/10 text-blue-400'
+                    : 'border-white/[0.06] text-zinc-500 hover:text-zinc-300 hover:border-white/[0.1]'
+                }`}
+              >
+                {h}h
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-xl p-4 bg-gradient-to-r from-blue-500/[0.08] to-indigo-500/[0.05] border border-blue-500/[0.15]">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-500/15 flex items-center justify-center shrink-0">
+              <span className="text-lg">⏰</span>
+            </div>
+            <div>
+              <p className="text-[18px] sm:text-[22px] font-extrabold text-white leading-tight">
+                Allume vers {startDisplay}
+              </p>
+              <p className="text-[11px] text-zinc-400 mt-0.5">
+                Fourchette : entre {fmtTime(startEarlyRaw)} et {fmtTime(startLateRaw)}
+              </p>
+            </div>
+          </div>
+        </div>
+        <p className="text-[11px] text-zinc-600 mt-2.5">
+          Estimation basée sur la durée moyenne. Mieux vaut commencer tôt — un long repos n'abîme jamais la viande.
+        </p>
       </div>
 
       {/* ── Quick brief : comment cuire ── */}
