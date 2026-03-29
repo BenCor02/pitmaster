@@ -8,10 +8,13 @@ import GuidesListPage from './pages/GuidesListPage.jsx'
 import GuidePage from './pages/GuidePage.jsx'
 
 function AdminGuard({ children }) {
-  const { isLoading, isAuthenticated, isAdmin } = useAuth()
+  const { isLoading, isAuthenticated, isAdmin, profile } = useAuth()
 
+  // Attendre que la session ET le profil soient chargés
   if (isLoading) return <div className="min-h-screen flex items-center justify-center text-zinc-400">Chargement...</div>
   if (!isAuthenticated) return <Navigate to="/login" state={{ from: '/admin' }} replace />
+  // Profil pas encore chargé → attendre (ne pas rediriger trop tôt)
+  if (isAuthenticated && profile === null) return <div className="min-h-screen flex items-center justify-center text-zinc-400">Chargement du profil...</div>
   if (!isAdmin) return <Navigate to="/" replace />
 
   return children
