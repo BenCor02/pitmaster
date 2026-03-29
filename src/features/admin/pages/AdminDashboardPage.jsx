@@ -69,7 +69,7 @@ export default function AdminDashboardPage() {
           Dashboard <span style={{ color:'#e85d04' }}>·</span>
         </h1>
         <p style={{ fontSize:11, color:'#8a7060', marginTop:6, letterSpacing:'1.5px', textTransform:'uppercase', fontWeight:600 }}>
-          Vue globale PitMaster
+          Vue globale Charbon & Flamme
         </p>
       </div>
 

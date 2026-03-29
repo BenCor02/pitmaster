@@ -21,7 +21,7 @@ export default function AuthShell({
           <BrandMark size={42} />
           <div style={{ textAlign: 'left' }}>
             <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 18 }}>Charbon & Flamme</div>
-            <div style={{ fontSize: 11, color: '#8a7060', letterSpacing: '1.3px', textTransform: 'uppercase' }}>Pitmaster planner</div>
+            <div style={{ fontSize: 11, color: '#8a7060', letterSpacing: '1.3px', textTransform: 'uppercase' }}>Planification BBQ</div>
           </div>
         </button>
 

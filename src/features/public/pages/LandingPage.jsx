@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { HERO_IMAGE, MEAT_IMAGES, SMOKE_IMAGE, SMOKER_IMAGE } from '../../../domain/content/images'
 import BrandMark from '../../../components/BrandMark'
 import { usePageContent } from '../../../hooks/usePageContent'
+import { useSiteSettings } from '../../../hooks/useSiteSettings'
 
 const css = `
   @keyframes heroEnter { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: translateY(0); } }
@@ -212,18 +213,22 @@ function SaveIcon() {
 export default function LandingPage() {
   const navigate = useNavigate()
   const { page, sections } = usePageContent('home')
+  const { get } = useSiteSettings()
   const [scrolled, setScrolled] = useState(false)
   // PATCH: fallback visuel pour éviter un hero cassé si une image distante ne répond pas
   const [heroVisual, setHeroVisual] = useState(SMOKER_IMAGE)
   const [cardImageFallbacks, setCardImageFallbacks] = useState({})
+  const siteName = get('site_name', 'Charbon & Flamme')
+  const siteDescription = get('site_description', get('default_seo_description', 'Brisket, ribs, pulled pork : entre ta viande, ton poids et ton heure de service. Charbon & Flamme te dit quand lancer la cuisson.'))
+  const seoTitle = page?.seo_title || get('seo_title', get('default_seo_title', `${siteName} | Calculateur BBQ`))
 
   useEffect(() => {
-    document.title = 'Calculateur BBQ Pitmaster | Charbon & Flamme'
-    ensureMeta('description', 'Brisket, ribs, pulled pork : entre ta viande, ton poids et ton heure de service. Charbon & Flamme te dit quand lancer la cuisson.')
+    document.title = seoTitle
+    ensureMeta('description', siteDescription)
     const onScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+  }, [seoTitle, siteDescription])
 
   // PATCH: la landing peut envoyer une viande déjà choisie vers le calculateur
   const openCalculator = (preselectMeatKey = null) =>

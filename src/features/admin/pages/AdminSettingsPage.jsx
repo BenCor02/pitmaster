@@ -14,10 +14,10 @@ const css = `
 `
 
 const DEFAULT_SETTINGS = {
-  site_name: 'PitMaster',
-  site_tagline: 'Calculateur BBQ · Low & Slow',
+  site_name: 'Charbon & Flamme',
+  site_tagline: 'Assistant de planification BBQ',
   site_description: 'Assistant de planification BBQ pour préparer tes cuissons, gérer tes sessions et servir au bon moment.',
-  seo_title: 'PitMaster — Calculateur BBQ Low & Slow',
+  seo_title: 'Charbon & Flamme — Calculateur BBQ',
   seo_keywords: 'BBQ, fumage, brisket, pulled pork, ribs, calculateur cuisson, low and slow',
   og_image: '',
   support_email: '',
@@ -214,7 +214,7 @@ export default function AdminSettingsPage() {
             </div>
           </div>
           <div style={{ padding:'16px', background:'#0e0c0a', border:'1px solid #1e1a14', borderRadius:10, textAlign:'center' }}>
-            <div style={{ fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:24, background:`linear-gradient(135deg,${S('accent_color')},${S('primary_color')})`, WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>🔥 PitMaster</div>
+            <div style={{ fontFamily:'Syne,sans-serif', fontWeight:800, fontSize:24, background:`linear-gradient(135deg,${S('accent_color')},${S('primary_color')})`, WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>🔥 Charbon & Flamme</div>
             <div style={{ fontSize:11, color:'#4a3a2e', marginTop:4 }}>Aperçu logo</div>
           </div>
         </div>

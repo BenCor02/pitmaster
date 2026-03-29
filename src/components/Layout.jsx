@@ -65,8 +65,8 @@ const css = `
 export default function Layout() {
   const { user, signOut, isAdmin } = useAuth()
   const { get } = useSiteSettings()
-  const siteName = get('site_name', 'PitMaster')
-  const siteTagline = get('site_tagline', 'Low & Slow')
+  const siteName = get('site_name', 'Charbon & Flamme')
+  const siteTagline = get('site_tagline', 'Planification BBQ')
   const [moreOpen, setMoreOpen] = useState(false)
   const location = useLocation()
   // PATCH: mode invité assumé pour réduire la friction; l'auth reste optionnelle
