@@ -28,12 +28,11 @@ export async function fetchAllSettings() {
   return map
 }
 
-/** Met à jour un setting (upsert par clé) */
+/** Met à jour un setting via upsert (key est unique) */
 export async function updateSetting(key, value) {
   const { error } = await supabase
     .from('site_settings')
-    .update({ value })
-    .eq('key', key)
+    .upsert({ key, value }, { onConflict: 'key', ignoreDuplicates: false })
 
   if (error) {
     console.error(`updateSetting(${key}):`, error)
