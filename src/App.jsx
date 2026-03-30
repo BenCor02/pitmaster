@@ -14,6 +14,7 @@ import RecipeDetailPage from './pages/RecipeDetailPage.jsx'
 import FavoritesPage from './pages/FavoritesPage.jsx'
 import ComparatorPage from './pages/ComparatorPage.jsx'
 import SharedCookPage from './pages/SharedCookPage.jsx'
+import WoodGuidePage from './pages/WoodGuidePage.jsx'
 import NotFoundPage from './pages/NotFoundPage.jsx'
 
 function AdminGuard({ children }) {
@@ -42,6 +43,7 @@ export default function App() {
         <Route path="/recettes" element={<RecipesPage />} />
         <Route path="/recettes/:slug" element={<RecipeDetailPage />} />
         <Route path="/comparateur" element={<ComparatorPage />} />
+        <Route path="/bois" element={<WoodGuidePage />} />
         <Route path="/carnet" element={<FavoritesPage />} />
         <Route path="/partage/:code" element={<SharedCookPage />} />
         <Route path="/login" element={<LoginPage />} />
