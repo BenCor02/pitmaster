@@ -264,6 +264,7 @@ export default function LoginPage() {
             : 'Déjà un compte ? Se connecter'}
         </button>
       </div>
+      </div>
     </div>
   )
 }
