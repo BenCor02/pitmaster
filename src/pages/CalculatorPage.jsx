@@ -1028,14 +1028,14 @@ function ResultView({ result }) {
           <h3 className="text-[14px] font-bold text-white">Quand allumer le fumoir ?</h3>
         </div>
 
-        <div className="flex items-center gap-3 mb-4">
-          <p className="text-[13px] text-zinc-400">Je veux manger à</p>
-          <div className="flex items-center gap-1.5">
+        <div className="mb-4">
+          <p className="text-[13px] text-zinc-400 mb-2.5">Je veux manger à</p>
+          <div className="flex flex-wrap gap-1.5">
             {[12, 13, 14, 17, 18, 19, 20, 21].map((h) => (
               <button
                 key={h}
                 onClick={() => setServiceHour(h)}
-                className={`px-2.5 py-1.5 rounded-lg text-[12px] font-semibold border transition-all ${
+                className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold border transition-all ${
                   serviceHour === h
                     ? 'border-blue-500/30 bg-blue-500/10 text-blue-400'
                     : 'border-white/[0.06] text-zinc-500 hover:text-zinc-300 hover:border-white/[0.1]'
