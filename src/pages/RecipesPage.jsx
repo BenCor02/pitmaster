@@ -33,10 +33,17 @@ const MEAT_LABELS = {
   spare_ribs: 'Spare Ribs', baby_back_ribs: 'Baby Back', whole_chicken: 'Poulet',
 }
 
+const MEAT_ICONS = {
+  brisket: '🥩', beef_short_ribs: '🥩', chuck_roast: '🥩',
+  prime_rib: '🥩', tomahawk: '🥩', pulled_pork: '🐖',
+  spare_ribs: '🐖', baby_back_ribs: '🐖', whole_chicken: '🍗',
+}
+
 export default function RecipesPage() {
   const [recipes, setRecipes] = useState([])
   const [loading, setLoading] = useState(true)
   const [activeType, setActiveType] = useState('all')
+  const [activeMeat, setActiveMeat] = useState('all')
   const [search, setSearch] = useState('')
 
   useEffect(() => {
@@ -46,6 +53,7 @@ export default function RecipesPage() {
   const filtered = useMemo(() => {
     let list = recipes
     if (activeType !== 'all') list = list.filter(r => r.type === activeType)
+    if (activeMeat !== 'all') list = list.filter(r => r.meat_types?.includes(activeMeat))
     if (search.trim()) {
       const q = search.toLowerCase()
       list = list.filter(r =>
@@ -56,7 +64,18 @@ export default function RecipesPage() {
       )
     }
     return list
-  }, [recipes, activeType, search])
+  }, [recipes, activeType, activeMeat, search])
+
+  // Extract unique meats from all recipes, ordered by frequency
+  const meatOptions = useMemo(() => {
+    const counts = {}
+    recipes.forEach(r => r.meat_types?.forEach(m => {
+      if (MEAT_LABELS[m]) counts[m] = (counts[m] || 0) + 1
+    }))
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .map(([id, count]) => ({ id, label: MEAT_LABELS[id], icon: MEAT_ICONS[id] || '🍖', count }))
+  }, [recipes])
 
   const typeCounts = useMemo(() => {
     const counts = { all: recipes.length }
@@ -133,6 +152,38 @@ export default function RecipesPage() {
                 activeType === tab.id ? 'bg-[#ff6b1a]/20' : 'bg-white/[0.04]'
               }`}>
                 {typeCounts[tab.id] || 0}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Meat filter */}
+        <div className="flex items-center gap-1.5 mb-6 overflow-x-auto pb-1 flex-wrap">
+          <button
+            onClick={() => setActiveMeat('all')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all whitespace-nowrap ${
+              activeMeat === 'all'
+                ? 'border-white/20 bg-white/10 text-white'
+                : 'border-white/[0.06] text-zinc-600 hover:text-zinc-400 hover:border-white/[0.1]'
+            }`}
+          >
+            🍖 Toutes viandes
+          </button>
+          {meatOptions.map(meat => (
+            <button
+              key={meat.id}
+              onClick={() => setActiveMeat(meat.id)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all whitespace-nowrap ${
+                activeMeat === meat.id
+                  ? 'border-white/20 bg-white/10 text-white'
+                  : 'border-white/[0.06] text-zinc-600 hover:text-zinc-400 hover:border-white/[0.1]'
+              }`}
+            >
+              {meat.icon} {meat.label}
+              <span className={`text-[9px] px-1.5 py-0.5 rounded-md ${
+                activeMeat === meat.id ? 'bg-white/15' : 'bg-white/[0.04]'
+              }`}>
+                {meat.count}
               </span>
             </button>
           ))}
