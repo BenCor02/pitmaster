@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../modules/auth/AuthContext.jsx'
 import { adminCms } from '../lib/cms.js'
 import { fetchAllSettings, updateSetting } from '../lib/siteSettings.js'
+import { setSiteBranding } from '../lib/seo.js'
 import { useSiteSettings } from '../hooks/useSiteSettings.jsx'
 import AdminShell from '../components/admin/AdminShell.jsx'
 import AdminTable, { StatusBadge } from '../components/admin/AdminTable.jsx'
@@ -559,10 +560,10 @@ function SettingsTab() {
   const handleSaveBranding = async () => {
     setSaving(true)
     try {
-      await updateSetting('branding', {
-        ...branding,
-        logo_url: branding.logo_url || null,
-      })
+      const b = { ...branding, logo_url: branding.logo_url || null }
+      await updateSetting('branding', b)
+      setSiteBranding(b.site_name_line1, b.site_name_line2, b.tagline)
+      document.title = [b.site_name_line1, b.site_name_line2].filter(Boolean).join(' ') + (b.tagline ? ` — ${b.tagline}` : '')
       await refresh()
       setSaved(true)
       setTimeout(() => setSaved(false), 2000)

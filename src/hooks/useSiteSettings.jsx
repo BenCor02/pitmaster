@@ -7,6 +7,7 @@
 
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { fetchAllSettings } from '../lib/siteSettings.js'
+import { setSiteBranding } from '../lib/seo.js'
 
 const SiteSettingsContext = createContext({})
 
@@ -38,7 +39,11 @@ export function SiteSettingsProvider({ children }) {
   const load = useCallback(async () => {
     try {
       const all = await fetchAllSettings()
-      if (all.branding) setBranding({ ...DEFAULT_BRANDING, ...all.branding })
+      if (all.branding) {
+        const b = { ...DEFAULT_BRANDING, ...all.branding }
+        setBranding(b)
+        setSiteBranding(b.site_name_line1, b.site_name_line2, b.tagline)
+      }
       if (all.modules) setModules({ ...DEFAULT_MODULES, ...all.modules })
     } catch (err) {
       console.error('SiteSettings load error:', err)

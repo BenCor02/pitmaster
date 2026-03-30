@@ -3,9 +3,20 @@
  * Met à jour les meta tags dynamiquement (SPA).
  */
 
+/** Nom du site utilisé dans les titres — mis à jour par SiteSettingsProvider */
+let _siteName = 'Charbon & Flamme'
+let _siteTagline = 'Calculateur BBQ Pitmaster'
+
+export function setSiteBranding(line1, line2, tagline) {
+  _siteName = [line1, line2].filter(Boolean).join(' ')
+  _siteTagline = tagline || _siteTagline
+}
+
+export function getSiteName() { return _siteName }
+
 export function updateMeta({ title, description, canonical }) {
   // Title
-  document.title = title ? `${title} — Charbon & Flamme` : 'Charbon & Flamme — Calculateur BBQ Pitmaster'
+  document.title = title ? `${title} — ${_siteName}` : `${_siteName} — ${_siteTagline}`
 
   // Meta description
   let metaDesc = document.querySelector('meta[name="description"]')
@@ -60,7 +71,7 @@ export function articleSchema(guide) {
     dateModified: guide.updated_at,
     author: {
       '@type': 'Organization',
-      name: 'Charbon & Flamme',
+      name: _siteName,
     },
   }
 }
