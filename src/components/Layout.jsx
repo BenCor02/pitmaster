@@ -80,7 +80,7 @@ export default function Layout({ children }) {
     <div className="min-h-screen flex bg-[#09090b]">
 
       {/* ══════════ SIDEBAR DESKTOP ══════════ */}
-      <aside className="hidden lg:flex flex-col w-[260px] shrink-0 bg-[#0d0d0f] border-r border-white/[0.06] relative overflow-hidden">
+      <aside className="hidden lg:flex flex-col w-[260px] shrink-0 bg-[#0d0d0f] border-r border-white/[0.06] relative overflow-hidden sticky top-0 h-screen overflow-y-auto">
         {/* Fire ambient glow */}
         <div className="absolute -top-20 -left-20 w-60 h-60 bg-[#ff6b1a]/[0.03] rounded-full blur-3xl pointer-events-none animate-fire-breathe" />
         <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-[#ef4444]/[0.03] rounded-full blur-3xl pointer-events-none" />
