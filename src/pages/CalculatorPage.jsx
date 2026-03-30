@@ -1067,6 +1067,28 @@ function ResultView({ result }) {
         </p>
       </div>
 
+      {/* ── Disclaimer pitmaster ── */}
+      <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-[#ff6b1a]/[0.04] border border-[#ff6b1a]/[0.08]">
+        <span className="text-sm mt-0.5">💡</span>
+        <p className="text-[12px] text-zinc-400 leading-relaxed">
+          <span className="text-[#ff6b1a] font-semibold">Prêt dans environ {result.totalEstimate.replace('~', '')}</span> — ces durées sont des estimations terrain. Chaque cuisson est unique, fie-toi à la viande, pas au chrono.
+        </p>
+      </div>
+
+      {/* ── Phases section title ── */}
+      <div className="flex items-center gap-3 pt-2">
+        <div className="h-px flex-1 bg-white/[0.06]" />
+        <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-[0.1em]">Phases de cuisson</p>
+        <div className="h-px flex-1 bg-white/[0.06]" />
+      </div>
+
+      {/* ── Phases ── */}
+      <div className="space-y-3 stagger">
+        {result.phases.map((phase) => (
+          <PhaseCard key={phase.num} phase={phase} total={result.phases.length} />
+        ))}
+      </div>
+
       {/* ── Quick brief : comment cuire ── */}
       <div className="surface p-5">
         <div className="flex items-center gap-2 mb-4">
@@ -1117,28 +1139,6 @@ function ResultView({ result }) {
             </div>
           )}
         </div>
-      </div>
-
-      {/* ── Disclaimer pitmaster ── */}
-      <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-[#ff6b1a]/[0.04] border border-[#ff6b1a]/[0.08]">
-        <span className="text-sm mt-0.5">💡</span>
-        <p className="text-[12px] text-zinc-400 leading-relaxed">
-          <span className="text-[#ff6b1a] font-semibold">Prêt dans environ {result.totalEstimate.replace('~', '')}</span> — ces durées sont des estimations terrain. Chaque cuisson est unique, fie-toi à la viande, pas au chrono.
-        </p>
-      </div>
-
-      {/* ── Phases section title ── */}
-      <div className="flex items-center gap-3 pt-2">
-        <div className="h-px flex-1 bg-white/[0.06]" />
-        <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-[0.1em]">Phases de cuisson</p>
-        <div className="h-px flex-1 bg-white/[0.06]" />
-      </div>
-
-      {/* ── Phases ── */}
-      <div className="space-y-3 stagger">
-        {result.phases.map((phase) => (
-          <PhaseCard key={phase.num} phase={phase} total={result.phases.length} />
-        ))}
       </div>
 
       {/* ── Ribs method ── */}
