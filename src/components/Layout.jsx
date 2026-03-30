@@ -97,18 +97,15 @@ export default function Layout({ children }) {
         {/* ── Fire separator ── */}
         <div className="mx-5 fire-divider" />
 
-        {/* ── Quick status card with image ── */}
-        <div className="relative z-10 mx-4 mt-4 mb-2 rounded-xl overflow-hidden">
-          <img
-            src="https://images.unsplash.com/photo-1558030006-450675393462?w=400&h=140&fit=crop&q=80"
-            alt=""
-            className="w-full h-[80px] object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0c] via-[#0c0c0c]/60 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 px-3.5 pb-2.5">
-            <div className="flex items-center gap-2">
-              <div className="glow-dot" style={{ width: 5, height: 5 }} />
-              <span className="text-[10px] font-bold text-[#ff6b1a]/90 uppercase tracking-wider">Prêt à fumer</span>
+        {/* ── Status card ── */}
+        <div className="relative z-10 mx-4 mt-4 mb-2 rounded-xl overflow-hidden bg-gradient-to-br from-[#ff6b1a]/[0.08] to-[#dc2626]/[0.04] border border-[#ff6b1a]/[0.10] p-3.5">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#ff6b1a] to-[#dc2626] flex items-center justify-center shadow-lg shadow-[#ff6b1a]/20 shrink-0">
+              <span className="text-base">🔥</span>
+            </div>
+            <div>
+              <p className="text-[11px] font-bold text-[#ff8c4a]">Prêt à fumer</p>
+              <p className="text-[9px] text-stone-500">Calculateur actif</p>
             </div>
           </div>
         </div>
