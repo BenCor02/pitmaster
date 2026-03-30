@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { fetchRecipeBySlug, fetchRecipes } from '../lib/cms.js'
+import { useFavorites } from '../hooks/useFavorites.js'
 
 const TYPE_LABELS = { rub: 'Rub', mop: 'Mop', marinade: 'Marinade', injection: 'Injection', glaze: 'Glaze' }
 const TYPE_ICONS = { rub: '🧂', mop: '🖌️', marinade: '🫙', injection: '💉', glaze: '✨' }
@@ -30,6 +31,7 @@ export default function RecipeDetailPage() {
   const [related, setRelated] = useState([])
   const [loading, setLoading] = useState(true)
   const [checkedSteps, setCheckedSteps] = useState({})
+  const { isFavorite, toggleFavorite, isAuthenticated } = useFavorites()
 
   useEffect(() => {
     setLoading(true)
@@ -111,9 +113,24 @@ export default function RecipeDetailPage() {
               )}
             </div>
 
-            <h1 className="text-[26px] lg:text-[34px] font-extrabold text-white tracking-tight leading-[1.1] mb-3">
-              {recipe.title}
-            </h1>
+            <div className="flex items-start gap-3 mb-3">
+              <h1 className="text-[26px] lg:text-[34px] font-extrabold text-white tracking-tight leading-[1.1] flex-1">
+                {recipe.title}
+              </h1>
+              {isAuthenticated && (
+                <button
+                  onClick={() => toggleFavorite(recipe.id)}
+                  className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
+                    isFavorite(recipe.id)
+                      ? 'bg-red-500/20 text-red-400 shadow-lg shadow-red-500/10'
+                      : 'bg-white/[0.05] text-zinc-600 hover:text-red-400 hover:bg-red-500/10'
+                  }`}
+                  title={isFavorite(recipe.id) ? 'Retirer du carnet' : 'Ajouter au carnet'}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill={isFavorite(recipe.id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
+                </button>
+              )}
+            </div>
 
             {recipe.origin && (
               <p className="text-[13px] text-zinc-500 italic mb-2">📍 {recipe.origin}</p>

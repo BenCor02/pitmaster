@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { fetchRecipes } from '../lib/cms.js'
+import { useFavorites } from '../hooks/useFavorites.js'
 
 const TYPE_TABS = [
   { id: 'all', label: 'Tout', icon: '🔥' },
@@ -45,6 +46,7 @@ export default function RecipesPage() {
   const [activeType, setActiveType] = useState('all')
   const [activeMeat, setActiveMeat] = useState('all')
   const [search, setSearch] = useState('')
+  const favorites = useFavorites()
 
   useEffect(() => {
     fetchRecipes().then(data => { setRecipes(data); setLoading(false) })
@@ -198,7 +200,7 @@ export default function RecipesPage() {
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map(recipe => (
-              <RecipeCard key={recipe.id} recipe={recipe} />
+              <RecipeCard key={recipe.id} recipe={recipe} favorites={favorites} />
             ))}
           </div>
         )}
@@ -207,14 +209,26 @@ export default function RecipesPage() {
   )
 }
 
-function RecipeCard({ recipe }) {
+function RecipeCard({ recipe, favorites }) {
   const colors = TYPE_COLORS[recipe.type] || TYPE_COLORS.rub
+  const isFav = favorites?.isFavorite(recipe.id)
 
   return (
-    <Link
-      to={`/recettes/${recipe.slug}`}
-      className="surface p-5 group hover:border-[#ff6b1a]/20 transition-all animate-fade-up"
-    >
+    <div className="surface p-5 group hover:border-[#ff6b1a]/20 transition-all animate-fade-up relative">
+      {/* Heart button */}
+      {favorites?.isAuthenticated && (
+        <button
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); favorites.toggleFavorite(recipe.id) }}
+          className={`absolute top-3 right-3 w-8 h-8 rounded-lg flex items-center justify-center transition-all z-10 ${
+            isFav
+              ? 'bg-red-500/20 text-red-400'
+              : 'bg-white/[0.04] text-zinc-700 hover:text-red-400 hover:bg-red-500/10 opacity-0 group-hover:opacity-100'
+          }`}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill={isFav ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
+        </button>
+      )}
+      <Link to={`/recettes/${recipe.slug}`} className="block">
       {/* Header */}
       <div className="flex items-start justify-between gap-2 mb-3">
         <div className="flex items-center gap-2">
@@ -266,6 +280,7 @@ function RecipeCard({ recipe }) {
         Voir la recette
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="group-hover:translate-x-1 transition-transform"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
       </div>
-    </Link>
+      </Link>
+    </div>
   )
 }

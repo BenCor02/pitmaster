@@ -139,6 +139,34 @@ export default function Layout({ children }) {
             sublabel="Rubs, Mops & Marinades"
             active={location.pathname.startsWith('/recettes')}
           />
+          <NavItem
+            to="/comparateur"
+            icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isActive('/comparateur') ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></svg>}
+            label="Comparateur"
+            sublabel="Côte à côte"
+            active={isActive('/comparateur')}
+          />
+
+          {/* Mon espace */}
+          {isAuthenticated && (
+            <div className="mt-6">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-600 px-3 mb-2">Mon espace</p>
+              <NavItem
+                to="/carnet"
+                icon={<svg width="18" height="18" viewBox="0 0 24 24" fill={isActive('/carnet') ? '#ff6b1a' : 'none'} stroke={isActive('/carnet') ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>}
+                label="Mon Carnet"
+                sublabel="Recettes favorites"
+                active={isActive('/carnet')}
+              />
+              <NavItem
+                to="/journal"
+                icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={location.pathname === '/journal' ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" /></svg>}
+                label="Mon journal"
+                sublabel="Sessions de cuisson"
+                active={location.pathname === '/journal'}
+              />
+            </div>
+          )}
 
           {/* Guides */}
           <div className="mt-6">
@@ -149,13 +177,6 @@ export default function Layout({ children }) {
               label="Guides"
               sublabel="BBQ & Techniques"
               active={location.pathname.startsWith('/guides')}
-            />
-            <NavItem
-              to="/journal"
-              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={location.pathname === '/journal' ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" /></svg>}
-              label="Mon journal"
-              sublabel="Sessions de cuisson"
-              active={location.pathname === '/journal'}
             />
           </div>
 
@@ -276,6 +297,28 @@ export default function Layout({ children }) {
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" /><path d="M8 12l2 2 4-4" /></svg>
               Recettes
             </Link>
+            <Link
+              to="/comparateur"
+              onClick={() => setMobileOpen(false)}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
+                isActive('/comparateur') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
+              }`}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></svg>
+              Comparateur
+            </Link>
+            {isAuthenticated && (
+              <Link
+                to="/carnet"
+                onClick={() => setMobileOpen(false)}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
+                  isActive('/carnet') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
+                }`}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
+                Mon Carnet
+              </Link>
+            )}
             <Link
               to="/guides"
               onClick={() => setMobileOpen(false)}

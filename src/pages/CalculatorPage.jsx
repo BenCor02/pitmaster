@@ -6,6 +6,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../modules/auth/AuthContext.jsx'
 import ContentBlocks from '../components/content/ContentBlocks.jsx'
 import { journal } from '../lib/journal.js'
+import { createSharedCook } from '../lib/sharedCooks.js'
 
 const CAT_LABELS = { boeuf: 'Boeuf', porc: 'Porc', volaille: 'Volaille', agneau: 'Agneau' }
 
@@ -555,6 +556,7 @@ export default function CalculatorPage() {
 
         {/* ══════════ SAVE SESSION ══════════ */}
         {result && <SaveSessionCTA result={result} />}
+        {result && <ShareCookCTA result={result} />}
 
         {/* Blocs contextuels CMS : SEO, FAQ, Affiliation, Guides */}
         {result && (
@@ -630,6 +632,82 @@ function SaveSessionCTA({ result }) {
             state={{ from: '/' }}
             className="btn-primary px-5 py-2.5 text-[13px] shrink-0 inline-flex items-center"
           >
+            Se connecter
+          </Link>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function ShareCookCTA({ result }) {
+  const { isAuthenticated, session, profile } = useAuth()
+  const [shareUrl, setShareUrl] = useState(null)
+  const [sharing, setSharing] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  const handleShare = async () => {
+    if (!session?.user?.id) return
+    setSharing(true)
+    const shared = await createSharedCook(session.user.id, {
+      meat_name: result.profile,
+      weight_kg: result.weightKg,
+      cook_temp_c: result.cookTempC,
+      wrapped: result.wrapped,
+      doneness: result.doneness,
+      total_estimate: result.totalEstimate,
+      cook_minutes: result.cookMinutes,
+      rest_estimate: result.restEstimate,
+      phases: result.phases,
+      tips: result.tips,
+      user_display_name: profile?.display_name || 'Un pitmaster',
+    })
+    if (shared) {
+      const url = `${window.location.origin}/partage/${shared.share_code}`
+      setShareUrl(url)
+    }
+    setSharing(false)
+  }
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(shareUrl)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <div className="surface p-5 mt-3">
+      <div className="flex items-center gap-4">
+        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-sky-500/15 to-blue-500/10 flex items-center justify-center shrink-0">
+          <span className="text-xl">🔗</span>
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[14px] font-semibold text-white">Partager ce plan</p>
+          <p className="text-[12px] text-zinc-500">
+            {shareUrl
+              ? 'Lien prêt ! Envoie-le à tes amis ou partage-le sur les réseaux.'
+              : 'Crée un lien partageable avec ton plan de cuisson complet.'}
+          </p>
+        </div>
+        {shareUrl ? (
+          <div className="flex items-center gap-2 shrink-0">
+            <button onClick={handleCopy} className={`px-4 py-2.5 rounded-xl text-[12px] font-bold border transition-all ${copied ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-white/[0.05] border-white/[0.08] text-zinc-300 hover:text-white'}`}>
+              {copied ? '✓ Copié' : 'Copier'}
+            </button>
+            <a
+              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Je planifie ${result.profile} ${result.weightKg}kg sur @CharbonFlamme !`)}&url=${encodeURIComponent(shareUrl)}`}
+              target="_blank" rel="noopener noreferrer"
+              className="px-3 py-2.5 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400 text-[12px] font-bold hover:bg-sky-500/20 transition-all"
+            >
+              𝕏
+            </a>
+          </div>
+        ) : isAuthenticated ? (
+          <button onClick={handleShare} disabled={sharing} className="btn-primary px-5 py-2.5 text-[13px] shrink-0">
+            {sharing ? 'Création...' : 'Créer le lien'}
+          </button>
+        ) : (
+          <Link to="/login" state={{ from: '/' }} className="btn-primary px-5 py-2.5 text-[13px] shrink-0 inline-flex items-center">
             Se connecter
           </Link>
         )}
