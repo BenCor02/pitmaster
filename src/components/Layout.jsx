@@ -124,6 +124,13 @@ export default function Layout({ children }) {
             sublabel="Kg par personne"
             active={isActive('/portions')}
           />
+          <NavItem
+            to="/multi"
+            icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isActive('/multi') ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="3" y1="10" x2="21" y2="10" /><line x1="9" y1="4" x2="9" y2="22" /></svg>}
+            label="Multi-cuisson"
+            sublabel="Tout prêt en même temps"
+            active={isActive('/multi')}
+          />
 
           {/* Guides */}
           <div className="mt-6">
@@ -240,6 +247,16 @@ export default function Layout({ children }) {
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
               Quantités
+            </Link>
+            <Link
+              to="/multi"
+              onClick={() => setMobileOpen(false)}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
+                isActive('/multi') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
+              }`}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="3" y1="10" x2="21" y2="10" /><line x1="9" y1="4" x2="9" y2="22" /></svg>
+              Multi-cuisson
             </Link>
             <Link
               to="/guides"

@@ -8,6 +8,7 @@ import GuidesListPage from './pages/GuidesListPage.jsx'
 import GuidePage from './pages/GuidePage.jsx'
 import JournalPage from './pages/JournalPage.jsx'
 import PortionCalculatorPage from './pages/PortionCalculatorPage.jsx'
+import MultiCookPage from './pages/MultiCookPage.jsx'
 
 function AdminGuard({ children }) {
   const { isLoading, isAuthenticated, isAdmin, profile } = useAuth()
@@ -31,6 +32,7 @@ export default function App() {
         <Route path="/guides/:slug" element={<GuidePage />} />
         <Route path="/journal" element={<JournalPage />} />
         <Route path="/portions" element={<PortionCalculatorPage />} />
+        <Route path="/multi" element={<MultiCookPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route
           path="/admin/*"
