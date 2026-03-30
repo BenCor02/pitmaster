@@ -7,6 +7,7 @@ import {
   FormField, TextInput, TextArea, Select, Checkbox, FormActions,
   slugify, MEAT_OPTIONS, METHOD_OPTIONS, STATUS_OPTIONS, CATEGORY_OPTIONS,
 } from '../components/admin/AdminForm.jsx'
+import MarkdownEditor from '../components/admin/MarkdownEditor.jsx'
 
 // ── Tab mapping ────────────────────────────────────────────
 
@@ -368,8 +369,8 @@ function GuideFields({ form, set }) {
       <FormField label="Résumé" hint="Affiché sur les cards de guide">
         <TextArea value={form.summary} onChange={v => set('summary', v)} rows={2} placeholder="Résumé court..." />
       </FormField>
-      <FormField label="Contenu (Markdown)">
-        <TextArea value={form.content} onChange={v => set('content', v)} rows={16} placeholder="Contenu complet du guide en markdown..." />
+      <FormField label="Contenu">
+        <MarkdownEditor value={form.content} onChange={v => set('content', v)} rows={20} placeholder="Contenu complet du guide..." />
       </FormField>
       <div className="grid grid-cols-2 gap-4">
         <FormField label="Catégorie">
