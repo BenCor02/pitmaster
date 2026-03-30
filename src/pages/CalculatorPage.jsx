@@ -691,6 +691,7 @@ export default function CalculatorPage() {
 
         {/* ══════════ SAVE SESSION ══════════ */}
         {result && <SaveSessionCTA result={result} />}
+        {result && <LiveCookCTA result={result} />}
         {result && <ShareCookCTA result={result} />}
       </div>
     </div>
@@ -721,6 +722,32 @@ function SectionHeader({ title, description }) {
     <div className="mb-6">
       <h2 className="text-[18px] font-bold text-white tracking-tight">{title}</h2>
       {description && <p className="text-[13px] text-zinc-500 mt-1">{description}</p>}
+    </div>
+  )
+}
+
+function LiveCookCTA({ result }) {
+  const navigate = useNavigate()
+
+  return (
+    <div className="surface p-5 mt-3">
+      <div className="flex items-center gap-4">
+        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-green-500/15 to-emerald-500/10 flex items-center justify-center shrink-0">
+          <span className="text-xl">🌡️</span>
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[14px] font-semibold text-white">Suivre en live avec Meater</p>
+          <p className="text-[12px] text-zinc-500">
+            Connecte ta sonde et suis la cuisson en temps réel avec les phases du calculateur.
+          </p>
+        </div>
+        <button
+          onClick={() => navigate('/live', { state: { profileId: result.profileId, weightKg: result.weightKg, cookTempC: result.cookTempC, wrapped: result.wrapped } })}
+          className="px-5 py-2.5 rounded-xl text-[13px] font-bold bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:opacity-90 transition-opacity shrink-0"
+        >
+          Lancer le live
+        </button>
+      </div>
     </div>
   )
 }

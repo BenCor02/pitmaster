@@ -172,6 +172,14 @@ export default function Layout({ children }) {
             active={isActive('/bbq')}
           />
 
+          <NavItem
+            to="/live"
+            icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isActive('/live') ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M12 2v4" /><path d="M12 18v4" /><path d="M4.93 4.93l2.83 2.83" /><path d="M16.24 16.24l2.83 2.83" /><path d="M2 12h4" /><path d="M18 12h4" /><circle cx="12" cy="12" r="4" /></svg>}
+            label="Live Cook"
+            sublabel="Sonde Meater"
+            active={isActive('/live')}
+          />
+
           {/* Mon espace */}
           {isAuthenticated && (isModuleEnabled('favorites') || isModuleEnabled('journal')) && (
             <div className="mt-6">
@@ -363,6 +371,16 @@ export default function Layout({ children }) {
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="12" r="9" /><path d="M12 8v4" /><path d="M8 14h8" /><circle cx="12" cy="18" r="1" /></svg>
               Types de BBQ
+            </Link>
+            <Link
+              to="/live"
+              onClick={() => setMobileOpen(false)}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
+                isActive('/live') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
+              }`}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 2v4" /><path d="M12 18v4" /><path d="M4.93 4.93l2.83 2.83" /><path d="M16.24 16.24l2.83 2.83" /><path d="M2 12h4" /><path d="M18 12h4" /><circle cx="12" cy="12" r="4" /></svg>
+              Live Cook
             </Link>
             {isAuthenticated && isModuleEnabled('favorites') && (
               <Link
