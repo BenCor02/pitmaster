@@ -1,9 +1,27 @@
 /**
- * Logo Charbon & Flamme — Flamme BBQ, style premium minimaliste
- * Couleurs solides (pas de gradient/defs) = zéro problème de rendu
+ * Logo Charbon & Flamme — Dynamique via site_settings
+ * Utilise le branding admin (nom, logo custom) ou la flamme par défaut
  */
 
+import { useSiteSettings } from '../hooks/useSiteSettings.jsx'
+
 export function LogoIcon({ size = 32, className = '' }) {
+  const { branding } = useSiteSettings()
+
+  // Si logo custom défini, l'afficher à la place de la flamme SVG
+  if (branding?.logo_url) {
+    return (
+      <img
+        src={branding.logo_url}
+        alt=""
+        width={size}
+        height={size}
+        className={`shrink-0 block rounded-lg object-contain ${className}`}
+        style={{ minWidth: size, minHeight: size }}
+      />
+    )
+  }
+
   return (
     <svg
       viewBox="0 0 64 64"
@@ -43,15 +61,20 @@ export function LogoIcon({ size = 32, className = '' }) {
 }
 
 export function LogoFull({ iconSize = 28, className = '' }) {
+  const { branding } = useSiteSettings()
+
+  const line1 = branding?.site_name_line1 || 'CHARBON'
+  const line2 = branding?.site_name_line2 || '& FLAMME'
+
   return (
     <div className={`flex items-center gap-2.5 ${className}`}>
       <LogoIcon size={iconSize} />
       <div className="flex flex-col leading-none">
         <span className="text-[14px] font-extrabold tracking-wide text-white">
-          CHARBON
+          {line1}
         </span>
         <span className="text-[10px] font-bold tracking-[0.2em] text-[#ff6b1a]">
-          &amp; FLAMME
+          {line2}
         </span>
       </div>
     </div>

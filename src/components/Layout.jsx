@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../modules/auth/AuthContext.jsx'
+import { useSiteSettings } from '../hooks/useSiteSettings.jsx'
 import { LogoIcon, LogoFull } from './Logo.jsx'
 
 /* ── Icon components ── */
@@ -63,6 +64,7 @@ function IconUser() {
 
 export default function Layout({ children }) {
   const { isAuthenticated, isAdmin, signOut, profile } = useAuth()
+  const { isModuleEnabled } = useSiteSettings()
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -132,61 +134,72 @@ export default function Layout({ children }) {
             active={isActive('/multi')}
           />
 
-          <NavItem
-            to="/recettes"
-            icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={location.pathname.startsWith('/recettes') ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" /><path d="M8 12l2 2 4-4" /></svg>}
-            label="Recettes"
-            sublabel="Rubs, Mops & Marinades"
-            active={location.pathname.startsWith('/recettes')}
-          />
-          <NavItem
-            to="/comparateur"
-            icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isActive('/comparateur') ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></svg>}
-            label="Comparateur"
-            sublabel="Côte à côte"
-            active={isActive('/comparateur')}
-          />
-
-          <NavItem
-            to="/bois"
-            icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isActive('/bois') ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>}
-            label="Essences de bois"
-            sublabel="Guide du fumage"
-            active={isActive('/bois')}
-          />
+          {isModuleEnabled('recipes') && (
+            <NavItem
+              to="/recettes"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={location.pathname.startsWith('/recettes') ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" /><path d="M8 12l2 2 4-4" /></svg>}
+              label="Recettes"
+              sublabel="Rubs, Mops & Marinades"
+              active={location.pathname.startsWith('/recettes')}
+            />
+          )}
+          {isModuleEnabled('comparator') && (
+            <NavItem
+              to="/comparateur"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isActive('/comparateur') ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></svg>}
+              label="Comparateur"
+              sublabel="Côte à côte"
+              active={isActive('/comparateur')}
+            />
+          )}
+          {isModuleEnabled('wood_guide') && (
+            <NavItem
+              to="/bois"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isActive('/bois') ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>}
+              label="Essences de bois"
+              sublabel="Guide du fumage"
+              active={isActive('/bois')}
+            />
+          )}
 
           {/* Mon espace */}
-          {isAuthenticated && (
+          {isAuthenticated && (isModuleEnabled('favorites') || isModuleEnabled('journal')) && (
             <div className="mt-6">
               <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-600 px-3 mb-2">Mon espace</p>
-              <NavItem
-                to="/carnet"
-                icon={<svg width="18" height="18" viewBox="0 0 24 24" fill={isActive('/carnet') ? '#ff6b1a' : 'none'} stroke={isActive('/carnet') ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>}
-                label="Mon Carnet"
-                sublabel="Recettes favorites"
-                active={isActive('/carnet')}
-              />
-              <NavItem
-                to="/journal"
-                icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={location.pathname === '/journal' ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" /></svg>}
-                label="Mon journal"
-                sublabel="Sessions de cuisson"
-                active={location.pathname === '/journal'}
-              />
+              {isModuleEnabled('favorites') && (
+                <NavItem
+                  to="/carnet"
+                  icon={<svg width="18" height="18" viewBox="0 0 24 24" fill={isActive('/carnet') ? '#ff6b1a' : 'none'} stroke={isActive('/carnet') ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>}
+                  label="Mon Carnet"
+                  sublabel="Recettes favorites"
+                  active={isActive('/carnet')}
+                />
+              )}
+              {isModuleEnabled('journal') && (
+                <NavItem
+                  to="/journal"
+                  icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={location.pathname === '/journal' ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" /></svg>}
+                  label="Mon journal"
+                  sublabel="Sessions de cuisson"
+                  active={location.pathname === '/journal'}
+                />
+              )}
             </div>
           )}
 
           {/* Guides */}
-          <div className="mt-6">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-600 px-3 mb-2">Contenu</p>
-            <NavItem
-              to="/guides"
-              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isActive('/guides') ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>}
-              label="Guides"
-              sublabel="BBQ & Techniques"
-              active={location.pathname.startsWith('/guides')}
-            />
-          </div>
+          {isModuleEnabled('guides') && (
+            <div className="mt-6">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-600 px-3 mb-2">Contenu</p>
+              <NavItem
+                to="/guides"
+                icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isActive('/guides') ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>}
+                label="Guides"
+                sublabel="BBQ & Techniques"
+                active={location.pathname.startsWith('/guides')}
+              />
+            </div>
+          )}
 
           {/* Admin */}
           {isAdmin && (
@@ -295,37 +308,43 @@ export default function Layout({ children }) {
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="3" y1="10" x2="21" y2="10" /><line x1="9" y1="4" x2="9" y2="22" /></svg>
               Multi-cuisson
             </Link>
-            <Link
-              to="/recettes"
-              onClick={() => setMobileOpen(false)}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
-                location.pathname.startsWith('/recettes') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
-              }`}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" /><path d="M8 12l2 2 4-4" /></svg>
-              Recettes
-            </Link>
-            <Link
-              to="/comparateur"
-              onClick={() => setMobileOpen(false)}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
-                isActive('/comparateur') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
-              }`}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></svg>
-              Comparateur
-            </Link>
-            <Link
-              to="/bois"
-              onClick={() => setMobileOpen(false)}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
-                isActive('/bois') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
-              }`}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>
-              Essences de bois
-            </Link>
-            {isAuthenticated && (
+            {isModuleEnabled('recipes') && (
+              <Link
+                to="/recettes"
+                onClick={() => setMobileOpen(false)}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
+                  location.pathname.startsWith('/recettes') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
+                }`}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" /><path d="M8 12l2 2 4-4" /></svg>
+                Recettes
+              </Link>
+            )}
+            {isModuleEnabled('comparator') && (
+              <Link
+                to="/comparateur"
+                onClick={() => setMobileOpen(false)}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
+                  isActive('/comparateur') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
+                }`}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></svg>
+                Comparateur
+              </Link>
+            )}
+            {isModuleEnabled('wood_guide') && (
+              <Link
+                to="/bois"
+                onClick={() => setMobileOpen(false)}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
+                  isActive('/bois') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
+                }`}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>
+                Essences de bois
+              </Link>
+            )}
+            {isAuthenticated && isModuleEnabled('favorites') && (
               <Link
                 to="/carnet"
                 onClick={() => setMobileOpen(false)}
@@ -337,26 +356,30 @@ export default function Layout({ children }) {
                 Mon Carnet
               </Link>
             )}
-            <Link
-              to="/guides"
-              onClick={() => setMobileOpen(false)}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
-                location.pathname.startsWith('/guides') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
-              }`}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
-              Guides
-            </Link>
-            <Link
-              to="/journal"
-              onClick={() => setMobileOpen(false)}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
-                isActive('/journal') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
-              }`}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" /></svg>
-              Mon journal
-            </Link>
+            {isModuleEnabled('guides') && (
+              <Link
+                to="/guides"
+                onClick={() => setMobileOpen(false)}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
+                  location.pathname.startsWith('/guides') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
+                }`}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                Guides
+              </Link>
+            )}
+            {isModuleEnabled('journal') && (
+              <Link
+                to="/journal"
+                onClick={() => setMobileOpen(false)}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
+                  isActive('/journal') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
+                }`}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" /></svg>
+                Mon journal
+              </Link>
+            )}
             {isAdmin && (
               <Link
                 to="/admin"

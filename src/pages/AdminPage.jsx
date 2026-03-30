@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../modules/auth/AuthContext.jsx'
 import { adminCms } from '../lib/cms.js'
+import { fetchAllSettings, updateSetting } from '../lib/siteSettings.js'
+import { useSiteSettings } from '../hooks/useSiteSettings.jsx'
 import AdminShell from '../components/admin/AdminShell.jsx'
 import AdminTable, { StatusBadge } from '../components/admin/AdminTable.jsx'
 import {
@@ -150,6 +152,7 @@ export default function AdminPage() {
   return (
     <AdminShell activeTab={tab} onTabChange={setTab}>
       {tab === 'overview' && <OverviewTab counts={counts} onNavigate={setTab} profile={profile} signOut={signOut} />}
+      {tab === 'settings' && <SettingsTab />}
 
       {tableName && !editing && (
         <ListView
@@ -514,6 +517,205 @@ function FaqFields({ form, set }) {
       </div>
       <Checkbox checked={form.is_global} onChange={v => set('is_global', v)} label="FAQ globale (affichée partout)" />
     </>
+  )
+}
+
+// ── Settings Tab ──────────────────────────────────────────────
+
+const MODULE_LABELS = {
+  seo_blocks:    { label: 'Blocs SEO',         icon: '🔍', desc: 'Contenus SEO contextuels sous le calculateur' },
+  affiliate:     { label: 'Affiliation',        icon: '🛠️', desc: 'Recommandations de produits avec liens affiliés' },
+  faq:           { label: 'FAQ',                icon: '❓', desc: 'Questions fréquentes contextuelles' },
+  guides:        { label: 'Guides',             icon: '📚', desc: 'Articles et guides BBQ' },
+  recipes:       { label: 'Recettes',           icon: '🧂', desc: 'Rubs, mops, marinades et glazes' },
+  wood_guide:    { label: 'Essences de bois',   icon: '🪵', desc: 'Guide des bois de fumage' },
+  comparator:    { label: 'Comparateur',        icon: '📊', desc: 'Comparaison côte à côte de recettes' },
+  favorites:     { label: 'Favoris / Carnet',   icon: '❤️', desc: 'Sauvegarde de recettes favorites' },
+  shared_cooks:  { label: 'Partage social',     icon: '🔗', desc: 'Liens de partage de cuissons' },
+  journal:       { label: 'Journal de cuisson', icon: '📋', desc: 'Historique des sessions de cuisson' },
+}
+
+function SettingsTab() {
+  const { refresh } = useSiteSettings()
+  const [branding, setBranding] = useState({
+    site_name_line1: 'CHARBON',
+    site_name_line2: '& FLAMME',
+    tagline: "L'arsenal du pitmaster",
+    logo_url: '',
+  })
+  const [modules, setModules] = useState({})
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+
+  useEffect(() => {
+    fetchAllSettings().then(all => {
+      if (all.branding) setBranding(prev => ({ ...prev, ...all.branding }))
+      if (all.modules) setModules(all.modules)
+      setLoading(false)
+    })
+  }, [])
+
+  const handleSaveBranding = async () => {
+    setSaving(true)
+    try {
+      await updateSetting('branding', {
+        ...branding,
+        logo_url: branding.logo_url || null,
+      })
+      await refresh()
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2000)
+    } catch (err) {
+      console.error('Save branding error:', err)
+      alert('Erreur : ' + (err.message || 'Impossible de sauvegarder'))
+    }
+    setSaving(false)
+  }
+
+  const handleToggleModule = async (key) => {
+    const newModules = { ...modules, [key]: !modules[key] }
+    setModules(newModules)
+    try {
+      await updateSetting('modules', newModules)
+      await refresh()
+    } catch (err) {
+      console.error('Toggle module error:', err)
+      // Rollback
+      setModules(modules)
+    }
+  }
+
+  if (loading) {
+    return <div className="text-center py-12 text-zinc-600 text-[13px]">Chargement des réglages...</div>
+  }
+
+  return (
+    <div className="space-y-8 max-w-3xl">
+      {/* ── Branding ── */}
+      <div className="surface p-6">
+        <div className="flex items-center gap-3 mb-5">
+          <span className="text-xl">🎨</span>
+          <div>
+            <h2 className="text-[16px] font-bold text-white">Identité du site</h2>
+            <p className="text-[12px] text-zinc-500 mt-0.5">Logo, nom et tagline affichés dans la navigation</p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <FormField label="Nom ligne 1" hint="Texte principal (ex: CHARBON)">
+              <TextInput
+                value={branding.site_name_line1}
+                onChange={v => setBranding(p => ({ ...p, site_name_line1: v }))}
+                placeholder="CHARBON"
+              />
+            </FormField>
+            <FormField label="Nom ligne 2" hint="Texte secondaire (ex: & FLAMME)">
+              <TextInput
+                value={branding.site_name_line2}
+                onChange={v => setBranding(p => ({ ...p, site_name_line2: v }))}
+                placeholder="& FLAMME"
+              />
+            </FormField>
+          </div>
+
+          <FormField label="Tagline" hint="Sous-titre / slogan">
+            <TextInput
+              value={branding.tagline}
+              onChange={v => setBranding(p => ({ ...p, tagline: v }))}
+              placeholder="L'arsenal du pitmaster"
+            />
+          </FormField>
+
+          <FormField label="URL du logo" hint="Image externe (PNG/SVG). Laisser vide = flamme par défaut">
+            <TextInput
+              value={branding.logo_url || ''}
+              onChange={v => setBranding(p => ({ ...p, logo_url: v }))}
+              placeholder="https://..."
+            />
+          </FormField>
+
+          {/* Aperçu */}
+          <div className="p-4 rounded-xl bg-zinc-800/40 border border-white/[0.06]">
+            <p className="text-[10px] font-semibold text-zinc-600 uppercase tracking-wider mb-3">Aperçu</p>
+            <div className="flex items-center gap-3">
+              {branding.logo_url ? (
+                <img src={branding.logo_url} alt="Logo" className="w-8 h-8 rounded-lg object-contain" />
+              ) : (
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff6b1a] to-[#ef4444] flex items-center justify-center text-white text-xs font-bold">🔥</div>
+              )}
+              <div className="leading-none">
+                <span className="text-[14px] font-extrabold tracking-wide text-white block">
+                  {branding.site_name_line1 || 'CHARBON'}
+                </span>
+                <span className="text-[10px] font-bold tracking-[0.2em] text-[#ff6b1a] block">
+                  {branding.site_name_line2 || '& FLAMME'}
+                </span>
+              </div>
+            </div>
+            {branding.tagline && (
+              <p className="text-[11px] text-zinc-500 mt-2">{branding.tagline}</p>
+            )}
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleSaveBranding}
+              disabled={saving}
+              className="btn-primary px-5 py-2 text-[13px] disabled:opacity-50"
+            >
+              {saving ? 'Sauvegarde...' : 'Enregistrer'}
+            </button>
+            {saved && (
+              <span className="text-[12px] text-green-400 font-medium animate-fade">✓ Sauvegardé</span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Modules ── */}
+      <div className="surface p-6">
+        <div className="flex items-center gap-3 mb-5">
+          <span className="text-xl">🧩</span>
+          <div>
+            <h2 className="text-[16px] font-bold text-white">Modules</h2>
+            <p className="text-[12px] text-zinc-500 mt-0.5">Active ou désactive les fonctionnalités du site. Effet immédiat.</p>
+          </div>
+        </div>
+
+        <div className="space-y-1">
+          {Object.entries(MODULE_LABELS).map(([key, { label, icon, desc }]) => {
+            const enabled = modules[key] !== false
+            return (
+              <button
+                key={key}
+                onClick={() => handleToggleModule(key)}
+                className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl text-left transition-all ${
+                  enabled
+                    ? 'bg-zinc-800/40 hover:bg-zinc-800/60'
+                    : 'bg-zinc-900/20 opacity-60 hover:opacity-80'
+                }`}
+              >
+                <span className="text-lg shrink-0">{icon}</span>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[13px] font-semibold text-white">{label}</span>
+                  <p className="text-[11px] text-zinc-500 mt-0.5">{desc}</p>
+                </div>
+                {/* Toggle switch */}
+                <div className={`relative w-10 h-5.5 rounded-full transition-colors shrink-0 ${
+                  enabled ? 'bg-[#ff6b1a]' : 'bg-zinc-700'
+                }`} style={{ width: 40, height: 22 }}>
+                  <div className={`absolute top-0.5 w-[18px] h-[18px] rounded-full bg-white shadow transition-transform ${
+                    enabled ? 'translate-x-[20px]' : 'translate-x-0.5'
+                  }`} />
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+    </div>
   )
 }
 
