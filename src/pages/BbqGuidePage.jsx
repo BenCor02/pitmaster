@@ -7,9 +7,10 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { updateMeta, injectJsonLd } from '../lib/seo.js'
+import { supabase } from '../lib/supabase.js'
 
-/* ── Données des fumoirs / BBQ ── */
-const BBQ_TYPES = [
+/* ── Données statiques (fallback si table Supabase absente) ── */
+const BBQ_TYPES_STATIC = [
   {
     id: 'offset',
     name: 'Offset Smoker',
@@ -254,7 +255,7 @@ const LEVEL_CONFIG = {
 }
 
 /* ── Tableau comparatif ── */
-function ComparisonTable() {
+function ComparisonTable({ bbqTypes }) {
   return (
     <div className="overflow-x-auto -mx-4 px-4 pb-4">
       <table className="w-full text-[13px] border-collapse min-w-[700px]">
@@ -269,14 +270,14 @@ function ComparisonTable() {
           </tr>
         </thead>
         <tbody>
-          {BBQ_TYPES.map(bbq => {
+          {bbqTypes.map(bbq => {
             const lev = LEVEL_CONFIG[bbq.level]
             return (
               <tr key={bbq.id} className="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors">
                 <td className="py-3 px-3 font-medium text-stone-200">{bbq.icon} {bbq.name}</td>
                 <td className="py-3 px-3">{bbq.id === 'offset' ? '⭐⭐⭐⭐⭐' : bbq.id === 'kamado' ? '⭐⭐⭐⭐' : bbq.id === 'wsm' ? '⭐⭐⭐⭐' : bbq.id === 'kettle' ? '⭐⭐⭐' : bbq.id === 'pellet' ? '⭐⭐⭐' : bbq.id === 'gas' ? '⭐⭐' : '⭐⭐'}</td>
                 <td className="py-3 px-3">{bbq.id === 'pellet' ? '⭐⭐⭐⭐⭐' : bbq.id === 'electric' ? '⭐⭐⭐⭐⭐' : bbq.id === 'gas' ? '⭐⭐⭐⭐' : bbq.id === 'kamado' ? '⭐⭐⭐' : bbq.id === 'kettle' ? '⭐⭐⭐⭐' : bbq.id === 'wsm' ? '⭐⭐⭐' : '⭐⭐'}</td>
-                <td className="py-3 px-3 text-stone-300">{bbq.priceRange.split('–')[0].trim()}</td>
+                <td className="py-3 px-3 text-stone-300">{(bbq.priceRange || '').split('–')[0].trim()}</td>
                 <td className="py-3 px-3">{bbq.id === 'kamado' ? '⭐⭐⭐⭐⭐' : bbq.id === 'gas' ? '⭐⭐⭐⭐' : bbq.id === 'pellet' ? '⭐⭐⭐⭐' : bbq.id === 'kettle' ? '⭐⭐⭐' : bbq.id === 'offset' ? '⭐⭐' : bbq.id === 'wsm' ? '⭐⭐' : '⭐⭐'}</td>
                 <td className="py-3 px-3"><span className={`text-[11px] px-2 py-0.5 rounded-full ${lev.bg} ${lev.color} ${lev.border} border`}>{lev.icon} {lev.label}</span></td>
               </tr>
@@ -407,8 +408,27 @@ function BbqCard({ bbq, isExpanded, onToggle }) {
 
 /* ── Page principale ── */
 export default function BbqGuidePage() {
+  const [bbqTypes, setBbqTypes] = useState(BBQ_TYPES_STATIC)
   const [expandedId, setExpandedId] = useState(null)
   const [levelFilter, setLevelFilter] = useState('all')
+
+  // Fetch from Supabase, fallback to static
+  useEffect(() => {
+    supabase.from('bbq_types').select('*').eq('status', 'published').order('sort_order')
+      .then(({ data }) => {
+        if (data?.length) {
+          // Map DB columns (snake_case) to component props (camelCase)
+          setBbqTypes(data.map(d => ({
+            id: d.id, name: d.name, altNames: d.alt_names || [], icon: d.icon,
+            tagline: d.tagline, description: d.description, tempRange: d.temp_range,
+            fuel: d.fuel, priceRange: d.price_range, level: d.level, capacity: d.capacity,
+            pros: d.pros || [], cons: d.cons || [], bestFor: d.best_for || [],
+            notIdealFor: d.not_ideal_for || [], brands: d.brands || [], tips: d.tips,
+          })))
+        }
+      })
+      .catch(() => {}) // silently fallback to static
+  }, [])
 
   useEffect(() => {
     updateMeta({
@@ -427,7 +447,7 @@ export default function BbqGuidePage() {
     return () => injectJsonLd('bbq-guide-schema', null)
   }, [])
 
-  const filtered = levelFilter === 'all' ? BBQ_TYPES : BBQ_TYPES.filter(b => b.level === levelFilter)
+  const filtered = levelFilter === 'all' ? bbqTypes : bbqTypes.filter(b => b.level === levelFilter)
 
   return (
     <div className="min-h-screen bg-[#080808]">
@@ -456,7 +476,7 @@ export default function BbqGuidePage() {
         <section>
           <h2 className="text-xl font-display font-bold text-stone-200 mb-4">Comparatif rapide</h2>
           <div className="rounded-2xl border border-white/[0.05] bg-[#0e0e0e]/60 p-4">
-            <ComparisonTable />
+            <ComparisonTable bbqTypes={bbqTypes} />
           </div>
         </section>
 

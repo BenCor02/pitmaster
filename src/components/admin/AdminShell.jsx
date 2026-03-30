@@ -12,6 +12,8 @@ const TABS = [
   { id: 'guides', label: 'Guides', icon: '📚' },
   { id: 'recipes', label: 'Recettes', icon: '🧂' },
   { id: 'faq', label: 'FAQ', icon: '❓' },
+  { id: 'woods', label: 'Bois', icon: '🪵' },
+  { id: 'bbq', label: 'Types BBQ', icon: '🏭' },
 ]
 
 export default function AdminShell({ activeTab, onTabChange, children }) {

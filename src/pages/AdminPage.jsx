@@ -20,6 +20,8 @@ const TABLE_MAP = {
   guides: 'guides',
   recipes: 'recipes',
   faq: 'faqs',
+  woods: 'woods',
+  bbq: 'bbq_types',
 }
 
 const RECIPE_TYPE_OPTIONS = [
@@ -34,6 +36,25 @@ const DIFFICULTY_OPTIONS = [
   { value: 'facile', label: 'Facile' },
   { value: 'moyen', label: 'Moyen' },
   { value: 'avancé', label: 'Avancé' },
+]
+
+const INTENSITY_OPTIONS = [
+  { value: 'leger', label: 'Léger' },
+  { value: 'moyen', label: 'Moyen' },
+  { value: 'fort', label: 'Fort' },
+]
+
+const AVAILABILITY_OPTIONS = [
+  { value: 'excellente', label: 'Excellente' },
+  { value: 'bonne', label: 'Bonne' },
+  { value: 'moyenne', label: 'Moyenne' },
+  { value: 'limitee', label: 'Limitée' },
+]
+
+const LEVEL_OPTIONS = [
+  { value: 'debutant', label: 'Débutant' },
+  { value: 'intermediaire', label: 'Intermédiaire' },
+  { value: 'avance', label: 'Avancé' },
 ]
 
 // ── Main Admin Page ────────────────────────────────────────
@@ -74,12 +95,14 @@ export default function AdminPage() {
 
   const loadCounts = async () => {
     try {
-      const [seo, aff, guides, recipes, faq] = await Promise.all([
+      const [seo, aff, guides, recipes, faq, woods, bbq] = await Promise.all([
         adminCms.list('seo_blocks'),
         adminCms.list('affiliate_tools'),
         adminCms.list('guides'),
         adminCms.list('recipes'),
         adminCms.list('faqs'),
+        adminCms.list('woods').catch(() => []),
+        adminCms.list('bbq_types').catch(() => []),
       ])
       setCounts({
         seo: seo.length,
@@ -92,6 +115,10 @@ export default function AdminPage() {
         recipes_pub: recipes.filter(i => i.status === 'published').length,
         faq: faq.length,
         faq_pub: faq.filter(i => i.status === 'published').length,
+        woods: woods.length,
+        woods_pub: woods.filter(i => i.status === 'published').length,
+        bbq: bbq.length,
+        bbq_pub: bbq.filter(i => i.status === 'published').length,
       })
     } catch (err) {
       console.error('Counts error:', err)
@@ -101,21 +128,25 @@ export default function AdminPage() {
   const handleSave = async (record) => {
     setSaving(true)
     try {
-      const isNew = !record.id
+      const isTextIdTable = tab === 'woods' || tab === 'bbq'
+      const isNew = isTextIdTable ? !record._existing : !record.id
       // Auto-generate slug if empty
       if (record.title && !record.slug) {
         record.slug = slugify(record.title)
       }
-      // Clean empty strings to null
+      // Clean empty strings to null (but not id for text-id tables)
       Object.keys(record).forEach(k => {
-        if (record[k] === '') record[k] = null
+        if (record[k] === '' && !(isTextIdTable && k === 'id')) record[k] = null
       })
 
+      // Remove internal flag
+      const { _existing, ...cleanRecord } = record
+
       if (isNew) {
-        delete record.id
-        await adminCms.create(tableName, record)
+        if (!isTextIdTable) delete cleanRecord.id
+        await adminCms.create(tableName, cleanRecord)
       } else {
-        const { id, created_at, updated_at, ...updates } = record
+        const { id, created_at, updated_at, ...updates } = cleanRecord
         await adminCms.update(tableName, id, updates)
       }
       await loadItems()
@@ -161,7 +192,7 @@ export default function AdminPage() {
           items={items}
           loading={loading}
           onNew={handleNew}
-          onEdit={setEditing}
+          onEdit={(item) => setEditing((tab === 'woods' || tab === 'bbq') ? { ...item, _existing: true } : item)}
           onToggle={handleToggle}
           onDelete={handleDelete}
         />
@@ -189,6 +220,8 @@ function OverviewTab({ counts, onNavigate, profile, signOut }) {
     { key: 'guides', label: 'Guides', icon: '📚', total: counts.guides, pub: counts.guides_pub },
     { key: 'recipes', label: 'Recettes', icon: '🧂', total: counts.recipes, pub: counts.recipes_pub },
     { key: 'faq', label: 'FAQ', icon: '❓', total: counts.faq, pub: counts.faq_pub },
+    { key: 'woods', label: 'Essences de bois', icon: '🪵', total: counts.woods, pub: counts.woods_pub },
+    { key: 'bbq', label: 'Types BBQ', icon: '🏭', total: counts.bbq, pub: counts.bbq_pub },
   ]
 
   return (
@@ -291,7 +324,16 @@ function FormView({ tab, record, saving, onSave, onCancel }) {
         </h2>
 
         {/* Common fields */}
-        {tab !== 'faq' && (
+        {(tab === 'woods' || tab === 'bbq') ? (
+          <>
+            <FormField label="Identifiant (id)" hint="Unique, minuscule, sans espaces. Non modifiable après création.">
+              <TextInput value={form.id} onChange={v => set('id', v)} placeholder="offset, chene, etc." disabled={!!record.id && record._existing} />
+            </FormField>
+            <FormField label="Nom">
+              <TextInput value={form.name} onChange={v => set('name', v)} placeholder="Nom affiché" />
+            </FormField>
+          </>
+        ) : tab !== 'faq' ? (
           <>
             <FormField label="Titre">
               <TextInput value={form.title} onChange={v => { set('title', v); if (!form.id) set('slug', slugify(v)) }} placeholder="Titre du contenu" />
@@ -300,7 +342,7 @@ function FormView({ tab, record, saving, onSave, onCancel }) {
               <TextInput value={form.slug} onChange={v => set('slug', v)} placeholder="slug-auto-genere" />
             </FormField>
           </>
-        )}
+        ) : null}
 
         {/* Tab-specific fields */}
         {tab === 'seo' && <SeoFields form={form} set={set} />}
@@ -308,6 +350,8 @@ function FormView({ tab, record, saving, onSave, onCancel }) {
         {tab === 'guides' && <GuideFields form={form} set={set} />}
         {tab === 'recipes' && <RecipeFields form={form} set={set} />}
         {tab === 'faq' && <FaqFields form={form} set={set} />}
+        {tab === 'woods' && <WoodFields form={form} set={set} />}
+        {tab === 'bbq' && <BbqFields form={form} set={set} />}
 
         {/* Common: status + sort */}
         <div className="grid grid-cols-2 gap-4">
@@ -517,6 +561,167 @@ function FaqFields({ form, set }) {
         </FormField>
       </div>
       <Checkbox checked={form.is_global} onChange={v => set('is_global', v)} label="FAQ globale (affichée partout)" />
+    </>
+  )
+}
+
+function WoodFields({ form, set }) {
+  return (
+    <>
+      <div className="grid grid-cols-2 gap-4">
+        <FormField label="Emoji">
+          <TextInput value={form.emoji} onChange={v => set('emoji', v)} placeholder="🌳" />
+        </FormField>
+        <FormField label="Intensité">
+          <Select value={form.intensity} onChange={v => set('intensity', v)} options={INTENSITY_OPTIONS} />
+        </FormField>
+      </div>
+      <FormField label="Nom scientifique">
+        <TextInput value={form.scientific_name} onChange={v => set('scientific_name', v)} placeholder="Quercus robur" />
+      </FormField>
+      <FormField label="Profil de saveur">
+        <TextInput value={form.flavor_profile} onChange={v => set('flavor_profile', v)} placeholder="Fumée ronde, légèrement sucrée" />
+      </FormField>
+      <FormField label="Description">
+        <TextArea value={form.description} onChange={v => set('description', v)} rows={4} placeholder="Description détaillée..." />
+      </FormField>
+      <div className="grid grid-cols-2 gap-4">
+        <FormField label="Viandes recommandées" hint="Séparées par des virgules">
+          <TextInput
+            value={Array.isArray(form.best_meats) ? form.best_meats.join(', ') : form.best_meats || ''}
+            onChange={v => set('best_meats', v.split(',').map(t => t.trim()).filter(Boolean))}
+            placeholder="Bœuf, Porc, Volaille"
+          />
+        </FormField>
+        <FormField label="Viandes à éviter" hint="Séparées par des virgules">
+          <TextInput
+            value={Array.isArray(form.avoid_meats) ? form.avoid_meats.join(', ') : form.avoid_meats || ''}
+            onChange={v => set('avoid_meats', v.split(',').map(t => t.trim()).filter(Boolean))}
+            placeholder="Poisson, Fromage"
+          />
+        </FormField>
+      </div>
+      <FormField label="Caractéristiques de combustion">
+        <TextInput value={form.burn_characteristics} onChange={v => set('burn_characteristics', v)} placeholder="Braise longue, chaleur régulière" />
+      </FormField>
+      <div className="grid grid-cols-2 gap-4">
+        <FormField label="Origine">
+          <TextInput value={form.origin} onChange={v => set('origin', v)} placeholder="Europe, Amérique du Nord" />
+        </FormField>
+        <FormField label="Disponibilité en Europe">
+          <Select value={form.availability_eu} onChange={v => set('availability_eu', v)} options={AVAILABILITY_OPTIONS} placeholder="Sélectionner..." />
+        </FormField>
+      </div>
+      <FormField label="Conseils pitmaster">
+        <TextArea value={form.pitmaster_tips} onChange={v => set('pitmaster_tips', v)} rows={3} placeholder="Astuces terrain..." />
+      </FormField>
+      <FormField label="Notes de sécurité">
+        <TextInput value={form.safety_notes} onChange={v => set('safety_notes', v)} placeholder="Aucune toxicité connue" />
+      </FormField>
+      <div className="grid grid-cols-2 gap-4">
+        <Checkbox checked={form.is_toxic} onChange={v => set('is_toxic', v)} label="Bois toxique (interdit fumage)" />
+        {form.is_toxic && (
+          <FormField label="Raison de toxicité">
+            <TextInput value={form.toxic_reason} onChange={v => set('toxic_reason', v)} placeholder="Résine toxique, fumée irritante" />
+          </FormField>
+        )}
+      </div>
+      <FormField label="Source">
+        <TextInput value={form.source} onChange={v => set('source', v)} placeholder="AmazingRibs.com, Texas A&M" />
+      </FormField>
+    </>
+  )
+}
+
+function BbqFields({ form, set }) {
+  const prosText = Array.isArray(form.pros) ? form.pros.join('\n') : form.pros || ''
+  const consText = Array.isArray(form.cons) ? form.cons.join('\n') : form.cons || ''
+  const bestForText = Array.isArray(form.best_for) ? form.best_for.join(', ') : form.best_for || ''
+  const notIdealText = Array.isArray(form.not_ideal_for) ? form.not_ideal_for.join(', ') : form.not_ideal_for || ''
+  const brandsText = Array.isArray(form.brands) ? form.brands.join(', ') : form.brands || ''
+  const altNamesText = Array.isArray(form.alt_names) ? form.alt_names.join(', ') : form.alt_names || ''
+
+  return (
+    <>
+      <div className="grid grid-cols-2 gap-4">
+        <FormField label="Icône (emoji)">
+          <TextInput value={form.icon} onChange={v => set('icon', v)} placeholder="🏭" />
+        </FormField>
+        <FormField label="Niveau recommandé">
+          <Select value={form.level} onChange={v => set('level', v)} options={LEVEL_OPTIONS} />
+        </FormField>
+      </div>
+      <FormField label="Noms alternatifs" hint="Séparés par des virgules">
+        <TextInput
+          value={altNamesText}
+          onChange={v => set('alt_names', v.split(',').map(t => t.trim()).filter(Boolean))}
+          placeholder="Fumoir horizontal, Stick burner"
+        />
+      </FormField>
+      <FormField label="Tagline" hint="Phrase d'accroche courte">
+        <TextInput value={form.tagline} onChange={v => set('tagline', v)} placeholder="Le fumoir des puristes." />
+      </FormField>
+      <FormField label="Description">
+        <TextArea value={form.description} onChange={v => set('description', v)} rows={5} placeholder="Description complète du type de BBQ..." />
+      </FormField>
+      <div className="grid grid-cols-2 gap-4">
+        <FormField label="Plage de température">
+          <TextInput value={form.temp_range} onChange={v => set('temp_range', v)} placeholder="107–135°C" />
+        </FormField>
+        <FormField label="Combustible">
+          <TextInput value={form.fuel} onChange={v => set('fuel', v)} placeholder="Bûches de bois" />
+        </FormField>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <FormField label="Fourchette de prix">
+          <TextInput value={form.price_range} onChange={v => set('price_range', v)} placeholder="300€ – 3 000€+" />
+        </FormField>
+        <FormField label="Capacité">
+          <TextInput value={form.capacity} onChange={v => set('capacity', v)} placeholder="Grande (4–8 pièces)" />
+        </FormField>
+      </div>
+      <FormField label="Avantages" hint="Un par ligne">
+        <TextArea
+          value={prosText}
+          onChange={v => set('pros', v.split('\n').filter(Boolean))}
+          rows={6}
+          placeholder="Saveur authentique&#10;Grande capacité&#10;..."
+        />
+      </FormField>
+      <FormField label="Inconvénients" hint="Un par ligne">
+        <TextArea
+          value={consText}
+          onChange={v => set('cons', v.split('\n').filter(Boolean))}
+          rows={6}
+          placeholder="Courbe d'apprentissage&#10;Surveillance constante&#10;..."
+        />
+      </FormField>
+      <div className="grid grid-cols-2 gap-4">
+        <FormField label="Idéal pour" hint="Séparés par des virgules">
+          <TextInput
+            value={bestForText}
+            onChange={v => set('best_for', v.split(',').map(t => t.trim()).filter(Boolean))}
+            placeholder="Brisket, Pulled pork, Ribs"
+          />
+        </FormField>
+        <FormField label="Pas idéal pour" hint="Séparés par des virgules">
+          <TextInput
+            value={notIdealText}
+            onChange={v => set('not_ideal_for', v.split(',').map(t => t.trim()).filter(Boolean))}
+            placeholder="Cuissons rapides, Petits espaces"
+          />
+        </FormField>
+      </div>
+      <FormField label="Marques recommandées" hint="Séparées par des virgules">
+        <TextInput
+          value={brandsText}
+          onChange={v => set('brands', v.split(',').map(t => t.trim()).filter(Boolean))}
+          placeholder="Oklahoma Joe's, Yoder, Horizon"
+        />
+      </FormField>
+      <FormField label="Conseil terrain">
+        <TextArea value={form.tips} onChange={v => set('tips', v)} rows={3} placeholder="Astuce pour bien débuter avec ce type de BBQ..." />
+      </FormField>
     </>
   )
 }
@@ -780,6 +985,42 @@ function getColumns(tab) {
         meatCol,
         statusCol,
       ]
+    case 'woods':
+      return [
+        { key: 'name', label: 'Essence', render: row => (
+          <div className="flex items-center gap-2">
+            <span>{row.emoji}</span>
+            <span className="font-medium text-white">{row.name}</span>
+            {row.is_toxic && <span className="text-[9px] font-bold uppercase text-red-400 bg-red-500/10 px-1.5 py-0.5 rounded">Toxique</span>}
+          </div>
+        )},
+        { key: 'intensity', label: 'Intensité', render: row => {
+          const colors = { leger: 'text-green-400', moyen: 'text-amber-400', fort: 'text-red-400' }
+          const labels = { leger: 'Léger', moyen: 'Moyen', fort: 'Fort' }
+          return <span className={`text-[12px] font-semibold ${colors[row.intensity] || ''}`}>{labels[row.intensity] || row.intensity}</span>
+        }},
+        { key: 'flavor_profile', label: 'Saveur' },
+        statusCol,
+      ]
+    case 'bbq':
+      return [
+        { key: 'name', label: 'Type', render: row => (
+          <div className="flex items-center gap-2">
+            <span>{row.icon}</span>
+            <div>
+              <span className="font-medium text-white">{row.name}</span>
+              <p className="text-[11px] text-zinc-600 mt-0.5">{row.price_range}</p>
+            </div>
+          </div>
+        )},
+        { key: 'level', label: 'Niveau', render: row => {
+          const colors = { debutant: 'text-green-400', intermediaire: 'text-amber-400', avance: 'text-red-400' }
+          const labels = { debutant: 'Débutant', intermediaire: 'Intermédiaire', avance: 'Avancé' }
+          return <span className={`text-[12px] font-semibold ${colors[row.level] || ''}`}>{labels[row.level] || row.level}</span>
+        }},
+        { key: 'fuel', label: 'Combustible' },
+        statusCol,
+      ]
     default:
       return []
   }
@@ -793,6 +1034,8 @@ function getEmptyRecord(tab) {
     case 'guides': return { ...base, title: '', slug: '', summary: '', content: '', cover_url: '', category: '', tags: [], meat_type: '', seo_title: '', seo_description: '' }
     case 'recipes': return { ...base, title: '', slug: '', type: 'rub', summary: '', description: '', ingredients: [], steps: [], yield_amount: '', prep_time: '', meat_types: [], origin: '', difficulty: 'facile', tags: [], cover_url: '' }
     case 'faq': return { ...base, question: '', answer: '', meat_type: '', cooking_method: '', is_global: false }
+    case 'woods': return { ...base, id: '', name: '', scientific_name: '', emoji: '', intensity: 'moyen', flavor_profile: '', description: '', best_meats: [], avoid_meats: [], burn_characteristics: '', origin: '', availability_eu: '', safety_notes: '', pitmaster_tips: '', source: '', is_toxic: false, toxic_reason: '' }
+    case 'bbq': return { ...base, id: '', name: '', alt_names: [], icon: '', tagline: '', description: '', temp_range: '', fuel: '', price_range: '', level: 'debutant', capacity: '', pros: [], cons: [], best_for: [], not_ideal_for: [], brands: [], tips: '' }
     default: return base
   }
 }
@@ -804,6 +1047,8 @@ function getFormTitle(tab) {
     case 'guides': return 'guide'
     case 'recipes': return 'recette'
     case 'faq': return 'FAQ'
+    case 'woods': return 'essence de bois'
+    case 'bbq': return 'type de BBQ'
     default: return 'contenu'
   }
 }
