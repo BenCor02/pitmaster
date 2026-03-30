@@ -366,10 +366,10 @@ export default function MultiCookPage() {
               </div>
               <div className="space-y-2">
                 {[
-                  'Lance toujours la plus grosse pièce en premier — elle peut reposer longtemps en glacière sans problème.',
-                  'Si tu n\'as qu\'un seul fumoir, les cuissons à la même température peuvent cohabiter.',
+                  'Le planning se base sur la durée de chaque viande — c\'est le type de cuisson qui décide l\'ordre, pas le poids.',
+                  'Si tu n\'as qu\'un seul fumoir, les cuissons à la même température peuvent cohabiter sur la grille.',
                   'Prévois 30 min de marge — mieux vaut que tout repose un peu plus longtemps que de courir.',
-                  'Les pièces en repos (glacière + serviette) restent chaudes 2-4h facilement.',
+                  'Les pièces riches en collagène (brisket, pulled pork) supportent un long repos en glacière (2-4h). Les pièces maigres (poulet, reverse sear) moins.',
                 ].map((tip, i) => (
                   <p key={i} className="text-[12px] text-zinc-400 leading-relaxed flex gap-2">
                     <span className="text-[#ff6b1a] font-bold shrink-0">{i + 1}.</span>
@@ -420,8 +420,12 @@ function fmtClock(totalMinutes) {
   return min === 0 ? `${h}h${suffix}` : `${h}h${String(min).padStart(2, '0')}${suffix}`
 }
 
+/* ── Phase icon mapping ── */
+const PHASE_ICONS = { 1: '🔥', 2: '🥵', 3: '🥩', 4: '🧈', 5: '🍽️' }
+
 /* ── Meat entry card ── */
 function MeatEntry({ entry, index, plan, serviceHour, onUpdate, onRemove }) {
+  const [expanded, setExpanded] = useState(false)
   const isFixed = entry.isFixed
   const isRS = entry.isRS
   const tempMin = entry.profile.temp_bands?.[0]?.temp_c || 100
@@ -547,15 +551,98 @@ function MeatEntry({ entry, index, plan, serviceHour, onUpdate, onRemove }) {
             )}
           </div>
 
-          {/* Quick info */}
+          {/* Quick info + expand toggle */}
           {plan && (
-            <div className="mt-2 flex items-center gap-3 flex-wrap">
-              <span className="text-[11px] text-zinc-500">
-                Durée : <span className="text-zinc-300 font-semibold">{plan.totalEstimate}</span>
-              </span>
-              <span className="text-[11px] text-zinc-500">
-                Repos : <span className="text-zinc-300 font-semibold">{plan.restEstimate}</span>
-              </span>
+            <div className="mt-2 flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className="text-[11px] text-zinc-500">
+                  Durée : <span className="text-zinc-300 font-semibold">{plan.totalEstimate}</span>
+                </span>
+                <span className="text-[11px] text-zinc-500">
+                  Repos : <span className="text-zinc-300 font-semibold">{plan.restEstimate}</span>
+                </span>
+              </div>
+              <button
+                onClick={() => setExpanded(!expanded)}
+                className="flex items-center gap-1 text-[11px] font-semibold text-[#ff6b1a]/70 hover:text-[#ff6b1a] transition-colors"
+              >
+                <span>{expanded ? 'Masquer' : 'Détail cuisson'}</span>
+                <svg
+                  width="14" height="14" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
+                  className={`transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+            </div>
+          )}
+
+          {/* ── Expanded phases detail ── */}
+          {expanded && plan && (
+            <div className="mt-3 pt-3 border-t border-white/[0.06] animate-fade space-y-2.5">
+              {/* Phases */}
+              {plan.phases.map((phase) => (
+                <div key={phase.num} className="rounded-xl p-3 bg-white/[0.02] border border-white/[0.05]">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="text-sm">{PHASE_ICONS[phase.num] || '🔥'}</span>
+                    <p className="text-[12px] font-bold text-white flex-1">{phase.title}</p>
+                    {phase.duration && (
+                      <span className="text-[10px] font-bold text-[#ff6b1a]/80 bg-[#ff6b1a]/8 px-2 py-0.5 rounded-md">{phase.duration}</span>
+                    )}
+                  </div>
+                  {phase.objective && (
+                    <p className="text-[11px] text-zinc-500 mb-2">{phase.objective}</p>
+                  )}
+                  {phase.markers?.length > 0 && (
+                    <div className="space-y-1">
+                      {phase.markers.map((m, mi) => (
+                        <div key={mi} className="flex items-start gap-2">
+                          <span className="text-[9px] mt-0.5">
+                            {m.type === 'temp' ? '🌡️' : m.type === 'visual' ? '👁️' : 'ℹ️'}
+                          </span>
+                          <p className="text-[11px] text-zinc-400 leading-relaxed">{m.text}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {phase.advice && (
+                    <p className="text-[10px] text-zinc-500 mt-2 italic">
+                      <span className="text-[#ff6b1a] font-semibold not-italic">Conseil :</span> {phase.advice}
+                    </p>
+                  )}
+                </div>
+              ))}
+
+              {/* Cues summary */}
+              {plan.cues?.target_temp_min && (
+                <div className="rounded-xl p-3 bg-[#ff6b1a]/[0.04] border border-[#ff6b1a]/[0.10]">
+                  <div className="flex items-center gap-4">
+                    <div>
+                      <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Cible interne</p>
+                      <p className="text-[16px] font-black text-white">{plan.cues.target_temp_min}–{plan.cues.target_temp_max}°C</p>
+                    </div>
+                    {plan.cues.stall_temp_min && (
+                      <div>
+                        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Stall</p>
+                        <p className="text-[16px] font-black text-white">{plan.cues.stall_temp_min}–{plan.cues.stall_temp_max}°C</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Tips */}
+              {plan.tips?.length > 0 && (
+                <div className="rounded-xl p-3 bg-white/[0.02] border border-white/[0.04]">
+                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">Conseils pitmaster</p>
+                  {plan.tips.slice(0, 3).map((tip, ti) => (
+                    <p key={ti} className="text-[11px] text-zinc-400 leading-relaxed mb-1 last:mb-0">
+                      <span className="text-[#ff6b1a] font-bold">{ti + 1}.</span> {tip}
+                    </p>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
