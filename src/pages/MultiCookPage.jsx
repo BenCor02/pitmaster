@@ -261,55 +261,16 @@ export default function MultiCookPage() {
                 const colors = TIMELINE_COLORS[idx % TIMELINE_COLORS.length]
 
                 return (
-                  <div key={item.id} className="relative">
-                    {/* Timeline bar */}
-                    <div className="surface p-4 mb-2">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className={`w-8 h-8 rounded-lg ${colors.bg} flex items-center justify-center text-sm shrink-0`}>
-                          {item.profile.icon}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[13px] font-bold text-white">{item.profile.name}</p>
-                          <p className="text-[11px] text-zinc-500">
-                            {item.plan.weightKg > 0 ? `${item.plan.weightKg}kg · ` : ''}
-                            {item.plan.totalEstimate}
-                          </p>
-                        </div>
-                        <div className="text-right shrink-0">
-                          <p className={`text-[18px] font-black ${colors.text}`}>{item.startDisplay}</p>
-                          <p className="text-[10px] text-zinc-600">
-                            {item.earlyDisplay} – {item.lateDisplay}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Visual bar */}
-                      <div className="h-3 rounded-full bg-white/[0.04] overflow-hidden relative">
-                        <div
-                          className={`h-full rounded-full ${colors.bar} transition-all duration-500`}
-                          style={{ marginLeft: `${offsetPct}%`, width: `${Math.max(widthPct, 4)}%` }}
-                        />
-                        {/* Service line */}
-                        <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-white/30" />
-                      </div>
-
-                      {/* Time labels under bar */}
-                      <div className="flex justify-between mt-1.5">
-                        <span className="text-[9px] text-zinc-700">{fmtClock(timeline.firstStart)}</span>
-                        <span className="text-[9px] text-zinc-500 font-semibold">{serviceHour}h00 🍽️</span>
-                      </div>
-                    </div>
-
-                    {/* Connector */}
-                    {idx < timeline.items.length - 1 && (
-                      <div className="flex items-center gap-2 py-1 px-6">
-                        <div className="w-px h-4 bg-white/[0.06] ml-3" />
-                        <span className="text-[10px] text-zinc-700">
-                          puis {Math.round((timeline.items[idx + 1].startMinute - item.startMinute) / 60 * 10) / 10}h plus tard →
-                        </span>
-                      </div>
-                    )}
-                  </div>
+                  <TimelineItem
+                    key={item.id}
+                    item={item}
+                    idx={idx}
+                    offsetPct={offsetPct}
+                    widthPct={widthPct}
+                    colors={colors}
+                    timeline={timeline}
+                    serviceHour={serviceHour}
+                  />
                 )
               })}
             </div>
@@ -423,9 +384,145 @@ function fmtClock(totalMinutes) {
 /* ── Phase icon mapping ── */
 const PHASE_ICONS = { 1: '🔥', 2: '🥵', 3: '🥩', 4: '🧈', 5: '🍽️' }
 
+/* ── Timeline item with expandable detail ── */
+function TimelineItem({ item, idx, offsetPct, widthPct, colors, timeline, serviceHour }) {
+  const [expanded, setExpanded] = useState(false)
+  const plan = item.plan
+
+  return (
+    <div className="relative">
+      {/* Timeline bar */}
+      <div className="surface p-4 mb-2">
+        <div className="flex items-center gap-3 mb-3">
+          <div className={`w-8 h-8 rounded-lg ${colors.bg} flex items-center justify-center text-sm shrink-0`}>
+            {item.profile.icon}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[13px] font-bold text-white">{item.profile.name}</p>
+            <p className="text-[11px] text-zinc-500">
+              {plan.weightKg > 0 ? `${plan.weightKg}kg · ` : ''}
+              {plan.totalEstimate}
+            </p>
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="text-right">
+              <p className={`text-[18px] font-black ${colors.text}`}>{item.startDisplay}</p>
+              <p className="text-[10px] text-zinc-600">
+                {item.earlyDisplay} – {item.lateDisplay}
+              </p>
+            </div>
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="flex items-center justify-center w-8 h-8 rounded-lg text-[#ff6b1a] hover:bg-[#ff6b1a]/10 border border-[#ff6b1a]/20 hover:border-[#ff6b1a]/40 transition-all"
+              title={expanded ? 'Masquer le détail' : 'Voir le détail'}
+            >
+              <svg
+                width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                className={`transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Visual bar */}
+        <div className="h-3 rounded-full bg-white/[0.04] overflow-hidden relative">
+          <div
+            className={`h-full rounded-full ${colors.bar} transition-all duration-500`}
+            style={{ marginLeft: `${offsetPct}%`, width: `${Math.max(widthPct, 4)}%` }}
+          />
+          <div className="absolute right-0 top-0 bottom-0 w-0.5 bg-white/30" />
+        </div>
+
+        {/* Time labels under bar */}
+        <div className="flex justify-between mt-1.5">
+          <span className="text-[9px] text-zinc-700">{fmtClock(timeline.firstStart)}</span>
+          <span className="text-[9px] text-zinc-500 font-semibold">{serviceHour}h00 🍽️</span>
+        </div>
+
+        {/* ── Expanded phases detail ── */}
+        {expanded && (
+          <div className="mt-3 pt-3 border-t border-white/[0.06] animate-fade space-y-2.5">
+            {plan.phases.map((phase) => (
+              <div key={phase.num} className="rounded-xl p-3 bg-white/[0.02] border border-white/[0.05]">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="text-sm">{PHASE_ICONS[phase.num] || '🔥'}</span>
+                  <p className="text-[12px] font-bold text-white flex-1">{phase.title}</p>
+                  {phase.duration && (
+                    <span className="text-[10px] font-bold text-[#ff6b1a]/80 bg-[#ff6b1a]/8 px-2 py-0.5 rounded-md">{phase.duration}</span>
+                  )}
+                </div>
+                {phase.objective && (
+                  <p className="text-[11px] text-zinc-500 mb-2">{phase.objective}</p>
+                )}
+                {phase.markers?.length > 0 && (
+                  <div className="space-y-1">
+                    {phase.markers.map((m, mi) => (
+                      <div key={mi} className="flex items-start gap-2">
+                        <span className="text-[9px] mt-0.5">
+                          {m.type === 'temp' ? '🌡️' : m.type === 'visual' ? '👁️' : 'ℹ️'}
+                        </span>
+                        <p className="text-[11px] text-zinc-400 leading-relaxed">{m.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {phase.advice && (
+                  <p className="text-[10px] text-zinc-500 mt-2 italic">
+                    <span className="text-[#ff6b1a] font-semibold not-italic">Conseil :</span> {phase.advice}
+                  </p>
+                )}
+              </div>
+            ))}
+
+            {plan.cues?.target_temp_min && (
+              <div className="rounded-xl p-3 bg-[#ff6b1a]/[0.04] border border-[#ff6b1a]/[0.10]">
+                <div className="flex items-center gap-4">
+                  <div>
+                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Cible interne</p>
+                    <p className="text-[16px] font-black text-white">{plan.cues.target_temp_min}–{plan.cues.target_temp_max}°C</p>
+                  </div>
+                  {plan.cues.stall_temp_min && (
+                    <div>
+                      <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Stall</p>
+                      <p className="text-[16px] font-black text-white">{plan.cues.stall_temp_min}–{plan.cues.stall_temp_max}°C</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {plan.tips?.length > 0 && (
+              <div className="rounded-xl p-3 bg-white/[0.02] border border-white/[0.04]">
+                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">Conseils pitmaster</p>
+                {plan.tips.slice(0, 3).map((tip, ti) => (
+                  <p key={ti} className="text-[11px] text-zinc-400 leading-relaxed mb-1 last:mb-0">
+                    <span className="text-[#ff6b1a] font-bold">{ti + 1}.</span> {tip}
+                  </p>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Connector */}
+      {idx < timeline.items.length - 1 && (
+        <div className="flex items-center gap-2 py-1 px-6">
+          <div className="w-px h-4 bg-white/[0.06] ml-3" />
+          <span className="text-[10px] text-zinc-700">
+            puis {Math.round((timeline.items[idx + 1].startMinute - item.startMinute) / 60 * 10) / 10}h plus tard →
+          </span>
+        </div>
+      )}
+    </div>
+  )
+}
+
 /* ── Meat entry card ── */
 function MeatEntry({ entry, index, plan, serviceHour, onUpdate, onRemove }) {
-  const [expanded, setExpanded] = useState(false)
   const isFixed = entry.isFixed
   const isRS = entry.isRS
   const tempMin = entry.profile.temp_bands?.[0]?.temp_c || 100
@@ -551,98 +648,15 @@ function MeatEntry({ entry, index, plan, serviceHour, onUpdate, onRemove }) {
             )}
           </div>
 
-          {/* Quick info + expand toggle */}
+          {/* Quick info */}
           {plan && (
-            <div className="mt-2 flex items-center justify-between flex-wrap gap-2">
-              <div className="flex items-center gap-3 flex-wrap">
-                <span className="text-[11px] text-zinc-500">
-                  Durée : <span className="text-zinc-300 font-semibold">{plan.totalEstimate}</span>
-                </span>
-                <span className="text-[11px] text-zinc-500">
-                  Repos : <span className="text-zinc-300 font-semibold">{plan.restEstimate}</span>
-                </span>
-              </div>
-              <button
-                onClick={() => setExpanded(!expanded)}
-                className="flex items-center gap-1 text-[11px] font-semibold text-[#ff6b1a]/70 hover:text-[#ff6b1a] transition-colors"
-              >
-                <span>{expanded ? 'Masquer' : 'Détail cuisson'}</span>
-                <svg
-                  width="14" height="14" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
-                  className={`transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
-                >
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
-              </button>
-            </div>
-          )}
-
-          {/* ── Expanded phases detail ── */}
-          {expanded && plan && (
-            <div className="mt-3 pt-3 border-t border-white/[0.06] animate-fade space-y-2.5">
-              {/* Phases */}
-              {plan.phases.map((phase) => (
-                <div key={phase.num} className="rounded-xl p-3 bg-white/[0.02] border border-white/[0.05]">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <span className="text-sm">{PHASE_ICONS[phase.num] || '🔥'}</span>
-                    <p className="text-[12px] font-bold text-white flex-1">{phase.title}</p>
-                    {phase.duration && (
-                      <span className="text-[10px] font-bold text-[#ff6b1a]/80 bg-[#ff6b1a]/8 px-2 py-0.5 rounded-md">{phase.duration}</span>
-                    )}
-                  </div>
-                  {phase.objective && (
-                    <p className="text-[11px] text-zinc-500 mb-2">{phase.objective}</p>
-                  )}
-                  {phase.markers?.length > 0 && (
-                    <div className="space-y-1">
-                      {phase.markers.map((m, mi) => (
-                        <div key={mi} className="flex items-start gap-2">
-                          <span className="text-[9px] mt-0.5">
-                            {m.type === 'temp' ? '🌡️' : m.type === 'visual' ? '👁️' : 'ℹ️'}
-                          </span>
-                          <p className="text-[11px] text-zinc-400 leading-relaxed">{m.text}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {phase.advice && (
-                    <p className="text-[10px] text-zinc-500 mt-2 italic">
-                      <span className="text-[#ff6b1a] font-semibold not-italic">Conseil :</span> {phase.advice}
-                    </p>
-                  )}
-                </div>
-              ))}
-
-              {/* Cues summary */}
-              {plan.cues?.target_temp_min && (
-                <div className="rounded-xl p-3 bg-[#ff6b1a]/[0.04] border border-[#ff6b1a]/[0.10]">
-                  <div className="flex items-center gap-4">
-                    <div>
-                      <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Cible interne</p>
-                      <p className="text-[16px] font-black text-white">{plan.cues.target_temp_min}–{plan.cues.target_temp_max}°C</p>
-                    </div>
-                    {plan.cues.stall_temp_min && (
-                      <div>
-                        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Stall</p>
-                        <p className="text-[16px] font-black text-white">{plan.cues.stall_temp_min}–{plan.cues.stall_temp_max}°C</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Tips */}
-              {plan.tips?.length > 0 && (
-                <div className="rounded-xl p-3 bg-white/[0.02] border border-white/[0.04]">
-                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">Conseils pitmaster</p>
-                  {plan.tips.slice(0, 3).map((tip, ti) => (
-                    <p key={ti} className="text-[11px] text-zinc-400 leading-relaxed mb-1 last:mb-0">
-                      <span className="text-[#ff6b1a] font-bold">{ti + 1}.</span> {tip}
-                    </p>
-                  ))}
-                </div>
-              )}
+            <div className="mt-2 flex items-center gap-3 flex-wrap">
+              <span className="text-[11px] text-zinc-500">
+                Durée : <span className="text-zinc-300 font-semibold">{plan.totalEstimate}</span>
+              </span>
+              <span className="text-[11px] text-zinc-500">
+                Repos : <span className="text-zinc-300 font-semibold">{plan.restEstimate}</span>
+              </span>
             </div>
           )}
         </div>
