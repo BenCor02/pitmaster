@@ -72,31 +72,41 @@ export default function WoodGuidePage() {
 
   return (
     <div className="min-h-screen pb-20">
-      {/* ── Hero ── */}
+      {/* ── Hero with image ── */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#ff6b1a]/[0.06] via-transparent to-[#ef4444]/[0.04]" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[#ff6b1a]/[0.04] rounded-full blur-[100px]" />
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1587049016823-69ef9d68f4e0?w=1400&h=400&fit=crop&q=80"
+            alt=""
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/90 to-[#0a0a0a]/50" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-[#0a0a0a]/20" />
+        </div>
 
-        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 pt-10 pb-8">
-          <div className="flex items-center gap-3 mb-3">
-            <span className="text-3xl">🪵</span>
-            <h1 className="text-2xl sm:text-3xl font-black text-white">
-              Essences de Bois
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-12 lg:py-16">
+          <div className="animate-fade-up">
+            <div className="badge badge-accent mb-4">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#ff6b1a] mr-2 animate-pulse" />
+              Guide du fumage
+            </div>
+            <h1 className="font-display text-[30px] lg:text-[40px] font-black text-white tracking-tight leading-[1.1] mb-3">
+              Essences de <span className="text-gradient">Bois</span>
             </h1>
-          </div>
-          <p className="text-zinc-400 text-sm sm:text-base max-w-2xl leading-relaxed">
-            Chaque bois donne un caractère unique à ta viande. Intensité, profil aromatique,
-            meilleurs accords — tout ce qu'il faut pour choisir la bonne essence.
-          </p>
+            <p className="text-zinc-400 text-sm sm:text-[16px] max-w-xl leading-relaxed">
+              Chaque bois donne un caractère unique à ta viande. Intensité, profil aromatique,
+              meilleurs accords.
+            </p>
 
-          {/* Légende intensité */}
-          <div className="flex items-center gap-6 mt-5">
-            {Object.entries(INTENSITY_CONFIG).map(([key, cfg]) => (
-              <div key={key} className="flex items-center gap-2">
-                <div className={`w-2.5 h-2.5 rounded-full ${cfg.dot}`} />
-                <span className="text-xs text-zinc-500 font-medium">{cfg.label}</span>
-              </div>
-            ))}
+            {/* Légende intensité */}
+            <div className="flex items-center gap-6 mt-6">
+              {Object.entries(INTENSITY_CONFIG).map(([key, cfg]) => (
+                <div key={key} className="flex items-center gap-2">
+                  <div className={`w-2.5 h-2.5 rounded-full ${cfg.dot}`} />
+                  <span className="text-xs text-zinc-400 font-medium">{cfg.label}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

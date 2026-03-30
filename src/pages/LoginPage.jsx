@@ -176,17 +176,37 @@ export default function LoginPage() {
 
   // ── Login / Register screen ──
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[#ff6b1a]/[0.04] rounded-full blur-[100px] pointer-events-none animate-fire-breathe" />
-      <div className="absolute bottom-1/4 left-1/3 w-[300px] h-[300px] bg-[#ef4444]/[0.03] rounded-full blur-[80px] pointer-events-none" />
+    <div className="min-h-screen flex relative overflow-hidden">
+      {/* Left: image panel (desktop only) */}
+      <div className="hidden lg:block lg:w-1/2 relative">
+        <img
+          src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&h=1200&fit=crop&q=85"
+          alt=""
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#0a0a0a]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/60 to-transparent" />
+        <div className="absolute bottom-12 left-10 right-10">
+          <p className="font-display text-[28px] font-black text-white leading-tight">
+            "Le feu ne ment pas.<br/>
+            <span className="text-[#ff6b1a]">La viande non plus."</span>
+          </p>
+        </div>
+      </div>
+
+      {/* Right: form */}
+      <div className="flex-1 flex items-center justify-center px-6 relative">
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[#ff6b1a]/[0.03] rounded-full blur-[100px] pointer-events-none animate-fire-breathe" />
       <div className="w-full max-w-sm animate-fade-in-up relative">
         <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
+          <div className="flex justify-center mb-5">
             <LogoIcon size={52} />
           </div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight mb-0.5">CHARBON <span className="text-[#ff6b1a]">&</span> FLAMME</h1>
-          <p className="text-zinc-500 text-sm">
+          <h1 className="font-display text-2xl font-black text-white tracking-tight mb-1">
             {mode === 'login' ? 'Connexion' : 'Créer un compte'}
+          </h1>
+          <p className="text-zinc-500 text-sm">
+            {mode === 'login' ? 'Retrouve ton espace pitmaster' : 'Rejoins la communauté BBQ'}
           </p>
         </div>
 

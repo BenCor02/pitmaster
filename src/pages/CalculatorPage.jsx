@@ -333,55 +333,63 @@ export default function CalculatorPage() {
 
       {/* ══════════ HERO ══════════ */}
       {!result && step === 1 && !selectedProfile && (
-        <div className="relative overflow-hidden">
+        <div className="relative overflow-hidden min-h-[85vh] lg:min-h-[70vh] flex items-end lg:items-center">
+          {/* Background image */}
           <div className="absolute inset-0">
             <img
-              src="https://images.unsplash.com/photo-1544025162-d76694265947?w=1400&h=600&fit=crop&q=80"
+              src="https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=1600&h=900&fit=crop&q=85"
               alt=""
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#09090b] via-[#09090b]/85 to-[#09090b]/40" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-transparent to-[#09090b]/30" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/90 to-[#0a0a0a]/30" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/40 to-transparent" />
+            {/* Ember glow */}
+            <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#ff6b1a]/[0.04] to-transparent" />
           </div>
-          <div className="relative px-6 lg:px-10 py-12 lg:py-16 max-w-4xl">
+
+          <div className="relative px-6 lg:px-10 py-12 lg:py-20 max-w-4xl w-full">
             <div className="animate-fade-up">
-              <div className="badge badge-accent mb-4">
+              <div className="badge badge-accent mb-5">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#ff6b1a] mr-2 animate-pulse" />
                 Assistant Pitmaster
               </div>
-              <h1 className="text-[32px] lg:text-[42px] font-extrabold text-white tracking-tight leading-[1.1] mb-3">
+              <h1 className="font-display text-[36px] sm:text-[44px] lg:text-[56px] font-black text-white tracking-tight leading-[1.05] mb-4">
                 Planifie ta cuisson,<br />
-                <span className="text-gradient">comme un vrai pitmaster.</span>
+                <span className="text-gradient">comme un pro.</span>
               </h1>
-              <p className="text-[15px] lg:text-[16px] text-zinc-400 max-w-md leading-relaxed mb-8">
-                Des phases, des repères terrain, des durées honnêtes. Pas d'heure au minute près — juste ce qu'il faut pour réussir ta cuisson.
+              <p className="text-[15px] lg:text-[17px] text-zinc-400 max-w-lg leading-relaxed mb-10">
+                Temps, phases, repères terrain. Tout ce qu'il faut pour sortir une viande parfaite de ton fumoir.
               </p>
-              <div className="flex gap-6 mb-8">
+
+              {/* Stats row */}
+              <div className="flex gap-8 mb-10">
                 <div>
-                  <p className="text-[24px] font-bold text-white">9</p>
-                  <p className="text-[11px] text-zinc-500 font-medium">Profils viande</p>
+                  <p className="text-[28px] lg:text-[32px] font-bold text-white font-display">9</p>
+                  <p className="text-[11px] text-zinc-500 font-medium uppercase tracking-wider">Profils</p>
                 </div>
-                <div className="w-px bg-white/[0.08]" />
+                <div className="w-px bg-gradient-to-b from-transparent via-[#ff6b1a]/20 to-transparent" />
                 <div>
-                  <p className="text-[24px] font-bold text-white">~</p>
-                  <p className="text-[11px] text-zinc-500 font-medium">Durées approx.</p>
+                  <p className="text-[28px] lg:text-[32px] font-bold text-[#ff6b1a] font-display">50+</p>
+                  <p className="text-[11px] text-zinc-500 font-medium uppercase tracking-wider">Recettes</p>
                 </div>
-                <div className="w-px bg-white/[0.08]" />
+                <div className="w-px bg-gradient-to-b from-transparent via-[#ff6b1a]/20 to-transparent" />
                 <div>
-                  <p className="text-[24px] font-bold text-[#ff6b1a]">100%</p>
-                  <p className="text-[11px] text-zinc-500 font-medium">Terrain</p>
+                  <p className="text-[28px] lg:text-[32px] font-bold text-white font-display">100%</p>
+                  <p className="text-[11px] text-zinc-500 font-medium uppercase tracking-wider">Terrain</p>
                 </div>
               </div>
+
+              {/* Quick access — larger, more visual */}
               <div>
-                <p className="text-[11px] text-zinc-600 font-medium uppercase tracking-wider mb-3">Accès rapide</p>
-                <div className="flex flex-wrap gap-2">
+                <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.15em] mb-3">Commence ici</p>
+                <div className="flex flex-wrap gap-2.5">
                   {profiles?.slice(0, 5).map((p) => (
                     <button
                       key={p.id}
                       onClick={() => handleProfileSelect(p.id)}
-                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.06] hover:border-white/[0.12] text-[13px] font-medium text-zinc-300 hover:text-white transition-all group"
+                      className="flex items-center gap-2.5 px-5 py-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.08] hover:border-[#ff6b1a]/20 text-[13px] font-semibold text-zinc-300 hover:text-white transition-all group backdrop-blur-sm"
                     >
-                      <span className="text-base group-hover:scale-110 transition-transform">{p.icon}</span>
+                      <span className="text-lg group-hover:scale-110 transition-transform">{p.icon}</span>
                       {p.name}
                     </button>
                   ))}

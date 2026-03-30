@@ -28,19 +28,35 @@ export default function GuidesListPage() {
   }
 
   return (
-    <div className="min-h-screen px-6 lg:px-10 py-8 max-w-4xl mx-auto">
-      <header className="mb-8">
-        <div className="badge badge-accent mb-3">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#ff6b1a] mr-2" />
-          Guides Pitmaster
+    <div className="min-h-screen">
+      {/* Hero with image */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=1400&h=400&fit=crop&q=80"
+            alt=""
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/90 to-[#0a0a0a]/50" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-[#0a0a0a]/20" />
         </div>
-        <h1 className="text-[28px] sm:text-[36px] font-extrabold text-white tracking-tight leading-tight mb-2">
-          Guides BBQ & Fumage
-        </h1>
-        <p className="text-[15px] text-zinc-400 max-w-lg leading-relaxed">
-          Tout ce qu'il faut savoir pour maîtriser la cuisson au fumoir. Des techniques aux astuces terrain.
-        </p>
-      </header>
+        <div className="relative px-6 lg:px-10 py-12 lg:py-16 max-w-5xl">
+          <div className="animate-fade-up">
+            <div className="badge badge-accent mb-4">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#ff6b1a] mr-2 animate-pulse" />
+              Guides Pitmaster
+            </div>
+            <h1 className="font-display text-[30px] lg:text-[40px] font-black text-white tracking-tight leading-[1.1] mb-3">
+              Guides BBQ & <span className="text-gradient">Fumage.</span>
+            </h1>
+            <p className="text-[14px] lg:text-[16px] text-zinc-400 max-w-lg leading-relaxed">
+              Tout ce qu'il faut savoir pour maîtriser la cuisson au fumoir. Des techniques aux astuces terrain.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="px-6 lg:px-10 pb-12 max-w-5xl">
 
       {guides.length === 0 ? (
         <div className="text-center py-16">
@@ -53,6 +69,7 @@ export default function GuidesListPage() {
           ))}
         </div>
       )}
+      </div>
     </div>
   )
 }

@@ -91,16 +91,24 @@ export default function ComparatorPage() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero */}
+      {/* Hero with image */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#ff6b1a]/[0.06] via-transparent to-[#ef4444]/[0.04]" />
-        <div className="relative px-6 lg:px-10 py-10 lg:py-14 max-w-6xl">
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1558030006-450675393462?w=1400&h=400&fit=crop&q=80"
+            alt=""
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/90 to-[#0a0a0a]/50" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-[#0a0a0a]/20" />
+        </div>
+        <div className="relative px-6 lg:px-10 py-12 lg:py-16 max-w-6xl">
           <div className="animate-fade-up">
             <div className="badge badge-accent mb-4">
               <span className="w-1.5 h-1.5 rounded-full bg-[#ff6b1a] mr-2 animate-pulse" />
               Comparateur
             </div>
-            <h1 className="text-[28px] lg:text-[36px] font-extrabold text-white tracking-tight leading-[1.1] mb-2">
+            <h1 className="font-display text-[28px] lg:text-[36px] font-black text-white tracking-tight leading-[1.1] mb-3">
               Comparer les <span className="text-gradient">recettes.</span>
             </h1>
             <p className="text-[14px] lg:text-[15px] text-zinc-400 max-w-lg leading-relaxed">

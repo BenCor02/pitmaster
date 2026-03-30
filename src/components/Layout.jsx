@@ -79,33 +79,38 @@ export default function Layout({ children }) {
   const levelLabel = profile?.experience_level ? LEVEL_LABELS[profile.experience_level] : null
 
   return (
-    <div className="min-h-screen flex bg-[#09090b]">
+    <div className="min-h-screen flex bg-[#0a0a0a]">
 
       {/* ══════════ SIDEBAR DESKTOP ══════════ */}
-      <aside className="hidden lg:flex flex-col w-[260px] shrink-0 bg-[#0d0d0f] border-r border-white/[0.06] relative overflow-hidden sticky top-0 h-screen overflow-y-auto">
-        {/* Fire ambient glow */}
-        <div className="absolute -top-20 -left-20 w-60 h-60 bg-[#ff6b1a]/[0.03] rounded-full blur-3xl pointer-events-none animate-fire-breathe" />
-        <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-[#ef4444]/[0.03] rounded-full blur-3xl pointer-events-none" />
+      <aside className="hidden lg:flex flex-col w-[270px] shrink-0 bg-[#0e0e0e] border-r border-white/[0.05] relative overflow-hidden sticky top-0 h-screen overflow-y-auto">
+        {/* Ambient glows */}
+        <div className="absolute -top-20 -left-20 w-72 h-72 bg-[#ff6b1a]/[0.025] rounded-full blur-[80px] pointer-events-none animate-fire-breathe" />
+        <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-[#dc2626]/[0.02] rounded-full blur-[60px] pointer-events-none" />
 
         {/* ── Brand header ── */}
-        <div className="relative px-5 pt-6 pb-4">
+        <div className="relative px-5 pt-7 pb-5">
           <Link to="/" className="group">
-            <LogoFull iconSize={28} className="group-hover:opacity-90 transition-opacity" />
+            <LogoFull iconSize={30} className="group-hover:opacity-90 transition-opacity" />
           </Link>
         </div>
 
         {/* ── Fire separator ── */}
         <div className="mx-5 fire-divider" />
 
-        {/* ── Quick status card ── */}
-        <div className="mx-4 mt-4 mb-2 px-4 py-3 rounded-xl bg-gradient-to-r from-[#ff6b1a]/[0.06] to-[#ef4444]/[0.03] border border-[#ff6b1a]/[0.10]">
-          <div className="flex items-center gap-2 mb-1.5">
-            <div className="glow-dot" style={{ width: 6, height: 6 }} />
-            <span className="text-[10px] font-bold text-[#ff6b1a]/80 uppercase tracking-wider">Prêt à fumer</span>
+        {/* ── Quick status card with image ── */}
+        <div className="mx-4 mt-4 mb-2 rounded-xl overflow-hidden relative">
+          <img
+            src="https://images.unsplash.com/photo-1558030006-450675393462?w=400&h=120&fit=crop&q=80"
+            alt=""
+            className="w-full h-[72px] object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e0e] via-[#0e0e0e]/70 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 px-3.5 pb-2.5">
+            <div className="flex items-center gap-2">
+              <div className="glow-dot" style={{ width: 5, height: 5 }} />
+              <span className="text-[10px] font-bold text-[#ff6b1a]/90 uppercase tracking-wider">Prêt à fumer</span>
+            </div>
           </div>
-          <p className="text-[12px] text-zinc-400 leading-relaxed">
-            Planifie ta cuisson. Temps, repères, fenêtre de service.
-          </p>
         </div>
 
         {/* ── Navigation ── */}
@@ -262,7 +267,7 @@ export default function Layout({ children }) {
       </aside>
 
       {/* ══════════ MOBILE HEADER ══════════ */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 glass border-b border-white/[0.06]">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 glass">
         <div className="flex items-center justify-between px-4 h-14">
           <Link to="/">
             <LogoFull iconSize={22} />
@@ -277,7 +282,7 @@ export default function Layout({ children }) {
 
         {/* Mobile dropdown */}
         {mobileOpen && (
-          <div className="animate-fade border-t border-white/[0.06] px-4 py-3 space-y-1 bg-[#111113]">
+          <div className="animate-fade border-t border-white/[0.05] px-4 py-3 space-y-1 bg-[#0e0e0e]">
             <Link
               to="/"
               onClick={() => setMobileOpen(false)}
@@ -416,7 +421,7 @@ export default function Layout({ children }) {
       </div>
 
       {/* ══════════ MAIN CONTENT ══════════ */}
-      <main className="flex-1 min-w-0 lg:pt-0 pt-14">
+      <main className="flex-1 min-w-0 lg:pt-0 pt-14 smoke-bg">
         {children}
       </main>
     </div>
