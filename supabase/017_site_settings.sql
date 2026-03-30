@@ -47,7 +47,7 @@ insert into public.site_settings (key, value) values
   ('branding', '{
     "site_name_line1": "CHARBON",
     "site_name_line2": "& FLAMME",
-    "tagline": "L'\''arsenal du pitmaster",
+    "tagline": "L''arsenal du pitmaster",
     "logo_url": null
   }'::jsonb);
 
