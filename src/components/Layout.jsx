@@ -132,6 +132,14 @@ export default function Layout({ children }) {
             active={isActive('/multi')}
           />
 
+          <NavItem
+            to="/recettes"
+            icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={location.pathname.startsWith('/recettes') ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" /><path d="M8 12l2 2 4-4" /></svg>}
+            label="Recettes"
+            sublabel="Rubs, Mops & Marinades"
+            active={location.pathname.startsWith('/recettes')}
+          />
+
           {/* Guides */}
           <div className="mt-6">
             <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-600 px-3 mb-2">Contenu</p>
@@ -257,6 +265,16 @@ export default function Layout({ children }) {
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="3" y1="10" x2="21" y2="10" /><line x1="9" y1="4" x2="9" y2="22" /></svg>
               Multi-cuisson
+            </Link>
+            <Link
+              to="/recettes"
+              onClick={() => setMobileOpen(false)}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
+                location.pathname.startsWith('/recettes') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
+              }`}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" /><path d="M8 12l2 2 4-4" /></svg>
+              Recettes
             </Link>
             <Link
               to="/guides"

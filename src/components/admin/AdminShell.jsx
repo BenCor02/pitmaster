@@ -9,6 +9,7 @@ const TABS = [
   { id: 'seo', label: 'Blocs SEO', icon: '🔍' },
   { id: 'affiliate', label: 'Affiliation', icon: '🛠️' },
   { id: 'guides', label: 'Guides', icon: '📚' },
+  { id: 'recipes', label: 'Recettes', icon: '🧂' },
   { id: 'faq', label: 'FAQ', icon: '❓' },
 ]
 

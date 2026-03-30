@@ -15,8 +15,23 @@ const TABLE_MAP = {
   seo: 'seo_blocks',
   affiliate: 'affiliate_tools',
   guides: 'guides',
+  recipes: 'recipes',
   faq: 'faqs',
 }
+
+const RECIPE_TYPE_OPTIONS = [
+  { value: 'rub', label: 'Rub' },
+  { value: 'mop', label: 'Mop' },
+  { value: 'marinade', label: 'Marinade' },
+  { value: 'injection', label: 'Injection' },
+  { value: 'glaze', label: 'Glaze' },
+]
+
+const DIFFICULTY_OPTIONS = [
+  { value: 'facile', label: 'Facile' },
+  { value: 'moyen', label: 'Moyen' },
+  { value: 'avancé', label: 'Avancé' },
+]
 
 // ── Main Admin Page ────────────────────────────────────────
 
@@ -56,10 +71,11 @@ export default function AdminPage() {
 
   const loadCounts = async () => {
     try {
-      const [seo, aff, guides, faq] = await Promise.all([
+      const [seo, aff, guides, recipes, faq] = await Promise.all([
         adminCms.list('seo_blocks'),
         adminCms.list('affiliate_tools'),
         adminCms.list('guides'),
+        adminCms.list('recipes'),
         adminCms.list('faqs'),
       ])
       setCounts({
@@ -69,6 +85,8 @@ export default function AdminPage() {
         aff_pub: aff.filter(i => i.status === 'published').length,
         guides: guides.length,
         guides_pub: guides.filter(i => i.status === 'published').length,
+        recipes: recipes.length,
+        recipes_pub: recipes.filter(i => i.status === 'published').length,
         faq: faq.length,
         faq_pub: faq.filter(i => i.status === 'published').length,
       })
@@ -165,6 +183,7 @@ function OverviewTab({ counts, onNavigate, profile, signOut }) {
     { key: 'seo', label: 'Blocs SEO', icon: '🔍', total: counts.seo, pub: counts.seo_pub },
     { key: 'affiliate', label: 'Produits affiliés', icon: '🛠️', total: counts.affiliate, pub: counts.aff_pub },
     { key: 'guides', label: 'Guides', icon: '📚', total: counts.guides, pub: counts.guides_pub },
+    { key: 'recipes', label: 'Recettes', icon: '🧂', total: counts.recipes, pub: counts.recipes_pub },
     { key: 'faq', label: 'FAQ', icon: '❓', total: counts.faq, pub: counts.faq_pub },
   ]
 
@@ -283,6 +302,7 @@ function FormView({ tab, record, saving, onSave, onCancel }) {
         {tab === 'seo' && <SeoFields form={form} set={set} />}
         {tab === 'affiliate' && <AffiliateFields form={form} set={set} />}
         {tab === 'guides' && <GuideFields form={form} set={set} />}
+        {tab === 'recipes' && <RecipeFields form={form} set={set} />}
         {tab === 'faq' && <FaqFields form={form} set={set} />}
 
         {/* Common: status + sort */}
@@ -402,6 +422,79 @@ function GuideFields({ form, set }) {
   )
 }
 
+function RecipeFields({ form, set }) {
+  // Ingredients as editable JSON text
+  const ingredientsText = typeof form.ingredients === 'string' ? form.ingredients : JSON.stringify(form.ingredients || [], null, 2)
+  const stepsText = typeof form.steps === 'string' ? form.steps : JSON.stringify(form.steps || [], null, 2)
+
+  return (
+    <>
+      <div className="grid grid-cols-2 gap-4">
+        <FormField label="Type de recette">
+          <Select value={form.type} onChange={v => set('type', v)} options={RECIPE_TYPE_OPTIONS} placeholder="Sélectionner..." />
+        </FormField>
+        <FormField label="Difficulté">
+          <Select value={form.difficulty} onChange={v => set('difficulty', v)} options={DIFFICULTY_OPTIONS} />
+        </FormField>
+      </div>
+      <FormField label="Résumé" hint="Affiché sur les cards">
+        <TextArea value={form.summary} onChange={v => set('summary', v)} rows={2} placeholder="Résumé court de la recette..." />
+      </FormField>
+      <FormField label="Description complète">
+        <MarkdownEditor value={form.description} onChange={v => set('description', v)} rows={8} placeholder="Détails, histoire, conseils..." />
+      </FormField>
+      <FormField label="Ingrédients (JSON)" hint='[{"name":"Sel","qty":"30g","note":"optionnel"}]'>
+        <TextArea
+          value={ingredientsText}
+          onChange={v => {
+            try { set('ingredients', JSON.parse(v)) } catch { set('ingredients', v) }
+          }}
+          rows={10}
+          placeholder='[{"name":"Ingrédient","qty":"Quantité","note":"Note optionnelle"}]'
+        />
+      </FormField>
+      <FormField label="Étapes (JSON)" hint='["Étape 1","Étape 2",...]'>
+        <TextArea
+          value={stepsText}
+          onChange={v => {
+            try { set('steps', JSON.parse(v)) } catch { set('steps', v) }
+          }}
+          rows={8}
+          placeholder='["Mélanger les ingrédients","Appliquer sur la viande"]'
+        />
+      </FormField>
+      <div className="grid grid-cols-2 gap-4">
+        <FormField label="Rendement">
+          <TextInput value={form.yield_amount} onChange={v => set('yield_amount', v)} placeholder="~200g — 3 cuissons" />
+        </FormField>
+        <FormField label="Temps de préparation">
+          <TextInput value={form.prep_time} onChange={v => set('prep_time', v)} placeholder="5 min + 4h marinade" />
+        </FormField>
+      </div>
+      <FormField label="Viandes compatibles" hint="Séparées par des virgules (brisket, pulled_pork, whole_chicken...)">
+        <TextInput
+          value={Array.isArray(form.meat_types) ? form.meat_types.join(', ') : form.meat_types || ''}
+          onChange={v => set('meat_types', v.split(',').map(t => t.trim()).filter(Boolean))}
+          placeholder="brisket, pulled_pork, spare_ribs"
+        />
+      </FormField>
+      <FormField label="Origine / Inspiration">
+        <TextInput value={form.origin} onChange={v => set('origin', v)} placeholder="Aaron Franklin — Austin, Texas" />
+      </FormField>
+      <FormField label="Image de couverture (URL)">
+        <TextInput value={form.cover_url} onChange={v => set('cover_url', v)} placeholder="https://..." />
+      </FormField>
+      <FormField label="Tags" hint="Séparés par des virgules">
+        <TextInput
+          value={Array.isArray(form.tags) ? form.tags.join(', ') : form.tags || ''}
+          onChange={v => set('tags', v.split(',').map(t => t.trim()).filter(Boolean))}
+          placeholder="texas, brisket, sel-poivre"
+        />
+      </FormField>
+    </>
+  )
+}
+
 function FaqFields({ form, set }) {
   return (
     <>
@@ -463,6 +556,21 @@ function getColumns(tab) {
         meatCol,
         statusCol,
       ]
+    case 'recipes':
+      return [
+        { key: 'title', label: 'Recette', render: row => (
+          <div>
+            <span className="font-medium text-white">{row.title}</span>
+            <p className="text-[11px] text-zinc-600 mt-0.5">/recettes/{row.slug}</p>
+          </div>
+        )},
+        { key: 'type', label: 'Type', render: row => {
+          const colors = { rub: 'text-amber-400', mop: 'text-blue-400', marinade: 'text-purple-400', injection: 'text-green-400', glaze: 'text-rose-400' }
+          return <span className={`text-[12px] font-semibold ${colors[row.type] || ''}`}>{row.type}</span>
+        }},
+        { key: 'difficulty', label: 'Difficulté' },
+        statusCol,
+      ]
     case 'faq':
       return [
         { key: 'question', label: 'Question', render: row => <span className="font-medium text-white">{row.question}</span> },
@@ -480,6 +588,7 @@ function getEmptyRecord(tab) {
     case 'seo': return { ...base, title: '', slug: '', content: '', meat_type: '', cooking_method: '', is_global: false }
     case 'affiliate': return { ...base, title: '', slug: '', description: '', image_url: '', affiliate_url: '', cta_text: 'Voir le produit', badge: '', product_type: '', meat_type: '', is_global: true }
     case 'guides': return { ...base, title: '', slug: '', summary: '', content: '', cover_url: '', category: '', tags: [], meat_type: '', seo_title: '', seo_description: '' }
+    case 'recipes': return { ...base, title: '', slug: '', type: 'rub', summary: '', description: '', ingredients: [], steps: [], yield_amount: '', prep_time: '', meat_types: [], origin: '', difficulty: 'facile', tags: [], cover_url: '' }
     case 'faq': return { ...base, question: '', answer: '', meat_type: '', cooking_method: '', is_global: false }
     default: return base
   }
@@ -490,6 +599,7 @@ function getFormTitle(tab) {
     case 'seo': return 'bloc SEO'
     case 'affiliate': return 'produit affilié'
     case 'guides': return 'guide'
+    case 'recipes': return 'recette'
     case 'faq': return 'FAQ'
     default: return 'contenu'
   }

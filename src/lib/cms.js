@@ -98,6 +98,41 @@ export async function fetchGuideBySlug(slug) {
   return data
 }
 
+// ── Recipes ────────────────────────────────────────────────
+
+export async function fetchRecipes({ type, meatType, limit } = {}) {
+  let query = supabase
+    .from('recipes')
+    .select('id, title, slug, type, summary, meat_types, origin, difficulty, tags, cover_url, prep_time, created_at')
+    .eq('status', 'published')
+    .order('sort_order', { ascending: true })
+
+  if (type) query = query.eq('type', type)
+  if (limit) query = query.limit(limit)
+
+  const { data, error } = await query
+  if (error) { console.error('fetchRecipes:', error); return [] }
+
+  if (!meatType) return data
+  // Trier : recettes contenant la viande en premier
+  return [
+    ...data.filter(d => d.meat_types && d.meat_types.includes(meatType)),
+    ...data.filter(d => !d.meat_types || !d.meat_types.includes(meatType)),
+  ]
+}
+
+export async function fetchRecipeBySlug(slug) {
+  const { data, error } = await supabase
+    .from('recipes')
+    .select('*')
+    .eq('slug', slug)
+    .eq('status', 'published')
+    .single()
+
+  if (error) { console.error('fetchRecipeBySlug:', error); return null }
+  return data
+}
+
 // ── Admin CRUD ──────────────────────────────────────────────
 
 export const adminCms = {
