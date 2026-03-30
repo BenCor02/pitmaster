@@ -30,16 +30,29 @@ function saveToURL(params) {
   window.history.replaceState({}, '', url)
 }
 
+const VALID_DONENESS = ['rare', 'medium_rare', 'medium', 'medium_well', 'well_done']
+
 function readFromURL() {
   const params = new URLSearchParams(window.location.search)
   const m = params.get('m')
   if (!m) return null
+
+  // Bounds checking sur les paramètres numériques
+  const rawWeight = parseFloat(params.get('w'))
+  const weightKg = (!isNaN(rawWeight) && rawWeight >= 0.1 && rawWeight <= 25) ? String(rawWeight) : ''
+
+  const rawTemp = Number(params.get('t'))
+  const cookTempC = (!isNaN(rawTemp) && rawTemp >= 50 && rawTemp <= 400) ? rawTemp : 110
+
+  const rawDoneness = params.get('d')
+  const doneness = VALID_DONENESS.includes(rawDoneness) ? rawDoneness : 'medium_rare'
+
   return {
     profileId: m,
-    weightKg: params.get('w') || '',
-    cookTempC: Number(params.get('t')) || 110,
+    weightKg,
+    cookTempC,
     wrapped: params.get('wr') === '1',
-    doneness: params.get('d') || 'medium_rare',
+    doneness,
   }
 }
 

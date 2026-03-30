@@ -38,9 +38,21 @@ export default function LoginPage() {
   const [experienceLevel, setExperienceLevel] = useState(null)
   const [onboardingSaving, setOnboardingSaving] = useState(false)
 
+  // Rate limiting : max 5 tentatives, puis blocage 2 min
+  const [attempts, setAttempts] = useState(0)
+  const [blockedUntil, setBlockedUntil] = useState(0)
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError(null)
+
+    // Anti brute-force
+    if (Date.now() < blockedUntil) {
+      const secs = Math.ceil((blockedUntil - Date.now()) / 1000)
+      setError(`Trop de tentatives. Réessaie dans ${secs}s.`)
+      return
+    }
+
     setLoading(true)
 
     let result
@@ -52,12 +64,22 @@ export default function LoginPage() {
 
     setLoading(false)
     if (result.error) {
-      setError(result.error.message)
-    } else if (mode === 'register') {
-      // Après inscription → onboarding
-      setMode('onboarding')
+      const next = attempts + 1
+      setAttempts(next)
+      if (next >= 5) {
+        setBlockedUntil(Date.now() + 120_000) // 2 min
+        setAttempts(0)
+        setError('Trop de tentatives. Réessaie dans 2 minutes.')
+      } else {
+        setError(result.error.message)
+      }
     } else {
-      navigate(from, { replace: true })
+      setAttempts(0)
+      if (mode === 'register') {
+        setMode('onboarding')
+      } else {
+        navigate(from, { replace: true })
+      }
     }
   }
 

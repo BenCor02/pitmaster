@@ -43,18 +43,20 @@ export default function JournalPage() {
   }, [isAuthenticated])
 
   // Pré-remplir depuis le calculateur (via ?prefill=...)
+  const PREFILL_ALLOWED = ['meat_name', 'weight_kg', 'cook_temp_c', 'wrapped', 'cook_date', 'smoker_type', 'wood_type', 'rub_used']
   useEffect(() => {
     const prefill = searchParams.get('prefill')
     if (prefill && isAuthenticated) {
       try {
-        const data = JSON.parse(decodeURIComponent(prefill))
-        setEditing({
-          ...emptySession(),
-          ...data,
-        })
+        const raw = JSON.parse(decodeURIComponent(prefill))
+        // Whitelist : n'accepter que les champs autorisés
+        const safe = Object.fromEntries(
+          Object.entries(raw).filter(([k]) => PREFILL_ALLOWED.includes(k))
+        )
+        setEditing({ ...emptySession(), ...safe })
         setView('form')
       } catch (e) {
-        console.error('Prefill error:', e)
+        // Ignore prefill invalide
       }
     }
   }, [searchParams, isAuthenticated])

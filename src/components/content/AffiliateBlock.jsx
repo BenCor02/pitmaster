@@ -1,3 +1,11 @@
+/** Valide qu'une URL est http/https */
+function safeUrl(url) {
+  if (!url) return null
+  const trimmed = url.trim().toLowerCase()
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return url.trim()
+  return null
+}
+
 export default function AffiliateBlock({ tools }) {
   if (!tools?.length) return null
 
@@ -13,14 +21,14 @@ export default function AffiliateBlock({ tools }) {
         {tools.map(tool => (
           <a
             key={tool.id}
-            href={tool.affiliate_url}
+            href={safeUrl(tool.affiliate_url) || '#'}
             target="_blank"
             rel="noopener noreferrer sponsored"
             className="surface p-4 flex gap-4 group hover:border-[#ff6b1a]/20 transition-all"
           >
-            {tool.image_url && (
+            {safeUrl(tool.image_url) && (
               <div className="w-16 h-16 rounded-xl bg-white/[0.03] border border-white/[0.06] overflow-hidden shrink-0">
-                <img src={tool.image_url} alt={tool.title} className="w-full h-full object-cover" loading="lazy" />
+                <img src={safeUrl(tool.image_url)} alt={tool.title} className="w-full h-full object-cover" loading="lazy" />
               </div>
             )}
             <div className="flex-1 min-w-0">
