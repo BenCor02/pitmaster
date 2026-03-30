@@ -1,181 +1,17 @@
-import { useState, useMemo, useEffect, useCallback, useRef } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { useCalculatorData } from '../modules/calculator/useCalculatorData.js'
 import { calculateCookPlan } from '../modules/calculator/engine.js'
 import { DONENESS_LABELS } from '../modules/calculator/data.js'
-import { useNavigate, Link } from 'react-router-dom'
-import { useAuth } from '../modules/auth/AuthContext.jsx'
+import { Link } from 'react-router-dom'
 import ContentBlocks from '../components/content/ContentBlocks.jsx'
-import { journal } from '../lib/journal.js'
-import { createSharedCook } from '../lib/sharedCooks.js'
+import ResultView from '../components/calculator/ResultView.jsx'
+import { ActionBar, RubSection } from '../components/calculator/ActionCards.jsx'
+import { RUB_SUGGESTIONS } from '../components/calculator/rubData.js'
 
 const CAT_LABELS = { boeuf: 'Boeuf', porc: 'Porc', volaille: 'Volaille', agneau: 'Agneau' }
 
-/**
- * Rubs inspirés de grands pitmasters — adaptés au public français
- * Sources : Aaron Franklin, Malcom Reed, Tuffy Stone, Myron Mixon,
- * Le Barbecue de Rafa, Pit's BBQ (Xavier Pincemin)
- */
-const RUB_SUGGESTIONS = {
-  brisket: [
-    {
-      name: 'Dalmatien (Aaron Franklin)',
-      origin: 'Franklin Barbecue, Austin TX',
-      ingredients: 'Sel + poivre noir concassé, parts égales',
-      tip: 'Le rub le plus simple et le plus respecté. Laisse le bœuf parler. ~60g de chaque pour un 5kg.',
-      badge: 'Classique',
-    },
-    {
-      name: 'Texas Bold',
-      origin: 'Inspiré Harry Soo',
-      ingredients: 'Sel, poivre noir, ail en poudre, oignon en poudre, piment de Cayenne',
-      tip: 'Un cran au-dessus du dalmatien. L\'ail et l\'oignon renforcent la bark.',
-      badge: 'Pitmaster',
-    },
-  ],
-  pulled_pork: [
-    {
-      name: 'Sweet Smoke (Malcom Reed)',
-      origin: 'HowToBBQRight',
-      ingredients: 'Paprika fumé, cassonade, sel, poivre, ail, oignon, cumin, moutarde en poudre',
-      tip: 'La cassonade caramélise et forme une bark sombre et sucrée-salée. Badigeonner de moutarde jaune avant d\'appliquer.',
-      badge: 'Classique',
-    },
-    {
-      name: 'Le Rafa (style français)',
-      origin: 'Le Barbecue de Rafa',
-      ingredients: 'Paprika doux, sel, poivre, herbes de Provence, miel en finition',
-      tip: 'Version française plus subtile. Les herbes de Provence apportent une touche méditerranéenne unique.',
-      badge: 'FR',
-    },
-  ],
-  beef_short_ribs: [
-    {
-      name: 'Dalmatien (Aaron Franklin)',
-      origin: 'Franklin Barbecue, Austin TX',
-      ingredients: 'Sel + poivre noir concassé, parts égales',
-      tip: 'Comme pour le brisket — le bœuf de qualité n\'a besoin de rien d\'autre.',
-      badge: 'Classique',
-    },
-    {
-      name: 'Coffee Rub',
-      origin: 'Inspiré Tuffy Stone',
-      ingredients: 'Café moulu fin, poivre noir, sel, cacao en poudre, paprika fumé',
-      tip: 'Le café crée une bark sombre et profonde. Aucun goût de café dans le résultat, juste de l\'umami.',
-      badge: 'Audacieux',
-    },
-  ],
-  spare_ribs: [
-    {
-      name: 'Memphis Dry Rub',
-      origin: 'Tradition Memphis',
-      ingredients: 'Paprika, cassonade, sel, poivre, ail, oignon, cumin, piment de Cayenne',
-      tip: 'Le rub classique des compétitions Memphis. Appliquer généreusement la veille.',
-      badge: 'Classique',
-    },
-    {
-      name: 'Kansas City Sweet',
-      origin: 'Inspiré Myron Mixon',
-      ingredients: 'Paprika, cassonade, moutarde en poudre, ail, oignon, cumin, poivre, cannelle',
-      tip: 'Plus sucré que Memphis. Parfait avec un glaze BBQ en fin de cuisson.',
-      badge: 'Compétition',
-    },
-  ],
-  baby_back_ribs: [
-    {
-      name: 'Memphis Dry Rub',
-      origin: 'Tradition Memphis',
-      ingredients: 'Paprika, cassonade, sel, poivre, ail, oignon, cumin, piment de Cayenne',
-      tip: 'Même base que les spare ribs. Les baby back étant plus tendres, réduire légèrement le sel.',
-      badge: 'Classique',
-    },
-    {
-      name: 'Honey Garlic',
-      origin: 'Inspiré Malcom Reed',
-      ingredients: 'Ail en poudre, paprika doux, sel, poivre, miel en finition',
-      tip: 'Badigeonner de miel 30 min avant la fin pour un glacé doré. Simple et efficace.',
-      badge: 'Facile',
-    },
-  ],
-  chuck_roast: [
-    {
-      name: 'Dalmatien renforcé',
-      origin: 'Inspiré Aaron Franklin',
-      ingredients: 'Sel, poivre noir, ail en poudre',
-      tip: 'Le paleron est une pièce persillée — l\'ail en poudre sublime le gras fondu.',
-      badge: 'Classique',
-    },
-    {
-      name: 'Chili Rub',
-      origin: 'Style Tex-Mex',
-      ingredients: 'Piment ancho, cumin, ail, oignon, paprika fumé, sel, poivre, origan',
-      tip: 'Parfait si tu veux effilocher le paleron façon tacos. L\'ancho apporte un côté fruité sans trop de piquant.',
-      badge: 'Audacieux',
-    },
-  ],
-  whole_chicken: [
-    {
-      name: 'Poulet fumé classique',
-      origin: 'Weber Academy',
-      ingredients: 'Paprika, sel, poivre, ail, oignon, thym séché, un filet d\'huile d\'olive',
-      tip: 'Glisser du beurre aux herbes sous la peau pour un résultat juteux. Poulet fermier Label Rouge obligatoire.',
-      badge: 'Classique',
-    },
-    {
-      name: 'Cajun',
-      origin: 'Louisiane',
-      ingredients: 'Paprika, ail, oignon, thym, origan, cayenne, sel, poivre blanc',
-      tip: 'Plus relevé. Le poivre blanc fait la différence — il pique sans dominer.',
-      badge: 'Épicé',
-    },
-  ],
-  prime_rib: [
-    {
-      name: 'Sel + herbes (Rafa style)',
-      origin: 'Le Barbecue de Rafa',
-      ingredients: 'Gros sel, poivre concassé, romarin frais, ail frais haché, huile d\'olive',
-      tip: 'Appliquer 12h avant et laisser au frigo à découvert. La surface sèche = meilleure croûte.',
-      badge: 'Classique',
-    },
-    {
-      name: 'Au Roquefort (finition)',
-      origin: 'Tradition française',
-      ingredients: 'Sel, poivre pour la cuisson. Beurre + Roquefort fondu en finition',
-      tip: 'Après la saisie inversée, napper d\'un beurre au Roquefort. Accord bœuf + fromage puissant.',
-      badge: 'FR',
-    },
-  ],
-  tomahawk: [
-    {
-      name: 'Dalmatien (Aaron Franklin)',
-      origin: 'La référence pour le bœuf',
-      ingredients: 'Sel + poivre noir concassé, parts égales',
-      tip: 'Sur une pièce de cette qualité, la simplicité est reine. Saler 1h avant minimum.',
-      badge: 'Classique',
-    },
-    {
-      name: 'Beurre noisette & ail',
-      origin: 'Finition Pitmaster',
-      ingredients: 'Sel, poivre pour la cuisson. Beurre noisette, ail, thym et romarin pour arroser',
-      tip: 'Pendant la saisie finale, arroser à la cuillère avec un beurre noisette + ail écrasé + herbes fraîches.',
-      badge: 'Premium',
-    },
-  ],
-}
+// ── URL persistence ─────────────────────────────────────
 
-// Mapping meat_type des profiles → clé dans RUB_SUGGESTIONS
-const PROFILE_TO_RUB_KEY = {
-  brisket: 'brisket',
-  pulled_pork: 'pulled_pork',
-  beef_short_ribs: 'beef_short_ribs',
-  spare_ribs: 'spare_ribs',
-  baby_back_ribs: 'baby_back_ribs',
-  chuck_roast: 'chuck_roast',
-  whole_chicken: 'whole_chicken',
-  prime_rib: 'prime_rib',
-  tomahawk: 'tomahawk',
-}
-
-/** Encode les params de cuisson dans l'URL pour survivre au refresh */
 function saveToURL(params) {
   const url = new URL(window.location)
   if (params) {
@@ -207,6 +43,8 @@ function readFromURL() {
   }
 }
 
+// ── Main component ──────────────────────────────────────
+
 export default function CalculatorPage() {
   const { profiles, loading } = useCalculatorData()
 
@@ -218,11 +56,10 @@ export default function CalculatorPage() {
   const [result, setResult] = useState(null)
   const [step, setStep] = useState(1)
 
-  // Refs pour auto-scroll
   const step2Ref = useRef(null)
   const resultRef = useRef(null)
 
-  // ── Restore depuis URL au chargement ──
+  // Restore from URL
   useEffect(() => {
     if (!profiles || profiles.length === 0) return
     const saved = readFromURL()
@@ -235,18 +72,16 @@ export default function CalculatorPage() {
     setWrapped(saved.wrapped)
     setDoneness(saved.doneness)
     setStep(2)
-    // Lancer le calcul automatiquement
     const isFixed = !!p.fixed_times
     const isRS = p.cook_type === 'reverse_sear'
     if (isFixed || saved.weightKg) {
-      const plan = calculateCookPlan({
+      setResult(calculateCookPlan({
         profile: p,
         weightKg: isFixed ? 0 : parseFloat(saved.weightKg),
         cookTempC: isFixed ? 0 : saved.cookTempC,
         wrapped: saved.wrapped,
         doneness: isRS ? saved.doneness : null,
-      })
-      setResult(plan)
+      }))
     }
   }, [profiles])
 
@@ -264,16 +99,12 @@ export default function CalculatorPage() {
     const p = profiles.find((m) => m.id === id)
     setSelectedProfile(p)
     if (p?.temp_bands?.length) {
-      const midBand = p.temp_bands[Math.floor(p.temp_bands.length / 2)]
-      setCookTempC(midBand.temp_c)
+      setCookTempC(p.temp_bands[Math.floor(p.temp_bands.length / 2)].temp_c)
     }
     setWrapped(p?.supports_wrap || false)
     setResult(null)
     setStep(2)
-    // Auto-scroll vers l'étape 2
-    setTimeout(() => {
-      step2Ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }, 100)
+    setTimeout(() => step2Ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
   }
 
   const isReverseSear = selectedProfile?.cook_type === 'reverse_sear'
@@ -290,18 +121,8 @@ export default function CalculatorPage() {
       doneness: isReverseSear ? doneness : null,
     })
     setResult(plan)
-    // Auto-scroll vers les résultats
-    setTimeout(() => {
-      resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }, 100)
-    // Sauvegarder dans l'URL
-    saveToURL({
-      profileId: selectedProfile.id,
-      weightKg,
-      cookTempC,
-      wrapped,
-      doneness: isReverseSear ? doneness : null,
-    })
+    setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
+    saveToURL({ profileId: selectedProfile.id, weightKg, cookTempC, wrapped, doneness: isReverseSear ? doneness : null })
   }
 
   const handleReset = () => {
@@ -331,201 +152,12 @@ export default function CalculatorPage() {
   return (
     <div className="min-h-screen">
 
-      {/* ══════════ HERO — IMMERSIF ══════════ */}
+      {/* ══════════ HERO ══════════ */}
       {!result && step === 1 && !selectedProfile && (
-        <>
-        <div className="relative overflow-hidden min-h-[92vh] lg:min-h-[80vh] flex items-end">
-          {/* Background image — full bleed */}
-          <div className="absolute inset-0">
-            <img
-              src="https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=1800&h=1000&fit=crop&q=90"
-              alt=""
-              className="w-full h-full object-cover scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#080808] via-[#080808]/85 to-[#080808]/20" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-[#080808]/50 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 h-60 bg-gradient-to-t from-[#080808] to-transparent" />
-            {/* Ember glow bottom */}
-            <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#ff6b1a]/[0.03] to-transparent" />
-          </div>
-
-          <div className="relative px-6 lg:px-12 pb-16 lg:pb-24 pt-12 max-w-5xl w-full">
-            <div className="animate-fade-up">
-              {/* Credibility badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.05] border border-white/[0.07] backdrop-blur-sm mb-6">
-                <span className="w-2 h-2 rounded-full bg-[#ff6b1a] animate-pulse" />
-                <span className="text-[11px] font-bold text-[#ff8c4a] uppercase tracking-[0.1em]">Du débutant au pitmaster</span>
-              </div>
-
-              <h1 className="font-display text-[38px] sm:text-[48px] lg:text-[64px] font-black text-[#f5f0eb] tracking-tight leading-[1.02] mb-5">
-                Réussis ta cuisson,<br />
-                <span className="text-gradient">à tous les niveaux.</span>
-              </h1>
-              <p className="text-[16px] lg:text-[18px] text-stone-400 max-w-xl leading-relaxed mb-10">
-                Que tu débutes ou que tu maîtrises le fumoir, l'outil calcule temps, phases et repères pour une viande parfaite à chaque fois.
-              </p>
-
-              {/* Stats strip — credibility */}
-              <div className="flex flex-wrap gap-6 sm:gap-10 mb-12">
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#ff6b1a]/15 to-[#dc2626]/10 flex items-center justify-center border border-[#ff6b1a]/10">
-                    <span className="text-lg">🔥</span>
-                  </div>
-                  <div>
-                    <p className="text-[22px] font-black text-white font-display leading-none">9</p>
-                    <p className="text-[10px] text-stone-500 font-semibold uppercase tracking-wider">Profils viande</p>
-                  </div>
-                </div>
-                <div className="w-px h-10 bg-gradient-to-b from-transparent via-white/[0.08] to-transparent" />
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#ff6b1a]/15 to-amber-500/10 flex items-center justify-center border border-[#ff6b1a]/10">
-                    <span className="text-lg">🧂</span>
-                  </div>
-                  <div>
-                    <p className="text-[22px] font-black text-[#ff6b1a] font-display leading-none">50+</p>
-                    <p className="text-[10px] text-stone-500 font-semibold uppercase tracking-wider">Recettes & Rubs</p>
-                  </div>
-                </div>
-                <div className="w-px h-10 bg-gradient-to-b from-transparent via-white/[0.08] to-transparent hidden sm:block" />
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/8 flex items-center justify-center border border-green-500/10">
-                    <span className="text-lg">✓</span>
-                  </div>
-                  <div>
-                    <p className="text-[22px] font-black text-white font-display leading-none">100%</p>
-                    <p className="text-[10px] text-stone-500 font-semibold uppercase tracking-wider">Testé terrain</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* CTA + quick access */}
-              <div className="space-y-4">
-                <p className="text-[10px] text-stone-600 font-bold uppercase tracking-[0.15em]">Choisis ta viande pour commencer</p>
-                <div className="flex flex-wrap gap-2.5">
-                  {profiles?.slice(0, 5).map((p) => (
-                    <button
-                      key={p.id}
-                      onClick={() => handleProfileSelect(p.id)}
-                      className="flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-white/[0.05] hover:bg-white/[0.10] border border-white/[0.07] hover:border-[#ff6b1a]/25 text-[13px] font-semibold text-stone-300 hover:text-white transition-all group backdrop-blur-md shadow-lg shadow-black/20"
-                    >
-                      <span className="text-xl group-hover:scale-110 transition-transform">{p.icon}</span>
-                      {p.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ══════════ SECTIONS SOUS LE HERO ══════════ */}
-
-        {/* Section: Types de viandes */}
-        <div className="px-6 lg:px-12 py-16 max-w-6xl mx-auto">
-          <div className="text-center mb-10">
-            <div className="badge badge-accent mx-auto mb-4">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#ff6b1a] mr-2" />
-              Viandes supportées
-            </div>
-            <h2 className="font-display text-[26px] lg:text-[34px] font-black text-[#f5f0eb] tracking-tight leading-tight">
-              Chaque pièce a <span className="text-gradient-static">sa méthode.</span>
-            </h2>
-            <p className="text-[14px] text-stone-500 mt-2 max-w-md mx-auto">Sélectionne une viande pour obtenir un plan de cuisson précis, avec les bons repères.</p>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 stagger">
-            {profiles?.map((p) => (
-              <button
-                key={p.id}
-                onClick={() => handleProfileSelect(p.id)}
-                className="group card-premium p-0 text-left"
-              >
-                <div className="h-[90px] overflow-hidden bg-gradient-to-br from-stone-800/50 to-stone-900/50 flex items-center justify-center">
-                  <span className="text-4xl group-hover:scale-110 transition-transform duration-500">{p.icon}</span>
-                </div>
-                <div className="p-3.5">
-                  <p className="text-[13px] font-bold text-stone-200 group-hover:text-white transition-colors">{p.name}</p>
-                  <p className="text-[10px] text-stone-600 mt-0.5">{p.cook_type === 'reverse_sear' ? 'Reverse sear' : 'Low & slow'}</p>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Section separator — image strip */}
-        <div className="section-separator">
-          <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=1400&h=200&fit=crop&q=80" alt="" />
-        </div>
-
-        {/* Section: Pourquoi cet outil */}
-        <div className="section-alt py-16">
-          <div className="px-6 lg:px-12 max-w-5xl mx-auto">
-            <div className="text-center mb-10">
-              <h2 className="font-display text-[24px] lg:text-[30px] font-black text-[#f5f0eb] tracking-tight">
-                Pas un chrono. <span className="text-gradient-static">Un vrai assistant.</span>
-              </h2>
-              <p className="text-[14px] text-stone-500 mt-2 max-w-lg mx-auto">Accessible aux débutants, précis pour les confirmés. Chaque donnée est basée sur des cuissons réelles.</p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="surface p-6 text-center">
-                <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-[#ff6b1a]/12 to-[#dc2626]/8 flex items-center justify-center border border-[#ff6b1a]/8">
-                  <span className="text-2xl">🎯</span>
-                </div>
-                <h3 className="text-[15px] font-bold text-white mb-1.5">Précis</h3>
-                <p className="text-[12px] text-stone-500 leading-relaxed">Fourchettes basées sur des cuissons réelles, pas des formules théoriques.</p>
-                <div className="badge badge-precision mt-3 text-[9px]">Données terrain</div>
-              </div>
-              <div className="surface p-6 text-center">
-                <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-amber-500/12 to-[#ff6b1a]/8 flex items-center justify-center border border-amber-500/8">
-                  <span className="text-2xl">🔥</span>
-                </div>
-                <h3 className="text-[15px] font-bold text-white mb-1.5">Complet</h3>
-                <p className="text-[12px] text-stone-500 leading-relaxed">Phases, rubs, wrap, repos, conseils. Tout en un seul endroit.</p>
-                <div className="badge badge-recommended mt-3 text-[9px]">Recommandé</div>
-              </div>
-              <div className="surface p-6 text-center">
-                <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-500/12 to-indigo-500/8 flex items-center justify-center border border-blue-500/8">
-                  <span className="text-2xl">📱</span>
-                </div>
-                <h3 className="text-[15px] font-bold text-white mb-1.5">Mobile-first</h3>
-                <p className="text-[12px] text-stone-500 leading-relaxed">Utilisable en plein air, devant ton fumoir, une main sur la viande.</p>
-                <div className="badge badge-muted mt-3 text-[9px]">Responsive</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Section: BBQ image break */}
-        <div className="section-separator">
-          <img src="https://images.unsplash.com/photo-1558030006-450675393462?w=1400&h=200&fit=crop&q=80" alt="" />
-        </div>
-
-        {/* Section: Social proof / Recommandation */}
-        <div className="px-6 lg:px-12 py-16 max-w-5xl mx-auto">
-          <div className="surface-fire p-8 lg:p-10 text-center relative overflow-hidden">
-            <div className="absolute -top-20 -right-20 w-60 h-60 bg-[#ff6b1a]/[0.04] rounded-full blur-[60px] pointer-events-none" />
-            <div className="relative">
-              <span className="text-3xl mb-4 block">🏆</span>
-              <h3 className="font-display text-[22px] lg:text-[26px] font-black text-white mb-3">
-                Rejoins la communauté
-              </h3>
-              <p className="text-[14px] text-stone-400 max-w-md mx-auto mb-6 leading-relaxed">
-                Débutants comme confirmés utilisent Charbon & Flamme pour planifier leurs cuissons. Gratuit, sans pub, sans compromis.
-              </p>
-              <Link
-                to="/recettes"
-                className="btn-primary inline-flex items-center gap-2"
-              >
-                <span>🧂</span>
-                Explorer les recettes
-              </Link>
-            </div>
-          </div>
-        </div>
-        </>
+        <HeroSection profiles={profiles} onSelect={handleProfileSelect} />
       )}
 
-      {/* ══════════ HEADER BAR — when in calculator mode ══════════ */}
+      {/* ══════════ HEADER BAR ══════════ */}
       {(result || selectedProfile) && (
         <div className="px-6 lg:px-12 py-5 border-b border-white/[0.05] bg-[#080808]/80 backdrop-blur-sm">
           <div className="max-w-4xl flex items-center justify-between">
@@ -549,15 +181,16 @@ export default function CalculatorPage() {
         {/* ══════════ WIZARD ══════════ */}
         {!result && (
           <>
+            {/* Steps indicator */}
             <div className="flex items-center gap-3 mb-8">
               <StepPill num={1} label="Viande" active={step >= 1} />
               <div className={`h-px flex-1 ${step >= 2 ? 'bg-[#ff6b1a]/30' : 'bg-white/[0.06]'}`} />
               <StepPill num={2} label="Réglages" active={step >= 2} />
-              <div className={`h-px flex-1 bg-white/[0.06]`} />
+              <div className="h-px flex-1 bg-white/[0.06]" />
               <StepPill num={3} label="Résultat" active={false} />
             </div>
 
-            {/* STEP 1: Meat */}
+            {/* STEP 1: Meat selection */}
             {step >= 1 && (
               <div className="animate-fade-up">
                 <SectionHeader title="Choisis ta pièce" description="L'outil adapte automatiquement la méthode et les repères." />
@@ -594,7 +227,7 @@ export default function CalculatorPage() {
                 <SectionHeader title="Règle ta cuisson" description="Ajuste les paramètres. Durées approximatives, pas de fausse précision." />
                 <div className="space-y-4">
 
-                  {/* Recap */}
+                  {/* Selected meat recap */}
                   <div className="surface p-4 flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-[#ff6b1a]/10 flex items-center justify-center text-2xl">{selectedProfile.icon}</div>
                     <div className="flex-1">
@@ -603,11 +236,6 @@ export default function CalculatorPage() {
                     </div>
                     <button onClick={() => { setStep(1); setSelectedProfile(null); setResult(null) }} className="text-[12px] text-zinc-500 hover:text-[#ff6b1a] font-medium transition-colors">Changer</button>
                   </div>
-
-                  {/* Rub suggestions */}
-                  {RUB_SUGGESTIONS[PROFILE_TO_RUB_KEY[selectedProfile.id]] && (
-                    <RubSection rubs={RUB_SUGGESTIONS[PROFILE_TO_RUB_KEY[selectedProfile.id]]} meatName={selectedProfile.name} />
-                  )}
 
                   {/* Weight */}
                   {!isFixedTime && (
@@ -645,7 +273,7 @@ export default function CalculatorPage() {
                     </div>
                   )}
 
-                  {/* Doneness */}
+                  {/* Doneness (reverse sear) */}
                   {isReverseSear && (
                     <div className="surface p-5">
                       <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-[0.08em] mb-3 block">Cuisson souhaitée</label>
@@ -670,7 +298,7 @@ export default function CalculatorPage() {
                     </div>
                   )}
 
-                  {/* Calculate */}
+                  {/* Calculate button */}
                   {canCalculate && (
                     <button onClick={handleCalculate} className="btn-primary w-full flex items-center justify-center gap-2 mt-2">
                       <span>🔥</span>
@@ -685,20 +313,172 @@ export default function CalculatorPage() {
 
         {/* ══════════ RESULTS ══════════ */}
         <div ref={resultRef} className="scroll-mt-20" />
-        {result && <ResultView result={result} contentBlocks={
-          <ContentBlocks meatType={result.profileId} cookingMethod={result.cookType} />
-        } />}
-
-        {/* ══════════ SAVE SESSION ══════════ */}
-        {result && <SaveSessionCTA result={result} />}
-        {result && <LiveCookCTA result={result} />}
-        {result && <ShareCookCTA result={result} />}
+        {result && (
+          <ResultView
+            result={result}
+            contentBlocks={<ContentBlocks meatType={result.profileId} cookingMethod={result.cookType} />}
+            rubs={RUB_SUGGESTIONS[result.profileId] ? <RubSection rubs={RUB_SUGGESTIONS[result.profileId]} meatName={result.profile} /> : null}
+            actionBar={<ActionBar result={result} />}
+          />
+        )}
       </div>
     </div>
   )
 }
 
-/* ── Small components ─────────────────────────────── */
+// ── Hero section ────────────────────────────────────────
+
+function HeroSection({ profiles, onSelect }) {
+  return (
+    <>
+      <div className="relative overflow-hidden min-h-[92vh] lg:min-h-[80vh] flex items-end">
+        <div className="absolute inset-0">
+          <img src="https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=1800&h=1000&fit=crop&q=90" alt="" className="w-full h-full object-cover scale-105" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#080808] via-[#080808]/85 to-[#080808]/20" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-[#080808]/50 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-60 bg-gradient-to-t from-[#080808] to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#ff6b1a]/[0.03] to-transparent" />
+        </div>
+
+        <div className="relative px-6 lg:px-12 pb-16 lg:pb-24 pt-12 max-w-5xl w-full">
+          <div className="animate-fade-up">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.05] border border-white/[0.07] backdrop-blur-sm mb-6">
+              <span className="w-2 h-2 rounded-full bg-[#ff6b1a] animate-pulse" />
+              <span className="text-[11px] font-bold text-[#ff8c4a] uppercase tracking-[0.1em]">Du débutant au pitmaster</span>
+            </div>
+
+            <h1 className="font-display text-[38px] sm:text-[48px] lg:text-[64px] font-black text-[#f5f0eb] tracking-tight leading-[1.02] mb-5">
+              Réussis ta cuisson,<br />
+              <span className="text-gradient">à tous les niveaux.</span>
+            </h1>
+            <p className="text-[16px] lg:text-[18px] text-stone-400 max-w-xl leading-relaxed mb-10">
+              Que tu débutes ou que tu maîtrises le fumoir, l'outil calcule temps, phases et repères pour une viande parfaite à chaque fois.
+            </p>
+
+            <div className="flex flex-wrap gap-6 sm:gap-10 mb-12">
+              <HeroStat icon="🔥" value="9" label="Profils viande" />
+              <div className="w-px h-10 bg-gradient-to-b from-transparent via-white/[0.08] to-transparent" />
+              <HeroStat icon="🧂" value="50+" label="Recettes & Rubs" accent />
+              <div className="w-px h-10 bg-gradient-to-b from-transparent via-white/[0.08] to-transparent hidden sm:block" />
+              <HeroStat icon="✓" value="100%" label="Testé terrain" />
+            </div>
+
+            <div className="space-y-4">
+              <p className="text-[10px] text-stone-600 font-bold uppercase tracking-[0.15em]">Choisis ta viande pour commencer</p>
+              <div className="flex flex-wrap gap-2.5">
+                {profiles?.slice(0, 5).map((p) => (
+                  <button key={p.id} onClick={() => onSelect(p.id)} className="flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-white/[0.05] hover:bg-white/[0.10] border border-white/[0.07] hover:border-[#ff6b1a]/25 text-[13px] font-semibold text-stone-300 hover:text-white transition-all group backdrop-blur-md shadow-lg shadow-black/20">
+                    <span className="text-xl group-hover:scale-110 transition-transform">{p.icon}</span>
+                    {p.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Meat grid */}
+      <div className="px-6 lg:px-12 py-16 max-w-6xl mx-auto">
+        <div className="text-center mb-10">
+          <div className="badge badge-accent mx-auto mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#ff6b1a] mr-2" />
+            Viandes supportées
+          </div>
+          <h2 className="font-display text-[26px] lg:text-[34px] font-black text-[#f5f0eb] tracking-tight leading-tight">
+            Chaque pièce a <span className="text-gradient-static">sa méthode.</span>
+          </h2>
+          <p className="text-[14px] text-stone-500 mt-2 max-w-md mx-auto">Sélectionne une viande pour obtenir un plan de cuisson précis, avec les bons repères.</p>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 stagger">
+          {profiles?.map((p) => (
+            <button key={p.id} onClick={() => onSelect(p.id)} className="group card-premium p-0 text-left">
+              <div className="h-[90px] overflow-hidden bg-gradient-to-br from-stone-800/50 to-stone-900/50 flex items-center justify-center">
+                <span className="text-4xl group-hover:scale-110 transition-transform duration-500">{p.icon}</span>
+              </div>
+              <div className="p-3.5">
+                <p className="text-[13px] font-bold text-stone-200 group-hover:text-white transition-colors">{p.name}</p>
+                <p className="text-[10px] text-stone-600 mt-0.5">{p.cook_type === 'reverse_sear' ? 'Reverse sear' : 'Low & slow'}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="section-separator">
+        <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=1400&h=200&fit=crop&q=80" alt="" />
+      </div>
+
+      {/* Why this tool */}
+      <div className="section-alt py-16">
+        <div className="px-6 lg:px-12 max-w-5xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="font-display text-[24px] lg:text-[30px] font-black text-[#f5f0eb] tracking-tight">
+              Pas un chrono. <span className="text-gradient-static">Un vrai assistant.</span>
+            </h2>
+            <p className="text-[14px] text-stone-500 mt-2 max-w-lg mx-auto">Accessible aux débutants, précis pour les confirmés. Chaque donnée est basée sur des cuissons réelles.</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <FeatureCard icon="🎯" title="Précis" description="Fourchettes basées sur des cuissons réelles, pas des formules théoriques." badge="Données terrain" />
+            <FeatureCard icon="🔥" title="Complet" description="Phases, rubs, wrap, repos, conseils. Tout en un seul endroit." badge="Recommandé" />
+            <FeatureCard icon="📱" title="Mobile-first" description="Utilisable en plein air, devant ton fumoir, une main sur la viande." badge="Responsive" />
+          </div>
+        </div>
+      </div>
+
+      <div className="section-separator">
+        <img src="https://images.unsplash.com/photo-1558030006-450675393462?w=1400&h=200&fit=crop&q=80" alt="" />
+      </div>
+
+      {/* Community CTA */}
+      <div className="px-6 lg:px-12 py-16 max-w-5xl mx-auto">
+        <div className="surface-fire p-8 lg:p-10 text-center relative overflow-hidden">
+          <div className="absolute -top-20 -right-20 w-60 h-60 bg-[#ff6b1a]/[0.04] rounded-full blur-[60px] pointer-events-none" />
+          <div className="relative">
+            <span className="text-3xl mb-4 block">🏆</span>
+            <h3 className="font-display text-[22px] lg:text-[26px] font-black text-white mb-3">Rejoins la communauté</h3>
+            <p className="text-[14px] text-stone-400 max-w-md mx-auto mb-6 leading-relaxed">
+              Débutants comme confirmés utilisent Charbon & Flamme pour planifier leurs cuissons. Gratuit, sans pub, sans compromis.
+            </p>
+            <Link to="/recettes" className="btn-primary inline-flex items-center gap-2">
+              <span>🧂</span>
+              Explorer les recettes
+            </Link>
+          </div>
+        </div>
+      </div>
+    </>
+  )
+}
+
+// ── Small reusable components ───────────────────────────
+
+function HeroStat({ icon, value, label, accent }) {
+  return (
+    <div className="flex items-center gap-3">
+      <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#ff6b1a]/15 to-[#dc2626]/10 flex items-center justify-center border border-[#ff6b1a]/10">
+        <span className="text-lg">{icon}</span>
+      </div>
+      <div>
+        <p className={`text-[22px] font-black font-display leading-none ${accent ? 'text-[#ff6b1a]' : 'text-white'}`}>{value}</p>
+        <p className="text-[10px] text-stone-500 font-semibold uppercase tracking-wider">{label}</p>
+      </div>
+    </div>
+  )
+}
+
+function FeatureCard({ icon, title, description, badge }) {
+  return (
+    <div className="surface p-6 text-center">
+      <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-[#ff6b1a]/12 to-[#dc2626]/8 flex items-center justify-center border border-[#ff6b1a]/8">
+        <span className="text-2xl">{icon}</span>
+      </div>
+      <h3 className="text-[15px] font-bold text-white mb-1.5">{title}</h3>
+      <p className="text-[12px] text-stone-500 leading-relaxed">{description}</p>
+      <div className="badge badge-precision mt-3 text-[9px]">{badge}</div>
+    </div>
+  )
+}
 
 function CheckIcon() {
   return (
@@ -726,217 +506,6 @@ function SectionHeader({ title, description }) {
   )
 }
 
-function LiveCookCTA({ result }) {
-  const navigate = useNavigate()
-
-  return (
-    <div className="surface p-5 mt-3">
-      <div className="flex items-center gap-4">
-        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-green-500/15 to-emerald-500/10 flex items-center justify-center shrink-0">
-          <span className="text-xl">🌡️</span>
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-[14px] font-semibold text-white">Suivre en live avec Meater</p>
-          <p className="text-[12px] text-zinc-500">
-            Connecte ta sonde et suis la cuisson en temps réel avec les phases du calculateur.
-          </p>
-        </div>
-        <button
-          onClick={() => navigate('/live', { state: { profileId: result.profileId, weightKg: result.weightKg, cookTempC: result.cookTempC, wrapped: result.wrapped } })}
-          className="px-5 py-2.5 rounded-xl text-[13px] font-bold bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:opacity-90 transition-opacity shrink-0"
-        >
-          Lancer le live
-        </button>
-      </div>
-    </div>
-  )
-}
-
-function SaveSessionCTA({ result }) {
-  const { isAuthenticated } = useAuth()
-  const navigate = useNavigate()
-
-  const handleSave = () => {
-    const prefill = journal.fromCalculatorResult(result)
-    const encoded = encodeURIComponent(JSON.stringify(prefill))
-    navigate(`/journal?prefill=${encoded}`)
-  }
-
-  return (
-    <div className="surface p-5 mt-6">
-      <div className="flex items-center gap-4">
-        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#ff6b1a]/15 to-amber-500/10 flex items-center justify-center shrink-0">
-          <span className="text-xl">📓</span>
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-[14px] font-semibold text-white">Enregistrer cette session</p>
-          <p className="text-[12px] text-zinc-500">
-            {isAuthenticated
-              ? 'Note ta cuisson, ce qui a marché et ce qu\'il faut améliorer.'
-              : 'Connecte-toi pour sauvegarder tes sessions de cuisson.'}
-          </p>
-        </div>
-        {isAuthenticated ? (
-          <button onClick={handleSave} className="btn-primary px-5 py-2.5 text-[13px] shrink-0">
-            Enregistrer
-          </button>
-        ) : (
-          <Link
-            to="/login"
-            state={{ from: '/' }}
-            className="btn-primary px-5 py-2.5 text-[13px] shrink-0 inline-flex items-center"
-          >
-            Se connecter
-          </Link>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function ShareCookCTA({ result }) {
-  const { isAuthenticated, session, profile } = useAuth()
-  const [shareUrl, setShareUrl] = useState(null)
-  const [sharing, setSharing] = useState(false)
-  const [copied, setCopied] = useState(false)
-
-  const handleShare = async () => {
-    if (!session?.user?.id) return
-    setSharing(true)
-    const shared = await createSharedCook(session.user.id, {
-      meat_name: result.profile,
-      weight_kg: result.weightKg,
-      cook_temp_c: result.cookTempC,
-      wrapped: result.wrapped,
-      doneness: result.doneness,
-      total_estimate: result.totalEstimate,
-      cook_minutes: result.cookMinutes,
-      rest_estimate: result.restEstimate,
-      phases: result.phases,
-      tips: result.tips,
-      user_display_name: profile?.display_name || 'Un pitmaster',
-    })
-    if (shared) {
-      const url = `${window.location.origin}/partage/${shared.share_code}`
-      setShareUrl(url)
-    }
-    setSharing(false)
-  }
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(shareUrl)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-
-  return (
-    <div className="surface p-5 mt-3">
-      <div className="flex items-center gap-4">
-        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-sky-500/15 to-blue-500/10 flex items-center justify-center shrink-0">
-          <span className="text-xl">🔗</span>
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-[14px] font-semibold text-white">Partager ce plan</p>
-          <p className="text-[12px] text-zinc-500">
-            {shareUrl
-              ? 'Lien prêt ! Envoie-le à tes amis ou partage-le sur les réseaux.'
-              : 'Crée un lien partageable avec ton plan de cuisson complet.'}
-          </p>
-        </div>
-        {shareUrl ? (
-          <div className="flex items-center gap-2 shrink-0">
-            <button onClick={handleCopy} className={`px-4 py-2.5 rounded-xl text-[12px] font-bold border transition-all ${copied ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-white/[0.05] border-white/[0.08] text-zinc-300 hover:text-white'}`}>
-              {copied ? '✓ Copié' : 'Copier'}
-            </button>
-            <a
-              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Je planifie ${result.profile} ${result.weightKg}kg sur @CharbonFlamme !`)}&url=${encodeURIComponent(shareUrl)}`}
-              target="_blank" rel="noopener noreferrer"
-              className="px-3 py-2.5 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400 text-[12px] font-bold hover:bg-sky-500/20 transition-all"
-            >
-              𝕏
-            </a>
-          </div>
-        ) : isAuthenticated ? (
-          <button onClick={handleShare} disabled={sharing} className="btn-primary px-5 py-2.5 text-[13px] shrink-0">
-            {sharing ? 'Création...' : 'Créer le lien'}
-          </button>
-        ) : (
-          <Link to="/login" state={{ from: '/' }} className="btn-primary px-5 py-2.5 text-[13px] shrink-0 inline-flex items-center">
-            Se connecter
-          </Link>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function RubSection({ rubs, meatName }) {
-  const [expanded, setExpanded] = useState(false)
-
-  if (!rubs || rubs.length === 0) return null
-
-  return (
-    <div className="surface p-5">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#ff6b1a]/20 to-red-500/10 flex items-center justify-center">
-            <span className="text-xs">🧂</span>
-          </div>
-          <div>
-            <h3 className="text-[13px] font-bold text-white">Rubs suggérés</h3>
-            <p className="text-[10px] text-zinc-600">Inspirés de grands pitmasters</p>
-          </div>
-        </div>
-        <button
-          onClick={() => setExpanded(!expanded)}
-          className="text-[11px] font-medium text-[#ff6b1a]/70 hover:text-[#ff6b1a] transition-colors"
-        >
-          {expanded ? 'Réduire' : 'Voir les recettes'}
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-        {rubs.map((rub, i) => (
-          <div key={i} className="rounded-xl p-3.5 bg-white/[0.02] border border-white/[0.06] hover:border-[#ff6b1a]/15 transition-all">
-            <div className="flex items-start justify-between mb-2">
-              <p className="text-[13px] font-semibold text-white leading-tight">{rub.name}</p>
-              {rub.badge && (
-                <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded shrink-0 ml-2 ${
-                  rub.badge === 'Classique' ? 'bg-[#ff6b1a]/10 text-[#ff6b1a]' :
-                  rub.badge === 'FR' ? 'bg-blue-500/10 text-blue-400' :
-                  rub.badge === 'Compétition' ? 'bg-purple-500/10 text-purple-400' :
-                  rub.badge === 'Premium' ? 'bg-yellow-500/10 text-yellow-400' :
-                  'bg-white/[0.06] text-zinc-400'
-                }`}>
-                  {rub.badge}
-                </span>
-              )}
-            </div>
-            <p className="text-[10px] text-zinc-600 mb-1.5">{rub.origin}</p>
-
-            {expanded && (
-              <div className="animate-fade space-y-2 mt-3 pt-3 border-t border-white/[0.04]">
-                <div>
-                  <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-1">Ingrédients</p>
-                  <p className="text-[12px] text-zinc-300 leading-relaxed">{rub.ingredients}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-1">Conseil</p>
-                  <p className="text-[12px] text-zinc-400 leading-relaxed">{rub.tip}</p>
-                </div>
-              </div>
-            )}
-
-            {!expanded && (
-              <p className="text-[11px] text-zinc-500 leading-relaxed">{rub.ingredients}</p>
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
 function WrapOption({ active, onClick, title, description, icon }) {
   return (
     <button onClick={onClick} className={`surface p-4 text-left transition-all ${active ? 'surface-active' : ''}`}>
@@ -948,457 +517,5 @@ function WrapOption({ active, onClick, title, description, icon }) {
         </div>
       </div>
     </button>
-  )
-}
-
-/* ══════════════════════════════════════════════════════
-   RESULT VIEW — Premium, visuel, immersif
-   ══════════════════════════════════════════════════════ */
-
-const PHASE_THEMES = {
-  1: { color: 'from-[#ff6b1a] to-red-500', bg: 'bg-[#ff6b1a]/[0.08]', border: 'border-[#ff6b1a]/[0.20]', text: 'text-[#ff6b1a]', icon: '🔥' },
-  2: { color: 'from-amber-400 to-[#ff6b1a]', bg: 'bg-amber-500/[0.08]', border: 'border-amber-500/[0.20]', text: 'text-amber-400', icon: '🥵' },
-  3: { color: 'from-red-500 to-rose-500', bg: 'bg-red-500/[0.08]', border: 'border-red-500/[0.20]', text: 'text-red-400', icon: '🥩' },
-  4: { color: 'from-yellow-400 to-amber-500', bg: 'bg-yellow-500/[0.08]', border: 'border-yellow-500/[0.20]', text: 'text-yellow-400', icon: '🧈' },
-  5: { color: 'from-[#ff8c4a] to-red-600', bg: 'bg-[#ff8c4a]/[0.08]', border: 'border-[#ff8c4a]/[0.20]', text: 'text-[#ff8c4a]', icon: '🍽️' },
-}
-
-const HERO_IMAGES = {
-  boeuf: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=900&h=400&fit=crop&q=80',
-  porc: 'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=900&h=400&fit=crop&q=80',
-  volaille: 'https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=900&h=400&fit=crop&q=80',
-}
-
-function ResultView({ result, contentBlocks }) {
-  const [serviceHour, setServiceHour] = useState(19)
-  const category = result.profileId?.includes('chicken') ? 'volaille' :
-    ['pulled_pork', 'spare_ribs', 'baby_back_ribs'].includes(result.profileId) ? 'porc' : 'boeuf'
-  const heroImg = HERO_IMAGES[category]
-
-  // Formate des heures décimales en "Xh" ou "XhMM" proprement
-  const fmtTime = (raw) => {
-    // Convertir en minutes totales pour éviter les erreurs d'arrondi
-    let totalMin = Math.round(raw * 60)
-    let negative = totalMin < 0
-    if (negative) totalMin = 24 * 60 + totalMin // wrap sur 24h
-    let h = Math.floor(totalMin / 60) % 24
-    let m = totalMin % 60
-    // Arrondir au quart d'heure le plus proche pour lisibilité
-    m = Math.round(m / 15) * 15
-    if (m === 60) { h = (h + 1) % 24; m = 0 }
-    const suffix = negative ? ' (veille)' : ''
-    return m === 0 ? `${h}h${suffix}` : `${h}h${String(m).padStart(2, '0')}${suffix}`
-  }
-
-  // Calcul heure de démarrage à partir de l'heure de service
-  const avgTotalMin = Math.round((result.totalLowMinutes + result.totalHighMinutes) / 2)
-  const startHourRaw = serviceHour - avgTotalMin / 60
-  const startDisplay = fmtTime(startHourRaw)
-
-  // Plage : heure de démarrage pessimiste (totalHigh) et optimiste (totalLow)
-  const startEarlyRaw = serviceHour - result.totalHighMinutes / 60
-  const startLateRaw = serviceHour - result.totalLowMinutes / 60
-
-  return (
-    <div className="animate-fade-up space-y-5">
-
-      {/* ── Hero banner avec image ── */}
-      <div className="relative rounded-2xl overflow-hidden">
-        <div className="absolute inset-0">
-          <img src={heroImg} alt="" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#080808]/95 via-[#080808]/80 to-[#080808]/50" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-transparent to-transparent" />
-        </div>
-        <div className="relative p-6 sm:p-8">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-2xl animate-float">🔥</span>
-            <span className="badge badge-accent">Assistant Cuisson</span>
-          </div>
-          <h2 className="text-[24px] sm:text-[30px] font-extrabold text-white tracking-tight leading-tight mb-1">
-            {result.profile}
-          </h2>
-          <p className="text-[13px] text-zinc-400 mb-6">
-            {result.weightKg > 0 ? `${result.weightKg} kg · ` : ''}
-            {result.cookTempC > 0 ? `${result.cookTempC}°C · ` : ''}
-            {result.wrapped ? 'Wrappé · ' : ''}
-            {result.cookType === 'reverse_sear' ? 'Reverse sear' : 'Low & slow'}
-          </p>
-
-          {/* Big stats */}
-          <div className="grid grid-cols-2 gap-3 max-w-md">
-            <div className="rounded-xl p-4 bg-gradient-to-br from-[#ff6b1a]/[0.12] to-[#dc2626]/[0.06] border border-[#ff6b1a]/[0.25] backdrop-blur-sm shadow-lg shadow-[#ff6b1a]/[0.08]">
-              <p className="text-[10px] font-bold text-[#ff6b1a]/80 uppercase tracking-[0.08em] mb-0.5">Durée totale</p>
-              <p className="text-[20px] sm:text-[24px] font-black text-[#ff6b1a] leading-tight">{result.totalEstimate}</p>
-              <p className="text-[10px] text-zinc-500 mt-0.5">Cuisson + repos</p>
-            </div>
-            <div className="rounded-xl p-4 bg-white/[0.06] border border-white/[0.08] backdrop-blur-sm">
-              <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-[0.08em] mb-0.5">Repos</p>
-              <p className="text-[20px] sm:text-[24px] font-extrabold text-white leading-tight">{result.restEstimate}</p>
-              <p className="text-[10px] text-zinc-500 mt-0.5">Essentiel</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Heure de démarrage ── */}
-      <div className="surface p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-            <span className="text-xs">🕐</span>
-          </div>
-          <h3 className="text-[14px] font-bold text-white">Quand allumer le fumoir ?</h3>
-        </div>
-
-        <div className="mb-4">
-          <p className="text-[13px] text-zinc-400 mb-2.5">Je veux manger à</p>
-          <div className="flex flex-wrap gap-1.5">
-            {[12, 13, 14, 17, 18, 19, 20, 21].map((h) => (
-              <button
-                key={h}
-                onClick={() => setServiceHour(h)}
-                className={`px-3 py-1.5 rounded-lg text-[12px] font-semibold border transition-all ${
-                  serviceHour === h
-                    ? 'border-blue-500/30 bg-blue-500/10 text-blue-400'
-                    : 'border-white/[0.06] text-zinc-500 hover:text-zinc-300 hover:border-white/[0.1]'
-                }`}
-              >
-                {h}h
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="rounded-xl p-4 bg-gradient-to-r from-blue-500/[0.08] to-indigo-500/[0.05] border border-blue-500/[0.15]">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/15 flex items-center justify-center shrink-0">
-              <span className="text-lg">⏰</span>
-            </div>
-            <div>
-              <p className="text-[18px] sm:text-[22px] font-extrabold text-white leading-tight">
-                Allume vers {startDisplay}
-              </p>
-              <p className="text-[11px] text-zinc-400 mt-0.5">
-                Fourchette : entre {fmtTime(startEarlyRaw)} et {fmtTime(startLateRaw)}
-              </p>
-            </div>
-          </div>
-        </div>
-        <p className="text-[11px] text-zinc-600 mt-2.5">
-          Estimation basée sur la durée moyenne. Mieux vaut commencer tôt — un long repos n'abîme jamais la viande.
-        </p>
-      </div>
-
-      {/* ── Disclaimer pitmaster ── */}
-      <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-[#ff6b1a]/[0.04] border border-[#ff6b1a]/[0.08]">
-        <span className="text-sm mt-0.5">💡</span>
-        <p className="text-[12px] text-zinc-400 leading-relaxed">
-          <span className="text-[#ff6b1a] font-semibold">Prêt dans environ {result.totalEstimate.replace('~', '')}</span> — ces durées sont des estimations terrain. Chaque cuisson est unique, fie-toi à la viande, pas au chrono.
-        </p>
-      </div>
-
-      {/* ── Phases section title ── */}
-      <div className="flex items-center gap-3 pt-2">
-        <div className="h-px flex-1 bg-white/[0.06]" />
-        <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-[0.1em]">Phases de cuisson</p>
-        <div className="h-px flex-1 bg-white/[0.06]" />
-      </div>
-
-      {/* ── Phases ── */}
-      <div className="space-y-3 stagger">
-        {result.phases.map((phase) => (
-          <PhaseCard key={phase.num} phase={phase} total={result.phases.length} />
-        ))}
-      </div>
-
-      {/* ── Quick brief : comment cuire ── */}
-      <div className="surface p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-[#dc2626] flex items-center justify-center">
-            <span className="text-xs">🔥</span>
-          </div>
-          <h3 className="text-[14px] font-bold text-white">Comment cuire</h3>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          {result.cookTempC > 0 && (
-            <div className="rounded-xl p-3 bg-white/[0.03] border border-white/[0.05]">
-              <p className="text-[9px] font-semibold text-zinc-600 uppercase tracking-wider">Fumoir</p>
-              <p className="text-[18px] font-extrabold text-white mt-0.5">{result.cookTempC}°C</p>
-              <p className="text-[10px] text-zinc-600">{Math.round(result.cookTempC * 9/5 + 32)}°F</p>
-            </div>
-          )}
-          <div className="rounded-xl p-3 bg-white/[0.03] border border-white/[0.05]">
-            <p className="text-[9px] font-semibold text-zinc-600 uppercase tracking-wider">Méthode</p>
-            <p className="text-[14px] font-bold text-white mt-0.5">{result.cookType === 'reverse_sear' ? 'Reverse sear' : 'Low & slow'}</p>
-            <p className="text-[10px] text-zinc-600">Zone indirecte</p>
-          </div>
-          {result.wrapped && (
-            <div className="rounded-xl p-3 bg-white/[0.03] border border-white/[0.05]">
-              <p className="text-[9px] font-semibold text-zinc-600 uppercase tracking-wider">Wrap</p>
-              <p className="text-[14px] font-bold text-white mt-0.5">Oui</p>
-              <p className="text-[10px] text-zinc-600">Papier boucher</p>
-            </div>
-          )}
-          {result.cues?.target_temp_min && (
-            <div className="rounded-xl p-3 bg-white/[0.03] border border-white/[0.05]">
-              <p className="text-[9px] font-semibold text-zinc-600 uppercase tracking-wider">Cible interne</p>
-              <p className="text-[18px] font-extrabold text-white mt-0.5">{result.cues.target_temp_min}°C</p>
-              <p className="text-[10px] text-zinc-600">à {result.cues.target_temp_max}°C</p>
-            </div>
-          )}
-          {result.targetFinalTemp && (
-            <div className="rounded-xl p-3 bg-white/[0.03] border border-white/[0.05]">
-              <p className="text-[9px] font-semibold text-zinc-600 uppercase tracking-wider">Cible finale</p>
-              <p className="text-[18px] font-extrabold text-white mt-0.5">{result.targetFinalTemp}°C</p>
-              <p className="text-[10px] text-zinc-600">Après saisie</p>
-            </div>
-          )}
-          {result.weightKg > 0 && (
-            <div className="rounded-xl p-3 bg-white/[0.03] border border-white/[0.05]">
-              <p className="text-[9px] font-semibold text-zinc-600 uppercase tracking-wider">Poids</p>
-              <p className="text-[18px] font-extrabold text-white mt-0.5">{result.weightKg} kg</p>
-              <p className="text-[10px] text-zinc-600">{result.tolerance > 0.15 ? 'Grosse pièce' : 'Pièce standard'}</p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ── Blocs contextuels (affiliation, SEO, FAQ…) ── */}
-      {contentBlocks}
-
-      {/* ── Ribs method ── */}
-      {result.ribsMethod && <RibsMethodCard method={result.ribsMethod} />}
-
-      {/* ── Reverse sear guide ── */}
-      {result.reverseSearGuide && <ReverseSearCard guide={result.reverseSearGuide} />}
-
-      {/* ── Tips ── */}
-      {result.tips?.length > 0 && (
-        <div className="surface p-6 relative overflow-hidden">
-          <div className="absolute -bottom-16 -right-16 w-40 h-40 bg-[#ff6b1a]/[0.03] rounded-full blur-3xl" />
-          <div className="relative">
-            <div className="flex items-center gap-2 mb-5">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff6b1a] to-red-600 flex items-center justify-center">
-                <span className="text-sm">💡</span>
-              </div>
-              <h3 className="text-[15px] font-bold text-white">Conseils du pitmaster</h3>
-            </div>
-            <div className="space-y-3">
-              {result.tips.map((tip, i) => (
-                <div key={i} className="flex gap-3 items-start group">
-                  <div className="w-5 h-5 rounded-full bg-white/[0.04] flex items-center justify-center text-[10px] font-bold text-zinc-600 shrink-0 mt-0.5 group-hover:bg-[#ff6b1a]/10 group-hover:text-[#ff6b1a] transition-colors">
-                    {i + 1}
-                  </div>
-                  <p className="text-[13px] text-zinc-400 leading-relaxed">{tip}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
-/* ── Phase card ── */
-function PhaseCard({ phase, total }) {
-  const theme = PHASE_THEMES[phase.num] || PHASE_THEMES[1]
-  const progress = (phase.num / total) * 100
-
-  return (
-    <div className={`surface p-5 relative overflow-hidden group hover:border-white/[0.1] transition-all`}>
-      {/* Progress indicator */}
-      <div className="absolute top-0 left-0 h-[2px] rounded-full bg-gradient-to-r opacity-60" style={{
-        width: `${progress}%`,
-        backgroundImage: `linear-gradient(to right, var(--tw-gradient-stops))`,
-      }}>
-        <div className={`h-full rounded-full bg-gradient-to-r ${theme.color}`} />
-      </div>
-
-      <div className="flex items-start gap-4">
-        {/* Phase number with icon */}
-        <div className="flex flex-col items-center gap-1 shrink-0">
-          <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${theme.color} flex items-center justify-center shadow-lg`}
-            style={{ boxShadow: `0 4px 15px rgba(249,115,22,0.15)` }}>
-            <span className="text-base">{theme.icon}</span>
-          </div>
-          <span className="text-[9px] font-bold text-zinc-600">{phase.num}/{total}</span>
-        </div>
-
-        <div className="flex-1 min-w-0">
-          {/* Header */}
-          <div className="flex items-center gap-3 mb-1.5 flex-wrap">
-            <h3 className="text-[15px] font-bold text-white">{phase.title}</h3>
-            {phase.duration && (
-              <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold ${theme.bg} ${theme.border} ${theme.text} border`}>
-                {phase.duration}
-              </span>
-            )}
-          </div>
-
-          {phase.objective && (
-            <p className="text-[12px] text-zinc-500 mb-3 leading-relaxed">{phase.objective}</p>
-          )}
-
-          {/* Markers */}
-          {phase.markers?.length > 0 && (
-            <div className="space-y-2 mb-3">
-              {phase.markers.map((m, i) => (
-                <div key={i} className="flex items-start gap-2.5 rounded-lg px-3 py-2 bg-white/[0.02] border border-white/[0.03]">
-                  <MarkerIcon type={m.type} />
-                  <p className="text-[12px] text-zinc-300 leading-relaxed">{m.text}</p>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Advice */}
-          {phase.advice && (
-            <div className="px-3 py-2.5 rounded-lg bg-[#ff6b1a]/[0.04] border border-[#ff6b1a]/[0.08]">
-              <p className="text-[11px] text-zinc-400 leading-relaxed">
-                <span className="text-[#ff6b1a] font-semibold">Conseil :</span> {phase.advice}
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function MarkerIcon({ type }) {
-  if (type === 'temp') {
-    return (
-      <div className="w-5 h-5 rounded-md bg-red-500/10 flex items-center justify-center shrink-0 mt-0.5">
-        <span className="text-[10px]">🌡️</span>
-      </div>
-    )
-  }
-  if (type === 'visual') {
-    return (
-      <div className="w-5 h-5 rounded-md bg-blue-500/10 flex items-center justify-center shrink-0 mt-0.5">
-        <span className="text-[10px]">👁️</span>
-      </div>
-    )
-  }
-  return (
-    <div className="w-5 h-5 rounded-md bg-zinc-500/10 flex items-center justify-center shrink-0 mt-0.5">
-      <span className="text-[10px]">ℹ️</span>
-    </div>
-  )
-}
-
-/* ── Ribs method card ── */
-function RibsMethodCard({ method }) {
-  return (
-    <div className="surface p-6 relative overflow-hidden">
-      <div className="absolute -top-10 -right-10 w-32 h-32 bg-amber-500/[0.04] rounded-full blur-2xl" />
-      <div className="relative">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-xl">🍖</span>
-          <h3 className="text-[16px] font-bold text-white">{method.title}</h3>
-        </div>
-        <p className="text-[12px] text-zinc-500 mb-5">Température fumoir : <span className="text-amber-400 font-semibold">{method.temp}</span></p>
-
-        <div className="space-y-0 mb-5">
-          {method.steps.map((s, i) => (
-            <div key={i} className="flex items-stretch gap-4">
-              <div className="flex flex-col items-center">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-[#dc2626] flex items-center justify-center text-[12px] font-bold text-white shadow-md shrink-0">
-                  {s.time}
-                </div>
-                {i < method.steps.length - 1 && <div className="w-px flex-1 bg-amber-500/20 my-1" />}
-              </div>
-              <div className="pb-4 pt-1.5">
-                <p className="text-[13px] text-zinc-200 font-medium leading-relaxed">{s.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="rounded-xl p-4 bg-amber-500/[0.05] border border-amber-500/[0.1] mb-3">
-          <p className="text-[12px] text-zinc-300">
-            <span className="font-bold text-amber-400">Résultat :</span> {method.result}
-          </p>
-        </div>
-
-        <p className="text-[11px] text-zinc-600 italic">{method.note}</p>
-
-        {method.alternative && (
-          <div className="mt-3 rounded-xl p-3 bg-white/[0.02] border border-white/[0.04]">
-            <p className="text-[11px] text-zinc-500">
-              <span className="font-semibold text-zinc-400">Alternative : {method.alternative.name}</span> — {method.alternative.desc}
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
-/* ── Reverse sear card ── */
-function ReverseSearCard({ guide }) {
-  return (
-    <div className="surface p-6 border-[#ff6b1a]/[0.15] relative overflow-hidden">
-      <div className="absolute -top-10 -left-10 w-40 h-40 bg-[#ff6b1a]/[0.04] rounded-full blur-3xl" />
-      <div className="relative">
-        <div className="flex items-center gap-3 mb-1">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#ff6b1a] to-red-600 flex items-center justify-center shadow-lg shadow-[#ff6b1a]/20">
-            <span className="text-lg">🔥</span>
-          </div>
-          <div>
-            <h3 className="text-[16px] font-bold text-white">Reverse Sear</h3>
-            <p className="badge badge-accent mt-0.5">{guide.badge}</p>
-          </div>
-        </div>
-
-        {/* Principle steps */}
-        <div className="mt-5 mb-5">
-          <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-[0.08em] mb-3">Principe</p>
-          <div className="space-y-2">
-            {guide.principle.map((step, i) => (
-              <div key={i} className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-[#ff6b1a]/20 to-red-500/20 flex items-center justify-center text-[10px] font-bold text-[#ff6b1a] shrink-0 mt-0.5 border border-[#ff6b1a]/10">
-                  {i + 1}
-                </div>
-                <p className="text-[13px] text-zinc-300 leading-relaxed">{step}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Temperature targets */}
-        <div className="mb-5">
-          <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-[0.08em] mb-3">Températures pull</p>
-          <div className="grid grid-cols-3 gap-2">
-            {Object.entries(guide.targets).map(([key, t]) => (
-              <div key={key} className={`rounded-xl p-3 border text-center transition-all ${
-                guide.selectedDoneness === key
-                  ? 'bg-[#ff6b1a]/[0.08] border-[#ff6b1a]/25 shadow-lg shadow-[#ff6b1a]/5'
-                  : 'border-white/[0.06] bg-white/[0.02]'
-              }`}>
-                <p className={`text-[13px] font-bold ${guide.selectedDoneness === key ? 'text-[#ff6b1a]' : 'text-zinc-300'}`}>
-                  {t.label}
-                </p>
-                <p className="text-[20px] font-extrabold text-white mt-0.5">{t.temp}°C</p>
-                <p className="text-[10px] text-zinc-600 mt-0.5">Pull à {t.temp - 8}°C</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Advantages */}
-        <div>
-          <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-[0.08em] mb-3">Avantages</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {guide.advantages.map((a, i) => (
-              <div key={i} className="flex items-center gap-2.5 rounded-lg px-3 py-2 bg-white/[0.02] border border-white/[0.03]">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff6b1a" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12" /></svg>
-                <p className="text-[12px] text-zinc-300">{a}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
   )
 }
