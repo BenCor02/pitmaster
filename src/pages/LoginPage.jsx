@@ -184,8 +184,8 @@ export default function LoginPage() {
           alt=""
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#0a0a0a]" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#080808]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#080808]/60 to-transparent" />
         <div className="absolute bottom-12 left-10 right-10">
           <p className="font-display text-[28px] font-black text-white leading-tight">
             "Le feu ne ment pas.<br/>

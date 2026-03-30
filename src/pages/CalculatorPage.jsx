@@ -331,65 +331,84 @@ export default function CalculatorPage() {
   return (
     <div className="min-h-screen">
 
-      {/* ══════════ HERO ══════════ */}
+      {/* ══════════ HERO — IMMERSIF ══════════ */}
       {!result && step === 1 && !selectedProfile && (
-        <div className="relative overflow-hidden min-h-[85vh] lg:min-h-[70vh] flex items-end lg:items-center">
-          {/* Background image */}
+        <>
+        <div className="relative overflow-hidden min-h-[92vh] lg:min-h-[80vh] flex items-end">
+          {/* Background image — full bleed */}
           <div className="absolute inset-0">
             <img
-              src="https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=1600&h=900&fit=crop&q=85"
+              src="https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=1800&h=1000&fit=crop&q=90"
               alt=""
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover scale-105"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a] via-[#0a0a0a]/90 to-[#0a0a0a]/30" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/40 to-transparent" />
-            {/* Ember glow */}
-            <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#ff6b1a]/[0.04] to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#080808] via-[#080808]/85 to-[#080808]/20" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-[#080808]/50 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 h-60 bg-gradient-to-t from-[#080808] to-transparent" />
+            {/* Ember glow bottom */}
+            <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#ff6b1a]/[0.03] to-transparent" />
           </div>
 
-          <div className="relative px-6 lg:px-10 py-12 lg:py-20 max-w-4xl w-full">
+          <div className="relative px-6 lg:px-12 pb-16 lg:pb-24 pt-12 max-w-5xl w-full">
             <div className="animate-fade-up">
-              <div className="badge badge-accent mb-5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#ff6b1a] mr-2 animate-pulse" />
-                Assistant Pitmaster
+              {/* Credibility badge */}
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.05] border border-white/[0.07] backdrop-blur-sm mb-6">
+                <span className="w-2 h-2 rounded-full bg-[#ff6b1a] animate-pulse" />
+                <span className="text-[11px] font-bold text-[#ff8c4a] uppercase tracking-[0.1em]">Basé sur des tests pitmasters réels</span>
               </div>
-              <h1 className="font-display text-[36px] sm:text-[44px] lg:text-[56px] font-black text-white tracking-tight leading-[1.05] mb-4">
-                Planifie ta cuisson,<br />
-                <span className="text-gradient">comme un pro.</span>
+
+              <h1 className="font-display text-[38px] sm:text-[48px] lg:text-[64px] font-black text-[#f5f0eb] tracking-tight leading-[1.02] mb-5">
+                L'assistant cuisson<br />
+                <span className="text-gradient">des vrais pitmasters.</span>
               </h1>
-              <p className="text-[15px] lg:text-[17px] text-zinc-400 max-w-lg leading-relaxed mb-10">
-                Temps, phases, repères terrain. Tout ce qu'il faut pour sortir une viande parfaite de ton fumoir.
+              <p className="text-[16px] lg:text-[18px] text-stone-400 max-w-xl leading-relaxed mb-10">
+                Temps, phases, repères terrain, rubs de compétition. Tout ce qu'il faut pour sortir une viande parfaite de ton fumoir.
               </p>
 
-              {/* Stats row */}
-              <div className="flex gap-8 mb-10">
-                <div>
-                  <p className="text-[28px] lg:text-[32px] font-bold text-white font-display">9</p>
-                  <p className="text-[11px] text-zinc-500 font-medium uppercase tracking-wider">Profils</p>
+              {/* Stats strip — credibility */}
+              <div className="flex flex-wrap gap-6 sm:gap-10 mb-12">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#ff6b1a]/15 to-[#dc2626]/10 flex items-center justify-center border border-[#ff6b1a]/10">
+                    <span className="text-lg">🔥</span>
+                  </div>
+                  <div>
+                    <p className="text-[22px] font-black text-white font-display leading-none">9</p>
+                    <p className="text-[10px] text-stone-500 font-semibold uppercase tracking-wider">Profils viande</p>
+                  </div>
                 </div>
-                <div className="w-px bg-gradient-to-b from-transparent via-[#ff6b1a]/20 to-transparent" />
-                <div>
-                  <p className="text-[28px] lg:text-[32px] font-bold text-[#ff6b1a] font-display">50+</p>
-                  <p className="text-[11px] text-zinc-500 font-medium uppercase tracking-wider">Recettes</p>
+                <div className="w-px h-10 bg-gradient-to-b from-transparent via-white/[0.08] to-transparent" />
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#ff6b1a]/15 to-amber-500/10 flex items-center justify-center border border-[#ff6b1a]/10">
+                    <span className="text-lg">🧂</span>
+                  </div>
+                  <div>
+                    <p className="text-[22px] font-black text-[#ff6b1a] font-display leading-none">50+</p>
+                    <p className="text-[10px] text-stone-500 font-semibold uppercase tracking-wider">Recettes & Rubs</p>
+                  </div>
                 </div>
-                <div className="w-px bg-gradient-to-b from-transparent via-[#ff6b1a]/20 to-transparent" />
-                <div>
-                  <p className="text-[28px] lg:text-[32px] font-bold text-white font-display">100%</p>
-                  <p className="text-[11px] text-zinc-500 font-medium uppercase tracking-wider">Terrain</p>
+                <div className="w-px h-10 bg-gradient-to-b from-transparent via-white/[0.08] to-transparent hidden sm:block" />
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/8 flex items-center justify-center border border-green-500/10">
+                    <span className="text-lg">✓</span>
+                  </div>
+                  <div>
+                    <p className="text-[22px] font-black text-white font-display leading-none">100%</p>
+                    <p className="text-[10px] text-stone-500 font-semibold uppercase tracking-wider">Testé terrain</p>
+                  </div>
                 </div>
               </div>
 
-              {/* Quick access — larger, more visual */}
-              <div>
-                <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.15em] mb-3">Commence ici</p>
+              {/* CTA + quick access */}
+              <div className="space-y-4">
+                <p className="text-[10px] text-stone-600 font-bold uppercase tracking-[0.15em]">Choisis ta viande pour commencer</p>
                 <div className="flex flex-wrap gap-2.5">
                   {profiles?.slice(0, 5).map((p) => (
                     <button
                       key={p.id}
                       onClick={() => handleProfileSelect(p.id)}
-                      className="flex items-center gap-2.5 px-5 py-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.08] hover:border-[#ff6b1a]/20 text-[13px] font-semibold text-zinc-300 hover:text-white transition-all group backdrop-blur-sm"
+                      className="flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-white/[0.05] hover:bg-white/[0.10] border border-white/[0.07] hover:border-[#ff6b1a]/25 text-[13px] font-semibold text-stone-300 hover:text-white transition-all group backdrop-blur-md shadow-lg shadow-black/20"
                     >
-                      <span className="text-lg group-hover:scale-110 transition-transform">{p.icon}</span>
+                      <span className="text-xl group-hover:scale-110 transition-transform">{p.icon}</span>
                       {p.name}
                     </button>
                   ))}
@@ -398,28 +417,134 @@ export default function CalculatorPage() {
             </div>
           </div>
         </div>
+
+        {/* ══════════ SECTIONS SOUS LE HERO ══════════ */}
+
+        {/* Section: Types de viandes */}
+        <div className="px-6 lg:px-12 py-16 max-w-6xl mx-auto">
+          <div className="text-center mb-10">
+            <div className="badge badge-accent mx-auto mb-4">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#ff6b1a] mr-2" />
+              Viandes supportées
+            </div>
+            <h2 className="font-display text-[26px] lg:text-[34px] font-black text-[#f5f0eb] tracking-tight leading-tight">
+              Chaque pièce a <span className="text-gradient-static">sa méthode.</span>
+            </h2>
+            <p className="text-[14px] text-stone-500 mt-2 max-w-md mx-auto">Sélectionne une viande pour obtenir un plan de cuisson précis, avec les bons repères.</p>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 stagger">
+            {profiles?.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => handleProfileSelect(p.id)}
+                className="group card-premium p-0 text-left"
+              >
+                <div className="h-[90px] overflow-hidden bg-gradient-to-br from-stone-800/50 to-stone-900/50 flex items-center justify-center">
+                  <span className="text-4xl group-hover:scale-110 transition-transform duration-500">{p.icon}</span>
+                </div>
+                <div className="p-3.5">
+                  <p className="text-[13px] font-bold text-stone-200 group-hover:text-white transition-colors">{p.name}</p>
+                  <p className="text-[10px] text-stone-600 mt-0.5">{p.cook_type === 'reverse_sear' ? 'Reverse sear' : 'Low & slow'}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Section separator — image strip */}
+        <div className="section-separator">
+          <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=1400&h=200&fit=crop&q=80" alt="" />
+        </div>
+
+        {/* Section: Pourquoi cet outil */}
+        <div className="section-alt py-16">
+          <div className="px-6 lg:px-12 max-w-5xl mx-auto">
+            <div className="text-center mb-10">
+              <h2 className="font-display text-[24px] lg:text-[30px] font-black text-[#f5f0eb] tracking-tight">
+                Pas un chrono. <span className="text-gradient-static">Un assistant terrain.</span>
+              </h2>
+              <p className="text-[14px] text-stone-500 mt-2 max-w-lg mx-auto">Conçu par des pitmasters, pour des pitmasters. Chaque donnée est basée sur des cuissons réelles.</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="surface p-6 text-center">
+                <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-[#ff6b1a]/12 to-[#dc2626]/8 flex items-center justify-center border border-[#ff6b1a]/8">
+                  <span className="text-2xl">🎯</span>
+                </div>
+                <h3 className="text-[15px] font-bold text-white mb-1.5">Précis</h3>
+                <p className="text-[12px] text-stone-500 leading-relaxed">Fourchettes basées sur des cuissons réelles, pas des formules théoriques.</p>
+                <div className="badge badge-precision mt-3 text-[9px]">Données terrain</div>
+              </div>
+              <div className="surface p-6 text-center">
+                <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-amber-500/12 to-[#ff6b1a]/8 flex items-center justify-center border border-amber-500/8">
+                  <span className="text-2xl">🔥</span>
+                </div>
+                <h3 className="text-[15px] font-bold text-white mb-1.5">Complet</h3>
+                <p className="text-[12px] text-stone-500 leading-relaxed">Phases, rubs, wrap, repos, conseils. Tout en un seul endroit.</p>
+                <div className="badge badge-recommended mt-3 text-[9px]">Recommandé</div>
+              </div>
+              <div className="surface p-6 text-center">
+                <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-500/12 to-indigo-500/8 flex items-center justify-center border border-blue-500/8">
+                  <span className="text-2xl">📱</span>
+                </div>
+                <h3 className="text-[15px] font-bold text-white mb-1.5">Mobile-first</h3>
+                <p className="text-[12px] text-stone-500 leading-relaxed">Utilisable en plein air, devant ton fumoir, une main sur la viande.</p>
+                <div className="badge badge-muted mt-3 text-[9px]">Responsive</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Section: BBQ image break */}
+        <div className="section-separator">
+          <img src="https://images.unsplash.com/photo-1558030006-450675393462?w=1400&h=200&fit=crop&q=80" alt="" />
+        </div>
+
+        {/* Section: Social proof / Recommandation */}
+        <div className="px-6 lg:px-12 py-16 max-w-5xl mx-auto">
+          <div className="surface-fire p-8 lg:p-10 text-center relative overflow-hidden">
+            <div className="absolute -top-20 -right-20 w-60 h-60 bg-[#ff6b1a]/[0.04] rounded-full blur-[60px] pointer-events-none" />
+            <div className="relative">
+              <span className="text-3xl mb-4 block">🏆</span>
+              <h3 className="font-display text-[22px] lg:text-[26px] font-black text-white mb-3">
+                Rejoins la communauté
+              </h3>
+              <p className="text-[14px] text-stone-400 max-w-md mx-auto mb-6 leading-relaxed">
+                Des centaines de pitmasters utilisent déjà Charbon & Flamme pour planifier leurs cuissons. Gratuit, sans pub, sans compromis.
+              </p>
+              <Link
+                to="/recettes"
+                className="btn-primary inline-flex items-center gap-2"
+              >
+                <span>🧂</span>
+                Explorer les recettes
+              </Link>
+            </div>
+          </div>
+        </div>
+        </>
       )}
 
-      {/* ══════════ HEADER BAR ══════════ */}
+      {/* ══════════ HEADER BAR — when in calculator mode ══════════ */}
       {(result || selectedProfile) && (
-        <div className="px-6 lg:px-10 py-5 border-b border-white/[0.06]">
+        <div className="px-6 lg:px-12 py-5 border-b border-white/[0.05] bg-[#080808]/80 backdrop-blur-sm">
           <div className="max-w-4xl flex items-center justify-between">
             <div>
-              <h1 className="text-[20px] font-bold text-white tracking-tight">
-                {result ? 'Assistant cuisson' : 'Calculateur'}
+              <h1 className="font-display text-[20px] font-bold text-[#f5f0eb] tracking-tight">
+                {result ? '🔥 Assistant cuisson' : '🔥 Calculateur'}
               </h1>
-              <p className="text-[13px] text-zinc-500 mt-0.5">
-                {result ? `${result.profile} — prêt dans environ ${result.totalEstimate.replace('~', '')}` : 'Configure les paramètres'}
+              <p className="text-[13px] text-stone-500 mt-0.5">
+                {result ? `${result.profile} — prêt dans environ ${result.totalEstimate.replace('~', '')}` : 'Configure les paramètres ci-dessous'}
               </p>
             </div>
-            <button onClick={handleReset} className="text-[13px] font-medium text-zinc-400 hover:text-white px-4 py-2 rounded-xl hover:bg-white/[0.04] transition-all">
+            <button onClick={handleReset} className="text-[13px] font-medium text-stone-400 hover:text-white px-4 py-2.5 rounded-xl hover:bg-white/[0.04] border border-white/[0.05] hover:border-white/[0.10] transition-all">
               ← {result ? 'Nouvelle cuisson' : 'Retour'}
             </button>
           </div>
         </div>
       )}
 
-      <div className="px-6 lg:px-10 py-8 max-w-4xl">
+      <div className="px-6 lg:px-12 py-8 max-w-4xl">
 
         {/* ══════════ WIZARD ══════════ */}
         {!result && (
@@ -860,8 +985,8 @@ function ResultView({ result }) {
       <div className="relative rounded-2xl overflow-hidden">
         <div className="absolute inset-0">
           <img src={heroImg} alt="" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#09090b]/95 via-[#09090b]/80 to-[#09090b]/50" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#080808]/95 via-[#080808]/80 to-[#080808]/50" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-transparent to-transparent" />
         </div>
         <div className="relative p-6 sm:p-8">
           <div className="flex items-center gap-2 mb-3">
@@ -880,7 +1005,7 @@ function ResultView({ result }) {
 
           {/* Big stats */}
           <div className="grid grid-cols-2 gap-3 max-w-md">
-            <div className="rounded-xl p-4 bg-gradient-to-br from-[#ff6b1a]/[0.12] to-[#ef4444]/[0.06] border border-[#ff6b1a]/[0.25] backdrop-blur-sm shadow-lg shadow-[#ff6b1a]/[0.08]">
+            <div className="rounded-xl p-4 bg-gradient-to-br from-[#ff6b1a]/[0.12] to-[#dc2626]/[0.06] border border-[#ff6b1a]/[0.25] backdrop-blur-sm shadow-lg shadow-[#ff6b1a]/[0.08]">
               <p className="text-[10px] font-bold text-[#ff6b1a]/80 uppercase tracking-[0.08em] mb-0.5">Durée totale</p>
               <p className="text-[20px] sm:text-[24px] font-black text-[#ff6b1a] leading-tight">{result.totalEstimate}</p>
               <p className="text-[10px] text-zinc-500 mt-0.5">Cuisson + repos</p>
@@ -945,7 +1070,7 @@ function ResultView({ result }) {
       {/* ── Quick brief : comment cuire ── */}
       <div className="surface p-5">
         <div className="flex items-center gap-2 mb-4">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-[#ef4444] flex items-center justify-center">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-[#dc2626] flex items-center justify-center">
             <span className="text-xs">🔥</span>
           </div>
           <h3 className="text-[14px] font-bold text-white">Comment cuire</h3>
@@ -1154,7 +1279,7 @@ function RibsMethodCard({ method }) {
           {method.steps.map((s, i) => (
             <div key={i} className="flex items-stretch gap-4">
               <div className="flex flex-col items-center">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-[#ef4444] flex items-center justify-center text-[12px] font-bold text-white shadow-md shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-[#dc2626] flex items-center justify-center text-[12px] font-bold text-white shadow-md shrink-0">
                   {s.time}
                 </div>
                 {i < method.steps.length - 1 && <div className="w-px flex-1 bg-amber-500/20 my-1" />}

@@ -79,16 +79,16 @@ export default function Layout({ children }) {
   const levelLabel = profile?.experience_level ? LEVEL_LABELS[profile.experience_level] : null
 
   return (
-    <div className="min-h-screen flex bg-[#0a0a0a]">
+    <div className="min-h-screen flex bg-[#080808]">
 
       {/* ══════════ SIDEBAR DESKTOP ══════════ */}
-      <aside className="hidden lg:flex flex-col w-[270px] shrink-0 bg-[#0e0e0e] border-r border-white/[0.05] relative overflow-hidden sticky top-0 h-screen overflow-y-auto">
+      <aside className="hidden lg:flex flex-col w-[280px] shrink-0 bg-[#0c0c0c] border-r border-white/[0.04] relative overflow-hidden sticky top-0 h-screen overflow-y-auto texture-grain">
         {/* Ambient glows */}
-        <div className="absolute -top-20 -left-20 w-72 h-72 bg-[#ff6b1a]/[0.025] rounded-full blur-[80px] pointer-events-none animate-fire-breathe" />
-        <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-[#dc2626]/[0.02] rounded-full blur-[60px] pointer-events-none" />
+        <div className="absolute -top-24 -left-24 w-80 h-80 bg-[#ff6b1a]/[0.02] rounded-full blur-[100px] pointer-events-none animate-fire-breathe" />
+        <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-[#dc2626]/[0.015] rounded-full blur-[60px] pointer-events-none" />
 
         {/* ── Brand header ── */}
-        <div className="relative px-5 pt-7 pb-5">
+        <div className="relative z-10 px-5 pt-7 pb-4">
           <Link to="/" className="group">
             <LogoFull iconSize={30} className="group-hover:opacity-90 transition-opacity" />
           </Link>
@@ -98,13 +98,13 @@ export default function Layout({ children }) {
         <div className="mx-5 fire-divider" />
 
         {/* ── Quick status card with image ── */}
-        <div className="mx-4 mt-4 mb-2 rounded-xl overflow-hidden relative">
+        <div className="relative z-10 mx-4 mt-4 mb-2 rounded-xl overflow-hidden">
           <img
-            src="https://images.unsplash.com/photo-1558030006-450675393462?w=400&h=120&fit=crop&q=80"
+            src="https://images.unsplash.com/photo-1558030006-450675393462?w=400&h=140&fit=crop&q=80"
             alt=""
-            className="w-full h-[72px] object-cover"
+            className="w-full h-[80px] object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e0e] via-[#0e0e0e]/70 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0c] via-[#0c0c0c]/60 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 px-3.5 pb-2.5">
             <div className="flex items-center gap-2">
               <div className="glow-dot" style={{ width: 5, height: 5 }} />
@@ -114,7 +114,7 @@ export default function Layout({ children }) {
         </div>
 
         {/* ── Navigation ── */}
-        <nav className="flex-1 px-3 mt-4">
+        <nav className="relative z-10 flex-1 px-3 mt-4">
           <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-600 px-3 mb-2">Outils</p>
 
           <NavItem
@@ -225,10 +225,10 @@ export default function Layout({ children }) {
         <div className="mx-5 fire-divider" />
 
         {/* ── User section ── */}
-        <div className="relative p-4">
+        <div className="relative z-10 p-4">
           {isAuthenticated ? (
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#ff6b1a] to-[#ef4444] flex items-center justify-center text-[13px] font-bold text-white shadow-lg shadow-[#ff6b1a]/20 shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#ff6b1a] to-[#dc2626] flex items-center justify-center text-[13px] font-bold text-white shadow-lg shadow-[#ff6b1a]/20 shrink-0">
                 {userInitial}
               </div>
               <div className="min-w-0 flex-1">
@@ -421,8 +421,10 @@ export default function Layout({ children }) {
       </div>
 
       {/* ══════════ MAIN CONTENT ══════════ */}
-      <main className="flex-1 min-w-0 lg:pt-0 pt-14 smoke-bg">
-        {children}
+      <main className="flex-1 min-w-0 lg:pt-0 pt-14 smoke-bg texture-grain">
+        <div className="relative z-10">
+          {children}
+        </div>
       </main>
     </div>
   )
@@ -435,7 +437,7 @@ function NavItem({ to, icon, label, sublabel, active }) {
       to={to}
       className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group relative ${
         active
-          ? 'bg-gradient-to-r from-[#ff6b1a]/[0.10] to-[#ef4444]/[0.05] text-white border border-[#ff6b1a]/[0.15]'
+          ? 'bg-gradient-to-r from-[#ff6b1a]/[0.10] to-[#dc2626]/[0.05] text-white border border-[#ff6b1a]/[0.15]'
           : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]'
       }`}
     >
@@ -448,7 +450,7 @@ function NavItem({ to, icon, label, sublabel, active }) {
           <p className={`text-[10px] ${active ? 'text-[#ff6b1a]/60' : 'text-zinc-600'}`}>{sublabel}</p>
         )}
       </div>
-      {active && <div className="w-1.5 h-5 rounded-full bg-gradient-to-b from-[#ff6b1a] to-[#ef4444] shadow-lg shadow-[#ff6b1a]/30" />}
+      {active && <div className="w-1.5 h-5 rounded-full bg-gradient-to-b from-[#ff6b1a] to-[#dc2626] shadow-lg shadow-[#ff6b1a]/30" />}
     </Link>
   )
 }

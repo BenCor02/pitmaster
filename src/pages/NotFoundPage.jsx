@@ -5,7 +5,7 @@ export default function NotFoundPage() {
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
       {/* Background effects */}
       <div className="absolute -top-40 -left-40 w-80 h-80 bg-[#ff6b1a]/[0.05] rounded-full blur-3xl pointer-events-none animate-fire-breathe" />
-      <div className="absolute -bottom-40 -right-40 w-60 h-60 bg-[#ef4444]/[0.05] rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-40 -right-40 w-60 h-60 bg-[#dc2626]/[0.05] rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative text-center px-6 animate-fade-up">
         {/* Big 404 */}
@@ -14,7 +14,7 @@ export default function NotFoundPage() {
             404
           </span>
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#ff6b1a] to-[#ef4444] flex items-center justify-center shadow-2xl shadow-[#ff6b1a]/20 animate-pulse-glow">
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#ff6b1a] to-[#dc2626] flex items-center justify-center shadow-2xl shadow-[#ff6b1a]/20 animate-pulse-glow">
               <span className="text-4xl">🔥</span>
             </div>
           </div>
