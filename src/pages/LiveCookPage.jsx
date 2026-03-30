@@ -2,8 +2,52 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, ReferenceArea } from 'recharts'
 import * as meater from '../lib/meater.js'
+import * as fireboard from '../lib/fireboard.js'
 import { MEAT_PROFILES } from '../modules/calculator/data.js'
 import { calculateCookPlan } from '../modules/calculator/engine.js'
+
+// ── Provider abstraction ────────────────────────────────
+
+const PROVIDERS = {
+  meater: {
+    id: 'meater',
+    name: 'Meater',
+    icon: '🌡️',
+    color: '#ff6b1a',
+    loginFields: [
+      { key: 'email', label: 'Email Meater', type: 'email', placeholder: 'ton@email.com' },
+      { key: 'password', label: 'Mot de passe', type: 'password', placeholder: '••••••••' },
+    ],
+    login: (fields) => meater.login(fields.email, fields.password),
+    logout: meater.logout,
+    isConnected: meater.isConnected,
+    startPolling: meater.startPolling,
+    getCookState: meater.getCookState,
+    normalize: (devices) => devices.map(d => ({
+      ...d,
+      provider: 'meater',
+      name: d.cook?.name || `Sonde ${d.id.slice(-4)}`,
+    })),
+    helpText: 'Ta sonde doit être connectée via l\'app Meater sur ton téléphone (Bluetooth → Cloud).',
+  },
+  fireboard: {
+    id: 'fireboard',
+    name: 'FireBoard',
+    icon: '🔥',
+    color: '#e74c3c',
+    loginFields: [
+      { key: 'username', label: 'Email / Username FireBoard', type: 'email', placeholder: 'ton@email.com' },
+      { key: 'password', label: 'Mot de passe', type: 'password', placeholder: '••••••••' },
+    ],
+    login: (fields) => fireboard.login(fields.username, fields.password),
+    logout: fireboard.logout,
+    isConnected: fireboard.isConnected,
+    startPolling: fireboard.startPolling,
+    getCookState: (state) => meater.getCookState(state), // réutilise les labels
+    normalize: (devices) => devices, // déjà normalisé dans fireboard.js
+    helpText: 'Ton FireBoard doit être connecté en WiFi et synchronisé avec FireBoard Cloud.',
+  },
+}
 
 // ── Helpers ─────────────────────────────────────────────
 
@@ -19,20 +63,53 @@ function formatTime(date) {
   return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
 }
 
-// ── Login form ──────────────────────────────────────────
+// ── Provider selector ───────────────────────────────────
 
-function MeaterLogin({ onConnected }) {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+function ProviderSelector({ selected, onSelect }) {
+  return (
+    <div className="max-w-md mx-auto mb-6">
+      <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-3 text-center">Connecte ta sonde</p>
+      <div className="grid grid-cols-2 gap-3">
+        {Object.values(PROVIDERS).map(p => (
+          <button
+            key={p.id}
+            onClick={() => onSelect(p.id)}
+            className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${
+              selected === p.id
+                ? 'border-[#ff6b1a]/30 bg-[#ff6b1a]/[0.08]'
+                : 'border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]'
+            }`}
+          >
+            <span className="text-2xl">{p.icon}</span>
+            <div className="text-left">
+              <span className="text-sm font-bold text-white">{p.name}</span>
+              <p className="text-[10px] text-zinc-500">Cloud API</p>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ── Login form (generic) ────────────────────────────────
+
+function ProbeLogin({ provider, onConnected }) {
+  const prov = PROVIDERS[provider]
+  const [fields, setFields] = useState({})
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+
+  function updateField(key, value) {
+    setFields(prev => ({ ...prev, [key]: value }))
+  }
 
   async function handleSubmit(e) {
     e.preventDefault()
     setLoading(true)
     setError(null)
     try {
-      await meater.login(email, password)
+      await prov.login(fields)
       onConnected()
     } catch (err) {
       setError(err.message)
@@ -46,35 +123,26 @@ function MeaterLogin({ onConnected }) {
       <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
         <div className="text-center mb-6">
           <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-[#ff6b1a]/20 to-[#dc2626]/10 flex items-center justify-center text-3xl">
-            🌡️
+            {prov.icon}
           </div>
-          <h2 className="text-xl font-bold text-white mb-1">Connexion Meater</h2>
-          <p className="text-sm text-zinc-500">Utilise les identifiants de ton compte Meater Cloud</p>
+          <h2 className="text-xl font-bold text-white mb-1">Connexion {prov.name}</h2>
+          <p className="text-sm text-zinc-500">Utilise les identifiants de ton compte {prov.name}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-medium text-zinc-400 mb-1.5">Email Meater</label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-              className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder-zinc-600 focus:border-[#ff6b1a]/40 focus:outline-none transition-colors"
-              placeholder="ton@email.com"
-            />
-          </div>
-          <div>
-            <label className="block text-xs font-medium text-zinc-400 mb-1.5">Mot de passe</label>
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-              className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder-zinc-600 focus:border-[#ff6b1a]/40 focus:outline-none transition-colors"
-              placeholder="••••••••"
-            />
-          </div>
+          {prov.loginFields.map(f => (
+            <div key={f.key}>
+              <label className="block text-xs font-medium text-zinc-400 mb-1.5">{f.label}</label>
+              <input
+                type={f.type}
+                value={fields[f.key] || ''}
+                onChange={e => updateField(f.key, e.target.value)}
+                required
+                className="w-full px-4 py-3 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white placeholder-zinc-600 focus:border-[#ff6b1a]/40 focus:outline-none transition-colors"
+                placeholder={f.placeholder}
+              />
+            </div>
+          ))}
 
           {error && (
             <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
@@ -87,13 +155,13 @@ function MeaterLogin({ onConnected }) {
             disabled={loading}
             className="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-[#ff6b1a] to-[#dc2626] hover:opacity-90 disabled:opacity-50 transition-opacity"
           >
-            {loading ? 'Connexion...' : 'Se connecter à Meater'}
+            {loading ? 'Connexion...' : `Se connecter à ${prov.name}`}
           </button>
         </form>
 
         <div className="mt-5 p-4 rounded-xl bg-[#ff6b1a]/[0.05] border border-[#ff6b1a]/10">
           <p className="text-xs text-zinc-400 leading-relaxed">
-            <span className="text-[#ff6b1a] font-semibold">Important :</span> Ta sonde doit être connectée via l'app Meater sur ton téléphone (Bluetooth). L'API Meater Cloud reçoit les données depuis l'app.
+            <span className="text-[#ff6b1a] font-semibold">Important :</span> {prov.helpText}
           </p>
         </div>
       </div>
@@ -342,8 +410,17 @@ export default function LiveCookPage() {
   const preCookTemp = location.state?.cookTempC || null
   const preWrapped = location.state?.wrapped ?? false
 
+  // Provider
+  const [provider, setProvider] = useState(() => {
+    // Auto-detect if already connected
+    if (meater.isConnected()) return 'meater'
+    if (fireboard.isConnected()) return 'fireboard'
+    return 'meater'
+  })
+  const prov = PROVIDERS[provider]
+
   // State
-  const [connected, setConnected] = useState(meater.isConnected())
+  const [connected, setConnected] = useState(() => meater.isConnected() || fireboard.isConnected())
   const [devices, setDevices] = useState([])
   const [selectedDeviceId, setSelectedDeviceId] = useState(null)
   const [history, setHistory] = useState([])
@@ -390,9 +467,10 @@ export default function LiveCookPage() {
     setError(null)
     if (!cookStartTime) setCookStartTime(new Date())
 
-    stopRef.current = meater.startPolling({
+    stopRef.current = prov.startPolling({
       intervalMs: 30000,
-      onData: (devs) => {
+      onData: (rawDevs) => {
+        const devs = prov.normalize(rawDevs)
         setDevices(devs)
         // Auto-select first device
         if (devs.length && !selectedDeviceId) {
@@ -422,7 +500,7 @@ export default function LiveCookPage() {
         }
       },
     })
-  }, [selectedDeviceId, cookStartTime])
+  }, [selectedDeviceId, cookStartTime, prov])
 
   // Cleanup on unmount
   useEffect(() => {
@@ -431,7 +509,7 @@ export default function LiveCookPage() {
 
   function handleDisconnect() {
     if (stopRef.current) stopRef.current()
-    meater.logout()
+    prov.logout()
     setConnected(false)
     setPolling(false)
     setDevices([])
@@ -455,7 +533,7 @@ export default function LiveCookPage() {
             <span className="text-[#ff6b1a]">Live</span> Cook
           </h1>
           <p className="text-sm text-zinc-500 mt-1">
-            Suivi temps réel avec ta sonde Meater
+            Suivi temps réel avec ta sonde {connected ? prov.name : 'connectée'}
           </p>
         </div>
         {connected && (
@@ -472,9 +550,12 @@ export default function LiveCookPage() {
         )}
       </div>
 
-      {/* Not connected → Login */}
+      {/* Not connected → Provider selector + Login */}
       {!connected && (
-        <MeaterLogin onConnected={() => setConnected(true)} />
+        <>
+          <ProviderSelector selected={provider} onSelect={setProvider} />
+          <ProbeLogin provider={provider} onConnected={() => setConnected(true)} />
+        </>
       )}
 
       {/* Connected */}
