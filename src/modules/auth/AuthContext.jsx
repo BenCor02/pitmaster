@@ -75,9 +75,11 @@ export function AuthProvider({ children }) {
 
   const updateProfile = async (updates) => {
     if (!session?.user?.id) return { error: 'Non connecté' }
+    // Sécurité : ne jamais laisser le client modifier le rôle
+    const { role, ...safeUpdates } = updates
     const { data, error } = await supabase
       .from('profiles')
-      .update(updates)
+      .update(safeUpdates)
       .eq('id', session.user.id)
       .select()
       .single()
