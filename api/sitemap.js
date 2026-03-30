@@ -42,6 +42,7 @@ export default async function handler(req, res) {
     { url: '/portions', changefreq: 'monthly', priority: '0.7' },
     { url: '/multi', changefreq: 'monthly', priority: '0.7' },
     { url: '/bois', changefreq: 'monthly', priority: '0.8' },
+    { url: '/bbq', changefreq: 'monthly', priority: '0.9' },
   ]
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

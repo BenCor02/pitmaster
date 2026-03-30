@@ -164,6 +164,14 @@ export default function Layout({ children }) {
             />
           )}
 
+          <NavItem
+            to="/bbq"
+            icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isActive('/bbq') ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="12" r="9" /><path d="M12 8v4" /><path d="M8 14h8" /><circle cx="12" cy="18" r="1" /></svg>}
+            label="Types de BBQ"
+            sublabel="Comparatif fumoirs"
+            active={isActive('/bbq')}
+          />
+
           {/* Mon espace */}
           {isAuthenticated && (isModuleEnabled('favorites') || isModuleEnabled('journal')) && (
             <div className="mt-6">
@@ -346,6 +354,16 @@ export default function Layout({ children }) {
                 Essences de bois
               </Link>
             )}
+            <Link
+              to="/bbq"
+              onClick={() => setMobileOpen(false)}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
+                isActive('/bbq') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
+              }`}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="12" cy="12" r="9" /><path d="M12 8v4" /><path d="M8 14h8" /><circle cx="12" cy="18" r="1" /></svg>
+              Types de BBQ
+            </Link>
             {isAuthenticated && isModuleEnabled('favorites') && (
               <Link
                 to="/carnet"
