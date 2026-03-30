@@ -30,23 +30,13 @@ export async function fetchAllSettings() {
 
 /** Met à jour un setting (upsert par clé) */
 export async function updateSetting(key, value) {
-  // On cherche d'abord si la clé existe
-  const { data: existing } = await supabase
+  const { error } = await supabase
     .from('site_settings')
-    .select('id')
+    .update({ value })
     .eq('key', key)
-    .single()
 
-  if (existing) {
-    const { error } = await supabase
-      .from('site_settings')
-      .update({ value })
-      .eq('key', key)
-    if (error) throw error
-  } else {
-    const { error } = await supabase
-      .from('site_settings')
-      .insert({ key, value })
-    if (error) throw error
+  if (error) {
+    console.error(`updateSetting(${key}):`, error)
+    throw error
   }
 }
