@@ -76,6 +76,31 @@ export function articleSchema(guide) {
   }
 }
 
+/** Génère le JSON-LD Recipe schema pour Google rich snippets */
+export function recipeSchema(recipe) {
+  if (!recipe) return null
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'Recipe',
+    name: recipe.title,
+    description: recipe.description || recipe.summary || '',
+    image: recipe.image_url || undefined,
+    datePublished: recipe.created_at,
+    author: { '@type': 'Organization', name: _siteName },
+    recipeCategory: recipe.type || 'Assaisonnement',
+    recipeCuisine: 'BBQ',
+  }
+  if (recipe.ingredients && Array.isArray(recipe.ingredients)) {
+    schema.recipeIngredient = recipe.ingredients.map(i =>
+      typeof i === 'string' ? i : `${i.qty || ''} ${i.unit || ''} ${i.name || ''}`.trim()
+    )
+  }
+  if (recipe.prep_time_min) {
+    schema.prepTime = `PT${recipe.prep_time_min}M`
+  }
+  return schema
+}
+
 /** Injecte un script JSON-LD dans le <head> */
 export function injectJsonLd(id, schema) {
   let script = document.getElementById(id)

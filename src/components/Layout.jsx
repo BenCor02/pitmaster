@@ -82,7 +82,7 @@ export default function Layout({ children }) {
     <div className="min-h-screen flex bg-[#080808]">
 
       {/* ══════════ SIDEBAR DESKTOP ══════════ */}
-      <aside className="hidden lg:flex flex-col w-[280px] shrink-0 bg-[#0c0c0c] border-r border-white/[0.04] relative overflow-hidden sticky top-0 h-screen overflow-y-auto texture-grain">
+      <aside aria-label="Navigation principale" className="hidden lg:flex flex-col w-[280px] shrink-0 bg-[#0c0c0c] border-r border-white/[0.04] relative overflow-hidden sticky top-0 h-screen overflow-y-auto texture-grain">
         {/* Ambient glows */}
         <div className="absolute -top-24 -left-24 w-80 h-80 bg-[#ff6b1a]/[0.02] rounded-full blur-[100px] pointer-events-none animate-fire-breathe" />
         <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-[#dc2626]/[0.015] rounded-full blur-[60px] pointer-events-none" />
@@ -258,6 +258,7 @@ export default function Layout({ children }) {
                 onClick={signOut}
                 className="text-zinc-600 hover:text-zinc-400 transition-colors p-1.5 rounded-lg hover:bg-white/[0.04]"
                 title="Déconnexion"
+                aria-label="Se déconnecter"
               >
                 <IconLogout />
               </button>
@@ -288,6 +289,8 @@ export default function Layout({ children }) {
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className="text-zinc-400 p-2 -mr-2 hover:text-white transition-colors"
+            aria-label={mobileOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+            aria-expanded={mobileOpen}
           >
             {mobileOpen ? <IconClose /> : <IconMenu />}
           </button>
@@ -295,7 +298,7 @@ export default function Layout({ children }) {
 
         {/* Mobile dropdown */}
         {mobileOpen && (
-          <div className="animate-fade border-t border-white/[0.05] px-4 py-3 space-y-1 bg-[#0e0e0e]">
+          <nav aria-label="Navigation mobile" className="animate-fade border-t border-white/[0.05] px-4 py-3 space-y-1 bg-[#0e0e0e]">
             <Link
               to="/"
               onClick={() => setMobileOpen(false)}
@@ -449,7 +452,7 @@ export default function Layout({ children }) {
                 Se connecter
               </Link>
             )}
-          </div>
+          </nav>
         )}
       </div>
 

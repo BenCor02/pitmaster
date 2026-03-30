@@ -84,7 +84,7 @@ export default function GuidePage() {
       {/* Hero */}
       {guide.cover_url && (
         <div className="relative h-48 sm:h-64 overflow-hidden">
-          <img src={guide.cover_url} alt={guide.title} className="w-full h-full object-cover" />
+          <img src={guide.cover_url} alt={guide.title} className="w-full h-full object-cover" loading="lazy" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-[#080808]/60 to-transparent" />
         </div>
       )}

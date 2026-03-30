@@ -20,7 +20,7 @@ export default function AffiliateBlock({ tools }) {
           >
             {tool.image_url && (
               <div className="w-16 h-16 rounded-xl bg-white/[0.03] border border-white/[0.06] overflow-hidden shrink-0">
-                <img src={tool.image_url} alt={tool.title} className="w-full h-full object-cover" />
+                <img src={tool.image_url} alt={tool.title} className="w-full h-full object-cover" loading="lazy" />
               </div>
             )}
             <div className="flex-1 min-w-0">

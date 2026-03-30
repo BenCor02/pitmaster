@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { fetchRecipeBySlug, fetchRecipes } from '../lib/cms.js'
 import { useFavorites } from '../hooks/useFavorites.js'
+import { updateMeta, recipeSchema, injectJsonLd } from '../lib/seo.js'
 
 const TYPE_LABELS = { rub: 'Rub', mop: 'Mop', marinade: 'Marinade', injection: 'Injection', glaze: 'Glaze' }
 const TYPE_ICONS = { rub: '🧂', mop: '🖌️', marinade: '🫙', injection: '💉', glaze: '✨' }
@@ -39,13 +40,21 @@ export default function RecipeDetailPage() {
     fetchRecipeBySlug(slug).then(data => {
       setRecipe(data)
       setLoading(false)
-      // Fetch related recipes of same type
       if (data) {
+        // SEO : meta tags + JSON-LD Recipe schema
+        updateMeta({
+          title: data.title,
+          description: data.description || `Recette ${data.title} pour BBQ et fumoir.`,
+          canonical: `https://charbonetflamme.fr/recettes/${data.slug}`,
+        })
+        injectJsonLd('recipe-schema', recipeSchema(data))
+        // Fetch related recipes of same type
         fetchRecipes({ type: data.type, limit: 6 }).then(all => {
           setRelated(all.filter(r => r.slug !== slug).slice(0, 3))
         })
       }
     })
+    return () => injectJsonLd('recipe-schema', null)
   }, [slug])
 
   const toggleStep = (idx) => {

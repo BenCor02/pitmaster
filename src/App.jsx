@@ -1,32 +1,50 @@
+import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './modules/auth/AuthContext.jsx'
 import Layout from './components/Layout.jsx'
-import CalculatorPage from './pages/CalculatorPage.jsx'
-import LoginPage from './pages/LoginPage.jsx'
-import AdminPage from './pages/AdminPage.jsx'
-import GuidesListPage from './pages/GuidesListPage.jsx'
-import GuidePage from './pages/GuidePage.jsx'
-import JournalPage from './pages/JournalPage.jsx'
-import PortionCalculatorPage from './pages/PortionCalculatorPage.jsx'
-import MultiCookPage from './pages/MultiCookPage.jsx'
-import RecipesPage from './pages/RecipesPage.jsx'
-import RecipeDetailPage from './pages/RecipeDetailPage.jsx'
-import FavoritesPage from './pages/FavoritesPage.jsx'
-import ComparatorPage from './pages/ComparatorPage.jsx'
-import SharedCookPage from './pages/SharedCookPage.jsx'
-import WoodGuidePage from './pages/WoodGuidePage.jsx'
-import BbqGuidePage from './pages/BbqGuidePage.jsx'
-import LiveCookPage from './pages/LiveCookPage.jsx'
-import NotFoundPage from './pages/NotFoundPage.jsx'
+
+// Code splitting — chaque page est chargée à la demande
+const CalculatorPage = lazy(() => import('./pages/CalculatorPage.jsx'))
+const LoginPage = lazy(() => import('./pages/LoginPage.jsx'))
+const AdminPage = lazy(() => import('./pages/AdminPage.jsx'))
+const GuidesListPage = lazy(() => import('./pages/GuidesListPage.jsx'))
+const GuidePage = lazy(() => import('./pages/GuidePage.jsx'))
+const JournalPage = lazy(() => import('./pages/JournalPage.jsx'))
+const PortionCalculatorPage = lazy(() => import('./pages/PortionCalculatorPage.jsx'))
+const MultiCookPage = lazy(() => import('./pages/MultiCookPage.jsx'))
+const RecipesPage = lazy(() => import('./pages/RecipesPage.jsx'))
+const RecipeDetailPage = lazy(() => import('./pages/RecipeDetailPage.jsx'))
+const FavoritesPage = lazy(() => import('./pages/FavoritesPage.jsx'))
+const ComparatorPage = lazy(() => import('./pages/ComparatorPage.jsx'))
+const SharedCookPage = lazy(() => import('./pages/SharedCookPage.jsx'))
+const WoodGuidePage = lazy(() => import('./pages/WoodGuidePage.jsx'))
+const BbqGuidePage = lazy(() => import('./pages/BbqGuidePage.jsx'))
+const LiveCookPage = lazy(() => import('./pages/LiveCookPage.jsx'))
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage.jsx'))
+
+function PageLoader() {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center animate-fade">
+        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#ff6b1a] to-red-600 flex items-center justify-center mx-auto mb-4 animate-pulse">
+          <span className="text-xl">🔥</span>
+        </div>
+        <p className="text-zinc-500 text-sm font-medium">Chargement...</p>
+      </div>
+    </div>
+  )
+}
 
 function AdminGuard({ children }) {
   const { isLoading, isAuthenticated, isAdmin, profile } = useAuth()
 
-  // Attendre que la session ET le profil soient chargés
+  // 1. Attendre que la session auth soit résolue
   if (isLoading) return <div className="min-h-screen flex items-center justify-center text-zinc-400">Chargement...</div>
+  // 2. Non connecté → login
   if (!isAuthenticated) return <Navigate to="/login" state={{ from: '/admin' }} replace />
-  // Profil pas encore chargé → attendre (ne pas rediriger trop tôt)
-  if (isAuthenticated && profile === null) return <div className="min-h-screen flex items-center justify-center text-zinc-400">Chargement du profil...</div>
+  // 3. Connecté mais profil pas encore chargé → attendre (CRITIQUE : ne pas vérifier isAdmin ici)
+  if (profile === null || profile === undefined) return <div className="min-h-screen flex items-center justify-center text-zinc-400">Chargement du profil...</div>
+  // 4. Profil chargé, vérifier le rôle
   if (!isAdmin) return <Navigate to="/" replace />
 
   return children
@@ -35,6 +53,7 @@ function AdminGuard({ children }) {
 export default function App() {
   return (
     <Layout>
+      <Suspense fallback={<PageLoader />}>
       <Routes>
         <Route path="/" element={<CalculatorPage />} />
         <Route path="/guides" element={<GuidesListPage />} />
@@ -61,6 +80,7 @@ export default function App() {
         />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      </Suspense>
     </Layout>
   )
 }

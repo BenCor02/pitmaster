@@ -406,7 +406,7 @@ function HeroSection({ profiles, onSelect }) {
       </div>
 
       <div className="section-separator">
-        <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=1400&h=200&fit=crop&q=80" alt="" />
+        <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=1400&h=200&fit=crop&q=80" alt="" loading="lazy" />
       </div>
 
       {/* Why this tool */}
@@ -427,7 +427,7 @@ function HeroSection({ profiles, onSelect }) {
       </div>
 
       <div className="section-separator">
-        <img src="https://images.unsplash.com/photo-1558030006-450675393462?w=1400&h=200&fit=crop&q=80" alt="" />
+        <img src="https://images.unsplash.com/photo-1558030006-450675393462?w=1400&h=200&fit=crop&q=80" alt="" loading="lazy" />
       </div>
 
       {/* Community CTA */}
