@@ -114,6 +114,13 @@ export default function Layout({ children }) {
             sublabel="BBQ & Fumage"
             active={isActive('/')}
           />
+          <NavItem
+            to="/portions"
+            icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isActive('/portions') ? '#f97316' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>}
+            label="Quantités"
+            sublabel="Kg par personne"
+            active={isActive('/portions')}
+          />
 
           {/* Guides */}
           <div className="mt-6">
@@ -220,6 +227,16 @@ export default function Layout({ children }) {
             >
               <IconCalculator active={isActive('/')} />
               Calculateur
+            </Link>
+            <Link
+              to="/portions"
+              onClick={() => setMobileOpen(false)}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
+                isActive('/portions') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
+              }`}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+              Quantités
             </Link>
             <Link
               to="/guides"
