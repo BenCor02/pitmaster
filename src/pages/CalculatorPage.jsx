@@ -685,19 +685,13 @@ export default function CalculatorPage() {
 
         {/* ══════════ RESULTS ══════════ */}
         <div ref={resultRef} className="scroll-mt-20" />
-        {result && <ResultView result={result} />}
+        {result && <ResultView result={result} contentBlocks={
+          <ContentBlocks meatType={result.profileId} cookingMethod={result.cookType} />
+        } />}
 
         {/* ══════════ SAVE SESSION ══════════ */}
         {result && <SaveSessionCTA result={result} />}
         {result && <ShareCookCTA result={result} />}
-
-        {/* Blocs contextuels CMS : SEO, FAQ, Affiliation, Guides */}
-        {result && (
-          <ContentBlocks
-            meatType={result.profileId}
-            cookingMethod={result.cookType}
-          />
-        )}
       </div>
     </div>
   )
@@ -948,7 +942,7 @@ const HERO_IMAGES = {
   volaille: 'https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=900&h=400&fit=crop&q=80',
 }
 
-function ResultView({ result }) {
+function ResultView({ result, contentBlocks }) {
   const [serviceHour, setServiceHour] = useState(19)
   const category = result.profileId?.includes('chicken') ? 'volaille' :
     ['pulled_pork', 'spare_ribs', 'baby_back_ribs'].includes(result.profileId) ? 'porc' : 'boeuf'
@@ -1140,6 +1134,9 @@ function ResultView({ result }) {
           )}
         </div>
       </div>
+
+      {/* ── Blocs contextuels (affiliation, SEO, FAQ…) ── */}
+      {contentBlocks}
 
       {/* ── Ribs method ── */}
       {result.ribsMethod && <RibsMethodCard method={result.ribsMethod} />}
