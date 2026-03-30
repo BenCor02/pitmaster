@@ -21,7 +21,7 @@ export function TextInput({ value, onChange, placeholder, ...props }) {
       value={value || ''}
       onChange={e => onChange(e.target.value)}
       placeholder={placeholder}
-      className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-[13px] text-white placeholder-zinc-700 focus:outline-none focus:border-orange-500/30 transition-all"
+      className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-[13px] text-white placeholder-zinc-700 focus:outline-none focus:border-[#ff6b1a]/30 transition-all"
       {...props}
     />
   )
@@ -34,7 +34,7 @@ export function TextArea({ value, onChange, placeholder, rows = 6, ...props }) {
       onChange={e => onChange(e.target.value)}
       placeholder={placeholder}
       rows={rows}
-      className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-[13px] text-white placeholder-zinc-700 focus:outline-none focus:border-orange-500/30 transition-all font-mono leading-relaxed resize-y"
+      className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-[13px] text-white placeholder-zinc-700 focus:outline-none focus:border-[#ff6b1a]/30 transition-all font-mono leading-relaxed resize-y"
       {...props}
     />
   )
@@ -45,7 +45,7 @@ export function Select({ value, onChange, options, placeholder }) {
     <select
       value={value || ''}
       onChange={e => onChange(e.target.value)}
-      className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-[13px] text-white focus:outline-none focus:border-orange-500/30 transition-all appearance-none"
+      className="w-full px-4 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-[13px] text-white focus:outline-none focus:border-[#ff6b1a]/30 transition-all appearance-none"
     >
       {placeholder && <option value="">{placeholder}</option>}
       {options.map(opt => (
@@ -60,7 +60,7 @@ export function Checkbox({ checked, onChange, label }) {
     <label className="flex items-center gap-2.5 cursor-pointer group">
       <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${
         checked
-          ? 'bg-orange-500 border-orange-500'
+          ? 'bg-[#ff6b1a] border-[#ff6b1a]'
           : 'bg-white/[0.03] border-white/[0.1] group-hover:border-white/[0.2]'
       }`}>
         {checked && (

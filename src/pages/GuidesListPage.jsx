@@ -31,7 +31,7 @@ export default function GuidesListPage() {
     <div className="min-h-screen px-6 lg:px-10 py-8 max-w-4xl mx-auto">
       <header className="mb-8">
         <div className="badge badge-accent mb-3">
-          <span className="w-1.5 h-1.5 rounded-full bg-orange-500 mr-2" />
+          <span className="w-1.5 h-1.5 rounded-full bg-[#ff6b1a] mr-2" />
           Guides Pitmaster
         </div>
         <h1 className="text-[28px] sm:text-[36px] font-extrabold text-white tracking-tight leading-tight mb-2">

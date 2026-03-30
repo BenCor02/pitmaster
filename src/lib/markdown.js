@@ -26,7 +26,7 @@ export function renderMarkdown(md) {
     .replace(/^- (.+)$/gm, '<li class="text-[13px] text-zinc-300 leading-relaxed ml-4 mb-1">$1</li>')
     .replace(/^(\d+)\. (.+)$/gm, '<li class="text-[13px] text-zinc-300 leading-relaxed ml-4 mb-1" value="$1">$2</li>')
     // Links
-    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-orange-400 hover:text-orange-300 underline underline-offset-2" target="_blank" rel="noopener">$1</a>')
+    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-[#ff6b1a] hover:text-[#ff8c4a] underline underline-offset-2" target="_blank" rel="noopener">$1</a>')
     // Paragraphs (lines that aren't already HTML)
     .replace(/^(?!<[a-z])((?!^\s*$).+)$/gm, (match) => {
       if (match.startsWith('<')) return match

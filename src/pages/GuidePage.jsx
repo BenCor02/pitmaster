@@ -58,7 +58,7 @@ export default function GuidePage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center animate-fade">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center mx-auto mb-4 animate-pulse-glow">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#ff6b1a] to-red-600 flex items-center justify-center mx-auto mb-4 animate-pulse-glow">
             <span className="text-xl">📚</span>
           </div>
           <p className="text-zinc-500 text-sm font-medium">Chargement du guide...</p>
@@ -102,7 +102,7 @@ export default function GuidePage() {
         {/* Header */}
         <header className="mb-8">
           {guide.category && (
-            <span className="text-[10px] font-bold uppercase tracking-wider text-orange-400/70 mb-2 block">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#ff6b1a]/70 mb-2 block">
               {guide.category}
             </span>
           )}

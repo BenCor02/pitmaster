@@ -153,11 +153,11 @@ export default function PortionCalculatorPage() {
 
       {/* ── Hero ── */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/[0.06] via-transparent to-red-500/[0.04]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#ff6b1a]/[0.06] via-transparent to-red-500/[0.04]" />
         <div className="relative px-6 lg:px-10 py-10 lg:py-14 max-w-4xl">
           <div className="animate-fade-up">
             <div className="badge badge-accent mb-4">
-              <span className="w-1.5 h-1.5 rounded-full bg-orange-500 mr-2 animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#ff6b1a] mr-2 animate-pulse" />
               Outil Pitmaster
             </div>
             <h1 className="text-[28px] lg:text-[36px] font-extrabold text-white tracking-tight leading-[1.1] mb-2">
@@ -195,7 +195,7 @@ export default function PortionCalculatorPage() {
                     max="100"
                     value={guests}
                     onChange={(e) => setGuests(Math.max(1, Math.min(100, parseInt(e.target.value) || 1)))}
-                    className="w-20 text-center px-3 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-[22px] font-extrabold text-white focus:outline-none focus:border-orange-500/30 transition-all"
+                    className="w-20 text-center px-3 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-[22px] font-extrabold text-white focus:outline-none focus:border-[#ff6b1a]/30 transition-all"
                   />
                 </div>
                 <button
@@ -212,7 +212,7 @@ export default function PortionCalculatorPage() {
                     onClick={() => setGuests(n)}
                     className={`px-2.5 py-1.5 rounded-lg text-[12px] font-medium border transition-all ${
                       guests === n
-                        ? 'border-orange-500/30 bg-orange-500/8 text-orange-400'
+                        ? 'border-[#ff6b1a]/30 bg-[#ff6b1a]/8 text-[#ff6b1a]'
                         : 'border-white/[0.06] text-zinc-500 hover:text-zinc-300 hover:border-white/[0.1]'
                     }`}
                   >
@@ -238,7 +238,7 @@ export default function PortionCalculatorPage() {
                     onClick={() => setAppetite(a.id)}
                     className={`flex flex-col items-center px-4 py-2.5 rounded-xl border transition-all ${
                       appetite === a.id
-                        ? 'border-orange-500 bg-orange-500/10 text-orange-300'
+                        ? 'border-[#ff6b1a] bg-[#ff6b1a]/10 text-[#ff8c4a]'
                         : 'border-zinc-700/50 bg-zinc-900/60 text-zinc-400 hover:border-zinc-600'
                     }`}
                   >
@@ -274,7 +274,7 @@ export default function PortionCalculatorPage() {
                       >
                         <div className="flex items-center gap-3 mb-3">
                           <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg transition-colors ${
-                            active ? 'bg-orange-500/10' : 'bg-white/[0.03]'
+                            active ? 'bg-[#ff6b1a]/10' : 'bg-white/[0.03]'
                           }`}>
                             {meat.icon}
                           </div>
@@ -289,7 +289,7 @@ export default function PortionCalculatorPage() {
                         </div>
 
                         <div className="flex items-baseline gap-1.5">
-                          <span className="text-[28px] font-extrabold text-orange-400 leading-none">{r.rawKg}</span>
+                          <span className="text-[28px] font-extrabold text-[#ff6b1a] leading-none">{r.rawKg}</span>
                           <span className="text-[13px] text-zinc-500 font-medium">kg à acheter</span>
                         </div>
                         <p className="text-[11px] text-zinc-600 mt-1">
@@ -307,9 +307,9 @@ export default function PortionCalculatorPage() {
         {/* ── Detail card ── */}
         {selectedResult && (
           <div className="mt-6 animate-fade-up">
-            <div className="surface p-6 border-orange-500/[0.15]">
+            <div className="surface p-6 border-[#ff6b1a]/[0.15]">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center text-2xl">
+                <div className="w-12 h-12 rounded-xl bg-[#ff6b1a]/10 flex items-center justify-center text-2xl">
                   {selectedResult.icon}
                 </div>
                 <div>
@@ -319,9 +319,9 @@ export default function PortionCalculatorPage() {
               </div>
 
               <div className="grid grid-cols-3 gap-3 mb-4">
-                <div className="rounded-xl p-3 bg-orange-500/[0.08] border border-orange-500/[0.15] text-center">
-                  <p className="text-[9px] font-semibold text-orange-300/70 uppercase tracking-wider">À acheter</p>
-                  <p className="text-[24px] font-extrabold text-orange-400">{selectedResult.rawKg}</p>
+                <div className="rounded-xl p-3 bg-[#ff6b1a]/[0.08] border border-[#ff6b1a]/[0.15] text-center">
+                  <p className="text-[9px] font-semibold text-[#ff8c4a]/70 uppercase tracking-wider">À acheter</p>
+                  <p className="text-[24px] font-extrabold text-[#ff6b1a]">{selectedResult.rawKg}</p>
                   <p className="text-[10px] text-zinc-500">kg brut</p>
                 </div>
                 <div className="rounded-xl p-3 bg-white/[0.04] border border-white/[0.06] text-center">
@@ -338,7 +338,7 @@ export default function PortionCalculatorPage() {
 
               <div className="px-4 py-3 rounded-xl bg-white/[0.02] border border-white/[0.04] mb-4">
                 <p className="text-[12px] text-zinc-400 leading-relaxed">
-                  <span className="text-orange-400 font-semibold">Conseil :</span> {selectedResult.note}
+                  <span className="text-[#ff6b1a] font-semibold">Conseil :</span> {selectedResult.note}
                 </p>
               </div>
 
@@ -358,7 +358,7 @@ export default function PortionCalculatorPage() {
         {/* ── Tips ── */}
         <div className="surface p-5 mt-6">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#ff6b1a] to-red-600 flex items-center justify-center">
               <span className="text-xs">💡</span>
             </div>
             <h3 className="text-[14px] font-bold text-white">Astuces quantités</h3>

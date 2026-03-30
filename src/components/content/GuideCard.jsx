@@ -4,7 +4,7 @@ export default function GuideCard({ guide }) {
   return (
     <Link
       to={`/guides/${guide.slug}`}
-      className="surface overflow-hidden group hover:border-orange-500/20 transition-all"
+      className="surface overflow-hidden group hover:border-[#ff6b1a]/20 transition-all"
     >
       {guide.cover_url && (
         <div className="h-32 overflow-hidden">
@@ -17,7 +17,7 @@ export default function GuideCard({ guide }) {
       )}
       <div className="p-4">
         {guide.category && (
-          <span className="text-[9px] font-bold uppercase tracking-wider text-orange-400/70 mb-1 block">
+          <span className="text-[9px] font-bold uppercase tracking-wider text-[#ff6b1a]/70 mb-1 block">
             {guide.category}
           </span>
         )}

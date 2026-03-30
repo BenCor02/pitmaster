@@ -186,7 +186,7 @@ function OverviewTab({ counts, onNavigate, profile, signOut }) {
           <button
             key={card.key}
             onClick={() => onNavigate(card.key)}
-            className="surface p-5 text-left group hover:border-orange-500/20 transition-all"
+            className="surface p-5 text-left group hover:border-[#ff6b1a]/20 transition-all"
           >
             <div className="flex items-center gap-2 mb-3">
               <span className="text-lg">{card.icon}</span>
@@ -205,7 +205,7 @@ function OverviewTab({ counts, onNavigate, profile, signOut }) {
       <div className="surface p-5">
         <h3 className="text-[14px] font-bold text-white mb-3">Guide rapide</h3>
         <div className="space-y-2 text-[13px] text-zinc-400 leading-relaxed">
-          <p>1. Exécutez <code className="text-orange-400 bg-orange-500/10 px-1.5 py-0.5 rounded text-[11px]">003_cms.sql</code> puis <code className="text-orange-400 bg-orange-500/10 px-1.5 py-0.5 rounded text-[11px]">004_cms_seed.sql</code> dans le SQL Editor de Supabase</p>
+          <p>1. Exécutez <code className="text-[#ff6b1a] bg-[#ff6b1a]/10 px-1.5 py-0.5 rounded text-[11px]">003_cms.sql</code> puis <code className="text-[#ff6b1a] bg-[#ff6b1a]/10 px-1.5 py-0.5 rounded text-[11px]">004_cms_seed.sql</code> dans le SQL Editor de Supabase</p>
           <p>2. Les contenus de démo apparaîtront dans les onglets ci-dessus</p>
           <p>3. Créez, modifiez et publiez vos contenus directement depuis ce panel</p>
           <p>4. Les blocs s'affichent automatiquement sous le calculateur en fonction du contexte (viande, méthode)</p>
@@ -443,7 +443,7 @@ function getColumns(tab) {
           <div className="flex items-center gap-3">
             {row.image_url && <img src={row.image_url} alt="" className="w-8 h-8 rounded-lg object-cover" />}
             <span className="font-medium text-white">{row.title}</span>
-            {row.badge && <span className="text-[9px] font-bold uppercase text-orange-400 bg-orange-500/10 px-1.5 py-0.5 rounded">{row.badge}</span>}
+            {row.badge && <span className="text-[9px] font-bold uppercase text-[#ff6b1a] bg-[#ff6b1a]/10 px-1.5 py-0.5 rounded">{row.badge}</span>}
           </div>
         )},
         { key: 'product_type', label: 'Type', render: row => row.product_type || '—' },

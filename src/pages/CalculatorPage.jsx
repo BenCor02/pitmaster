@@ -315,7 +315,7 @@ export default function CalculatorPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center animate-fade">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center mx-auto mb-4 animate-pulse-glow">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#ff6b1a] to-red-600 flex items-center justify-center mx-auto mb-4 animate-pulse-glow">
             <span className="text-xl">🔥</span>
           </div>
           <p className="text-zinc-500 text-sm font-medium">Chargement...</p>
@@ -345,7 +345,7 @@ export default function CalculatorPage() {
           <div className="relative px-6 lg:px-10 py-12 lg:py-16 max-w-4xl">
             <div className="animate-fade-up">
               <div className="badge badge-accent mb-4">
-                <span className="w-1.5 h-1.5 rounded-full bg-orange-500 mr-2 animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#ff6b1a] mr-2 animate-pulse" />
                 Assistant Pitmaster
               </div>
               <h1 className="text-[32px] lg:text-[42px] font-extrabold text-white tracking-tight leading-[1.1] mb-3">
@@ -367,7 +367,7 @@ export default function CalculatorPage() {
                 </div>
                 <div className="w-px bg-white/[0.08]" />
                 <div>
-                  <p className="text-[24px] font-bold text-orange-400">100%</p>
+                  <p className="text-[24px] font-bold text-[#ff6b1a]">100%</p>
                   <p className="text-[11px] text-zinc-500 font-medium">Terrain</p>
                 </div>
               </div>
@@ -417,7 +417,7 @@ export default function CalculatorPage() {
           <>
             <div className="flex items-center gap-3 mb-8">
               <StepPill num={1} label="Viande" active={step >= 1} />
-              <div className={`h-px flex-1 ${step >= 2 ? 'bg-orange-500/30' : 'bg-white/[0.06]'}`} />
+              <div className={`h-px flex-1 ${step >= 2 ? 'bg-[#ff6b1a]/30' : 'bg-white/[0.06]'}`} />
               <StepPill num={2} label="Réglages" active={step >= 2} />
               <div className={`h-px flex-1 bg-white/[0.06]`} />
               <StepPill num={3} label="Résultat" active={false} />
@@ -437,7 +437,7 @@ export default function CalculatorPage() {
                           return (
                             <button key={p.id} onClick={() => handleProfileSelect(p.id)} className={`surface text-left p-4 transition-all group ${active ? 'surface-active' : ''}`}>
                               <div className="flex items-center gap-3">
-                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg transition-colors ${active ? 'bg-orange-500/10' : 'bg-white/[0.03]'}`}>{p.icon}</div>
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg transition-colors ${active ? 'bg-[#ff6b1a]/10' : 'bg-white/[0.03]'}`}>{p.icon}</div>
                                 <div className="flex-1 min-w-0">
                                   <p className={`text-[13px] font-semibold transition-colors ${active ? 'text-white' : 'text-zinc-300 group-hover:text-white'}`}>{p.name}</p>
                                   <p className="text-[11px] text-zinc-600">{p.cook_type === 'reverse_sear' ? 'Reverse sear' : 'Low & slow'}{p.fixed_times ? ' · Temps fixe' : ''}</p>
@@ -462,12 +462,12 @@ export default function CalculatorPage() {
 
                   {/* Recap */}
                   <div className="surface p-4 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center text-2xl">{selectedProfile.icon}</div>
+                    <div className="w-12 h-12 rounded-xl bg-[#ff6b1a]/10 flex items-center justify-center text-2xl">{selectedProfile.icon}</div>
                     <div className="flex-1">
                       <p className="text-[14px] font-semibold text-white">{selectedProfile.name}</p>
                       <p className="text-[12px] text-zinc-500">{selectedProfile.cook_type === 'reverse_sear' ? 'Reverse sear' : 'Low & slow'}{selectedProfile.supports_wrap ? ' · Wrap possible' : ''}</p>
                     </div>
-                    <button onClick={() => { setStep(1); setSelectedProfile(null); setResult(null) }} className="text-[12px] text-zinc-500 hover:text-orange-400 font-medium transition-colors">Changer</button>
+                    <button onClick={() => { setStep(1); setSelectedProfile(null); setResult(null) }} className="text-[12px] text-zinc-500 hover:text-[#ff6b1a] font-medium transition-colors">Changer</button>
                   </div>
 
                   {/* Rub suggestions */}
@@ -480,12 +480,12 @@ export default function CalculatorPage() {
                     <div className="surface p-5">
                       <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-[0.08em] mb-3 block">Poids de la pièce</label>
                       <div className="relative max-w-[200px] mb-3">
-                        <input type="number" inputMode="decimal" step="0.1" min="0.5" max="20" value={weightKg} onChange={(e) => { setWeightKg(e.target.value); setResult(null) }} placeholder="4.0" className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-[18px] font-semibold text-white placeholder-zinc-700 focus:outline-none focus:border-orange-500/30 focus:bg-white/[0.04] transition-all" />
+                        <input type="number" inputMode="decimal" step="0.1" min="0.5" max="20" value={weightKg} onChange={(e) => { setWeightKg(e.target.value); setResult(null) }} placeholder="4.0" className="w-full px-4 py-3 bg-white/[0.03] border border-white/[0.08] rounded-xl text-[18px] font-semibold text-white placeholder-zinc-700 focus:outline-none focus:border-[#ff6b1a]/30 focus:bg-white/[0.04] transition-all" />
                         <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[13px] text-zinc-600 font-medium">kg</span>
                       </div>
                       <div className="flex gap-1.5 flex-wrap">
                         {[2, 3, 4, 5, 6, 8].map((w) => (
-                          <button key={w} onClick={() => { setWeightKg(String(w)); setResult(null) }} className={`px-3 py-2 rounded-lg text-[12px] font-medium border transition-all ${weightKg === String(w) ? 'border-orange-500/30 bg-orange-500/8 text-orange-400' : 'border-white/[0.06] text-zinc-500 hover:text-zinc-300 hover:border-white/[0.1]'}`}>{w}kg</button>
+                          <button key={w} onClick={() => { setWeightKg(String(w)); setResult(null) }} className={`px-3 py-2 rounded-lg text-[12px] font-medium border transition-all ${weightKg === String(w) ? 'border-[#ff6b1a]/30 bg-[#ff6b1a]/8 text-[#ff6b1a]' : 'border-white/[0.06] text-zinc-500 hover:text-zinc-300 hover:border-white/[0.1]'}`}>{w}kg</button>
                         ))}
                       </div>
                     </div>
@@ -505,7 +505,7 @@ export default function CalculatorPage() {
                       <input type="range" min={tempMin} max={tempMax} value={cookTempC} onChange={(e) => { setCookTempC(Number(e.target.value)); setResult(null) }} className="w-full mb-3" />
                       <div className="flex justify-between text-[11px] text-zinc-600">
                         <span>{tempMin}°C</span>
-                        <span className="text-orange-500/60">{Math.round((tempMin + tempMax) / 2)}°C recommandé</span>
+                        <span className="text-[#ff6b1a]/60">{Math.round((tempMin + tempMax) / 2)}°C recommandé</span>
                         <span>{tempMax}°C</span>
                       </div>
                     </div>
@@ -517,7 +517,7 @@ export default function CalculatorPage() {
                       <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-[0.08em] mb-3 block">Cuisson souhaitée</label>
                       <div className="flex flex-wrap gap-2">
                         {Object.entries(DONENESS_LABELS).map(([key, label]) => (
-                          <button key={key} onClick={() => { setDoneness(key); setResult(null) }} className={`px-4 py-2.5 rounded-xl text-[13px] font-medium border transition-all ${doneness === key ? 'bg-orange-500/8 border-orange-500/25 text-orange-400' : 'border-white/[0.06] text-zinc-500 hover:text-zinc-300 hover:border-white/[0.1]'}`}>
+                          <button key={key} onClick={() => { setDoneness(key); setResult(null) }} className={`px-4 py-2.5 rounded-xl text-[13px] font-medium border transition-all ${doneness === key ? 'bg-[#ff6b1a]/8 border-[#ff6b1a]/25 text-[#ff6b1a]' : 'border-white/[0.06] text-zinc-500 hover:text-zinc-300 hover:border-white/[0.1]'}`}>
                             {label} <span className="text-[11px] ml-1 text-zinc-600">{selectedProfile.doneness_targets[key]}°C</span>
                           </button>
                         ))}
@@ -572,7 +572,7 @@ export default function CalculatorPage() {
 
 function CheckIcon() {
   return (
-    <div className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center">
+    <div className="w-5 h-5 rounded-full bg-[#ff6b1a] flex items-center justify-center">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
     </div>
   )
@@ -581,7 +581,7 @@ function CheckIcon() {
 function StepPill({ num, label, active }) {
   return (
     <div className="flex items-center gap-2">
-      <div className={`w-7 h-7 rounded-full text-[12px] font-bold flex items-center justify-center transition-all ${active ? 'bg-orange-500 text-white' : 'bg-white/[0.04] text-zinc-600'}`}>{num}</div>
+      <div className={`w-7 h-7 rounded-full text-[12px] font-bold flex items-center justify-center transition-all ${active ? 'bg-[#ff6b1a] text-white' : 'bg-white/[0.04] text-zinc-600'}`}>{num}</div>
       <span className={`text-[12px] font-medium hidden sm:inline ${active ? 'text-zinc-300' : 'text-zinc-600'}`}>{label}</span>
     </div>
   )
@@ -609,7 +609,7 @@ function SaveSessionCTA({ result }) {
   return (
     <div className="surface p-5 mt-6">
       <div className="flex items-center gap-4">
-        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-orange-500/15 to-amber-500/10 flex items-center justify-center shrink-0">
+        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#ff6b1a]/15 to-amber-500/10 flex items-center justify-center shrink-0">
           <span className="text-xl">📓</span>
         </div>
         <div className="flex-1 min-w-0">
@@ -647,7 +647,7 @@ function RubSection({ rubs, meatName }) {
     <div className="surface p-5">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-orange-500/20 to-red-500/10 flex items-center justify-center">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#ff6b1a]/20 to-red-500/10 flex items-center justify-center">
             <span className="text-xs">🧂</span>
           </div>
           <div>
@@ -657,7 +657,7 @@ function RubSection({ rubs, meatName }) {
         </div>
         <button
           onClick={() => setExpanded(!expanded)}
-          className="text-[11px] font-medium text-orange-400/70 hover:text-orange-400 transition-colors"
+          className="text-[11px] font-medium text-[#ff6b1a]/70 hover:text-[#ff6b1a] transition-colors"
         >
           {expanded ? 'Réduire' : 'Voir les recettes'}
         </button>
@@ -665,12 +665,12 @@ function RubSection({ rubs, meatName }) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
         {rubs.map((rub, i) => (
-          <div key={i} className="rounded-xl p-3.5 bg-white/[0.02] border border-white/[0.06] hover:border-orange-500/15 transition-all">
+          <div key={i} className="rounded-xl p-3.5 bg-white/[0.02] border border-white/[0.06] hover:border-[#ff6b1a]/15 transition-all">
             <div className="flex items-start justify-between mb-2">
               <p className="text-[13px] font-semibold text-white leading-tight">{rub.name}</p>
               {rub.badge && (
                 <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded shrink-0 ml-2 ${
-                  rub.badge === 'Classique' ? 'bg-orange-500/10 text-orange-400' :
+                  rub.badge === 'Classique' ? 'bg-[#ff6b1a]/10 text-[#ff6b1a]' :
                   rub.badge === 'FR' ? 'bg-blue-500/10 text-blue-400' :
                   rub.badge === 'Compétition' ? 'bg-purple-500/10 text-purple-400' :
                   rub.badge === 'Premium' ? 'bg-yellow-500/10 text-yellow-400' :
@@ -724,11 +724,11 @@ function WrapOption({ active, onClick, title, description, icon }) {
    ══════════════════════════════════════════════════════ */
 
 const PHASE_THEMES = {
-  1: { color: 'from-amber-500 to-orange-600', bg: 'bg-amber-500/[0.06]', border: 'border-amber-500/[0.15]', text: 'text-amber-400', icon: '🔥' },
-  2: { color: 'from-yellow-500 to-amber-500', bg: 'bg-yellow-500/[0.06]', border: 'border-yellow-500/[0.15]', text: 'text-yellow-400', icon: '🥵' },
-  3: { color: 'from-rose-500 to-pink-500', bg: 'bg-rose-500/[0.06]', border: 'border-rose-500/[0.15]', text: 'text-rose-400', icon: '🥩' },
-  4: { color: 'from-emerald-500 to-green-500', bg: 'bg-emerald-500/[0.06]', border: 'border-emerald-500/[0.15]', text: 'text-emerald-400', icon: '🧈' },
-  5: { color: 'from-purple-500 to-violet-500', bg: 'bg-purple-500/[0.06]', border: 'border-purple-500/[0.15]', text: 'text-purple-400', icon: '🍽️' },
+  1: { color: 'from-[#ff6b1a] to-red-500', bg: 'bg-[#ff6b1a]/[0.08]', border: 'border-[#ff6b1a]/[0.20]', text: 'text-[#ff6b1a]', icon: '🔥' },
+  2: { color: 'from-amber-400 to-[#ff6b1a]', bg: 'bg-amber-500/[0.08]', border: 'border-amber-500/[0.20]', text: 'text-amber-400', icon: '🥵' },
+  3: { color: 'from-red-500 to-rose-500', bg: 'bg-red-500/[0.08]', border: 'border-red-500/[0.20]', text: 'text-red-400', icon: '🥩' },
+  4: { color: 'from-yellow-400 to-amber-500', bg: 'bg-yellow-500/[0.08]', border: 'border-yellow-500/[0.20]', text: 'text-yellow-400', icon: '🧈' },
+  5: { color: 'from-[#ff8c4a] to-red-600', bg: 'bg-[#ff8c4a]/[0.08]', border: 'border-[#ff8c4a]/[0.20]', text: 'text-[#ff8c4a]', icon: '🍽️' },
 }
 
 const HERO_IMAGES = {
@@ -794,9 +794,9 @@ function ResultView({ result }) {
 
           {/* Big stats */}
           <div className="grid grid-cols-2 gap-3 max-w-md">
-            <div className="rounded-xl p-4 bg-orange-500/[0.1] border border-orange-500/[0.2] backdrop-blur-sm">
-              <p className="text-[10px] font-semibold text-orange-300/70 uppercase tracking-[0.08em] mb-0.5">Durée totale</p>
-              <p className="text-[20px] sm:text-[24px] font-extrabold text-orange-400 leading-tight">{result.totalEstimate}</p>
+            <div className="rounded-xl p-4 bg-gradient-to-br from-[#ff6b1a]/[0.12] to-[#ef4444]/[0.06] border border-[#ff6b1a]/[0.25] backdrop-blur-sm shadow-lg shadow-[#ff6b1a]/[0.08]">
+              <p className="text-[10px] font-bold text-[#ff6b1a]/80 uppercase tracking-[0.08em] mb-0.5">Durée totale</p>
+              <p className="text-[20px] sm:text-[24px] font-black text-[#ff6b1a] leading-tight">{result.totalEstimate}</p>
               <p className="text-[10px] text-zinc-500 mt-0.5">Cuisson + repos</p>
             </div>
             <div className="rounded-xl p-4 bg-white/[0.06] border border-white/[0.08] backdrop-blur-sm">
@@ -859,7 +859,7 @@ function ResultView({ result }) {
       {/* ── Quick brief : comment cuire ── */}
       <div className="surface p-5">
         <div className="flex items-center gap-2 mb-4">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-[#ef4444] flex items-center justify-center">
             <span className="text-xs">🔥</span>
           </div>
           <h3 className="text-[14px] font-bold text-white">Comment cuire</h3>
@@ -909,10 +909,10 @@ function ResultView({ result }) {
       </div>
 
       {/* ── Disclaimer pitmaster ── */}
-      <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-orange-500/[0.04] border border-orange-500/[0.08]">
+      <div className="flex items-start gap-3 px-4 py-3 rounded-xl bg-[#ff6b1a]/[0.04] border border-[#ff6b1a]/[0.08]">
         <span className="text-sm mt-0.5">💡</span>
         <p className="text-[12px] text-zinc-400 leading-relaxed">
-          <span className="text-orange-400 font-semibold">Prêt dans environ {result.totalEstimate.replace('~', '')}</span> — ces durées sont des estimations terrain. Chaque cuisson est unique, fie-toi à la viande, pas au chrono.
+          <span className="text-[#ff6b1a] font-semibold">Prêt dans environ {result.totalEstimate.replace('~', '')}</span> — ces durées sont des estimations terrain. Chaque cuisson est unique, fie-toi à la viande, pas au chrono.
         </p>
       </div>
 
@@ -939,10 +939,10 @@ function ResultView({ result }) {
       {/* ── Tips ── */}
       {result.tips?.length > 0 && (
         <div className="surface p-6 relative overflow-hidden">
-          <div className="absolute -bottom-16 -right-16 w-40 h-40 bg-orange-500/[0.03] rounded-full blur-3xl" />
+          <div className="absolute -bottom-16 -right-16 w-40 h-40 bg-[#ff6b1a]/[0.03] rounded-full blur-3xl" />
           <div className="relative">
             <div className="flex items-center gap-2 mb-5">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff6b1a] to-red-600 flex items-center justify-center">
                 <span className="text-sm">💡</span>
               </div>
               <h3 className="text-[15px] font-bold text-white">Conseils du pitmaster</h3>
@@ -950,7 +950,7 @@ function ResultView({ result }) {
             <div className="space-y-3">
               {result.tips.map((tip, i) => (
                 <div key={i} className="flex gap-3 items-start group">
-                  <div className="w-5 h-5 rounded-full bg-white/[0.04] flex items-center justify-center text-[10px] font-bold text-zinc-600 shrink-0 mt-0.5 group-hover:bg-orange-500/10 group-hover:text-orange-400 transition-colors">
+                  <div className="w-5 h-5 rounded-full bg-white/[0.04] flex items-center justify-center text-[10px] font-bold text-zinc-600 shrink-0 mt-0.5 group-hover:bg-[#ff6b1a]/10 group-hover:text-[#ff6b1a] transition-colors">
                     {i + 1}
                   </div>
                   <p className="text-[13px] text-zinc-400 leading-relaxed">{tip}</p>
@@ -1018,9 +1018,9 @@ function PhaseCard({ phase, total }) {
 
           {/* Advice */}
           {phase.advice && (
-            <div className="px-3 py-2.5 rounded-lg bg-orange-500/[0.04] border border-orange-500/[0.08]">
+            <div className="px-3 py-2.5 rounded-lg bg-[#ff6b1a]/[0.04] border border-[#ff6b1a]/[0.08]">
               <p className="text-[11px] text-zinc-400 leading-relaxed">
-                <span className="text-orange-400 font-semibold">Conseil :</span> {phase.advice}
+                <span className="text-[#ff6b1a] font-semibold">Conseil :</span> {phase.advice}
               </p>
             </div>
           )}
@@ -1068,7 +1068,7 @@ function RibsMethodCard({ method }) {
           {method.steps.map((s, i) => (
             <div key={i} className="flex items-stretch gap-4">
               <div className="flex flex-col items-center">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-[12px] font-bold text-white shadow-md shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-[#ef4444] flex items-center justify-center text-[12px] font-bold text-white shadow-md shrink-0">
                   {s.time}
                 </div>
                 {i < method.steps.length - 1 && <div className="w-px flex-1 bg-amber-500/20 my-1" />}
@@ -1103,11 +1103,11 @@ function RibsMethodCard({ method }) {
 /* ── Reverse sear card ── */
 function ReverseSearCard({ guide }) {
   return (
-    <div className="surface p-6 border-orange-500/[0.15] relative overflow-hidden">
-      <div className="absolute -top-10 -left-10 w-40 h-40 bg-orange-500/[0.04] rounded-full blur-3xl" />
+    <div className="surface p-6 border-[#ff6b1a]/[0.15] relative overflow-hidden">
+      <div className="absolute -top-10 -left-10 w-40 h-40 bg-[#ff6b1a]/[0.04] rounded-full blur-3xl" />
       <div className="relative">
         <div className="flex items-center gap-3 mb-1">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center shadow-lg shadow-orange-500/20">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#ff6b1a] to-red-600 flex items-center justify-center shadow-lg shadow-[#ff6b1a]/20">
             <span className="text-lg">🔥</span>
           </div>
           <div>
@@ -1122,7 +1122,7 @@ function ReverseSearCard({ guide }) {
           <div className="space-y-2">
             {guide.principle.map((step, i) => (
               <div key={i} className="flex items-start gap-3">
-                <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-orange-500/20 to-red-500/20 flex items-center justify-center text-[10px] font-bold text-orange-400 shrink-0 mt-0.5 border border-orange-500/10">
+                <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-[#ff6b1a]/20 to-red-500/20 flex items-center justify-center text-[10px] font-bold text-[#ff6b1a] shrink-0 mt-0.5 border border-[#ff6b1a]/10">
                   {i + 1}
                 </div>
                 <p className="text-[13px] text-zinc-300 leading-relaxed">{step}</p>
@@ -1138,10 +1138,10 @@ function ReverseSearCard({ guide }) {
             {Object.entries(guide.targets).map(([key, t]) => (
               <div key={key} className={`rounded-xl p-3 border text-center transition-all ${
                 guide.selectedDoneness === key
-                  ? 'bg-orange-500/[0.08] border-orange-500/25 shadow-lg shadow-orange-500/5'
+                  ? 'bg-[#ff6b1a]/[0.08] border-[#ff6b1a]/25 shadow-lg shadow-[#ff6b1a]/5'
                   : 'border-white/[0.06] bg-white/[0.02]'
               }`}>
-                <p className={`text-[13px] font-bold ${guide.selectedDoneness === key ? 'text-orange-400' : 'text-zinc-300'}`}>
+                <p className={`text-[13px] font-bold ${guide.selectedDoneness === key ? 'text-[#ff6b1a]' : 'text-zinc-300'}`}>
                   {t.label}
                 </p>
                 <p className="text-[20px] font-extrabold text-white mt-0.5">{t.temp}°C</p>
@@ -1157,7 +1157,7 @@ function ReverseSearCard({ guide }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {guide.advantages.map((a, i) => (
               <div key={i} className="flex items-center gap-2.5 rounded-lg px-3 py-2 bg-white/[0.02] border border-white/[0.03]">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12" /></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff6b1a" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12" /></svg>
                 <p className="text-[12px] text-zinc-300">{a}</p>
               </div>
             ))}

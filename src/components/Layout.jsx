@@ -6,7 +6,7 @@ import { LogoIcon, LogoFull } from './Logo.jsx'
 /* ── Icon components ── */
 function IconCalculator({ active }) {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={active ? '#f97316' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={active ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" />
       <path d="M7 7h10" /><path d="M7 12h3" /><path d="M14 12h3" />
       <path d="M7 17h3" /><path d="M14 17h3" />
@@ -80,23 +80,26 @@ export default function Layout({ children }) {
     <div className="min-h-screen flex bg-[#09090b]">
 
       {/* ══════════ SIDEBAR DESKTOP ══════════ */}
-      <aside className="hidden lg:flex flex-col w-[260px] shrink-0 bg-[#111113] border-r border-white/[0.06] relative">
+      <aside className="hidden lg:flex flex-col w-[260px] shrink-0 bg-[#0d0d0f] border-r border-white/[0.06] relative overflow-hidden">
+        {/* Fire ambient glow */}
+        <div className="absolute -top-20 -left-20 w-60 h-60 bg-[#ff6b1a]/[0.03] rounded-full blur-3xl pointer-events-none animate-fire-breathe" />
+        <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-[#ef4444]/[0.03] rounded-full blur-3xl pointer-events-none" />
 
         {/* ── Brand header ── */}
-        <div className="px-5 pt-6 pb-4">
+        <div className="relative px-5 pt-6 pb-4">
           <Link to="/" className="group">
             <LogoFull iconSize={28} className="group-hover:opacity-90 transition-opacity" />
           </Link>
         </div>
 
-        {/* ── Separator ── */}
-        <div className="mx-5 h-px bg-white/[0.06]" />
+        {/* ── Fire separator ── */}
+        <div className="mx-5 fire-divider" />
 
         {/* ── Quick status card ── */}
-        <div className="mx-4 mt-4 mb-2 px-4 py-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+        <div className="mx-4 mt-4 mb-2 px-4 py-3 rounded-xl bg-gradient-to-r from-[#ff6b1a]/[0.06] to-[#ef4444]/[0.03] border border-[#ff6b1a]/[0.10]">
           <div className="flex items-center gap-2 mb-1.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">Calculateur actif</span>
+            <div className="glow-dot" style={{ width: 6, height: 6 }} />
+            <span className="text-[10px] font-bold text-[#ff6b1a]/80 uppercase tracking-wider">Prêt à fumer</span>
           </div>
           <p className="text-[12px] text-zinc-400 leading-relaxed">
             Planifie ta cuisson. Temps, repères, fenêtre de service.
@@ -116,7 +119,7 @@ export default function Layout({ children }) {
           />
           <NavItem
             to="/portions"
-            icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isActive('/portions') ? '#f97316' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>}
+            icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isActive('/portions') ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>}
             label="Quantités"
             sublabel="Kg par personne"
             active={isActive('/portions')}
@@ -127,14 +130,14 @@ export default function Layout({ children }) {
             <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-600 px-3 mb-2">Contenu</p>
             <NavItem
               to="/guides"
-              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isActive('/guides') ? '#f97316' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>}
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isActive('/guides') ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>}
               label="Guides"
               sublabel="BBQ & Techniques"
               active={location.pathname.startsWith('/guides')}
             />
             <NavItem
               to="/journal"
-              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={location.pathname === '/journal' ? '#f97316' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" /></svg>}
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={location.pathname === '/journal' ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" /></svg>}
               label="Mon journal"
               sublabel="Sessions de cuisson"
               active={location.pathname === '/journal'}
@@ -156,14 +159,14 @@ export default function Layout({ children }) {
           )}
         </nav>
 
-        {/* ── Separator ── */}
-        <div className="mx-5 h-px bg-white/[0.06]" />
+        {/* ── Fire separator ── */}
+        <div className="mx-5 fire-divider" />
 
         {/* ── User section ── */}
-        <div className="p-4">
+        <div className="relative p-4">
           {isAuthenticated ? (
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-zinc-700 to-zinc-800 flex items-center justify-center text-[13px] font-bold text-zinc-300 border border-white/[0.06] shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#ff6b1a] to-[#ef4444] flex items-center justify-center text-[13px] font-bold text-white shadow-lg shadow-[#ff6b1a]/20 shrink-0">
                 {userInitial}
               </div>
               <div className="min-w-0 flex-1">
@@ -171,7 +174,7 @@ export default function Layout({ children }) {
                 <p className="text-[10px] text-zinc-600 font-medium">{userRole}</p>
                 {(smokerLabel || levelLabel) && (
                   <div className="flex items-center gap-1.5 mt-1">
-                    {smokerLabel && <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-orange-500/10 text-orange-400 font-medium">{smokerLabel}</span>}
+                    {smokerLabel && <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-[#ff6b1a]/10 text-[#ff6b1a] font-medium">{smokerLabel}</span>}
                     {levelLabel && <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-zinc-700/50 text-zinc-400 font-medium">{levelLabel}</span>}
                   </div>
                 )}
@@ -306,22 +309,22 @@ function NavItem({ to, icon, label, sublabel, active }) {
   return (
     <Link
       to={to}
-      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group ${
+      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group relative ${
         active
-          ? 'bg-white/[0.06] text-white'
-          : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.03]'
+          ? 'bg-gradient-to-r from-[#ff6b1a]/[0.10] to-[#ef4444]/[0.05] text-white border border-[#ff6b1a]/[0.15]'
+          : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]'
       }`}
     >
-      <span className={`transition-colors ${active ? 'text-orange-500' : 'text-zinc-500 group-hover:text-zinc-400'}`}>
+      <span className={`transition-colors ${active ? 'text-[#ff6b1a]' : 'text-zinc-500 group-hover:text-zinc-400'}`}>
         {icon}
       </span>
       <div className="flex-1 min-w-0">
-        <span className={`text-[13px] ${active ? 'font-semibold' : 'font-medium'}`}>{label}</span>
+        <span className={`text-[13px] ${active ? 'font-bold' : 'font-medium'}`}>{label}</span>
         {sublabel && (
-          <p className={`text-[10px] ${active ? 'text-zinc-400' : 'text-zinc-600'}`}>{sublabel}</p>
+          <p className={`text-[10px] ${active ? 'text-[#ff6b1a]/60' : 'text-zinc-600'}`}>{sublabel}</p>
         )}
       </div>
-      {active && <div className="w-1 h-5 rounded-full bg-orange-500" />}
+      {active && <div className="w-1.5 h-5 rounded-full bg-gradient-to-b from-[#ff6b1a] to-[#ef4444] shadow-lg shadow-[#ff6b1a]/30" />}
     </Link>
   )
 }

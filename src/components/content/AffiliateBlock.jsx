@@ -4,7 +4,7 @@ export default function AffiliateBlock({ tools }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#ff6b1a] to-red-600 flex items-center justify-center">
           <span className="text-xs">🛠️</span>
         </div>
         <h2 className="text-[14px] font-bold text-white">Outils recommandés</h2>
@@ -16,7 +16,7 @@ export default function AffiliateBlock({ tools }) {
             href={tool.affiliate_url}
             target="_blank"
             rel="noopener noreferrer sponsored"
-            className="surface p-4 flex gap-4 group hover:border-orange-500/20 transition-all"
+            className="surface p-4 flex gap-4 group hover:border-[#ff6b1a]/20 transition-all"
           >
             {tool.image_url && (
               <div className="w-16 h-16 rounded-xl bg-white/[0.03] border border-white/[0.06] overflow-hidden shrink-0">
@@ -29,7 +29,7 @@ export default function AffiliateBlock({ tools }) {
                   {tool.title}
                 </p>
                 {tool.badge && (
-                  <span className="shrink-0 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                  <span className="shrink-0 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#ff6b1a]/10 text-[#ff6b1a] border border-[#ff6b1a]/20">
                     {tool.badge}
                   </span>
                 )}
@@ -39,7 +39,7 @@ export default function AffiliateBlock({ tools }) {
                   {tool.description}
                 </p>
               )}
-              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-orange-400 group-hover:text-orange-300 transition-colors">
+              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#ff6b1a] group-hover:text-[#ff8c4a] transition-colors">
                 {tool.cta_text || 'Voir le produit'}
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                   <path d="M7 17l9.2-9.2M17 17V8H8" />

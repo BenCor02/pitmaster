@@ -89,8 +89,9 @@ export default function LoginPage() {
   // ── Onboarding screen ──
   if (mode === 'onboarding') {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="w-full max-w-md animate-fade-in-up">
+      <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[#ff6b1a]/[0.04] rounded-full blur-[100px] pointer-events-none animate-fire-breathe" />
+        <div className="w-full max-w-md animate-fade-in-up relative">
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
               <LogoIcon size={48} />
@@ -113,7 +114,7 @@ export default function LoginPage() {
                   onClick={() => setSmokerType(s.id)}
                   className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-left text-sm transition-all ${
                     smokerType === s.id
-                      ? 'border-orange-500 bg-orange-500/10 text-orange-300'
+                      ? 'border-[#ff6b1a] bg-[#ff6b1a]/10 text-[#ff8c4a]'
                       : 'border-zinc-700/50 bg-zinc-900/60 text-zinc-400 hover:border-zinc-600'
                   }`}
                 >
@@ -134,11 +135,11 @@ export default function LoginPage() {
                   onClick={() => setExperienceLevel(lvl.id)}
                   className={`flex flex-col px-4 py-3 rounded-xl border text-left transition-all ${
                     experienceLevel === lvl.id
-                      ? 'border-orange-500 bg-orange-500/10'
+                      ? 'border-[#ff6b1a] bg-[#ff6b1a]/10'
                       : 'border-zinc-700/50 bg-zinc-900/60 hover:border-zinc-600'
                   }`}
                 >
-                  <span className={`text-sm font-semibold ${experienceLevel === lvl.id ? 'text-orange-300' : 'text-zinc-300'}`}>
+                  <span className={`text-sm font-semibold ${experienceLevel === lvl.id ? 'text-[#ff8c4a]' : 'text-zinc-300'}`}>
                     {lvl.label}
                   </span>
                   <span className="text-xs text-zinc-500 mt-0.5">{lvl.desc}</span>
@@ -156,7 +157,7 @@ export default function LoginPage() {
           <button
             onClick={handleOnboardingSubmit}
             disabled={onboardingSaving}
-            className="w-full py-3.5 bg-gradient-to-r from-brand-600 to-red-600 hover:from-brand-500 hover:to-red-500 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-brand-600/20 disabled:opacity-50"
+            className="w-full py-3.5 bg-gradient-to-r from-[#ff6b1a] to-[#ef4444] hover:from-[#ff7a33] hover:to-[#f55] shadow-lg shadow-[#ff6b1a]/20 hover:shadow-[#ff6b1a]/30 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-brand-600/20 disabled:opacity-50"
           >
             {onboardingSaving ? '...' : 'C\'est parti !'}
           </button>
@@ -175,13 +176,15 @@ export default function LoginPage() {
 
   // ── Login / Register screen ──
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-sm animate-fade-in-up">
+    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[#ff6b1a]/[0.04] rounded-full blur-[100px] pointer-events-none animate-fire-breathe" />
+      <div className="absolute bottom-1/4 left-1/3 w-[300px] h-[300px] bg-[#ef4444]/[0.03] rounded-full blur-[80px] pointer-events-none" />
+      <div className="w-full max-w-sm animate-fade-in-up relative">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <LogoIcon size={52} />
           </div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight mb-0.5">CHARBON <span className="text-orange-400">&</span> FLAMME</h1>
+          <h1 className="text-2xl font-extrabold text-white tracking-tight mb-0.5">CHARBON <span className="text-[#ff6b1a]">&</span> FLAMME</h1>
           <p className="text-zinc-500 text-sm">
             {mode === 'login' ? 'Connexion' : 'Créer un compte'}
           </p>
@@ -226,7 +229,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 bg-gradient-to-r from-brand-600 to-red-600 hover:from-brand-500 hover:to-red-500 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-brand-600/20 disabled:opacity-50"
+            className="w-full py-3.5 bg-gradient-to-r from-[#ff6b1a] to-[#ef4444] hover:from-[#ff7a33] hover:to-[#f55] shadow-lg shadow-[#ff6b1a]/20 hover:shadow-[#ff6b1a]/30 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-brand-600/20 disabled:opacity-50"
           >
             {loading ? '...' : mode === 'login' ? 'Se connecter' : "S'inscrire"}
           </button>

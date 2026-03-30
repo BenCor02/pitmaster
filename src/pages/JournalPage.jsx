@@ -15,7 +15,7 @@ function Stars({ value, onChange, readonly = false }) {
           onClick={() => onChange?.(n)}
           className={`text-lg transition-all ${
             n <= value
-              ? 'text-orange-400 scale-110'
+              ? 'text-[#ff6b1a] scale-110'
               : 'text-zinc-700 hover:text-zinc-500'
           } ${readonly ? 'cursor-default' : 'cursor-pointer'}`}
         >
@@ -83,7 +83,7 @@ export default function JournalPage() {
     return (
       <div className="min-h-screen flex items-center justify-center px-6">
         <div className="text-center max-w-sm">
-          <div className="w-14 h-14 rounded-2xl bg-orange-500/10 flex items-center justify-center mx-auto mb-4">
+          <div className="w-14 h-14 rounded-2xl bg-[#ff6b1a]/10 flex items-center justify-center mx-auto mb-4">
             <span className="text-2xl">📓</span>
           </div>
           <h1 className="text-[20px] font-bold text-white mb-2">Journal de cuisson</h1>
@@ -237,10 +237,10 @@ function SessionList({ sessions, loading, onView, onNew }) {
         <button
           key={s.id}
           onClick={() => onView(s)}
-          className="surface w-full text-left p-4 hover:border-orange-500/15 transition-all group"
+          className="surface w-full text-left p-4 hover:border-[#ff6b1a]/15 transition-all group"
         >
           <div className="flex items-center gap-4">
-            <div className="w-11 h-11 rounded-xl bg-orange-500/10 flex items-center justify-center text-lg shrink-0">
+            <div className="w-11 h-11 rounded-xl bg-[#ff6b1a]/10 flex items-center justify-center text-lg shrink-0">
               🥩
             </div>
             <div className="flex-1 min-w-0">
@@ -275,7 +275,7 @@ function SessionDetail({ session, onEdit, onDelete }) {
       <div className="surface p-5">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center text-2xl">🥩</div>
+            <div className="w-12 h-12 rounded-xl bg-[#ff6b1a]/10 flex items-center justify-center text-2xl">🥩</div>
             <div>
               <h2 className="text-[18px] font-bold text-white">{s.meat_name}</h2>
               <p className="text-[12px] text-zinc-500">{formatDate(s.cook_date)}</p>
@@ -474,7 +474,7 @@ function Input({ type = 'text', value, onChange, placeholder, ...props }) {
       value={value}
       onChange={e => onChange(e.target.value)}
       placeholder={placeholder}
-      className="w-full px-3 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-[13px] text-white placeholder-zinc-700 focus:outline-none focus:border-orange-500/30 transition-all"
+      className="w-full px-3 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-[13px] text-white placeholder-zinc-700 focus:outline-none focus:border-[#ff6b1a]/30 transition-all"
       {...props}
     />
   )
@@ -487,7 +487,7 @@ function Textarea({ value, onChange, placeholder, rows = 3 }) {
       onChange={e => onChange(e.target.value)}
       placeholder={placeholder}
       rows={rows}
-      className="w-full px-3 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-[13px] text-white placeholder-zinc-700 focus:outline-none focus:border-orange-500/30 transition-all resize-none"
+      className="w-full px-3 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-[13px] text-white placeholder-zinc-700 focus:outline-none focus:border-[#ff6b1a]/30 transition-all resize-none"
     />
   )
 }
@@ -499,7 +499,7 @@ function SmallBtn({ active, onClick, children }) {
       onClick={onClick}
       className={`px-3 py-2 rounded-lg text-[12px] font-medium border transition-all ${
         active
-          ? 'border-orange-500/30 bg-orange-500/8 text-orange-400'
+          ? 'border-[#ff6b1a]/30 bg-[#ff6b1a]/8 text-[#ff6b1a]'
           : 'border-white/[0.06] text-zinc-500 hover:text-zinc-300'
       }`}
     >
