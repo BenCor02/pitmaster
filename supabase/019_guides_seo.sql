@@ -736,4 +736,5 @@ Les meilleurs restaurants BBQ (Franklin, Goldee''s) salent leur brisket la veill
  '{sel,casher,saumure,salaison-sèche,dry-brine,brisket,assaisonnement}',
  'Le sel en BBQ : sel casher, saumure, salaison sèche (dry brine) — guide complet',
  'Quel sel pour le BBQ ? Sel casher, saumure humide, salaison sèche (dry brine). Dosages par viande, technique pour un brisket parfaitement assaisonné.',
- 'published', 29);
+ 'published', 29)
+ON CONFLICT (slug) DO NOTHING;

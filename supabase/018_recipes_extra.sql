@@ -199,4 +199,5 @@ INSERT INTO recipes (title, slug, type, summary, description, ingredients, steps
  '[{"name":"Cassonade foncée","qty":"40 g"},{"name":"Paprika doux","qty":"20 g"},{"name":"Poudre d''ail","qty":"10 g"},{"name":"Poudre d''oignon","qty":"10 g"},{"name":"Moutarde sèche","qty":"8 g"},{"name":"Cumin","qty":"5 g"},{"name":"Sel","qty":"15 g"},{"name":"Poivre noir","qty":"8 g"},{"name":"Cayenne","qty":"2 g"},{"name":"Cannelle","qty":"2 g"}]',
  '["Mélanger toutes les épices en brisant les grumeaux de cassonade.","Appliquer une couche de moutarde jaune sur les ribs (le liant).","Saupoudrer le rub en couche épaisse.","Laisser « suer » 15 min avant de mettre au fumoir.","Les ribs doivent briller après cuisson — c''est le signe que c''est réussi."]',
  '120 g — 2 racks de ribs', '5 min', '{spare_ribs,baby_back_ribs}', 'Compétition KCBS — championship ribs', 'moyen',
- '{compétition,sucré,ribs,candy,caramel,KCBS}', 'published', 75);
+ '{compétition,sucré,ribs,candy,caramel,KCBS}', 'published', 75)
+ON CONFLICT (slug) DO NOTHING;
