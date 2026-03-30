@@ -6,12 +6,14 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '../modules/auth/AuthContext.jsx'
 import { fetchFavoriteIds, addFavorite, removeFavorite } from '../lib/favorites.js'
+import { useToast } from '../components/Toast.jsx'
 
 export function useFavorites() {
   const { session } = useAuth()
   const userId = session?.user?.id
   const [favoriteIds, setFavoriteIds] = useState(new Set())
   const [loading, setLoading] = useState(false)
+  const toast = useToast()
 
   // Charger les IDs au montage
   useEffect(() => {
@@ -34,13 +36,15 @@ export function useFavorites() {
       // Optimistic remove
       setFavoriteIds(prev => { const next = new Set(prev); next.delete(recipeId); return next })
       const ok = await removeFavorite(userId, recipeId)
-      if (!ok) setFavoriteIds(prev => new Set([...prev, recipeId])) // rollback
+      if (!ok) { setFavoriteIds(prev => new Set([...prev, recipeId])); toast.error('Erreur lors de la suppression') }
+      else toast.info('Retiré du carnet')
       return false
     } else {
       // Optimistic add
       setFavoriteIds(prev => new Set([...prev, recipeId]))
       const result = await addFavorite(userId, recipeId)
-      if (!result) setFavoriteIds(prev => { const next = new Set(prev); next.delete(recipeId); return next }) // rollback
+      if (!result) { setFavoriteIds(prev => { const next = new Set(prev); next.delete(recipeId); return next }); toast.error('Erreur lors de l\'ajout') }
+      else toast.fire('Ajouté au carnet !')
       return true
     }
   }, [userId, favoriteIds])

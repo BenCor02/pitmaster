@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#09090b"/>
+  <!-- Background glows -->
+  <circle cx="200" cy="150" r="300" fill="#ff6b1a" opacity="0.06"/>
+  <circle cx="1000" cy="500" r="250" fill="#ef4444" opacity="0.05"/>
+  <!-- Fire emoji area -->
+  <text x="600" y="200" text-anchor="middle" font-size="80" fill="white">🔥</text>
+  <!-- Title -->
+  <text x="600" y="300" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="60" font-weight="900" fill="white">Charbon <tspan fill="#ff6b1a">&amp;</tspan> Flamme</text>
+  <!-- Subtitle -->
+  <text x="600" y="355" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="26" fill="#a1a1aa" font-weight="500">L'arsenal du Pitmaster</text>
+  <!-- Tags -->
+  <rect x="230" y="400" width="200" height="44" rx="12" fill="#ff6b1a" opacity="0.1" stroke="#ff6b1a" stroke-opacity="0.2"/>
+  <text x="330" y="428" text-anchor="middle" font-family="system-ui,sans-serif" font-size="16" font-weight="700" fill="#ff6b1a">Calculateur BBQ</text>
+  <rect x="460" y="400" width="180" height="44" rx="12" fill="#ff6b1a" opacity="0.1" stroke="#ff6b1a" stroke-opacity="0.2"/>
+  <text x="550" y="428" text-anchor="middle" font-family="system-ui,sans-serif" font-size="16" font-weight="700" fill="#ff6b1a">50+ Recettes</text>
+  <rect x="670" y="400" width="240" height="44" rx="12" fill="#ff6b1a" opacity="0.1" stroke="#ff6b1a" stroke-opacity="0.2"/>
+  <text x="790" y="428" text-anchor="middle" font-family="system-ui,sans-serif" font-size="16" font-weight="700" fill="#ff6b1a">Guides &amp; Techniques</text>
+  <!-- URL -->
+  <text x="600" y="560" text-anchor="middle" font-family="system-ui,sans-serif" font-size="18" fill="#52525b" font-weight="600">charbonetflamme.fr</text>
+</svg>

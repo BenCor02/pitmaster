@@ -1,10 +1,8 @@
 /**
  * Vercel Serverless Function — Sitemap XML dynamique
  *
- * Génère un sitemap avec toutes les pages statiques + les guides
+ * Génère un sitemap avec toutes les pages statiques + guides + recettes
  * chargés dynamiquement depuis Supabase.
- *
- * Accessible à : /api/sitemap
  */
 
 import { createClient } from '@supabase/supabase-js'
@@ -16,19 +14,21 @@ export default async function handler(req, res) {
   const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY
 
   let guideSlugs = []
+  let recipeSlugs = []
 
   if (supabaseUrl && supabaseKey) {
     try {
       const supabase = createClient(supabaseUrl, supabaseKey)
-      const { data } = await supabase
-        .from('guides')
-        .select('slug, updated_at')
-        .eq('status', 'published')
-        .order('sort_order', { ascending: true })
 
-      if (data) guideSlugs = data
+      const [guidesRes, recipesRes] = await Promise.all([
+        supabase.from('guides').select('slug, updated_at').eq('status', 'published').order('sort_order', { ascending: true }),
+        supabase.from('recipes').select('slug, updated_at').eq('status', 'published').order('sort_order', { ascending: true }),
+      ])
+
+      if (guidesRes.data) guideSlugs = guidesRes.data
+      if (recipesRes.data) recipeSlugs = recipesRes.data
     } catch (e) {
-      console.error('Sitemap: error fetching guides', e)
+      console.error('Sitemap: error fetching data', e)
     }
   }
 
@@ -36,8 +36,11 @@ export default async function handler(req, res) {
 
   const staticPages = [
     { url: '/', changefreq: 'weekly', priority: '1.0' },
+    { url: '/recettes', changefreq: 'weekly', priority: '0.9' },
     { url: '/guides', changefreq: 'weekly', priority: '0.8' },
-    { url: '/login', changefreq: 'monthly', priority: '0.2' },
+    { url: '/comparateur', changefreq: 'monthly', priority: '0.7' },
+    { url: '/portions', changefreq: 'monthly', priority: '0.7' },
+    { url: '/multi', changefreq: 'monthly', priority: '0.7' },
   ]
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -53,6 +56,12 @@ ${guideSlugs.map(g => `  <url>
     <lastmod>${g.updated_at ? g.updated_at.split('T')[0] : today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+  </url>`).join('\n')}
+${recipeSlugs.map(r => `  <url>
+    <loc>${SITE_URL}/recettes/${r.slug}</loc>
+    <lastmod>${r.updated_at ? r.updated_at.split('T')[0] : today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>`).join('\n')}
 </urlset>`
 

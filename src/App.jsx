@@ -14,6 +14,7 @@ import RecipeDetailPage from './pages/RecipeDetailPage.jsx'
 import FavoritesPage from './pages/FavoritesPage.jsx'
 import ComparatorPage from './pages/ComparatorPage.jsx'
 import SharedCookPage from './pages/SharedCookPage.jsx'
+import NotFoundPage from './pages/NotFoundPage.jsx'
 
 function AdminGuard({ children }) {
   const { isLoading, isAuthenticated, isAdmin, profile } = useAuth()
@@ -52,7 +53,7 @@ export default function App() {
             </AdminGuard>
           }
         />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Layout>
   )
