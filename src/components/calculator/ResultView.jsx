@@ -49,6 +49,7 @@ function Collapsible({ title, icon, defaultOpen = false, children, badge }) {
 
 export default function ResultView({ result, contentBlocks, rubs, actionBar }) {
   const [serviceHour, setServiceHour] = useState(19)
+  const [customHour, setCustomHour] = useState('')
 
   const avgTotalMin = Math.round((result.totalLowMinutes + result.totalHighMinutes) / 2)
   const startHourRaw = serviceHour - avgTotalMin / 60
@@ -103,10 +104,26 @@ export default function ResultView({ result, contentBlocks, rubs, actionBar }) {
           <p className="text-[13px] font-bold text-white">Quand allumer ?</p>
           <span className="text-[11px] text-zinc-500 ml-auto">pour manger à</span>
         </div>
-        <div className="flex flex-wrap gap-1.5 mb-3">
+        <div className="flex flex-wrap items-center gap-1.5 mb-3">
           {[12, 13, 14, 18, 19, 20, 21].map((h) => (
-            <button key={h} onClick={() => setServiceHour(h)} className={`px-2.5 py-1.5 rounded-lg text-[12px] font-semibold border transition-all ${serviceHour === h ? 'border-blue-500/30 bg-blue-500/10 text-blue-400' : 'border-white/[0.06] text-zinc-500 hover:text-zinc-300'}`}>{h}h</button>
+            <button key={h} onClick={() => { setServiceHour(h); setCustomHour('') }} className={`px-2.5 py-1.5 rounded-lg text-[12px] font-semibold border transition-all ${serviceHour === h && !customHour ? 'border-blue-500/30 bg-blue-500/10 text-blue-400' : 'border-white/[0.06] text-zinc-500 hover:text-zinc-300'}`}>{h}h</button>
           ))}
+          <div className="relative">
+            <input
+              type="time"
+              value={customHour}
+              onChange={(e) => {
+                const val = e.target.value
+                setCustomHour(val)
+                if (val) {
+                  const [hh, mm] = val.split(':').map(Number)
+                  setServiceHour(hh + mm / 60)
+                }
+              }}
+              className={`w-[72px] px-2 py-1.5 rounded-lg text-[12px] font-semibold border bg-transparent transition-all focus:outline-none ${customHour ? 'border-blue-500/30 bg-blue-500/10 text-blue-400' : 'border-white/[0.06] text-zinc-500 hover:text-zinc-300'}`}
+              style={{ colorScheme: 'dark' }}
+            />
+          </div>
         </div>
         <div className="flex items-center gap-3 rounded-xl p-3 bg-blue-500/[0.06] border border-blue-500/[0.12]">
           <span className="text-lg">⏰</span>
