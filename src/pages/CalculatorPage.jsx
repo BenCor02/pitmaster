@@ -354,15 +354,15 @@ export default function CalculatorPage() {
               {/* Credibility badge */}
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.05] border border-white/[0.07] backdrop-blur-sm mb-6">
                 <span className="w-2 h-2 rounded-full bg-[#ff6b1a] animate-pulse" />
-                <span className="text-[11px] font-bold text-[#ff8c4a] uppercase tracking-[0.1em]">Basé sur des tests pitmasters réels</span>
+                <span className="text-[11px] font-bold text-[#ff8c4a] uppercase tracking-[0.1em]">Du débutant au pitmaster</span>
               </div>
 
               <h1 className="font-display text-[38px] sm:text-[48px] lg:text-[64px] font-black text-[#f5f0eb] tracking-tight leading-[1.02] mb-5">
-                L'assistant cuisson<br />
-                <span className="text-gradient">des vrais pitmasters.</span>
+                Réussis ta cuisson,<br />
+                <span className="text-gradient">à tous les niveaux.</span>
               </h1>
               <p className="text-[16px] lg:text-[18px] text-stone-400 max-w-xl leading-relaxed mb-10">
-                Temps, phases, repères terrain, rubs de compétition. Tout ce qu'il faut pour sortir une viande parfaite de ton fumoir.
+                Que tu débutes ou que tu maîtrises le fumoir, l'outil calcule temps, phases et repères pour une viande parfaite à chaque fois.
               </p>
 
               {/* Stats strip — credibility */}
@@ -462,9 +462,9 @@ export default function CalculatorPage() {
           <div className="px-6 lg:px-12 max-w-5xl mx-auto">
             <div className="text-center mb-10">
               <h2 className="font-display text-[24px] lg:text-[30px] font-black text-[#f5f0eb] tracking-tight">
-                Pas un chrono. <span className="text-gradient-static">Un assistant terrain.</span>
+                Pas un chrono. <span className="text-gradient-static">Un vrai assistant.</span>
               </h2>
-              <p className="text-[14px] text-stone-500 mt-2 max-w-lg mx-auto">Conçu par des pitmasters, pour des pitmasters. Chaque donnée est basée sur des cuissons réelles.</p>
+              <p className="text-[14px] text-stone-500 mt-2 max-w-lg mx-auto">Accessible aux débutants, précis pour les confirmés. Chaque donnée est basée sur des cuissons réelles.</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="surface p-6 text-center">
@@ -510,7 +510,7 @@ export default function CalculatorPage() {
                 Rejoins la communauté
               </h3>
               <p className="text-[14px] text-stone-400 max-w-md mx-auto mb-6 leading-relaxed">
-                Des centaines de pitmasters utilisent déjà Charbon & Flamme pour planifier leurs cuissons. Gratuit, sans pub, sans compromis.
+                Débutants comme confirmés utilisent Charbon & Flamme pour planifier leurs cuissons. Gratuit, sans pub, sans compromis.
               </p>
               <Link
                 to="/recettes"
