@@ -189,7 +189,12 @@ function buildPhases(profile, totalCookMin, tolerance, wrapped, ctx) {
     return buildReverseSearPhases(profile, totalCookMin, tolerance, ctx)
   }
 
-  // ── Low & slow phases ─────────────────────────────────
+  // ── Volaille — phases spécifiques ─────────────────────
+  if (profile.category === 'volaille') {
+    return buildPoultryPhases(profile, totalCookMin, tolerance, ctx)
+  }
+
+  // ── Low & slow phases (bœuf, porc) ───────────────────
 
   // Phase 1: Montée initiale (~25%)
   const phase1Min = totalCookMin * 0.25
@@ -453,10 +458,95 @@ function buildReverseSearGuide(profile, doneness) {
   }
 }
 
+// ── Phases volaille ─────────────────────────────────────
+
+function buildPoultryPhases(profile, totalCookMin, tolerance, ctx) {
+  const phases = []
+  const highTemp = ctx.cookTempC >= 150
+
+  // Phase 1: Mise en fumée
+  const phase1Min = totalCookMin * 0.35
+  phases.push({
+    num: 1,
+    title: 'Mise en fumée',
+    duration: formatApproxDuration(phase1Min, tolerance * 100),
+    objective: 'Absorption de la fumée et coloration de la peau',
+    markers: [
+      { type: 'visual', text: 'La peau commence à dorer et prend une teinte ambrée' },
+      { type: 'temp', text: 'Température interne : ~40–55°C' },
+      { type: 'visual', text: 'Placement de la sonde : piquer dans la partie la plus épaisse de la cuisse, sans toucher l\'os' },
+    ],
+    advice: 'Plante la sonde dans le gras de la cuisse, entre le pilon et le haut de cuisse, en visant le centre de la chair. C\'est la partie la plus longue à cuire — c\'est elle qui décide quand le poulet est prêt.',
+  })
+
+  // Phase 2: Cuisson principale
+  const phase2Min = totalCookMin * 0.45
+  phases.push({
+    num: 2,
+    title: 'Cuisson principale',
+    duration: formatApproxDuration(phase2Min, tolerance * 100),
+    objective: 'Montée en température progressive vers la cible de 74°C',
+    markers: [
+      { type: 'temp', text: 'La température monte régulièrement — pas de stall comme le bœuf ou le porc' },
+      { type: 'temp', text: 'Commencer à surveiller à partir de 65°C interne' },
+      { type: 'visual', text: 'Le jus qui coule de la cuisse doit devenir clair (pas rosé)' },
+    ],
+    advice: highTemp
+      ? 'À 150°C+ au fumoir, la peau croustille bien. C\'est le sweet spot pour un poulet fumé avec une belle peau.'
+      : 'En dessous de 130°C, la peau reste molle et caoutchouteuse. Pense à finir 10 min sur un grill chaud pour la crisper.',
+  })
+
+  // Phase 3: Finition / vérification
+  phases.push({
+    num: 3,
+    title: 'Vérification & finition',
+    duration: '5–10 min',
+    objective: 'S\'assurer que le poulet est cuit à cœur et que la peau est à ton goût',
+    markers: [
+      { type: 'temp', text: 'Cible : 74°C dans la cuisse (sécurité alimentaire)' },
+      { type: 'temp', text: 'Vérifier aussi entre le blanc et la cuisse : piquer à la jonction, viser 74°C' },
+      { type: 'visual', text: 'Remuer une cuisse — elle doit bouger facilement dans l\'articulation' },
+    ],
+    advice: !highTemp
+      ? 'Peau molle ? Finis 5–10 min sur un grill très chaud (250°C+) ou sous le gril du four pour crisper la peau sans sur-cuire la chair.'
+      : 'Si la peau est déjà dorée et croustillante, c\'est prêt. Ne dépasse pas 80°C interne sinon les blancs sèchent.',
+  })
+
+  // Phase 4: Repos
+  phases.push({
+    num: 4,
+    title: 'Repos',
+    duration: formatRange(ctx.restMin, ctx.restMax),
+    objective: 'Les jus se redistribuent — le poulet sera plus juteux à la découpe',
+    markers: [
+      { type: 'visual', text: 'Couvrir de papier alu en tente (sans serrer, pour garder la peau croustillante)' },
+      { type: 'visual', text: 'Laisser reposer sur une planche, pas dans un plat (l\'humidité ramollit le dessous)' },
+    ],
+    advice: 'Un repos de 10–15 min suffit pour le poulet. Pas besoin de glacière comme pour le brisket — la volaille se découpe vite.',
+  })
+
+  return phases
+}
+
 // ── Conseils pitmaster ──────────────────────────────────
 
 function buildTips(profile, wrapped, weightKg, cookTempC) {
   const tips = []
+
+  // Conseils spécifiques volaille
+  if (profile.category === 'volaille') {
+    tips.push('Plante la sonde dans la cuisse, pas dans le blanc. La cuisse est la dernière partie à atteindre 74°C — c\'est elle qui décide.')
+    tips.push('74°C dans la cuisse = poulet cuit et juteux. Au-delà de 80°C, les blancs commencent à sécher.')
+    if (cookTempC < 140) {
+      tips.push('En dessous de 140°C au fumoir, la peau ne croustillera pas. Prévois une finition au grill ou au four (250°C, 5–10 min).')
+    }
+    if (cookTempC >= 150) {
+      tips.push('À 150°C+ au fumoir, la peau devrait bien crisper. C\'est la température idéale pour un poulet fumé.')
+    }
+    tips.push('Astuce pro : sèche bien la peau avec du papier absorbant avant d\'appliquer le rub. Une peau sèche = une peau croustillante.')
+    tips.push("Chaque cuisson est différente. Les durées sont des estimations — c'est la viande qui décide, pas la montre.")
+    return tips
+  }
 
   tips.push('Le thermomètre est ton meilleur allié — fie-toi à la température interne, pas au chrono.')
 

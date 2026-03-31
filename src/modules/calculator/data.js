@@ -241,9 +241,10 @@ export const MEAT_PROFILES = [
     rest_min: 10,
     rest_max: 20,
     cues: {
-      begin_test_temp: 70,
-      target_temp_min: 74,    // 165°F — sécurité alimentaire USDA
-      target_temp_max: 80,    // au-delà de 80°C la cuisse est encore juteuse mais la poitrine sèche
+      begin_test_temp: 65,
+      target_temp_min: 74,    // 165°F — sécurité alimentaire
+      target_temp_max: 80,    // au-delà de 80°C les blancs sèchent
+      probe_position: "Plante la sonde dans la partie la plus épaisse de la cuisse, entre le pilon et le haut de cuisse, sans toucher l'os. C'est la dernière zone à atteindre 74°C.",
       visual_warning: "En dessous de 130°C au fumoir, la peau reste molle et caoutchouteuse. Privilégie 150°C+ si tu veux une peau dorée et croustillante. Astuce pro : finis 10 min à feu vif ou au grill pour crisper la peau.",
     },
   },
