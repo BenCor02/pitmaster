@@ -15,15 +15,23 @@ const TYPE_COLORS = {
 }
 
 const MEAT_LABELS = {
-  brisket: 'Brisket', beef_short_ribs: 'Short Ribs', chuck_roast: 'Chuck Roast',
-  prime_rib: 'Prime Rib', tomahawk: 'Tomahawk', pulled_pork: 'Pulled Pork',
-  spare_ribs: 'Spare Ribs', baby_back_ribs: 'Baby Back', whole_chicken: 'Poulet',
+  brisket: 'Poitrine', beef_short_ribs: 'Plat de côtes', chuck_roast: 'Paleron',
+  prime_rib: 'Côte de bœuf', tomahawk: 'Tomahawk', pulled_pork: 'Échine de porc',
+  spare_ribs: 'Travers', baby_back_ribs: 'Baby Back', whole_chicken: 'Poulet entier',
 }
 
 const DIFFICULTY_COLORS = {
-  'facile': 'text-green-400 bg-green-500/10',
-  'moyen': 'text-amber-400 bg-amber-500/10',
-  'avancé': 'text-red-400 bg-red-500/10',
+  'facile': 'text-green-400 bg-green-500/10 border-green-500/20',
+  'moyen': 'text-amber-400 bg-amber-500/10 border-amber-500/20',
+  'avancé': 'text-red-400 bg-red-500/10 border-red-500/20',
+}
+
+const TYPE_IMAGES = {
+  rub: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=1400&h=500&fit=crop&q=80',
+  mop: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1400&h=500&fit=crop&q=80',
+  marinade: 'https://images.unsplash.com/photo-1432139555190-58524dae6a55?w=1400&h=500&fit=crop&q=80',
+  injection: 'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=1400&h=500&fit=crop&q=80',
+  glaze: 'https://images.unsplash.com/photo-1558030006-450675393462?w=1400&h=500&fit=crop&q=80',
 }
 
 export default function RecipeDetailPage() {
@@ -37,18 +45,17 @@ export default function RecipeDetailPage() {
   useEffect(() => {
     setLoading(true)
     setCheckedSteps({})
+    window.scrollTo(0, 0)
     fetchRecipeBySlug(slug).then(data => {
       setRecipe(data)
       setLoading(false)
       if (data) {
-        // SEO : meta tags + JSON-LD Recipe schema
         updateMeta({
           title: data.title,
           description: data.description || `Recette ${data.title} pour BBQ et fumoir.`,
           canonical: `https://charbonetflamme.fr/recettes/${data.slug}`,
         })
         injectJsonLd('recipe-schema', recipeSchema(data))
-        // Fetch related recipes of same type
         fetchRecipes({ type: data.type, limit: 6 }).then(all => {
           setRelated(all.filter(r => r.slug !== slug).slice(0, 3))
         })
@@ -65,8 +72,8 @@ export default function RecipeDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center animate-fade">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#ff6b1a] to-[#ef4444] flex items-center justify-center mx-auto mb-4 animate-pulse-glow">
-            <span className="text-xl">🔥</span>
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#ff6b1a] to-[#ef4444] flex items-center justify-center mx-auto mb-4 animate-pulse-glow">
+            <span className="text-2xl">🔥</span>
           </div>
           <p className="text-zinc-500 text-sm font-medium">Chargement...</p>
         </div>
@@ -78,9 +85,12 @@ export default function RecipeDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <span className="text-4xl mb-4 block">😕</span>
-          <p className="text-zinc-400 text-[15px] mb-4">Recette introuvable</p>
-          <Link to="/recettes" className="btn-primary px-5 py-2.5 text-[13px]">← Retour aux recettes</Link>
+          <div className="w-20 h-20 rounded-3xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center mx-auto mb-5">
+            <span className="text-4xl">😕</span>
+          </div>
+          <p className="text-zinc-300 text-[17px] font-semibold mb-2">Recette introuvable</p>
+          <p className="text-zinc-600 text-[13px] mb-6">Elle a peut-être été déplacée ou supprimée</p>
+          <Link to="/recettes" className="btn-primary px-6 py-3 text-[13px]">← Retour aux recettes</Link>
         </div>
       </div>
     )
@@ -89,71 +99,92 @@ export default function RecipeDetailPage() {
   const ingredients = typeof recipe.ingredients === 'string' ? JSON.parse(recipe.ingredients) : recipe.ingredients
   const steps = typeof recipe.steps === 'string' ? JSON.parse(recipe.steps) : recipe.steps
   const gradientClass = TYPE_COLORS[recipe.type] || TYPE_COLORS.rub
+  const imageUrl = recipe.cover_url || recipe.image_url || TYPE_IMAGES[recipe.type] || TYPE_IMAGES.rub
+  const completedCount = Object.values(checkedSteps).filter(Boolean).length
+  const progress = steps?.length ? (completedCount / steps.length) * 100 : 0
 
   return (
     <div className="min-h-screen">
 
-      {/* Hero */}
-      <div className="relative overflow-hidden">
-        <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} opacity-[0.04]`} />
-        <div className="relative px-6 lg:px-10 py-8 lg:py-12 max-w-4xl">
-          <Link to="/recettes" className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-zinc-500 hover:text-[#ff6b1a] transition-colors mb-5">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
-            Toutes les recettes
+      {/* ── Hero immersif pleine largeur ── */}
+      <div className="relative overflow-hidden min-h-[300px] lg:min-h-[400px]">
+        <div className="absolute inset-0">
+          <img
+            src={imageUrl}
+            alt={recipe.title}
+            className="w-full h-full object-cover"
+            style={{ animation: 'slowZoom 25s ease-in-out infinite alternate' }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-[#080808]/50 to-[#080808]/20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#080808]/80 to-transparent" />
+        </div>
+
+        {/* Back + Favorite buttons floating on hero */}
+        <div className="absolute top-4 left-4 right-4 flex justify-between z-10">
+          <Link
+            to="/recettes"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-black/40 backdrop-blur-sm text-[12px] font-bold text-white/80 hover:text-white hover:bg-black/60 transition-all border border-white/[0.08]"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
+            Recettes
           </Link>
 
-          <div className="animate-fade-up">
-            <div className="flex items-center gap-2 mb-3 flex-wrap">
-              <span className={`text-[11px] font-bold uppercase px-2.5 py-1 rounded-lg bg-gradient-to-r ${gradientClass} text-white`}>
+          {isAuthenticated && (
+            <button
+              onClick={() => toggleFavorite(recipe.id)}
+              className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all backdrop-blur-sm border border-white/[0.08] ${
+                isFavorite(recipe.id)
+                  ? 'bg-red-500/30 text-red-400 shadow-lg shadow-red-500/20'
+                  : 'bg-black/40 text-white/60 hover:text-red-400 hover:bg-red-500/20'
+              }`}
+              title={isFavorite(recipe.id) ? 'Retirer du carnet' : 'Ajouter au carnet'}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill={isFavorite(recipe.id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
+            </button>
+          )}
+        </div>
+
+        {/* Recipe info overlay at bottom */}
+        <div className="absolute bottom-0 left-0 right-0 px-6 lg:px-10 pb-8 pt-20 bg-gradient-to-t from-[#080808] via-[#080808]/90 to-transparent">
+          <div className="max-w-4xl animate-fade-up">
+            {/* Badges */}
+            <div className="flex items-center gap-2 mb-4 flex-wrap">
+              <span className={`text-[11px] font-black uppercase px-3 py-1.5 rounded-lg bg-gradient-to-r ${gradientClass} text-white shadow-lg`}>
                 {TYPE_ICONS[recipe.type]} {TYPE_LABELS[recipe.type]}
               </span>
-              <span className={`text-[11px] font-bold px-2.5 py-1 rounded-lg ${DIFFICULTY_COLORS[recipe.difficulty]}`}>
+              <span className={`text-[11px] font-bold px-3 py-1.5 rounded-lg border ${DIFFICULTY_COLORS[recipe.difficulty]}`}>
                 {recipe.difficulty}
               </span>
               {recipe.prep_time && (
-                <span className="text-[11px] font-medium text-zinc-500 px-2.5 py-1 rounded-lg bg-white/[0.04]">
+                <span className="text-[11px] font-bold text-zinc-400 px-3 py-1.5 rounded-lg bg-white/[0.06] border border-white/[0.08]">
                   ⏱ {recipe.prep_time}
                 </span>
               )}
               {recipe.yield_amount && (
-                <span className="text-[11px] font-medium text-zinc-500 px-2.5 py-1 rounded-lg bg-white/[0.04]">
+                <span className="text-[11px] font-bold text-zinc-400 px-3 py-1.5 rounded-lg bg-white/[0.06] border border-white/[0.08]">
                   📦 {recipe.yield_amount}
                 </span>
               )}
             </div>
 
-            <div className="flex items-start gap-3 mb-3">
-              <h1 className="text-[26px] lg:text-[34px] font-extrabold text-white tracking-tight leading-[1.1] flex-1">
-                {recipe.title}
-              </h1>
-              {isAuthenticated && (
-                <button
-                  onClick={() => toggleFavorite(recipe.id)}
-                  className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
-                    isFavorite(recipe.id)
-                      ? 'bg-red-500/20 text-red-400 shadow-lg shadow-red-500/10'
-                      : 'bg-white/[0.05] text-zinc-600 hover:text-red-400 hover:bg-red-500/10'
-                  }`}
-                  title={isFavorite(recipe.id) ? 'Retirer du carnet' : 'Ajouter au carnet'}
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill={isFavorite(recipe.id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
-                </button>
-              )}
-            </div>
+            {/* Title */}
+            <h1 className="font-display text-[30px] lg:text-[44px] font-black text-white tracking-tight leading-[1.05] mb-3">
+              {recipe.title}
+            </h1>
 
             {recipe.origin && (
-              <p className="text-[13px] text-zinc-500 italic mb-2">📍 {recipe.origin}</p>
+              <p className="text-[13px] text-zinc-400 italic mb-3">📍 {recipe.origin}</p>
             )}
 
-            <p className="text-[14px] text-zinc-400 leading-relaxed max-w-xl">
+            <p className="text-[15px] text-zinc-300 leading-relaxed max-w-2xl">
               {recipe.summary}
             </p>
 
             {/* Meat tags */}
             {recipe.meat_types?.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-4">
+              <div className="flex flex-wrap gap-2 mt-5">
                 {recipe.meat_types.map(m => (
-                  <span key={m} className="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-[#ff6b1a]/8 text-[#ff6b1a]/80 border border-[#ff6b1a]/15">
+                  <span key={m} className="text-[11px] font-semibold px-3 py-1.5 rounded-lg bg-[#ff6b1a]/10 text-[#ff6b1a]/80 border border-[#ff6b1a]/15">
                     {MEAT_LABELS[m] || m}
                   </span>
                 ))}
@@ -163,111 +194,124 @@ export default function RecipeDetailPage() {
         </div>
       </div>
 
-      <div className="px-6 lg:px-10 pb-12 max-w-4xl">
-        <div className="grid lg:grid-cols-5 gap-6">
+      {/* ── Content ── */}
+      <div className="px-6 lg:px-10 py-10 max-w-4xl">
+        <div className="grid lg:grid-cols-5 gap-8">
 
           {/* ── Left: Description + Steps ── */}
           <div className="lg:col-span-3 space-y-6">
 
             {/* Description */}
             {recipe.description && (
-              <div className="surface p-5">
-                <h2 className="text-[14px] font-bold text-white mb-3 flex items-center gap-2">
-                  <span className="text-sm">📖</span> À propos
+              <div className="surface p-6 animate-fade-up">
+                <h2 className="text-[15px] font-bold text-white mb-3 flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff6b1a]/20 to-[#ef4444]/10 flex items-center justify-center text-sm">📖</span>
+                  À propos
                 </h2>
-                <p className="text-[13px] text-zinc-400 leading-relaxed">{recipe.description}</p>
+                <p className="text-[14px] text-zinc-400 leading-[1.8]">{recipe.description}</p>
               </div>
             )}
 
             {/* Steps */}
             {steps?.length > 0 && (
-              <div className="surface p-5">
-                <h2 className="text-[14px] font-bold text-white mb-4 flex items-center gap-2">
-                  <span className="text-sm">👨‍🍳</span> Préparation
-                </h2>
-                <div className="space-y-3">
+              <div className="surface p-6 animate-fade-up">
+                <div className="flex items-center justify-between mb-5">
+                  <h2 className="text-[15px] font-bold text-white flex items-center gap-2">
+                    <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff6b1a]/20 to-[#ef4444]/10 flex items-center justify-center text-sm">👨‍🍳</span>
+                    Préparation
+                  </h2>
+                  <span className="text-[12px] font-bold text-[#ff6b1a]">
+                    {completedCount}/{steps.length}
+                  </span>
+                </div>
+
+                {/* Progress bar at top */}
+                <div className="mb-6">
+                  <div className="h-1.5 rounded-full bg-white/[0.04] overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-[#ff6b1a] to-[#ef4444] transition-all duration-500 ease-out"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                  {progress === 100 && (
+                    <p className="text-[12px] text-green-400 font-bold mt-2 animate-fade">
+                      ✓ Toutes les étapes terminées !
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-1">
                   {steps.map((step, idx) => (
                     <button
                       key={idx}
                       onClick={() => toggleStep(idx)}
-                      className={`w-full flex items-start gap-3 text-left group transition-all ${
-                        checkedSteps[idx] ? 'opacity-50' : ''
+                      className={`w-full flex items-start gap-4 text-left p-3 rounded-xl transition-all ${
+                        checkedSteps[idx]
+                          ? 'opacity-50 bg-green-500/[0.03]'
+                          : 'hover:bg-white/[0.02]'
                       }`}
                     >
-                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-[11px] font-black shrink-0 transition-all ${
+                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-[12px] font-black shrink-0 transition-all ${
                         checkedSteps[idx]
-                          ? 'bg-green-500/20 text-green-400'
+                          ? 'bg-green-500/20 text-green-400 scale-90'
                           : 'bg-gradient-to-br from-[#ff6b1a] to-[#ef4444] text-white shadow-md shadow-[#ff6b1a]/20'
                       }`}>
                         {checkedSteps[idx] ? '✓' : idx + 1}
                       </div>
-                      <p className={`text-[13px] leading-relaxed pt-0.5 transition-all ${
+                      <p className={`text-[14px] leading-relaxed pt-1 transition-all ${
                         checkedSteps[idx]
                           ? 'text-zinc-600 line-through'
-                          : 'text-zinc-300 group-hover:text-white'
+                          : 'text-zinc-300'
                       }`}>
                         {step}
                       </p>
                     </button>
                   ))}
                 </div>
-
-                {/* Progress */}
-                <div className="mt-4 pt-3 border-t border-white/[0.06]">
-                  <div className="flex items-center justify-between text-[11px] mb-2">
-                    <span className="text-zinc-600">Progression</span>
-                    <span className="text-[#ff6b1a] font-bold">
-                      {Object.values(checkedSteps).filter(Boolean).length}/{steps.length}
-                    </span>
-                  </div>
-                  <div className="h-1.5 rounded-full bg-white/[0.04] overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-[#ff6b1a] to-[#ef4444] transition-all duration-300"
-                      style={{ width: `${(Object.values(checkedSteps).filter(Boolean).length / steps.length) * 100}%` }}
-                    />
-                  </div>
-                </div>
               </div>
             )}
           </div>
 
-          {/* ── Right: Ingredients ── */}
+          {/* ── Right: Ingredients (sticky) ── */}
           <div className="lg:col-span-2">
-            <div className="surface p-5 lg:sticky lg:top-8">
-              <h2 className="text-[14px] font-bold text-white mb-4 flex items-center gap-2">
-                <span className="text-sm">🧪</span> Ingrédients
+            <div className="surface-fire p-6 lg:sticky lg:top-6 animate-fade-up">
+              <h2 className="text-[15px] font-bold text-white mb-5 flex items-center gap-2">
+                <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff6b1a]/20 to-[#ef4444]/10 flex items-center justify-center text-sm">🧪</span>
+                Ingrédients
               </h2>
-              <div className="space-y-2">
+              <div className="space-y-0">
                 {ingredients.map((ing, idx) => (
-                  <div key={idx} className="flex items-start gap-3 py-2 border-b border-white/[0.04] last:border-0">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#ff6b1a] mt-2 shrink-0" />
+                  <div key={idx} className="flex items-center gap-3 py-3 border-b border-white/[0.04] last:border-0">
+                    <div className="w-2 h-2 rounded-full bg-gradient-to-r from-[#ff6b1a] to-[#ef4444] shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-baseline justify-between gap-2">
-                        <span className="text-[13px] text-white font-medium">{ing.name}</span>
-                        <span className="text-[12px] text-[#ff6b1a] font-bold shrink-0">{ing.qty}</span>
-                      </div>
+                      <span className="text-[14px] text-white font-medium">{ing.name}</span>
                       {ing.note && (
-                        <p className="text-[10px] text-zinc-600 mt-0.5 italic">{ing.note}</p>
+                        <span className="text-[11px] text-zinc-600 italic ml-2">{ing.note}</span>
                       )}
                     </div>
+                    <span className="text-[13px] text-[#ff6b1a] font-bold shrink-0">{ing.qty}</span>
                   </div>
                 ))}
               </div>
 
               {recipe.yield_amount && (
-                <div className="mt-4 pt-3 border-t border-white/[0.06]">
-                  <p className="text-[11px] text-zinc-500">
-                    <span className="text-zinc-400 font-semibold">Rendement :</span> {recipe.yield_amount}
-                  </p>
+                <div className="mt-5 pt-4 border-t border-white/[0.08]">
+                  <div className="flex items-center gap-3 text-[13px]">
+                    <span className="w-8 h-8 rounded-lg bg-white/[0.04] flex items-center justify-center text-sm">📦</span>
+                    <div>
+                      <p className="text-zinc-500 text-[11px]">Rendement</p>
+                      <p className="text-white font-bold">{recipe.yield_amount}</p>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
 
             {/* Tags */}
             {recipe.tags?.length > 0 && (
-              <div className="mt-4 flex flex-wrap gap-1.5">
+              <div className="mt-5 flex flex-wrap gap-1.5 animate-fade-up">
                 {recipe.tags.map(tag => (
-                  <span key={tag} className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-white/[0.03] text-zinc-600 border border-white/[0.05]">
+                  <span key={tag} className="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-white/[0.03] text-zinc-500 border border-white/[0.06] hover:border-[#ff6b1a]/20 hover:text-[#ff6b1a]/60 transition-colors cursor-default">
                     #{tag}
                   </span>
                 ))}
@@ -278,32 +322,52 @@ export default function RecipeDetailPage() {
 
         {/* ── Related recipes ── */}
         {related.length > 0 && (
-          <div className="mt-10">
-            <div className="flex items-center gap-3 mb-5">
+          <div className="mt-14">
+            <div className="flex items-center gap-4 mb-6">
               <div className="h-px flex-1 fire-divider" />
-              <p className="text-[11px] font-bold text-[#ff6b1a] uppercase tracking-[0.12em]">
+              <p className="text-[12px] font-black text-[#ff6b1a] uppercase tracking-[0.15em]">
                 Autres {TYPE_LABELS[recipe.type]}s
               </p>
               <div className="h-px flex-1 fire-divider" />
             </div>
 
-            <div className="grid sm:grid-cols-3 gap-3">
-              {related.map(r => (
-                <Link
-                  key={r.id}
-                  to={`/recettes/${r.slug}`}
-                  className="surface p-4 group hover:border-[#ff6b1a]/20 transition-all"
-                >
-                  <h4 className="text-[13px] font-bold text-white group-hover:text-[#ff6b1a] transition-colors mb-1">
-                    {r.title}
-                  </h4>
-                  <p className="text-[11px] text-zinc-500 line-clamp-2">{r.summary}</p>
-                </Link>
-              ))}
+            <div className="grid sm:grid-cols-3 gap-4 stagger">
+              {related.map(r => {
+                const relImg = r.cover_url || TYPE_IMAGES[r.type] || TYPE_IMAGES.rub
+                return (
+                  <Link
+                    key={r.id}
+                    to={`/recettes/${r.slug}`}
+                    className="card-premium group overflow-hidden"
+                  >
+                    <div className="relative h-[120px] overflow-hidden">
+                      <img
+                        src={relImg}
+                        alt={r.title}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#111] to-transparent" />
+                    </div>
+                    <div className="p-4">
+                      <h4 className="text-[14px] font-bold text-white group-hover:text-[#ff6b1a] transition-colors mb-1 leading-snug">
+                        {r.title}
+                      </h4>
+                      <p className="text-[11px] text-zinc-500 line-clamp-2">{r.summary}</p>
+                    </div>
+                  </Link>
+                )
+              })}
             </div>
           </div>
         )}
       </div>
+
+      <style>{`
+        @keyframes slowZoom {
+          from { transform: scale(1); }
+          to { transform: scale(1.08); }
+        }
+      `}</style>
     </div>
   )
 }
