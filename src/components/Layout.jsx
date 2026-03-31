@@ -79,10 +79,10 @@ export default function Layout({ children }) {
   const levelLabel = profile?.experience_level ? LEVEL_LABELS[profile.experience_level] : null
 
   return (
-    <div className="min-h-screen flex bg-[#080808]">
+    <div className="min-h-screen bg-[#080808]">
 
       {/* ══════════ SIDEBAR DESKTOP ══════════ */}
-      <aside aria-label="Navigation principale" className="hidden lg:flex flex-col w-[280px] shrink-0 bg-[#0c0c0c] border-r border-white/[0.04] relative overflow-hidden fixed top-0 left-0 h-screen overflow-y-auto texture-grain z-40">
+      <aside aria-label="Navigation principale" className="hidden lg:flex flex-col w-[280px] bg-[#0c0c0c] border-r border-white/[0.04] fixed top-0 left-0 h-screen overflow-y-auto texture-grain z-40">
         {/* Ambient glows */}
         <div className="absolute -top-24 -left-24 w-80 h-80 bg-[#ff6b1a]/[0.02] rounded-full blur-[100px] pointer-events-none animate-fire-breathe" />
         <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-[#dc2626]/[0.015] rounded-full blur-[60px] pointer-events-none" />
@@ -456,11 +456,8 @@ export default function Layout({ children }) {
         )}
       </div>
 
-      {/* Spacer for fixed sidebar on desktop */}
-      <div className="hidden lg:block w-[280px] shrink-0" />
-
       {/* ══════════ MAIN CONTENT ══════════ */}
-      <main className="flex-1 min-w-0 lg:pt-0 pt-14 smoke-bg texture-grain">
+      <main className="flex-1 min-w-0 lg:ml-[280px] lg:pt-0 pt-14 smoke-bg texture-grain">
         <div className="relative z-10">
           {children}
         </div>
