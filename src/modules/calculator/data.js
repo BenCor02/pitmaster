@@ -104,22 +104,22 @@ export const MEAT_PROFILES = [
   },
   {
     id: 'prime_rib',
-    name: 'Côte de bœuf / Prime Rib',
+    name: 'Côte de bœuf',
     category: 'boeuf',
     icon: '🥩',
     cook_type: 'reverse_sear',
     supports_wrap: false,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 77 },    // low & slow smoke phase
-      { temp_c: 121, min_per_kg: 60 },
-      { temp_c: 135, min_per_kg: 44 },
+      { temp_c: 107, min_per_kg: 30 },    // recalibré pour côte de bœuf FR (~1-1.5kg, 3-4cm)
+      { temp_c: 121, min_per_kg: 22 },    // Rafa/Rohan : 20-30min pour ~1.5kg à 110°C
+      { temp_c: 135, min_per_kg: 16 },    // Plus chaud = plus rapide
     ],
-    rest_min: 15,    // augmenté : une côte de bœuf a besoin de repos après le sear
-    rest_max: 30,
+    rest_min: 10,
+    rest_max: 20,
     reverse_sear: {
-      pull_before_target_c: 6,   // réduit de 8 à 6 — le carryover sur pièce épaisse monte de ~5-6°C
-      sear_total_minutes_min: 4,
-      sear_total_minutes_max: 8,
+      pull_before_target_c: 8,   // côte de bœuf FR : carryover ~6-8°C, on pull plus tôt
+      sear_total_minutes_min: 3,
+      sear_total_minutes_max: 6,
     },
     doneness_targets: {
       rare: 52,
@@ -127,7 +127,7 @@ export const MEAT_PROFILES = [
       medium: 60,
     },
     cues: {
-      reverse_note: "Sors la pièce quand la sonde indique 6°C sous ta cible. La température va continuer à monter pendant le repos. Pour le sear : feu maximum, 1-2 min par face, avec du beurre clarifié et des aromates si tu veux.",
+      reverse_note: "Place la côte en zone indirecte à 110°C avec des copeaux de bois. Ferme le couvercle et surveille la sonde. Sors la viande 8°C sous ta cible. Saisie violente 1-2 min par face à 250°C+. Repos 10 min sous alu lâche.",
     },
   },
   {
@@ -233,8 +233,9 @@ export const MEAT_PROFILES = [
     cook_type: 'low_and_slow',
     supports_wrap: false,
     temp_bands: [
-      { temp_c: 135, min_per_kg: 66 },    // réduit : à 135°C le poulet va plus vite qu'estimé avant
-      { temp_c: 150, min_per_kg: 55 },    // 300°F — sweet spot pour peau croustillante
+      { temp_c: 110, min_per_kg: 110 },   // fumage FR basse temp (Barbecue-co, MaitreFumeur) — peau molle mais fumé intense
+      { temp_c: 135, min_per_kg: 66 },    // ~275°F — transition, peau encore molle
+      { temp_c: 150, min_per_kg: 55 },    // 300°F — sweet spot peau croustillante (US standard)
       { temp_c: 165, min_per_kg: 44 },    // 325°F — rapide, peau bien crispy
     ],
     rest_min: 10,
