@@ -29,9 +29,9 @@ export const MEAT_PROFILES = [
     cook_type: 'low_and_slow',
     supports_wrap: true,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 150 },   // ~225°F — Franklin standard, 1h15-1h30/lb → ~150min/kg
-      { temp_c: 121, min_per_kg: 120 },   // ~250°F — compétition standard
-      { temp_c: 135, min_per_kg: 90 },    // ~275°F — hot & fast style (Myron Mixon)
+      { temp_c: 107, min_per_kg: 175 },   // ~225°F — 1h20-1h30/lb. Recalibré : Franklin/Meathead convergent sur ~14h wrappé pour 5.5kg
+      { temp_c: 121, min_per_kg: 135 },   // ~250°F — Franklin standard (~1h/lb). 5.5kg wrappé ≈ 10-11h cook
+      { temp_c: 135, min_per_kg: 90 },    // ~275°F — hot & fast (Myron Mixon ~7h wrappé pour 5.5kg) ✓
     ],
     wrap_reduction_percent: 15,
     rest_min: 60,
@@ -56,9 +56,9 @@ export const MEAT_PROFILES = [
     cook_type: 'low_and_slow',
     supports_wrap: true,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 160 },   // pièces épaisses, collagène dense
-      { temp_c: 121, min_per_kg: 130 },   // sweet spot compétition
-      { temp_c: 135, min_per_kg: 100 },
+      { temp_c: 107, min_per_kg: 240 },   // pièces très épaisses, collagène dense — convergence 8-10h pour ~2.5kg
+      { temp_c: 121, min_per_kg: 185 },   // sweet spot compétition — 6-8h pour ~2.5kg (ThermoWorks, AmazingRibs)
+      { temp_c: 135, min_per_kg: 135 },   // hot & fast — ~4.5-5.5h pour 2.5kg
     ],
     wrap_reduction_percent: 10,
     rest_min: 30,

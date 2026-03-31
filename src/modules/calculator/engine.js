@@ -88,6 +88,15 @@ export function calculateCookPlan({ profile, weightKg, cookTempC, wrapped, donen
     cookMinutes *= 1 + (weightKg - 6) * 0.03
   }
 
+  // ── 3b. Temps minimum de cuisson ─────────────────────
+  // Aucune pièce ne développe de saveur fumée en moins de 30 min.
+  // Reverse sear : minimum 20 min en fumoir.
+  // Low & slow : minimum 45 min.
+  if (!profile.fixed_times) {
+    const minCook = profile.cook_type === 'reverse_sear' ? 20 : 45
+    cookMinutes = Math.max(cookMinutes, minCook)
+  }
+
   // ── 4. Repos ──────────────────────────────────────────
   const restMin = profile.rest_min
   const restMax = profile.rest_max
