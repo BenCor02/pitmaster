@@ -1,0 +1,26 @@
+{
+  "appId": "fr.charbonetflamme.app",
+  "appName": "Charbon & Flamme",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1500,
+      "launchAutoHide": true,
+      "backgroundColor": "#0a0a0a",
+      "showSpinner": false,
+      "androidSplashResourceName": "splash",
+      "splashFullScreen": true,
+      "splashImmersive": true
+    },
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_flame",
+      "iconColor": "#ff6b1a"
+    }
+  }
+}
