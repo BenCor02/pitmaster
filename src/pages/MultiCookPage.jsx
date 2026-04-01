@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react'
-import ProLaunchBanner from '../components/ProLaunchBanner.jsx'
 import { useCalculatorData } from '../modules/calculator/useCalculatorData.js'
 import { calculateCookPlan, formatHours } from '../modules/calculator/engine.js'
 import { DONENESS_LABELS } from '../modules/calculator/data.js'
@@ -113,10 +112,6 @@ export default function MultiCookPage() {
 
   return (
     <div className="min-h-screen">
-      <div className="px-6 lg:px-10 pt-8 max-w-5xl">
-        <ProLaunchBanner />
-      </div>
-
       {/* ── Hero ── */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#ff6b1a]/[0.06] via-transparent to-[#ef4444]/[0.04]" />

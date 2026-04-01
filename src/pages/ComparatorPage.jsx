@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import ProLaunchBanner from '../components/ProLaunchBanner.jsx'
 import { fetchRecipes } from '../lib/cms.js'
 
 const TYPE_LABELS = { rub: 'Rub', mop: 'Mop', marinade: 'Marinade', injection: 'Injection', glaze: 'Glaze' }
@@ -92,9 +91,6 @@ export default function ComparatorPage() {
 
   return (
     <div className="min-h-screen">
-      <div className="px-6 lg:px-10 pt-8 max-w-5xl">
-        <ProLaunchBanner />
-      </div>
       {/* Hero with image */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0">
