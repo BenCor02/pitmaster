@@ -1,8 +1,10 @@
 import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './modules/auth/AuthContext.jsx'
+import { useSiteSettings } from './hooks/useSiteSettings.jsx'
 import Layout from './components/Layout.jsx'
 import ChunkErrorBoundary from './components/ChunkErrorBoundary.jsx'
+import MaintenancePage from './pages/MaintenancePage.jsx'
 
 // Code splitting — chaque page est chargée à la demande
 const HomePage = lazy(() => import('./pages/HomePage.jsx'))
@@ -37,6 +39,18 @@ function PageLoader() {
   )
 }
 
+function MaintenanceGuard({ children }) {
+  const { maintenance, loaded } = useSiteSettings()
+  const { isAdmin } = useAuth()
+
+  // Pas encore chargé → on laisse passer (le PageLoader gère)
+  if (!loaded) return children
+  // Maintenance activée et pas admin → page maintenance
+  if (maintenance.enabled && !isAdmin) return <MaintenancePage message={maintenance.message} />
+
+  return children
+}
+
 function AdminGuard({ children }) {
   const { isLoading, isAuthenticated, isAdmin, profile } = useAuth()
 
@@ -55,6 +69,7 @@ function AdminGuard({ children }) {
 export default function App() {
   return (
     <Layout>
+      <MaintenanceGuard>
       <ChunkErrorBoundary>
       <Suspense fallback={<PageLoader />}>
       <Routes>
@@ -86,6 +101,7 @@ export default function App() {
       </Routes>
       </Suspense>
       </ChunkErrorBoundary>
+      </MaintenanceGuard>
     </Layout>
   )
 }

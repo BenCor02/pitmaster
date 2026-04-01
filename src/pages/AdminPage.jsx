@@ -1073,14 +1073,18 @@ function SettingsTab() {
     logo_url: '',
   })
   const [modules, setModules] = useState({})
+  const [maintenance, setMaintenance] = useState({ enabled: false, message: '' })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [maintenanceSaving, setMaintenanceSaving] = useState(false)
+  const [maintenanceSaved, setMaintenanceSaved] = useState(false)
 
   useEffect(() => {
     fetchAllSettings().then(all => {
       if (all.branding) setBranding(prev => ({ ...prev, ...all.branding }))
       if (all.modules) setModules(all.modules)
+      if (all.maintenance) setMaintenance(prev => ({ ...prev, ...all.maintenance }))
       setLoading(false)
     })
   }, [])
@@ -1113,6 +1117,33 @@ function SettingsTab() {
       // Rollback
       setModules(modules)
     }
+  }
+
+  const handleToggleMaintenance = async () => {
+    const prev = { ...maintenance }
+    const newMaintenance = { ...maintenance, enabled: !maintenance.enabled }
+    setMaintenance(newMaintenance)
+    try {
+      await updateSetting('maintenance', newMaintenance)
+      await refresh()
+    } catch (err) {
+      console.error('Toggle maintenance error:', err)
+      setMaintenance(prev)
+    }
+  }
+
+  const handleSaveMaintenanceMessage = async () => {
+    setMaintenanceSaving(true)
+    try {
+      await updateSetting('maintenance', maintenance)
+      await refresh()
+      setMaintenanceSaved(true)
+      setTimeout(() => setMaintenanceSaved(false), 2000)
+    } catch (err) {
+      console.error('Save maintenance error:', err)
+      alert('Erreur : ' + (err.message || 'Impossible de sauvegarder'))
+    }
+    setMaintenanceSaving(false)
   }
 
   if (loading) {
@@ -1200,6 +1231,69 @@ function SettingsTab() {
               <span className="text-[12px] text-green-400 font-medium animate-fade">✓ Sauvegardé</span>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* ── Maintenance ── */}
+      <div className="surface p-6">
+        <div className="flex items-center gap-3 mb-5">
+          <span className="text-xl">🔧</span>
+          <div>
+            <h2 className="text-[16px] font-bold text-white">Mode maintenance</h2>
+            <p className="text-[12px] text-zinc-500 mt-0.5">Affiche une page de maintenance aux visiteurs. Les admins gardent l'accès.</p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <button
+            onClick={handleToggleMaintenance}
+            className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl text-left transition-all ${
+              maintenance.enabled
+                ? 'bg-red-900/20 hover:bg-red-900/30 border border-red-500/20'
+                : 'bg-zinc-900/20 opacity-60 hover:opacity-80'
+            }`}
+          >
+            <span className="text-lg shrink-0">{maintenance.enabled ? '🚧' : '🔧'}</span>
+            <div className="flex-1 min-w-0">
+              <span className="text-[13px] font-semibold text-white">
+                {maintenance.enabled ? 'Maintenance activée' : 'Maintenance désactivée'}
+              </span>
+              <p className="text-[11px] text-zinc-500 mt-0.5">
+                {maintenance.enabled ? 'Le site est en maintenance — seuls les admins voient le contenu' : 'Le site est accessible à tous'}
+              </p>
+            </div>
+            <div className={`relative rounded-full transition-colors shrink-0 ${
+              maintenance.enabled ? 'bg-red-500' : 'bg-zinc-700'
+            }`} style={{ width: 40, height: 22 }}>
+              <div className={`absolute top-0.5 w-[18px] h-[18px] rounded-full bg-white shadow transition-transform ${
+                maintenance.enabled ? 'translate-x-[20px]' : 'translate-x-0.5'
+              }`} />
+            </div>
+          </button>
+
+          {maintenance.enabled && (
+            <>
+              <FormField label="Message de maintenance" hint="Texte affiché aux visiteurs (optionnel)">
+                <TextInput
+                  value={maintenance.message || ''}
+                  onChange={v => setMaintenance(p => ({ ...p, message: v }))}
+                  placeholder="Le site est en cours de maintenance. On prépare quelque chose de bon..."
+                />
+              </FormField>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleSaveMaintenanceMessage}
+                  disabled={maintenanceSaving}
+                  className="btn-primary px-5 py-2 text-[13px] disabled:opacity-50"
+                >
+                  {maintenanceSaving ? 'Sauvegarde...' : 'Enregistrer le message'}
+                </button>
+                {maintenanceSaved && (
+                  <span className="text-[12px] text-green-400 font-medium animate-fade">✓ Sauvegardé</span>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </div>
 

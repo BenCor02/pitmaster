@@ -31,9 +31,15 @@ const DEFAULT_MODULES = {
   journal: true,
 }
 
+const DEFAULT_MAINTENANCE = {
+  enabled: false,
+  message: '',
+}
+
 export function SiteSettingsProvider({ children }) {
   const [branding, setBranding] = useState(DEFAULT_BRANDING)
   const [modules, setModules] = useState(DEFAULT_MODULES)
+  const [maintenance, setMaintenance] = useState(DEFAULT_MAINTENANCE)
   const [loaded, setLoaded] = useState(false)
 
   const load = useCallback(async () => {
@@ -45,6 +51,7 @@ export function SiteSettingsProvider({ children }) {
         setSiteBranding(b.site_name_line1, b.site_name_line2, b.tagline)
       }
       if (all.modules) setModules({ ...DEFAULT_MODULES, ...all.modules })
+      if (all.maintenance) setMaintenance({ ...DEFAULT_MAINTENANCE, ...all.maintenance })
     } catch (err) {
       console.error('SiteSettings load error:', err)
     } finally {
@@ -60,7 +67,7 @@ export function SiteSettingsProvider({ children }) {
   }, [modules])
 
   return (
-    <SiteSettingsContext.Provider value={{ branding, modules, isModuleEnabled, loaded, refresh: load }}>
+    <SiteSettingsContext.Provider value={{ branding, modules, isModuleEnabled, maintenance, loaded, refresh: load }}>
       {children}
     </SiteSettingsContext.Provider>
   )
