@@ -581,18 +581,20 @@ function buildRibsPhases(profile, wrapped, ctx) {
 function buildReverseSearPhases(profile, totalCookMin, tolerance, ctx) {
   const phases = []
   const pt = profile.phases_text || {}
+  const rs = getReverseSearTexts(profile.id)
 
   // Phase 1: Cuisson indirecte
   phases.push({
     num: 1,
     title: pt.indirect_title || 'Cuisson indirecte basse température',
     duration: formatApproxDuration(totalCookMin, tolerance * 100),
-    objective: pt.indirect_objective || 'Monter doucement en température pour une cuisson uniforme',
+    objective: pt.indirect_objective || rs.indirectObjective,
     markers: [
       { type: 'temp', text: `Fumoir à ${ctx.cookTempC}°C (zone indirecte)` },
-      { type: 'temp', text: ctx.reversePullTemp ? `Sortir la viande à ${ctx.reversePullTemp}°C interne` : 'Sortir ~8°C avant la cible finale' },
+      { type: 'temp', text: ctx.reversePullTemp ? `Sortir ${rs.pieceName} à ${ctx.reversePullTemp}°C interne` : 'Sortir ~8°C avant la cible finale' },
+      ...rs.indirectExtraMarkers,
     ],
-    advice: pt.indirect_advice || "La patience est la clé. Plus la montée est lente, plus la cuisson est uniforme d'un bord à l'autre.",
+    advice: pt.indirect_advice || rs.indirectAdvice,
   })
 
   // Phase 2: Saisie
@@ -600,13 +602,13 @@ function buildReverseSearPhases(profile, totalCookMin, tolerance, ctx) {
     num: 2,
     title: pt.sear_title || 'Saisie finale (sear)',
     duration: `~${ctx.searMinutes} min total`,
-    objective: pt.sear_objective || 'Créer une croûte caramélisée (réaction de Maillard)',
+    objective: pt.sear_objective || rs.searObjective,
     markers: [
-      { type: 'temp', text: 'Grill ou poêle en fonte à 250–300°C' },
-      { type: 'visual', text: '~45–60 secondes par face' },
+      { type: 'temp', text: rs.searTemp },
+      { type: 'visual', text: rs.searDuration },
       { type: 'temp', text: ctx.targetFinalTemp ? `Cible finale : ${ctx.targetFinalTemp}°C` : '' },
     ].filter(m => m.text),
-    advice: pt.sear_advice || "Sécher la surface avant de saisir. Une surface sèche = meilleure croûte.",
+    advice: pt.sear_advice || rs.searAdvice,
   })
 
   // Phase 3: Repos court
@@ -614,14 +616,122 @@ function buildReverseSearPhases(profile, totalCookMin, tolerance, ctx) {
     num: 3,
     title: pt.rest_title || 'Repos',
     duration: formatRange(ctx.restMin, ctx.restMax),
-    objective: pt.rest_objective || 'Redistribution des jus',
+    objective: pt.rest_objective || rs.restObjective,
     markers: [
-      { type: 'visual', text: 'Repos court sous aluminium' },
+      { type: 'visual', text: rs.restMarker },
     ],
-    advice: pt.rest_advice || "Ne pas couper immédiatement. Même 5 minutes font une différence.",
+    advice: pt.rest_advice || rs.restAdvice,
   })
 
   return phases
+}
+
+/**
+ * Textes spécifiques par profil pour les phases reverse sear.
+ */
+function getReverseSearTexts(id) {
+
+  // ── CARRÉ D'AGNEAU ──
+  if (id === 'rack_of_lamb') return {
+    pieceName: 'le carré',
+    indirectObjective: 'Monter doucement la température du carré pour une cuisson rosée et uniforme',
+    indirectExtraMarkers: [
+      { type: 'visual', text: 'Placement de la sonde : entre deux côtes, au centre de la partie la plus épaisse' },
+    ],
+    indirectAdvice: 'Le carré d\'agneau est délicat — bois fruitier léger uniquement (cerisier, pommier). Le chêne et le hickory écrasent l\'agneau. 2-3 petits morceaux suffisent.',
+    searObjective: 'Créer une croûte dorée sur le gras du carré (réaction de Maillard)',
+    searTemp: 'Grill ou poêle en fonte à 300°C+',
+    searDuration: '~1-2 min par face — commencer côté gras',
+    searAdvice: 'Saisis côté gras d\'abord pour le rendre croustillant. Le carré a une fine couche de gras qui dore vite — surveille bien pour ne pas brûler.',
+    restObjective: 'Les jus se redistribuent — repos très court pour servir chaud',
+    restMarker: 'Repos 5-10 min sous alu en tente — le carré refroidit vite',
+    restAdvice: 'Découpe entre chaque côte pour des côtelettes individuelles. Le carré d\'agneau se sert rosé — c\'est une pièce noble, ne la sur-cuis pas.',
+  }
+
+  // ── FILET MIGNON DE PORC ──
+  if (id === 'pork_tenderloin') return {
+    pieceName: 'le filet',
+    indirectObjective: 'Fumer doucement ce filet maigre sans le dessécher',
+    indirectExtraMarkers: [
+      { type: 'visual', text: 'Placement de la sonde : au centre du filet, dans la partie la plus épaisse' },
+      { type: 'info', text: 'Le filet mignon est très maigre — il sèche vite. Ne dépasse pas la cible.' },
+    ],
+    indirectAdvice: 'Le filet mignon de porc est fin et maigre — la montée en température est rapide. Surveille la sonde de près à partir de 50°C. Bois fruitier léger : pommier ou cerisier.',
+    searObjective: 'Saisie rapide pour caraméliser la surface sans sur-cuire l\'intérieur',
+    searTemp: 'Poêle en fonte ou grill à 250°C+',
+    searDuration: '~1 min par face — le filet est fin, ça va très vite',
+    searAdvice: 'Le filet est rond et fin — fais-le tourner pour saisir toute la surface uniformément. Une minute par « face » suffit largement.',
+    restObjective: 'Repos court — le filet refroidit très vite',
+    restMarker: 'Repos 5 min sous alu en tente — découper en médaillons de 2 cm',
+    restAdvice: 'Découpe en médaillons épais (2 cm). Le filet mignon de porc est excellent rosé (60°C) — ça surprend les gens habitués au porc bien cuit, mais c\'est safe et tellement meilleur.',
+  }
+
+  // ── MAGRET DE CANARD ──
+  if (id === 'duck_breast') return {
+    pieceName: 'le magret',
+    indirectObjective: 'Fumer le magret côté chair pour absorber la fumée sans brûler le gras',
+    indirectExtraMarkers: [
+      { type: 'visual', text: 'Placement de la sonde : piquer côté chair, au centre de la partie la plus épaisse' },
+      { type: 'info', text: 'Score le gras en croisillons avant de fumer — ça aide à rendre le gras pendant le fumage' },
+    ],
+    indirectAdvice: 'Fume le magret côté chair vers le bas (gras vers le haut). Le gras fond lentement et arrose la chair. Bois fruitier : cerisier ou érable — pas de hickory.',
+    searObjective: 'Crisper la peau et le gras du magret — c\'est ce qui fait toute la différence',
+    searTemp: 'Poêle en fonte brûlante à 250–300°C',
+    searDuration: '~2-3 min côté peau d\'abord, puis ~1 min côté chair',
+    searAdvice: 'Saisie CÔTÉ PEAU D\'ABORD — c\'est le gras qui doit croustiller. Le gras va rendre et grésiller : c\'est normal. Retourne une seule fois. Le magret se mange rosé — 52-57°C max.',
+    restObjective: 'Les jus se redistribuent — repos court pour garder le croustillant du gras',
+    restMarker: 'Repos 5-10 min sur une planche (pas sous alu, pour garder la peau croustillante)',
+    restAdvice: 'Découpe en tranches fines en biais. Le magret fumé se sert rosé, comme un bon steak. Accompagne avec une sauce aux fruits rouges ou au miel pour jouer avec le fumé.',
+  }
+
+  // ── CÔTE DE BŒUF ──
+  if (id === 'prime_rib') return {
+    pieceName: 'la côte',
+    indirectObjective: 'Monter doucement en température pour une cuisson uniforme du bord au centre',
+    indirectExtraMarkers: [
+      { type: 'visual', text: 'Placement de la sonde : au centre de la partie la plus épaisse, loin de l\'os et du gras' },
+    ],
+    indirectAdvice: 'La côte de bœuf est épaisse — la montée est lente et régulière. C\'est exactement ce qu\'on veut. Bois de choix : chêne ou noyer pour un goût classique.',
+    searObjective: 'Créer une croûte intense sur la surface (réaction de Maillard)',
+    searTemp: 'Grill à charbon ou fonte à 250–300°C',
+    searDuration: '~1-2 min par face — saisie violente et courte',
+    searAdvice: 'La côte de bœuf a du gras de surface qui va grésiller et flamber pendant la saisie — c\'est normal. Surveille les flammes et déplace la viande si nécessaire.',
+    restObjective: 'Les jus se redistribuent — le repos fait passer la cuisson de bonne à excellente',
+    restMarker: 'Repos 10-20 min sous alu en tente (sans serrer)',
+    restAdvice: 'Découpe en tranches épaisses perpendiculaires à l\'os. Le jus qui coule sur la planche se récupère et se verse sur les tranches au service.',
+  }
+
+  // ── TOMAHAWK ──
+  if (id === 'tomahawk') return {
+    pieceName: 'le tomahawk',
+    indirectObjective: 'Monter lentement ce steak ultra-épais pour une cuisson parfaitement uniforme',
+    indirectExtraMarkers: [
+      { type: 'visual', text: 'Placement de la sonde : au centre géométrique du steak, loin de l\'os' },
+    ],
+    indirectAdvice: 'Le tomahawk est très épais — c\'est la pièce idéale pour le reverse sear. La montée lente garantit un intérieur rosé uniforme d\'un bord à l\'autre.',
+    searObjective: 'Saisie violente pour une croûte épaisse digne d\'un steakhouse',
+    searTemp: 'Grill à charbon très chaud ou fonte fumante à 300°C+',
+    searDuration: '~1-2 min par face — manipuler avec des pinces, pas une fourchette',
+    searAdvice: 'Le tomahawk impressionne à table — présente-le avec l\'os. Saisis bien les bords aussi (tiens le steak debout avec des pinces). Le gras du bord doit être doré et croustillant.',
+    restObjective: 'Repos court — le tomahawk garde bien sa chaleur grâce à son épaisseur',
+    restMarker: 'Repos 5-10 min sous alu lâche — l\'os aide à conserver la chaleur',
+    restAdvice: 'Tranche perpendiculairement à l\'os en tranches de 1 cm. Le jus va couler — récupère-le pour napper. Service : le tomahawk se partage, c\'est une pièce conviviale.',
+  }
+
+  // ── FALLBACK ──
+  return {
+    pieceName: 'la viande',
+    indirectObjective: 'Monter doucement en température pour une cuisson uniforme',
+    indirectExtraMarkers: [],
+    indirectAdvice: "La patience est la clé. Plus la montée est lente, plus la cuisson est uniforme d'un bord à l'autre.",
+    searObjective: 'Créer une croûte caramélisée (réaction de Maillard)',
+    searTemp: 'Grill ou poêle en fonte à 250–300°C',
+    searDuration: '~45–60 secondes par face',
+    searAdvice: "Sécher la surface avant de saisir. Une surface sèche = meilleure croûte.",
+    restObjective: 'Redistribution des jus',
+    restMarker: 'Repos court sous aluminium',
+    restAdvice: "Ne pas couper immédiatement. Même 5 minutes font une différence.",
+  }
 }
 
 // ── Ribs method section ─────────────────────────────────
@@ -865,6 +975,17 @@ function buildTips(profile, wrapped, weightKg, cookTempC) {
   const tips = []
 
   // Conseils spécifiques volaille — adaptés par profil
+  // Le magret est catégorie volaille mais cook_type reverse_sear → tips spécifiques
+  if (profile.id === 'duck_breast') {
+    tips.push('Score le gras en croisillons avant de fumer — ça aide à rendre le gras et crisper la peau.')
+    tips.push('Bois fruitier léger uniquement : cerisier, érable ou pommier. Le hickory écrase le canard.')
+    tips.push('Le magret se mange rosé en France : vise 52–57°C max. Au-delà, la viande devient sèche et perd tout intérêt.')
+    tips.push('Saisie côté peau d\'abord sur fonte brûlante — c\'est le gras qui croustille, pas la chair.')
+    tips.push('Sèche bien la surface avant la saisie. Une surface humide = vapeur au lieu de croûte.')
+    tips.push("Chaque cuisson est différente. Les durées sont des estimations — c'est la viande qui décide, pas la montre.")
+    return tips
+  }
+
   if (profile.category === 'volaille') {
     if (profile.id === 'turkey_breast') {
       tips.push('Plante la sonde horizontalement au centre de la partie la plus épaisse de la poitrine, loin de l\'os et du bord.')
@@ -887,6 +1008,28 @@ function buildTips(profile, wrapped, weightKg, cookTempC) {
     if (cookTempC >= 150) {
       tips.push('À 150°C+ au fumoir, la peau devrait bien crisper.')
     }
+    tips.push("Chaque cuisson est différente. Les durées sont des estimations — c'est la viande qui décide, pas la montre.")
+    return tips
+  }
+
+  // Tips spécifiques carré d'agneau
+  if (profile.id === 'rack_of_lamb') {
+    tips.push('Bois fruitier léger obligatoire : cerisier ou pommier. Le chêne et le hickory écrasent l\'agneau.')
+    tips.push('Le carré d\'agneau se mange rosé (57°C) — c\'est une pièce noble, ne la sur-cuis pas.')
+    tips.push('Sonde entre deux côtes, au centre de la chair. L\'os conduit la chaleur et fausse la mesure.')
+    tips.push('Saisie côté gras d\'abord pour rendre et crisper le chapeau de gras.')
+    tips.push('Sèche bien la surface avant la saisie. Une surface humide = vapeur au lieu de croûte.')
+    tips.push("Chaque cuisson est différente. Les durées sont des estimations — c'est la viande qui décide, pas la montre.")
+    return tips
+  }
+
+  // Tips spécifiques filet mignon de porc
+  if (profile.id === 'pork_tenderloin') {
+    tips.push('Le filet mignon est la pièce la plus maigre du porc — elle sèche très vite. Ne dépasse pas 65°C interne.')
+    tips.push('Bois fruitier léger : pommier ou cerisier. Le hickory est trop fort pour cette pièce délicate.')
+    tips.push('Sonde au centre du filet, dans la partie la plus épaisse. La montée est rapide — surveille de près à partir de 50°C.')
+    tips.push('Le filet mignon de porc se mange rosé (60°C) en toute sécurité. C\'est le standard moderne — oublie le porc gris de mamie.')
+    tips.push('Sèche bien la surface avant la saisie. Une surface humide = vapeur au lieu de croûte.')
     tips.push("Chaque cuisson est différente. Les durées sont des estimations — c'est la viande qui décide, pas la montre.")
     return tips
   }
