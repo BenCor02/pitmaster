@@ -30,7 +30,7 @@ function saveToURL(params) {
   window.history.replaceState({}, '', url)
 }
 
-const VALID_DONENESS = ['rare', 'medium_rare', 'medium', 'medium_well', 'well_done']
+const VALID_DONENESS = ['bleu', 'rare', 'medium_rare', 'medium', 'medium_well', 'well_done']
 
 function readFromURL() {
   const params = new URLSearchParams(window.location.search)

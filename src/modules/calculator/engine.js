@@ -580,9 +580,10 @@ function buildReverseSearGuide(profile, doneness) {
       'Saisir 45–60 secondes par face',
     ],
     targets: {
+      bleu: { temp: temps.bleu || 45, label: 'Bleu' },
       rare: { temp: temps.rare || 52, label: 'Saignant' },
-      medium_rare: { temp: temps.medium_rare || 54, label: 'Medium saignant' },
-      medium: { temp: temps.medium || 60, label: 'Medium' },
+      medium_rare: { temp: temps.medium_rare || 54, label: 'À point' },
+      medium: { temp: temps.medium || 60, label: 'Bien cuit' },
     },
     selectedDoneness: d,
     advantages: [

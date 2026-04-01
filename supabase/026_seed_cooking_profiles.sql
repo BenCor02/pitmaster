@@ -72,7 +72,7 @@ VALUES
     10,
     20,
     '{"pull_before_target_c":8,"sear_total_minutes_min":3,"sear_total_minutes_max":6}'::jsonb,
-    '{"rare":52,"medium_rare":54,"medium":60}'::jsonb,
+    '{"bleu":45,"rare":52,"medium_rare":54,"medium":60}'::jsonb,
     '{"reverse_note":"Place la côte en zone indirecte à 110°C avec des copeaux de bois. Ferme le couvercle et surveille la sonde. Sors la viande 8°C sous ta cible. Saisie violente 1-2 min par face à 250°C+. Repos 10 min sous alu lâche."}'::jsonb,
     4,
     true
@@ -90,7 +90,7 @@ VALUES
     5,
     10,
     '{"pull_before_target_c":6,"sear_total_minutes_min":3,"sear_total_minutes_max":6}'::jsonb,
-    '{"rare":52,"medium_rare":54,"medium":60}'::jsonb,
+    '{"bleu":45,"rare":52,"medium_rare":54,"medium":60}'::jsonb,
     '{"reverse_note":"Le tomahawk est épais : le reverse sear est la méthode idéale. Monte lentement en température au fumoir, puis saisie violente au charbon ou à la fonte brûlante. Repos court, 5-10 min sous aluminium lâche."}'::jsonb,
     5,
     true

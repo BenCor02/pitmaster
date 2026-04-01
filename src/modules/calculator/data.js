@@ -122,6 +122,7 @@ export const MEAT_PROFILES = [
       sear_total_minutes_max: 6,
     },
     doneness_targets: {
+      bleu: 45,
       rare: 52,
       medium_rare: 54,
       medium: 60,
@@ -150,6 +151,7 @@ export const MEAT_PROFILES = [
       sear_total_minutes_max: 6,
     },
     doneness_targets: {
+      bleu: 45,
       rare: 52,
       medium_rare: 54,
       medium: 60,
@@ -251,6 +253,7 @@ export const MEAT_PROFILES = [
 ]
 
 export const DONENESS_LABELS = {
+  bleu: 'Bleu',
   rare: 'Saignant',
   medium_rare: 'À point (medium rare)',
   medium: 'Bien cuit (medium)',
