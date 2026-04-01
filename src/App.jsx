@@ -6,6 +6,7 @@ import Layout from './components/Layout.jsx'
 import ChunkErrorBoundary from './components/ChunkErrorBoundary.jsx'
 import MaintenancePage from './pages/MaintenancePage.jsx'
 import { Analytics } from '@vercel/analytics/react'
+import { isNative } from './lib/capacitor.js'
 
 // Code splitting — chaque page est chargée à la demande
 const HomePage = lazy(() => import('./pages/HomePage.jsx'))
@@ -70,7 +71,7 @@ function AdminGuard({ children }) {
 export default function App() {
   return (
     <>
-    <Analytics />
+    {!isNative && <Analytics />}
     <Layout>
       <MaintenanceGuard>
       <ChunkErrorBoundary>

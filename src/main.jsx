@@ -6,12 +6,19 @@ import { SiteSettingsProvider } from './hooks/useSiteSettings.jsx'
 import { ToastProvider } from './components/Toast.jsx'
 import App from './App.jsx'
 import './index.css'
+import { setupChannels } from './lib/notifications.js'
+import { isNative } from './lib/capacitor.js'
 
-// Register service worker for PWA
-if ('serviceWorker' in navigator) {
+// Register service worker for PWA (web uniquement)
+if (!isNative && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(() => {})
   })
+}
+
+// Initialisation Capacitor (Android)
+if (isNative) {
+  setupChannels().catch(() => {})
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
