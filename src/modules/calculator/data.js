@@ -309,9 +309,9 @@ export const MEAT_PROFILES = [
     cook_type: 'low_and_slow',
     supports_wrap: true,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 300 },   // 225°F — pièce très conjonctive, ~4-5h pour 400g chaque (Smoking-meat.com, FOGO). Rapporté au kg : très long
-      { temp_c: 121, min_per_kg: 240 },   // 250°F — sweet spot. ~3.5-4h pour 400g
-      { temp_c: 135, min_per_kg: 180 },   // 275°F — ~3h pour 400g (Mad Backyard)
+      { temp_c: 107, min_per_kg: 660 },   // 225°F — pièce ultra-conjonctive, 400g ≈ 4-5h (Smoking-meat.com, FOGO). La souris est dense et l'os conduit peu
+      { temp_c: 121, min_per_kg: 540 },   // 250°F — sweet spot. 400g ≈ 3.5-4h (AGrillForAllSeasons)
+      { temp_c: 135, min_per_kg: 420 },   // 275°F — 400g ≈ 2.5-3h (Mad Backyard)
     ],
     wrap_reduction_percent: 10,
     rest_min: 15,
@@ -424,9 +424,9 @@ export const MEAT_PROFILES = [
     cook_type: 'low_and_slow',
     supports_wrap: false,
     temp_bands: [
-      { temp_c: 135, min_per_kg: 120 },   // 275°F — sweet spot pour dark meat. ~250g/cuisse ≈ 30min (Hey Grill Hey)
-      { temp_c: 150, min_per_kg: 90 },    // 300°F — standard compétition (ThermoWorks BBQ Chicken). ~250g ≈ 22min
-      { temp_c: 165, min_per_kg: 70 },    // 325°F — rapide, peau croustillante
+      { temp_c: 135, min_per_kg: 200 },   // 275°F — 250g/cuisse ≈ 50min (Hey Grill Hey: 45-75min). L'os ralentit la cuisson
+      { temp_c: 150, min_per_kg: 130 },   // 300°F — compétition (ThermoWorks). 250g ≈ 32min +repos. Lot 1kg ≈ 2h10
+      { temp_c: 165, min_per_kg: 100 },   // 325°F — rapide, peau croustillante. 250g ≈ 25min
     ],
     rest_min: 5,
     rest_max: 10,
