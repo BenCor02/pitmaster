@@ -6,7 +6,7 @@ import * as fireboard from '../lib/fireboard.js'
 import * as meaterBLE from '../lib/meaterBLE.js'
 import * as inkbirdBLE from '../lib/inkbirdBLE.js'
 import { isNative } from '../lib/capacitor.js'
-import { sendNotification } from '../lib/notifications.js'
+import { sendNotification, requestPermission } from '../lib/notifications.js'
 import { MEAT_PROFILES } from '../modules/calculator/data.js'
 import { calculateCookPlan } from '../modules/calculator/engine.js'
 
@@ -410,11 +410,11 @@ function useAlerts(device, profile) {
           title: 'Stall détecté',
           message: `La température stagne autour de ${Math.round(internal)}°C — c'est normal. Patience.`,
         })
-        sendNotification({
-          title: '⏳ Stall détecté',
-          body: `La sonde est à ${Math.round(internal)}°C — zone de stall (${profile.cues.stall_temp_min}-${profile.cues.stall_temp_max}°C). C'est normal, patience !`,
-          channelId: 'cuisson',
-        })
+        sendNotification(
+          '⏳ Stall détecté',
+          `La sonde est à ${Math.round(internal)}°C — zone de stall (${profile.cues.stall_temp_min}-${profile.cues.stall_temp_max}°C). C'est normal, patience !`,
+          { channelId: 'cuisson' }
+        ).catch(() => {})
       }
     }
 
@@ -429,11 +429,11 @@ function useAlerts(device, profile) {
           title: 'Stall terminé !',
           message: `La température repart à la hausse (${Math.round(internal)}°C). La dernière ligne droite commence.`,
         })
-        sendNotification({
-          title: '🎉 Stall terminé !',
-          body: `${Math.round(internal)}°C — la température repart. Dernière ligne droite !`,
-          channelId: 'cuisson',
-        })
+        sendNotification(
+          '🎉 Stall terminé !',
+          `${Math.round(internal)}°C — la température repart. Dernière ligne droite !`,
+          { channelId: 'cuisson' }
+        ).catch(() => {})
       }
     }
 
@@ -816,6 +816,9 @@ export default function LiveCookPage() {
   // Start polling when connected
   const startLive = useCallback(() => {
     if (stopRef.current) stopRef.current()
+
+    // Demander la permission de notifier dès la connexion
+    requestPermission().catch(() => {})
 
     setPolling(true)
     setError(null)
