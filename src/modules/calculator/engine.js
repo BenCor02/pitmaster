@@ -380,6 +380,98 @@ function getLowSlowMeatTips(profile) {
     restAdvice: 'Minimum 45 min, idéalement 1h30. Comme le brisket, le pulled pork peut tenir 3-4h en glacière sans problème. Plus tu reposes, plus c\'est facile à effilocher et juteux.',
   }
 
+  // ── ÉPAULE D'AGNEAU ──
+  if (id === 'lamb_shoulder') return {
+    phase1Objective: 'Formation de la bark et pénétration de la fumée — l\'agneau absorbe vite les arômes',
+    phase1Visual: 'La surface brunit progressivement. Le gras d\'agneau commence à fondre et perle en surface, nourrissant la bark.',
+    phase1Temp: 'Température interne : ~50–65°C',
+    phase1Info: 'L\'épaule d\'agneau est l\'équivalent du pulled pork pour l\'agneau — très riche en collagène et en gras. Bois fruitier obligatoire : cerisier, pommier ou érable. Le hickory et le chêne écrasent l\'agneau.',
+    phase1Advice: 'Le gras d\'agneau a un goût prononcé — le bois fruitier l\'équilibre. Ne mets pas trop de bois : 2-3 petits morceaux suffisent. L\'agneau n\'a pas besoin d\'autant de fumée que le bœuf.',
+    stallObjective: 'Le stall de l\'agneau est similaire au porc — la viande transpire et la température stagne',
+    stallInfo: 'Le stall est généralement plus court que sur le porc ou le bœuf car l\'épaule d\'agneau est plus petite (1.5-2.5 kg typiquement).',
+    stallAdvice: 'L\'épaule d\'agneau est très tolérante. Si tu dépasses un peu les températures, le gras interne compense. C\'est une pièce idéale pour se lancer dans le fumage de l\'agneau.',
+    wrapTip: 'Papier boucher de préférence pour garder la bark. Ajoute un filet de bouillon d\'agneau ou de jus de grenade pour braiser.',
+    wrapAdvice: 'Le wrap accélère la fin de cuisson de 30-45 min. L\'épaule peut aussi se cuire entièrement à nu — la bark sera exceptionnelle mais il faut plus de patience.',
+    transformObjective: 'Le collagène d\'agneau fond — la viande se défait en filaments pour du pulled lamb',
+    transformInfo: 'Le collagène d\'agneau fond dès 91°C. L\'épaule est prête quand l\'os se retire tout seul.',
+    transformAdvice: 'Essaie de tirer l\'os — s\'il glisse sans résistance, c\'est parfait. Le pulled lamb est plus fin et plus parfumé que le pulled pork. Mélange avec le jus de cuisson récupéré.',
+    restObjective: 'Les jus se redistribuent — le repos facilite l\'effilochage',
+    restMarkers: [
+      { type: 'visual', text: 'Reposer 30 min à 1h à couvert dans l\'emballage' },
+      { type: 'visual', text: 'Récupérer le jus pour le mélanger au pulled lamb' },
+    ],
+    restAdvice: 'Repos de 30 min à 1h en glacière. L\'agneau sèche moins que le bœuf au repos donc pas besoin de pousser au-delà.',
+  }
+
+  // ── GIGOT D'AGNEAU ──
+  if (id === 'lamb_leg') return {
+    phase1Objective: 'Fumage doux pour un goût délicat — le gigot se fume rosé, pas effiloché',
+    phase1Visual: 'La surface du gigot prend une teinte cuivrée. Le gras de couverture fond lentement.',
+    phase1Temp: 'Température interne : ~30–45°C',
+    phase1Info: 'Le gigot est une pièce noble et maigre — on vise rosé à cœur (54-60°C), pas un pulled lamb. Bois fruitier léger : cerisier ou pommier. Pas de hickory.',
+    phase1Advice: 'Le gigot est la pièce la moins tolérante de l\'agneau au fumoir. Surveille la sonde de près car la température monte vite une fois passé 45°C.',
+    stallObjective: 'Pas de vrai stall sur le gigot — la température monte régulièrement',
+    stallInfo: 'Le gigot est trop maigre pour un stall prolongé. La montée en température est assez linéaire, comme pour un reverse sear.',
+    stallAdvice: 'Pas de panique si la sonde ne stagne pas — c\'est normal pour le gigot. Concentre-toi sur la température cible.',
+    wrapTip: 'Le gigot ne se wrappe pas — on le sort du fumoir quand il atteint la cible.',
+    wrapAdvice: 'Pas de wrap pour le gigot. Si la surface sèche trop, spritzer avec un mélange huile d\'olive + jus de citron.',
+    transformObjective: 'Atteindre la température cible — le gigot se découpe en tranches fines',
+    transformInfo: 'Cible 54°C (rosé) à 63°C (à point). Le gigot continue à monter de 3-5°C après la sortie du fumoir.',
+    transformAdvice: 'Sors le gigot 3-5°C avant ta cible pour compenser le carryover. Découpe en tranches fines perpendiculaires à l\'os pour un résultat fondant.',
+    restObjective: 'Les jus se redistribuent — repos court pour un résultat rosé et juteux',
+    restMarkers: [
+      { type: 'visual', text: 'Couvrir de papier alu en tente (sans serrer)' },
+      { type: 'visual', text: '15-30 min de repos, pas plus — le gigot est meilleur servi chaud' },
+    ],
+    restAdvice: 'Repos de 15-30 min sous alu en tente. Découpe en tranches fines avec un bon couteau. Servir avec le jus qui s\'est écoulé sur la planche.',
+  }
+
+  // ── SOURIS D'AGNEAU ──
+  if (id === 'lamb_shank') return {
+    phase1Objective: 'Fumage pour colorer et parfumer cette pièce conjonctive',
+    phase1Visual: 'La viande brunit autour de l\'os. La surface devient sèche et mate.',
+    phase1Temp: 'Température interne : ~50–65°C',
+    phase1Info: 'La souris est la pièce la plus conjonctive de l\'agneau — elle a besoin de temps pour devenir fondante. Le résultat vaut l\'attente : une viande confite qui tombe de l\'os.',
+    phase1Advice: 'La souris est petite mais dense. Place-la debout, os vers le haut, pour une cuisson uniforme. Bois fruitier : cerisier ou pommier.',
+    stallObjective: 'Stall modéré — les souris sont petites mais très conjonctives',
+    stallInfo: 'Le stall est court (30-45 min) mais présent. Les tissus conjonctifs de la souris retiennent beaucoup d\'eau.',
+    stallAdvice: 'C\'est le moment de braiser dans le wrap — la souris bénéficie énormément d\'un fond de bouillon ou de vin pour la phase finale.',
+    wrapTip: 'Emballer avec un fond de bouillon d\'agneau, un trait de vin rouge et des aromates (thym, romarin, ail). La souris se braise autant qu\'elle se fume.',
+    wrapAdvice: 'La souris donne le meilleur résultat avec une combinaison fumage + braisage. 2h de fumée à nu puis wrap avec liquide pour finir — résultat confit et parfumé.',
+    transformObjective: 'Le collagène fond complètement — la viande se détache de l\'os toute seule',
+    transformInfo: 'Cible 88-96°C. La souris est prête quand la viande glisse de l\'os. C\'est une cuisson de patience — pas de raccourci possible.',
+    transformAdvice: 'Soulève la souris par le bout de l\'os — si la viande glisse et se détache, c\'est parfait. La texture doit être confite, presque crémeuse.',
+    restObjective: 'Repos court pour stabiliser — la souris se sert entière sur l\'os',
+    restMarkers: [
+      { type: 'visual', text: 'Reposer 15-30 min dans l\'emballage' },
+      { type: 'info', text: 'Récupérer le jus de braisage pour napper la souris au service' },
+    ],
+    restAdvice: 'La souris se sert entière, un os par personne. Nappe généreusement avec le jus de braisage réduit. Un classique des bistrots français, version fumoir.',
+  }
+
+  // ── POITRINE DE PORC ──
+  if (id === 'pork_belly') return {
+    phase1Objective: 'Caramélisation de la surface et début de fonte du gras',
+    phase1Visual: 'La surface de la poitrine dore et commence à caraméliser. Le gras de couverture perle et fond lentement.',
+    phase1Temp: 'Température interne : ~55–70°C',
+    phase1Info: 'La poitrine de porc est la pièce la plus grasse du BBQ — c\'est un atout. Le gras fond pendant des heures et donne un résultat incroyablement fondant. Bois : hickory, cerisier ou pommier.',
+    phase1Advice: 'Si ta poitrine a encore la couenne, score-la en croisillons pour aider le gras à rendre. Côté gras vers le haut pour arroser la viande pendant la cuisson.',
+    stallObjective: 'Stall classique — la poitrine transpire comme un gros morceau de porc',
+    stallInfo: 'Le stall sur la poitrine est similaire au pulled pork. Le gras abondant aide à passer le plateau.',
+    stallAdvice: 'Patience. La poitrine de porc est quasi impossible à rater si tu respectes les températures. Le gras protège la viande du dessèchement.',
+    wrapTip: 'Alu avec un filet de miel + vinaigre de cidre = caramel parfait sur la surface.',
+    wrapAdvice: 'Le wrap au papier alu fonctionne très bien — ajoute du miel, du sucre brun ou du sirop d\'érable avec un trait de vinaigre de cidre. Le résultat sera laqué et caramélisé.',
+    transformObjective: 'Le gras inter-couches fond complètement — chaque tranche est fondante et translucide',
+    transformInfo: 'Cible 93-99°C. À cette température, les couches de gras deviennent translucides et fondent en bouche. C\'est le stade « burnt ends » — cubes caramélisés et fondants.',
+    transformAdvice: 'Secoue la poitrine — elle doit trembler comme de la gelée. Le gras doit être translucide entre les couches de viande. Si tu veux des burnt ends, coupe en cubes de 3cm avant la dernière heure.',
+    restObjective: 'Le gras se stabilise et les jus se redistribuent',
+    restMarkers: [
+      { type: 'visual', text: 'Reposer 30 min à 1h en glacière à couvert' },
+      { type: 'visual', text: 'Le gras va figer légèrement en surface — c\'est normal et souhaité' },
+    ],
+    restAdvice: 'Repos de 30 min à 1h. Découpe en tranches épaisses de 1-2 cm perpendiculaires aux couches de gras. Chaque tranche doit avoir de la viande ET du gras.',
+  }
+
   // ── FALLBACK (profil inconnu) ──
   return {
     phase1Objective: 'Formation de la bark et développement des saveurs fumées',

@@ -250,6 +250,245 @@ export const MEAT_PROFILES = [
       visual_warning: "En dessous de 130°C au fumoir, la peau reste molle et caoutchouteuse. Privilégie 150°C+ si tu veux une peau dorée et croustillante. Astuce pro : finis 10 min à feu vif ou au grill pour crisper la peau.",
     },
   },
+
+  // ── AGNEAU ──────────────────────────────────────────────
+  {
+    id: 'lamb_shoulder',
+    name: 'Épaule d\'agneau',
+    category: 'agneau',
+    icon: '🐑',
+    cook_type: 'low_and_slow',
+    supports_wrap: true,
+    temp_bands: [
+      { temp_c: 107, min_per_kg: 200 },   // 225°F — ~2kg ≈ 6-7h (ThermoWorks, Jess Pryles). Plus rapide que pulled pork grâce au collagène + gras intra-musculaire
+      { temp_c: 121, min_per_kg: 155 },   // 250°F — sweet spot FR (Le BBQ de Rafa, French Smoker). ~5h pour 2kg
+      { temp_c: 135, min_per_kg: 110 },   // 275°F — hot & fast. ~3.5-4h pour 2kg (SmokedBBQSource)
+    ],
+    wrap_reduction_percent: 12,
+    rest_min: 30,
+    rest_max: 60,    // 30min à 1h — l'agneau sèche moins que le bœuf au repos
+    cues: {
+      stall_temp_min: 63,    // stall agneau similaire au porc — 63-74°C
+      stall_temp_max: 74,
+      wrap_temp_min: 68,
+      wrap_temp_max: 75,
+      begin_test_temp: 88,
+      target_temp_min: 91,   // 195°F — le collagène d'agneau fond dès 91°C
+      target_temp_max: 96,   // 205°F — au-delà la viande s'assèche
+      visual_wrap: "L'os de l'épaule commence à dépasser, la viande a rétréci. La bark est acajou foncé, mate et sèche au toucher. Le gras de surface a rendu. C'est le moment d'emballer — papier boucher de préférence pour garder la bark.",
+      probe_tender: "La sonde entre comme dans du beurre partout dans l'épaule. L'os bouge librement et se retire presque seul. La viande se défait en tirant avec deux fourchettes — c'est prêt pour du pulled lamb.",
+    },
+  },
+  {
+    id: 'lamb_leg',
+    name: 'Gigot d\'agneau',
+    category: 'agneau',
+    icon: '🐑',
+    cook_type: 'low_and_slow',
+    supports_wrap: false,
+    temp_bands: [
+      { temp_c: 107, min_per_kg: 130 },   // 225°F — ~2.5-3kg ≈ 5.5-6.5h (ThermoWorks, Malcom Reed). Le gigot est plus maigre que l'épaule
+      { temp_c: 121, min_per_kg: 100 },   // 250°F — standard (BBQ Québec, SmokingMeatForums). ~4-4.5h pour 2.5kg
+      { temp_c: 135, min_per_kg: 75 },    // 275°F — hot & fast. ~3h pour 2.5kg
+    ],
+    rest_min: 15,
+    rest_max: 30,
+    cues: {
+      begin_test_temp: 52,
+      target_temp_min: 54,    // medium rare — consensus FR pour le gigot fumé (rosé)
+      target_temp_max: 63,    // medium — au-delà le gigot perd tout intérêt
+      probe_position: "Plante la sonde au centre de la partie la plus épaisse du gigot, loin de l'os. L'os conduit la chaleur et fausse la mesure.",
+      visual_warning: "Le gigot ne se cuit pas comme un brisket — pas de pulled lamb ici. On vise rosé à cœur (54-60°C). Si tu veux de l'effiloché, prends l'épaule.",
+    },
+  },
+  {
+    id: 'lamb_shank',
+    name: 'Souris d\'agneau',
+    category: 'agneau',
+    icon: '🐑',
+    cook_type: 'low_and_slow',
+    supports_wrap: true,
+    temp_bands: [
+      { temp_c: 107, min_per_kg: 300 },   // 225°F — pièce très conjonctive, ~4-5h pour 400g chaque (Smoking-meat.com, FOGO). Rapporté au kg : très long
+      { temp_c: 121, min_per_kg: 240 },   // 250°F — sweet spot. ~3.5-4h pour 400g
+      { temp_c: 135, min_per_kg: 180 },   // 275°F — ~3h pour 400g (Mad Backyard)
+    ],
+    wrap_reduction_percent: 10,
+    rest_min: 15,
+    rest_max: 30,
+    cues: {
+      stall_temp_min: 65,
+      stall_temp_max: 74,
+      wrap_temp_min: 70,
+      wrap_temp_max: 76,
+      begin_test_temp: 85,
+      target_temp_min: 88,   // 190°F — le collagène de la souris commence à fondre
+      target_temp_max: 96,   // 205°F — fork tender, la viande se détache de l'os
+      visual_wrap: "La viande a rétréci autour de l'os, exposant le bout de l'os. La surface est brun-acajou. C'est le moment d'emballer — ajoute un fond de bouillon ou de jus de pomme dans le papier pour braiser.",
+      probe_tender: "La viande glisse de l'os quand tu soulèves la souris par le bout de l'os. La sonde entre sans résistance dans la partie la plus épaisse. La texture est fondante, presque confite.",
+    },
+  },
+  {
+    id: 'rack_of_lamb',
+    name: 'Carré d\'agneau',
+    category: 'agneau',
+    icon: '🐑',
+    cook_type: 'reverse_sear',
+    supports_wrap: false,
+    temp_bands: [
+      { temp_c: 107, min_per_kg: 45 },    // ~200°F — 30-45min pour un carré de ~800g (ATBBQ, GrillinFools)
+      { temp_c: 121, min_per_kg: 35 },    // ~250°F — plus rapide, ~25-30min pour 800g
+      { temp_c: 135, min_per_kg: 25 },    // ~275°F — ~20min pour 800g
+    ],
+    rest_min: 5,
+    rest_max: 10,
+    reverse_sear: {
+      pull_before_target_c: 8,   // carryover ~6-8°C, comme la côte de bœuf
+      sear_total_minutes_min: 2,
+      sear_total_minutes_max: 4,
+    },
+    doneness_targets: {
+      bleu: 46,       // agneau bleu légèrement plus haut que bœuf (American Lamb Board)
+      rare: 52,       // 125°F — saignant (consensus FR)
+      medium_rare: 57, // 135°F — rosé, le sweet spot pour le carré (consensus pitmasters US + FR)
+      medium: 63,      // 145°F — à point, encore acceptable pour l'agneau
+    },
+    cues: {
+      reverse_note: "Le carré d'agneau se fume à basse température (100-120°C) avec du bois fruitier — cerisier ou pommier idéalement. Le chêne et le hickory sont trop forts pour l'agneau. Sors le carré 8°C sous ta cible. Saisie violente 1-2 min par face à 300°C+ pour une croûte dorée.",
+    },
+  },
+
+  // ── PORC (compléments) ────────────────────────────────
+  {
+    id: 'pork_belly',
+    name: 'Poitrine de porc',
+    category: 'porc',
+    icon: '🐷',
+    cook_type: 'low_and_slow',
+    supports_wrap: true,
+    temp_bands: [
+      { temp_c: 107, min_per_kg: 264 },   // 225°F — 1.5-2h/lb (Bradley Smoker, Smoking-meat.com). ~4kg ≈ 8-9h
+      { temp_c: 121, min_per_kg: 198 },   // 250°F — sweet spot (Hey Grill Hey, Urban Cowgirl). ~4kg ≈ 6-7h
+      { temp_c: 135, min_per_kg: 145 },   // 275°F — hot & fast. ~4kg ≈ 5h
+    ],
+    wrap_reduction_percent: 12,
+    rest_min: 30,
+    rest_max: 60,    // repos en cooler recommandé pour redistribuer le gras
+    cues: {
+      stall_temp_min: 63,
+      stall_temp_max: 74,
+      wrap_temp_min: 71,     // wrapper à ~160°F (AmazingRibs, Craft Beering)
+      wrap_temp_max: 77,
+      begin_test_temp: 88,
+      target_temp_min: 93,   // 200°F — le minimum pour un résultat fondant
+      target_temp_max: 99,   // 210°F — burnt ends territory, le gras est complètement fondu
+      visual_wrap: "La surface de la poitrine est caramélisée, brun foncé à noir. Le gras a commencé à rendre et la couenne (si présente) est croustillante. La viande a visiblement réduit. C'est le moment d'emballer pour la dernière phase de cuisson.",
+      probe_tender: "La sonde entre dans le gras et la viande sans résistance. Si tu secoues la poitrine, elle tremble comme de la gelée. Le gras inter-couches est complètement fondu et translucide. Résultat : fondant en bouche, chaque tranche se tient mais se défait à la fourchette.",
+    },
+  },
+  {
+    id: 'pork_tenderloin',
+    name: 'Filet mignon de porc',
+    category: 'porc',
+    icon: '🐷',
+    cook_type: 'reverse_sear',
+    supports_wrap: false,
+    temp_bands: [
+      { temp_c: 107, min_per_kg: 65 },    // 225°F — pièce fine ~500g ≈ 30-35min (Masterbuilt, Grill Masters Club)
+      { temp_c: 121, min_per_kg: 50 },    // 250°F — ~25min pour 500g
+      { temp_c: 135, min_per_kg: 38 },    // 275°F — ~20min pour 500g
+    ],
+    rest_min: 5,
+    rest_max: 10,
+    reverse_sear: {
+      pull_before_target_c: 5,   // carryover modéré — pièce fine
+      sear_total_minutes_min: 2,
+      sear_total_minutes_max: 4,
+    },
+    doneness_targets: {
+      medium_rare: 60,  // 140°F — le porc moderne est safe à 63°C, on pull à 60 pour le carryover
+      medium: 65,       // 150°F — juteux et rosé au centre (USDA recommande 63°C minimum)
+      well_done: 71,    // 160°F — bien cuit, encore acceptable si pas trop sec
+    },
+    cues: {
+      reverse_note: "Le filet mignon de porc est une pièce très maigre et fine — elle sèche vite. Fume à basse température (110°C) avec du bois fruitier léger (pommier, cerisier). Sors le filet 5°C sous ta cible. Saisie rapide 1 min par face à 250°C+. Ne dépasse jamais 65°C interne pour garder le juteux.",
+    },
+  },
+
+  // ── VOLAILLE (compléments) ────────────────────────────
+  {
+    id: 'chicken_thighs',
+    name: 'Cuisses de poulet',
+    category: 'volaille',
+    icon: '🍗',
+    cook_type: 'low_and_slow',
+    supports_wrap: false,
+    temp_bands: [
+      { temp_c: 135, min_per_kg: 120 },   // 275°F — sweet spot pour dark meat. ~250g/cuisse ≈ 30min (Hey Grill Hey)
+      { temp_c: 150, min_per_kg: 90 },    // 300°F — standard compétition (ThermoWorks BBQ Chicken). ~250g ≈ 22min
+      { temp_c: 165, min_per_kg: 70 },    // 325°F — rapide, peau croustillante
+    ],
+    rest_min: 5,
+    rest_max: 10,
+    cues: {
+      begin_test_temp: 65,
+      target_temp_min: 74,     // 165°F — sécurité alimentaire (USDA)
+      target_temp_max: 82,     // 180°F — dark meat est meilleur à 77-82°C, le collagène fond (consensus compétition BBQ)
+      probe_position: "Plante la sonde dans la partie la plus épaisse de la cuisse, sans toucher l'os. Les cuisses sont plus tolérantes que les blancs — vise 77°C+ pour une texture fondante.",
+      visual_warning: "En dessous de 135°C au fumoir, la peau de poulet reste molle et caoutchouteuse. Fumoir à 150°C+ pour une peau dorée. Astuce compétition : sèche les cuisses au frigo à l'air libre 2h avant de fumer.",
+    },
+  },
+  {
+    id: 'turkey_breast',
+    name: 'Blanc de dinde',
+    category: 'volaille',
+    icon: '🦃',
+    cook_type: 'low_and_slow',
+    supports_wrap: false,
+    temp_bands: [
+      { temp_c: 107, min_per_kg: 100 },   // 225°F — 30-45min/lb (ThermoWorks, BBQ Report). ~2kg ≈ 3-3.5h
+      { temp_c: 121, min_per_kg: 80 },    // 250°F — 25min/lb. ~2kg ≈ 2.5-3h
+      { temp_c: 135, min_per_kg: 60 },    // 275°F — 20min/lb. ~2kg ≈ 2h (MasterClass)
+    ],
+    rest_min: 15,
+    rest_max: 30,    // le repos est crucial pour la dinde — les jus se redistribuent
+    cues: {
+      begin_test_temp: 60,
+      target_temp_min: 68,     // 155°F — pull temp, carryover amène à 74°C (astuce compétition BBQ)
+      target_temp_max: 74,     // 165°F — safe temp USDA. Au-delà le blanc sèche
+      probe_position: "Plante la sonde au centre de la partie la plus épaisse du blanc, horizontalement. Évite le bord et l'os.",
+      visual_warning: "La dinde absorbe beaucoup de fumée — attention au goût amer si tu utilises du bois fort (mesquite, hickory). Privilégie cerisier, pommier ou érable. Brine la veille (sel + sucre + eau) pour un résultat juteux.",
+    },
+  },
+  {
+    id: 'duck_breast',
+    name: 'Magret de canard',
+    category: 'volaille',
+    icon: '🦆',
+    cook_type: 'reverse_sear',
+    supports_wrap: false,
+    temp_bands: [
+      { temp_c: 107, min_per_kg: 55 },    // 225°F — ~400g ≈ 20-25min (Bonappeteach, DuckChar). Score le gras pour le rendre
+      { temp_c: 121, min_per_kg: 42 },    // 250°F — ~15-18min pour 400g
+      { temp_c: 135, min_per_kg: 32 },    // 275°F — ~12-15min pour 400g
+    ],
+    rest_min: 5,
+    rest_max: 10,
+    reverse_sear: {
+      pull_before_target_c: 5,   // pièce fine, carryover modéré
+      sear_total_minutes_min: 3,
+      sear_total_minutes_max: 5,
+    },
+    doneness_targets: {
+      bleu: 46,       // le magret se mange très rosé en France
+      rare: 52,       // saignant — le standard français pour le magret
+      medium_rare: 57, // rosé — consensus FR/US (DuckChar, Canards du Lac Brome)
+      medium: 63,      // à point — max recommandé, au-delà le magret est sec
+    },
+    cues: {
+      reverse_note: "Le magret a une épaisse couche de gras côté peau — score-la en croisillons avant de fumer pour qu'elle rende son gras. Fume côté chair vers le bas à 110°C avec du bois fruitier (cerisier, érable). Sors à 5°C sous ta cible. Saisie côté peau d'abord, 2-3 min sur fonte brûlante pour crisper le gras. Le magret se mange rosé — ne dépasse pas 57°C pour le sweet spot.",
+    },
+  },
 ]
 
 export const DONENESS_LABELS = {
@@ -257,4 +496,5 @@ export const DONENESS_LABELS = {
   rare: 'Saignant',
   medium_rare: 'À point (medium rare)',
   medium: 'Bien cuit (medium)',
+  well_done: 'Très bien cuit',
 }
