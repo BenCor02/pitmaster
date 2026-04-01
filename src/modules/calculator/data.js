@@ -170,9 +170,9 @@ export const MEAT_PROFILES = [
     cook_type: 'low_and_slow',
     supports_wrap: true,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 264 },   // 225°F — le standard. Environ 2h/lb → 264min/kg. Consensus Franklin + Malcom Reed
-      { temp_c: 121, min_per_kg: 198 },   // 250°F — compétition speed
-      { temp_c: 135, min_per_kg: 132 },   // 275°F — hot & fast
+      { temp_c: 107, min_per_kg: 165 },   // 225°F — ~11h pour 4kg. Calibré retour terrain (1h15/lb)
+      { temp_c: 121, min_per_kg: 124 },   // 250°F — ~8h15 pour 4kg
+      { temp_c: 135, min_per_kg: 83 },    // 275°F — ~5h30 pour 4kg, hot & fast
     ],
     wrap_reduction_percent: 12,
     rest_min: 45,
