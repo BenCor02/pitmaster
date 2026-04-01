@@ -5,6 +5,7 @@ import { useSiteSettings } from './hooks/useSiteSettings.jsx'
 import Layout from './components/Layout.jsx'
 import ChunkErrorBoundary from './components/ChunkErrorBoundary.jsx'
 import MaintenancePage from './pages/MaintenancePage.jsx'
+import { Analytics } from '@vercel/analytics/react'
 
 // Code splitting — chaque page est chargée à la demande
 const HomePage = lazy(() => import('./pages/HomePage.jsx'))
@@ -68,6 +69,8 @@ function AdminGuard({ children }) {
 
 export default function App() {
   return (
+    <>
+    <Analytics />
     <Layout>
       <MaintenanceGuard>
       <ChunkErrorBoundary>
@@ -103,5 +106,6 @@ export default function App() {
       </ChunkErrorBoundary>
       </MaintenanceGuard>
     </Layout>
+    </>
   )
 }
