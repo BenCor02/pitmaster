@@ -399,7 +399,7 @@ function useAlerts(device, profile) {
 
     const newAlerts = []
 
-    // Stall alert
+    // Stall alert + notification
     if (profile.cues?.stall_temp_min && internal >= profile.cues.stall_temp_min && internal <= profile.cues.stall_temp_max) {
       if (!firedRef.current.has('stall')) {
         firedRef.current.add('stall')
@@ -409,6 +409,30 @@ function useAlerts(device, profile) {
           icon: '⏳',
           title: 'Stall détecté',
           message: `La température stagne autour de ${Math.round(internal)}°C — c'est normal. Patience.`,
+        })
+        sendNotification({
+          title: '⏳ Stall détecté',
+          body: `La sonde est à ${Math.round(internal)}°C — zone de stall (${profile.cues.stall_temp_min}-${profile.cues.stall_temp_max}°C). C'est normal, patience !`,
+          channelId: 'cuisson',
+        })
+      }
+    }
+
+    // Stall passé — notification de sortie
+    if (profile.cues?.stall_temp_max && internal > profile.cues.stall_temp_max) {
+      if (firedRef.current.has('stall') && !firedRef.current.has('stall_exit')) {
+        firedRef.current.add('stall_exit')
+        newAlerts.push({
+          id: 'stall_exit',
+          type: 'info',
+          icon: '🎉',
+          title: 'Stall terminé !',
+          message: `La température repart à la hausse (${Math.round(internal)}°C). La dernière ligne droite commence.`,
+        })
+        sendNotification({
+          title: '🎉 Stall terminé !',
+          body: `${Math.round(internal)}°C — la température repart. Dernière ligne droite !`,
+          channelId: 'cuisson',
         })
       }
     }
@@ -507,6 +531,58 @@ function sendPushNotification(title, body) {
 // ── Live phases (guide étape par étape) ────────────────
 
 const PHASE_ICONS = ['🔥', '🥵', '📦', '🧈', '🍽️', '😴']
+
+function StallProgressBar({ profile, internal }) {
+  if (!profile?.cues?.stall_temp_min) return null
+  const min = profile.cues.stall_temp_min
+  const max = profile.cues.stall_temp_max
+  const range = max - min
+  if (range <= 0) return null
+
+  const progress = Math.max(0, Math.min(1, (internal - min) / range))
+  const inStall = internal >= min && internal <= max
+  const pastStall = internal > max
+
+  return (
+    <div className="mt-2 px-2.5 py-2 rounded-lg bg-amber-500/[0.06] border border-amber-500/[0.15]">
+      <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10px]">🌡️</span>
+          <span className="text-[11px] font-semibold text-amber-400">Zone Stall</span>
+        </div>
+        <span className="text-[11px] font-bold text-amber-300">
+          {pastStall ? '✓ Passé' : inStall ? `${Math.round(internal)}°C` : `Début à ${min}°C`}
+        </span>
+      </div>
+      <div className="relative h-2 rounded-full bg-zinc-800 overflow-hidden">
+        {/* Zone markers */}
+        <div className="absolute inset-0 flex items-center justify-between px-0.5 z-10">
+          <span className="text-[7px] text-zinc-500 font-bold">{min}°</span>
+          <span className="text-[7px] text-zinc-500 font-bold">{max}°</span>
+        </div>
+        {/* Progress fill */}
+        <div
+          className={`absolute left-0 top-0 h-full rounded-full transition-all duration-1000 ${
+            pastStall ? 'bg-green-500' : 'bg-gradient-to-r from-amber-600 to-amber-400'
+          }`}
+          style={{ width: `${(pastStall ? 100 : progress * 100)}%` }}
+        />
+        {/* Animated pulse on active */}
+        {inStall && !pastStall && (
+          <div
+            className="absolute top-0 h-full w-3 rounded-full bg-amber-300/40 animate-pulse"
+            style={{ left: `calc(${progress * 100}% - 6px)` }}
+          />
+        )}
+      </div>
+      {inStall && (
+        <p className="text-[10px] text-zinc-500 mt-1.5">
+          La température stagne — c'est normal. {internal < (min + max) / 2 ? 'Début du stall, ça peut durer un moment.' : 'Tu approches de la sortie !'}
+        </p>
+      )}
+    </div>
+  )
+}
 
 function LivePhases({ phases, profile, device, cookPlan }) {
   const internal = device?.temperature?.internal || 0
@@ -630,6 +706,10 @@ function LivePhases({ phases, profile, device, cookPlan }) {
                       </div>
                     ))}
                   </div>
+                )}
+                {/* Barre de progression stall */}
+                {phase.title.includes('Stall') && (state === 'active' || state === 'done') && (
+                  <StallProgressBar profile={profile} internal={internal} />
                 )}
                 {state === 'active' && phase.advice && (
                   <div className="mt-2 px-2.5 py-1.5 rounded-md bg-[#ff6b1a]/[0.05] border border-[#ff6b1a]/[0.1]">
