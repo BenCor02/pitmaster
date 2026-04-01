@@ -5,6 +5,7 @@ import Layout from './components/Layout.jsx'
 import ChunkErrorBoundary from './components/ChunkErrorBoundary.jsx'
 
 // Code splitting — chaque page est chargée à la demande
+const HomePage = lazy(() => import('./pages/HomePage.jsx'))
 const CalculatorPage = lazy(() => import('./pages/CalculatorPage.jsx'))
 const LoginPage = lazy(() => import('./pages/LoginPage.jsx'))
 const AdminPage = lazy(() => import('./pages/AdminPage.jsx'))
@@ -57,7 +58,8 @@ export default function App() {
       <ChunkErrorBoundary>
       <Suspense fallback={<PageLoader />}>
       <Routes>
-        <Route path="/" element={<CalculatorPage />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/calculateur" element={<CalculatorPage />} />
         <Route path="/guides" element={<GuidesListPage />} />
         <Route path="/guides/:slug" element={<GuidePage />} />
         <Route path="/journal" element={<JournalPage />} />

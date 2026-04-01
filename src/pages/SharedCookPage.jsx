@@ -30,7 +30,7 @@ export default function SharedCookPage() {
         <div className="text-center">
           <span className="text-4xl mb-4 block">😕</span>
           <p className="text-zinc-400 text-[15px] mb-4">Ce lien de partage n'existe pas ou a expiré</p>
-          <Link to="/" className="btn-primary px-5 py-2.5 text-[13px]">Retour au calculateur</Link>
+          <Link to="/calculateur" className="btn-primary px-5 py-2.5 text-[13px]">Retour au calculateur</Link>
         </div>
       </div>
     )
@@ -184,7 +184,7 @@ export default function SharedCookPage() {
 
         {/* CTA */}
         <div className="mt-8 text-center">
-          <Link to="/" className="btn-primary px-8 py-3 text-[14px] font-bold">
+          <Link to="/calculateur" className="btn-primary px-8 py-3 text-[14px] font-bold">
             Planifier ma propre cuisson
           </Link>
           <p className="text-[11px] text-zinc-600 mt-3">charbonetflamme.fr — L'arsenal du pitmaster</p>

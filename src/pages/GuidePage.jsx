@@ -132,7 +132,7 @@ export default function GuidePage() {
         {/* CTA retour calculateur */}
         <div className="mt-10 surface p-6 text-center">
           <p className="text-[14px] text-zinc-400 mb-3">Prêt à planifier ta cuisson ?</p>
-          <Link to="/" className="btn-primary inline-flex items-center gap-2 px-6 py-2.5 text-[13px]">
+          <Link to="/calculateur" className="btn-primary inline-flex items-center gap-2 px-6 py-2.5 text-[13px]">
             <span>🔥</span>
             Lancer le calculateur
           </Link>

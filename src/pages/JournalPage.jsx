@@ -225,7 +225,7 @@ function SessionList({ sessions, loading, onView, onNew }) {
           <button onClick={onNew} className="btn-primary px-5 py-2.5 text-[13px]">
             + Nouvelle session
           </button>
-          <Link to="/" className="px-5 py-2.5 text-[13px] font-medium text-zinc-400 hover:text-white border border-white/[0.08] rounded-xl hover:bg-white/[0.03] transition-all">
+          <Link to="/calculateur" className="px-5 py-2.5 text-[13px] font-medium text-zinc-400 hover:text-white border border-white/[0.08] rounded-xl hover:bg-white/[0.03] transition-all">
             Lancer le calculateur
           </Link>
         </div>

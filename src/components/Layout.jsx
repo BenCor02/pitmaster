@@ -114,14 +114,22 @@ export default function Layout({ children }) {
 
         {/* ── Navigation ── */}
         <nav className="flex-1 px-3 mt-2">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-600 px-3 mb-2">Outils</p>
-
           <NavItem
             to="/"
-            icon={<IconCalculator active={isActive('/')} />}
+            icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isActive('/') ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>}
+            label="Accueil"
+            sublabel=""
+            active={isActive('/')}
+          />
+
+          <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-600 px-3 mb-2 mt-4">Outils</p>
+
+          <NavItem
+            to="/calculateur"
+            icon={<IconCalculator active={isActive('/calculateur')} />}
             label="Calculateur"
             sublabel="BBQ & Fumage"
-            active={isActive('/')}
+            active={isActive('/calculateur')}
           />
           <NavItem
             to="/portions"
@@ -308,7 +316,17 @@ export default function Layout({ children }) {
                 isActive('/') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
               }`}
             >
-              <IconCalculator active={isActive('/')} />
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+              Accueil
+            </Link>
+            <Link
+              to="/calculateur"
+              onClick={() => setMobileOpen(false)}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
+                isActive('/calculateur') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
+              }`}
+            >
+              <IconCalculator active={isActive('/calculateur')} />
               Calculateur
             </Link>
             <Link

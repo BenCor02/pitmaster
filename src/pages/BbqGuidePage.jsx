@@ -539,7 +539,7 @@ export default function BbqGuidePage() {
         {/* CTA */}
         <section className="text-center">
           <p className="text-stone-500 text-sm mb-4">Tu as choisi ton fumoir ? Lance ta première cuisson.</p>
-          <Link to="/" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#ff6b1a] to-[#dc2626] text-white font-bold text-sm hover:shadow-lg hover:shadow-[#ff6b1a]/25 transition-all">
+          <Link to="/calculateur" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#ff6b1a] to-[#dc2626] text-white font-bold text-sm hover:shadow-lg hover:shadow-[#ff6b1a]/25 transition-all">
             🔥 Ouvrir le calculateur
           </Link>
         </section>
