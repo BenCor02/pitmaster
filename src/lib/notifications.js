@@ -51,24 +51,35 @@ export async function sendNotification(title, body, { id, channelId = 'cuisson' 
   const plugin = await getPlugin()
 
   if (plugin) {
-    await plugin.schedule({
-      notifications: [{
-        id: id || Date.now(),
-        title,
-        body,
-        channelId,
-        sound: 'default',
-        smallIcon: 'ic_stat_flame',
-        largeIcon: 'ic_launcher',
-        iconColor: '#ff6b1a',
-      }],
-    })
+    // Capacitor attend un id entier 32 bits — Date.now() est trop grand
+    const notifId = id || (Date.now() % 2147483647)
+    try {
+      await plugin.schedule({
+        notifications: [{
+          id: notifId,
+          title,
+          body,
+          channelId,
+          sound: 'default',
+          smallIcon: 'ic_launcher',
+          largeIcon: 'ic_launcher',
+          iconColor: '#ff6b1a',
+        }],
+      })
+    } catch (err) {
+      console.warn('[Notifications] schedule error:', err)
+    }
     return
   }
 
   // Fallback web
-  if ('Notification' in window && Notification.permission === 'granted') {
-    new Notification(title, { body, icon: '/icons/icon-192.png' })
+  if ('Notification' in window) {
+    if (Notification.permission === 'default') {
+      await Notification.requestPermission()
+    }
+    if (Notification.permission === 'granted') {
+      new Notification(title, { body, icon: '/icon-192.png' })
+    }
   }
 }
 
