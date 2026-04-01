@@ -114,6 +114,7 @@ export default function RecipeDetailPage() {
             alt={recipe.title}
             className="w-full h-full object-cover"
             style={{ animation: 'slowZoom 25s ease-in-out infinite alternate' }}
+            onError={e => { e.target.style.display = 'none' }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-[#080808]/50 to-[#080808]/20" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#080808]/80 to-transparent" />
@@ -340,11 +341,13 @@ export default function RecipeDetailPage() {
                     to={`/recettes/${r.slug}`}
                     className="card-premium group overflow-hidden"
                   >
-                    <div className="relative h-[120px] overflow-hidden">
+                    <div className="relative h-[120px] overflow-hidden bg-zinc-900">
                       <img
                         src={relImg}
                         alt={r.title}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        loading="lazy"
+                        onError={e => { e.target.style.display = 'none' }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-[#111] to-transparent" />
                     </div>

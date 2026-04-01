@@ -128,6 +128,7 @@ export default function RecipesPage() {
             alt=""
             className="w-full h-full object-cover scale-105"
             style={{ animation: 'slowZoom 20s ease-in-out infinite alternate' }}
+            onError={e => { e.target.style.display = 'none' }}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-[#080808] via-[#080808]/85 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-[#080808]/30 to-transparent" />
@@ -284,11 +285,13 @@ function FeaturedCard({ recipe, favorites }) {
     >
       <div className="card-premium relative overflow-hidden">
         {/* Image */}
-        <div className="relative h-[220px] lg:h-[280px] img-zoom">
+        <div className="relative h-[220px] lg:h-[280px] img-zoom bg-zinc-900">
           <img
             src={imageUrl}
             alt={recipe.title}
             className="w-full h-full object-cover"
+            loading="lazy"
+            onError={e => { e.target.style.display = 'none' }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#111] via-[#111]/40 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#111]/60 to-transparent" />
@@ -384,11 +387,13 @@ function RecipeCard({ recipe, favorites }) {
 
       <Link to={`/recettes/${recipe.slug}`} className="block">
         {/* Image header */}
-        <div className="relative h-[160px] overflow-hidden">
+        <div className="relative h-[160px] overflow-hidden bg-zinc-900">
           <img
             src={imageUrl}
             alt={recipe.title}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            loading="lazy"
+            onError={e => { e.target.style.display = 'none' }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#111] via-transparent to-transparent" />
 
