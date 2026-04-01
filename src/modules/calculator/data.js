@@ -440,7 +440,7 @@ export const MEAT_PROFILES = [
   },
   {
     id: 'turkey_breast',
-    name: 'Blanc de dinde',
+    name: 'Poitrine de dinde',
     category: 'volaille',
     icon: '🦃',
     cook_type: 'low_and_slow',
@@ -455,8 +455,8 @@ export const MEAT_PROFILES = [
     cues: {
       begin_test_temp: 60,
       target_temp_min: 68,     // 155°F — pull temp, carryover amène à 74°C (astuce compétition BBQ)
-      target_temp_max: 74,     // 165°F — safe temp USDA. Au-delà le blanc sèche
-      probe_position: "Plante la sonde au centre de la partie la plus épaisse du blanc, horizontalement. Évite le bord et l'os.",
+      target_temp_max: 74,     // 165°F — safe temp USDA. Au-delà la chair sèche
+      probe_position: "Plante la sonde au centre de la partie la plus épaisse de la poitrine, horizontalement. Évite le bord et l'os.",
       visual_warning: "La dinde absorbe beaucoup de fumée — attention au goût amer si tu utilises du bois fort (mesquite, hickory). Privilégie cerisier, pommier ou érable. Brine la veille (sel + sucre + eau) pour un résultat juteux.",
     },
   },

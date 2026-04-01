@@ -138,7 +138,7 @@ VALUES
   ),
   (
     'turkey_breast',
-    'Blanc de dinde',
+    'Poitrine de dinde',
     'volaille',
     '🦃',
     'low_and_slow',
@@ -150,7 +150,7 @@ VALUES
     30,
     null,
     null,
-    '{"begin_test_temp":60,"target_temp_min":68,"target_temp_max":74,"probe_position":"Plante la sonde au centre de la partie la plus épaisse du blanc, horizontalement. Évite le bord et l''os.","visual_warning":"La dinde absorbe beaucoup de fumée — attention au goût amer si tu utilises du bois fort (mesquite, hickory). Privilégie cerisier, pommier ou érable. Brine la veille (sel + sucre + eau) pour un résultat juteux."}'::jsonb,
+    '{"begin_test_temp":60,"target_temp_min":68,"target_temp_max":74,"probe_position":"Plante la sonde au centre de la partie la plus épaisse de la poitrine, horizontalement. Évite le bord et l''os.","visual_warning":"La dinde absorbe beaucoup de fumée — attention au goût amer si tu utilises du bois fort (mesquite, hickory). Privilégie cerisier, pommier ou érable. Brine la veille (sel + sucre + eau) pour un résultat juteux."}'::jsonb,
     17,
     true
   ),
