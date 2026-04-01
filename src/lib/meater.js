@@ -7,7 +7,11 @@
  * API docs : https://github.com/apption-labs/meater-cloud-public-rest-api
  */
 
-const BASE_URL = 'https://public-api.cloud.meater.com/v1'
+// En prod (Vercel) → proxy serveur pour éviter le CORS
+// En dev → appel direct (Vite proxy possible via vite.config.js)
+const BASE_URL = import.meta.env.DEV
+  ? 'https://public-api.cloud.meater.com/v1'
+  : '/api/meater'
 
 // ── Auth ────────────────────────────────────────────────
 

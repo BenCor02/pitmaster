@@ -7,8 +7,14 @@
  * API docs : https://docs.fireboard.io/reference/restapi.html
  */
 
-const BASE_URL = 'https://fireboard.io/api/v1'
-const AUTH_URL = 'https://fireboard.io/api/rest-auth/login/'
+// En prod (Vercel) → proxy serveur pour éviter le CORS
+// En dev → appel direct
+const BASE_URL = import.meta.env.DEV
+  ? 'https://fireboard.io/api/v1'
+  : '/api/fireboard/v1'
+const AUTH_URL = import.meta.env.DEV
+  ? 'https://fireboard.io/api/rest-auth/login/'
+  : '/api/fireboard/rest-auth/login/'
 
 // ── Auth ────────────────────────────────────────────────
 
@@ -27,14 +33,18 @@ export function isConnected() {
 }
 
 export async function login(username, password) {
-  const res = await fetch(AUTH_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'User-Agent': 'CharbonFlamme/2.0',
-    },
-    body: JSON.stringify({ username, password }),
-  })
+  let res
+  try {
+    res = await fetch(AUTH_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password }),
+    })
+  } catch {
+    throw new Error('Impossible de joindre le serveur FireBoard. Vérifie ta connexion internet.')
+  }
 
   if (!res.ok) {
     const text = await res.text().catch(() => '')
@@ -64,7 +74,6 @@ function authHeaders() {
   if (!token) throw new Error('Non connecté à FireBoard')
   return {
     'Authorization': `Token ${token}`,
-    'User-Agent': 'CharbonFlamme/2.0',
   }
 }
 
@@ -75,9 +84,14 @@ function authHeaders() {
  * Retourne un tableau de devices avec channels et températures.
  */
 export async function getDevices() {
-  const res = await fetch(`${BASE_URL}/devices.json`, {
-    headers: authHeaders(),
-  })
+  let res
+  try {
+    res = await fetch(`${BASE_URL}/devices.json`, {
+      headers: authHeaders(),
+    })
+  } catch {
+    throw new Error('Impossible de joindre le serveur FireBoard. Vérifie ta connexion internet.')
+  }
 
   if (res.status === 401) {
     logout()
@@ -94,9 +108,14 @@ export async function getDevices() {
  * Retourne les channels avec temp actuelle (< 1 min).
  */
 export async function getDeviceTemps(uuid) {
-  const res = await fetch(`${BASE_URL}/devices/${uuid}/temps.json`, {
-    headers: authHeaders(),
-  })
+  let res
+  try {
+    res = await fetch(`${BASE_URL}/devices/${uuid}/temps.json`, {
+      headers: authHeaders(),
+    })
+  } catch {
+    throw new Error('Impossible de joindre le serveur FireBoard. Vérifie ta connexion internet.')
+  }
 
   if (res.status === 401) {
     logout()
