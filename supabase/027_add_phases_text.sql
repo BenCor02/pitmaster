@@ -1,0 +1,91 @@
+-- 027_add_phases_text.sql
+-- Ajoute le champ phases_text (jsonb) pour stocker les textes éditables des phases
+
+ALTER TABLE cooking_profiles
+ADD COLUMN IF NOT EXISTS phases_text jsonb DEFAULT NULL;
+
+COMMENT ON COLUMN cooking_profiles.phases_text IS 'Textes éditables des phases de cuisson. Structure dépend du cook_type.';
+
+-- ── Low & slow phases_text structure ──
+-- {
+--   "phase1_title": "Prise de fumée",
+--   "phase1_objective": "Formation de la bark...",
+--   "phase1_visual": "La surface fonce...",
+--   "phase1_temp": "Température interne : ~55–70°C",
+--   "phase1_info": "C'est pendant cette phase...",
+--   "phase1_advice": "Côté gras vers le haut...",
+--   "stall_title": "Le Stall — la viande transpire",
+--   "stall_objective": "La viande transpire...",
+--   "stall_info": "C'est normal...",
+--   "stall_advice": "Ne monte PAS la température...",
+--   "wrap_title": "Le Wrap — Texas Crutch",
+--   "wrap_objective": "Passer le stall...",
+--   "wrap_tip": "Pour le brisket, le papier boucher...",
+--   "wrap_advice": "Papier boucher > aluminium...",
+--   "transform_title": "La Transformation",
+--   "transform_objective": "Le tissu conjonctif fond...",
+--   "transform_info": "Le thermomètre ne suffit pas...",
+--   "transform_advice": "Teste le flat...",
+--   "rest_title": "Le Repos — patience finale",
+--   "rest_objective": "Les jus se redistribuent...",
+--   "rest_markers": ["Emballer serré...","Placer en glacière...","Un brisket qui a reposé..."],
+--   "rest_advice": "Minimum 1h de repos..."
+-- }
+--
+-- ── Ribs phases_text structure ──
+-- {
+--   "smoke_title": "Fumée à nu",
+--   "smoke_objective": "Développer la bark...",
+--   "smoke_markers": ["La surface fonce...","110–120°C au fumoir"],
+--   "smoke_advice": "Pas besoin de spritzer...",
+--   "wrap_title": "Emballé (wrap)",
+--   "wrap_objective": "Attendrir la viande...",
+--   "wrap_markers": ["Emballer avec beurre...","Papier alu ou boucher"],
+--   "wrap_advice": "C'est pendant cette phase...",
+--   "finish_title": "Finition / laquage",
+--   "finish_objective": "Caraméliser la sauce...",
+--   "finish_markers": ["Appliquer la sauce...","La sauce doit devenir collante..."],
+--   "finish_advice": "Remettre à nu dans le fumoir...",
+--   "unwrapped_title": "Fumée complète à nu",
+--   "unwrapped_objective": "Cuisson lente sans emballage...",
+--   "unwrapped_advice": "Sans wrap, la bark est plus prononcée...",
+--   "rest_title": "Repos",
+--   "rest_objective": "Laisser les jus se redistribuer",
+--   "rest_markers": ["Reposer 10-20 minutes..."],
+--   "rest_advice": "Les ribs ne nécessitent pas..."
+-- }
+--
+-- ── Reverse sear phases_text structure ──
+-- {
+--   "indirect_title": "Cuisson indirecte basse température",
+--   "indirect_objective": "Monter doucement...",
+--   "indirect_advice": "La patience est la clé...",
+--   "sear_title": "Saisie finale (sear)",
+--   "sear_objective": "Créer une croûte caramélisée...",
+--   "sear_advice": "Sécher la surface...",
+--   "rest_title": "Repos",
+--   "rest_objective": "Redistribution des jus",
+--   "rest_advice": "Ne pas couper immédiatement..."
+-- }
+--
+-- ── Volaille phases_text structure ──
+-- {
+--   "smoke_title": "Mise en fumée",
+--   "smoke_objective": "Absorption de la fumée...",
+--   "smoke_markers": ["La peau commence à dorer...","Température interne : ~40–55°C","Placement sonde..."],
+--   "smoke_advice": "Plante la sonde...",
+--   "cook_title": "Cuisson principale",
+--   "cook_objective": "Montée en température...",
+--   "cook_markers": ["La température monte...","Commencer à surveiller...","Le jus qui coule..."],
+--   "cook_advice_high": "À 150°C+ au fumoir...",
+--   "cook_advice_low": "En dessous de 130°C...",
+--   "finish_title": "Vérification & finition",
+--   "finish_objective": "S'assurer que le poulet...",
+--   "finish_markers": ["Cible : 74°C...","Vérifier aussi...","Remuer une cuisse..."],
+--   "finish_advice_high": "Si la peau est déjà dorée...",
+--   "finish_advice_low": "Peau molle ? Finis 5–10 min...",
+--   "rest_title": "Repos",
+--   "rest_objective": "Les jus se redistribuent...",
+--   "rest_markers": ["Couvrir de papier alu...","Laisser reposer sur une planche..."],
+--   "rest_advice": "Un repos de 10–15 min..."
+-- }

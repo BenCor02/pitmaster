@@ -772,6 +772,162 @@ function JsonField({ value, onChange, rows = 6, placeholder }) {
   )
 }
 
+/**
+ * Éditeur structuré des textes de phases.
+ * Affiche des champs texte individuels selon le cook_type.
+ * Le résultat est un objet JSON stocké dans phases_text.
+ */
+function PhasesTextEditor({ cookType, fixedTimes, value, onChange }) {
+  const pt = value || {}
+  const update = (key, val) => onChange({ ...pt, [key]: val })
+
+  // Helper pour un champ texte de phase
+  const PhaseField = ({ label, field, rows = 2, hint }) => (
+    <FormField label={label} hint={hint}>
+      <TextArea value={pt[field] || ''} onChange={v => update(field, v)} rows={rows} placeholder={label} />
+    </FormField>
+  )
+
+  const PhaseTitle = ({ label, field }) => (
+    <FormField label={label}>
+      <TextInput value={pt[field] || ''} onChange={v => update(field, v)} placeholder={label} />
+    </FormField>
+  )
+
+  const isRibs = !!fixedTimes
+  const isReverseSear = cookType === 'reverse_sear'
+  const isPoultry = cookType === 'low_and_slow' && pt.smoke_title // detect volaille by presence
+
+  // ── Low & Slow (boeuf, porc) ──
+  if (!isRibs && !isReverseSear) {
+    return (
+      <div className="space-y-6">
+        {/* Phase 1: Prise de fumée */}
+        <div className="p-4 rounded-xl bg-zinc-800/30 border border-white/[0.04] space-y-3">
+          <p className="text-[11px] font-bold text-[#ff6b1a] uppercase tracking-wider">Phase 1 — Prise de fumée</p>
+          <PhaseTitle label="Titre de la phase" field="phase1_title" />
+          <PhaseField label="Objectif" field="phase1_objective" />
+          <PhaseField label="Repère visuel" field="phase1_visual" />
+          <PhaseField label="Repère température" field="phase1_temp" rows={1} />
+          <PhaseField label="Info complémentaire" field="phase1_info" />
+          <PhaseField label="Conseil pitmaster" field="phase1_advice" rows={3} />
+        </div>
+
+        {/* Phase 2: Stall */}
+        <div className="p-4 rounded-xl bg-zinc-800/30 border border-white/[0.04] space-y-3">
+          <p className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Phase 2 — Stall</p>
+          <PhaseTitle label="Titre de la phase" field="stall_title" />
+          <PhaseField label="Objectif" field="stall_objective" />
+          <PhaseField label="Info complémentaire" field="stall_info" />
+          <PhaseField label="Conseil pitmaster" field="stall_advice" rows={3} />
+        </div>
+
+        {/* Phase 3: Wrap */}
+        <div className="p-4 rounded-xl bg-zinc-800/30 border border-white/[0.04] space-y-3">
+          <p className="text-[11px] font-bold text-blue-400 uppercase tracking-wider">Phase 3 — Wrap (Texas Crutch)</p>
+          <PhaseTitle label="Titre de la phase" field="wrap_title" />
+          <PhaseField label="Objectif" field="wrap_objective" />
+          <PhaseField label="Astuce wrap" field="wrap_tip" />
+          <PhaseField label="Conseil pitmaster" field="wrap_advice" rows={3} />
+        </div>
+
+        {/* Phase 4: Transformation */}
+        <div className="p-4 rounded-xl bg-zinc-800/30 border border-white/[0.04] space-y-3">
+          <p className="text-[11px] font-bold text-red-400 uppercase tracking-wider">Phase 4 — La Transformation</p>
+          <PhaseTitle label="Titre de la phase" field="transform_title" />
+          <PhaseField label="Objectif" field="transform_objective" />
+          <PhaseField label="Info complémentaire" field="transform_info" />
+          <PhaseField label="Conseil pitmaster" field="transform_advice" rows={3} />
+        </div>
+
+        {/* Phase 5: Repos */}
+        <div className="p-4 rounded-xl bg-zinc-800/30 border border-white/[0.04] space-y-3">
+          <p className="text-[11px] font-bold text-green-400 uppercase tracking-wider">Phase 5 — Repos</p>
+          <PhaseTitle label="Titre de la phase" field="rest_title" />
+          <PhaseField label="Objectif" field="rest_objective" />
+          <PhaseField label="Repères (un par ligne)" field="rest_markers_text" rows={4} hint="Chaque ligne = un repère visuel affiché séparément" />
+          <PhaseField label="Conseil pitmaster" field="rest_advice" rows={3} />
+        </div>
+      </div>
+    )
+  }
+
+  // ── Ribs ──
+  if (isRibs) {
+    return (
+      <div className="space-y-6">
+        <div className="p-4 rounded-xl bg-zinc-800/30 border border-white/[0.04] space-y-3">
+          <p className="text-[11px] font-bold text-[#ff6b1a] uppercase tracking-wider">Phase 1 — Fumée à nu</p>
+          <PhaseTitle label="Titre" field="smoke_title" />
+          <PhaseField label="Objectif" field="smoke_objective" />
+          <PhaseField label="Repères (un par ligne)" field="smoke_markers_text" rows={3} />
+          <PhaseField label="Conseil" field="smoke_advice" rows={2} />
+        </div>
+        <div className="p-4 rounded-xl bg-zinc-800/30 border border-white/[0.04] space-y-3">
+          <p className="text-[11px] font-bold text-blue-400 uppercase tracking-wider">Phase 2 — Wrap</p>
+          <PhaseTitle label="Titre" field="wrap_title" />
+          <PhaseField label="Objectif" field="wrap_objective" />
+          <PhaseField label="Repères (un par ligne)" field="wrap_markers_text" rows={3} />
+          <PhaseField label="Conseil" field="wrap_advice" rows={2} />
+        </div>
+        <div className="p-4 rounded-xl bg-zinc-800/30 border border-white/[0.04] space-y-3">
+          <p className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Phase 3 — Finition / laquage</p>
+          <PhaseTitle label="Titre" field="finish_title" />
+          <PhaseField label="Objectif" field="finish_objective" />
+          <PhaseField label="Repères (un par ligne)" field="finish_markers_text" rows={3} />
+          <PhaseField label="Conseil" field="finish_advice" rows={2} />
+        </div>
+        <div className="p-4 rounded-xl bg-zinc-800/30 border border-white/[0.04] space-y-3">
+          <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Alternative — Sans wrap</p>
+          <PhaseTitle label="Titre" field="unwrapped_title" />
+          <PhaseField label="Objectif" field="unwrapped_objective" />
+          <PhaseField label="Conseil" field="unwrapped_advice" rows={2} />
+        </div>
+        <div className="p-4 rounded-xl bg-zinc-800/30 border border-white/[0.04] space-y-3">
+          <p className="text-[11px] font-bold text-green-400 uppercase tracking-wider">Repos</p>
+          <PhaseTitle label="Titre" field="rest_title" />
+          <PhaseField label="Objectif" field="rest_objective" />
+          <PhaseField label="Repères (un par ligne)" field="rest_markers_text" rows={2} />
+          <PhaseField label="Conseil" field="rest_advice" rows={2} />
+        </div>
+      </div>
+    )
+  }
+
+  // ── Reverse Sear ──
+  if (isReverseSear) {
+    return (
+      <div className="space-y-6">
+        <div className="p-4 rounded-xl bg-zinc-800/30 border border-white/[0.04] space-y-3">
+          <p className="text-[11px] font-bold text-[#ff6b1a] uppercase tracking-wider">Phase 1 — Cuisson indirecte</p>
+          <PhaseTitle label="Titre" field="indirect_title" />
+          <PhaseField label="Objectif" field="indirect_objective" />
+          <PhaseField label="Conseil" field="indirect_advice" rows={3} />
+        </div>
+        <div className="p-4 rounded-xl bg-zinc-800/30 border border-white/[0.04] space-y-3">
+          <p className="text-[11px] font-bold text-red-400 uppercase tracking-wider">Phase 2 — Saisie</p>
+          <PhaseTitle label="Titre" field="sear_title" />
+          <PhaseField label="Objectif" field="sear_objective" />
+          <PhaseField label="Conseil" field="sear_advice" rows={3} />
+        </div>
+        <div className="p-4 rounded-xl bg-zinc-800/30 border border-white/[0.04] space-y-3">
+          <p className="text-[11px] font-bold text-green-400 uppercase tracking-wider">Repos</p>
+          <PhaseTitle label="Titre" field="rest_title" />
+          <PhaseField label="Objectif" field="rest_objective" />
+          <PhaseField label="Conseil" field="rest_advice" rows={2} />
+        </div>
+      </div>
+    )
+  }
+
+  // Fallback: JSON brut
+  return (
+    <FormField label="Textes des phases (JSON)" hint="Éditeur structuré non disponible pour ce type">
+      <JsonField value={value} onChange={onChange} rows={20} />
+    </FormField>
+  )
+}
+
 function ProfileFields({ form, set }) {
   return (
     <>
@@ -854,6 +1010,23 @@ function ProfileFields({ form, set }) {
           placeholder='{"stall_temp_min":65,"stall_temp_max":77,"wrap_temp_min":68,"wrap_temp_max":74,...}'
         />
       </FormField>
+
+      {/* Textes des phases de la timeline */}
+      <div className="border-t border-white/[0.06] pt-5 mt-5">
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-lg">📝</span>
+          <div>
+            <h3 className="text-[14px] font-bold text-white">Textes de la Timeline</h3>
+            <p className="text-[11px] text-zinc-500">Tous les textes affichés dans les phases du calculateur</p>
+          </div>
+        </div>
+        <PhasesTextEditor
+          cookType={form.cook_type}
+          fixedTimes={form.fixed_times}
+          value={form.phases_text}
+          onChange={v => set('phases_text', v)}
+        />
+      </div>
 
       {/* Active + Sort */}
       <div className="grid grid-cols-2 gap-4">
@@ -1204,7 +1377,7 @@ function getEmptyRecord(tab) {
     case 'faq': return { ...base, question: '', answer: '', meat_type: '', cooking_method: '', is_global: false }
     case 'woods': return { ...base, id: '', name: '', scientific_name: '', emoji: '', intensity: 'moyen', flavor_profile: '', description: '', best_meats: [], avoid_meats: [], burn_characteristics: '', origin: '', availability_eu: '', safety_notes: '', pitmaster_tips: '', source: '', is_toxic: false, toxic_reason: '' }
     case 'bbq': return { ...base, id: '', name: '', alt_names: [], icon: '', tagline: '', description: '', temp_range: '', fuel: '', price_range: '', level: 'debutant', capacity: '', pros: [], cons: [], best_for: [], not_ideal_for: [], brands: [], tips: '' }
-    case 'profiles': return { sort_order: 0, id: '', name: '', category: 'boeuf', icon: '🥩', cook_type: 'low_and_slow', supports_wrap: true, temp_bands: [{ temp_c: 107, min_per_kg: 120 }, { temp_c: 121, min_per_kg: 90 }, { temp_c: 135, min_per_kg: 70 }], fixed_times: null, wrap_reduction_percent: 12, rest_min: 30, rest_max: 60, reverse_sear: null, doneness_targets: null, cues: { stall_temp_min: 65, stall_temp_max: 77, wrap_temp_min: 68, wrap_temp_max: 74, begin_test_temp: 90, target_temp_min: 93, target_temp_max: 98 }, is_active: true }
+    case 'profiles': return { sort_order: 0, id: '', name: '', category: 'boeuf', icon: '🥩', cook_type: 'low_and_slow', supports_wrap: true, temp_bands: [{ temp_c: 107, min_per_kg: 120 }, { temp_c: 121, min_per_kg: 90 }, { temp_c: 135, min_per_kg: 70 }], fixed_times: null, wrap_reduction_percent: 12, rest_min: 30, rest_max: 60, reverse_sear: null, doneness_targets: null, cues: { stall_temp_min: 65, stall_temp_max: 77, wrap_temp_min: 68, wrap_temp_max: 74, begin_test_temp: 90, target_temp_min: 93, target_temp_max: 98 }, phases_text: null, is_active: true }
     default: return base
   }
 }

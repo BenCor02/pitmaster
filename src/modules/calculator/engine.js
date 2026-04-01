@@ -196,22 +196,24 @@ function buildPhases(profile, totalCookMin, tolerance, wrapped, ctx) {
 
   // ── Low & slow phases (bœuf, porc) — différenciées par viande ──
 
-  // Repères spécifiques par profil
+  // Repères spécifiques par profil (hardcoded fallback)
   const meatTips = getLowSlowMeatTips(profile)
+  // Textes admin-editables (priorité sur hardcoded)
+  const pt = profile.phases_text || {}
 
   // Phase 1: Prise de fumée (~25%)
   const phase1Min = totalCookMin * 0.25
   phases.push({
     num: 1,
-    title: 'Prise de fumée',
+    title: pt.phase1_title || 'Prise de fumée',
     duration: formatApproxDuration(phase1Min, tolerance * 100),
-    objective: meatTips.phase1Objective,
+    objective: pt.phase1_objective || meatTips.phase1Objective,
     markers: [
-      { type: 'visual', text: meatTips.phase1Visual },
-      { type: 'temp', text: meatTips.phase1Temp },
-      { type: 'info', text: meatTips.phase1Info },
+      { type: 'visual', text: pt.phase1_visual || meatTips.phase1Visual },
+      { type: 'temp', text: pt.phase1_temp || meatTips.phase1Temp },
+      { type: 'info', text: pt.phase1_info || meatTips.phase1Info },
     ],
-    advice: meatTips.phase1Advice,
+    advice: pt.phase1_advice || meatTips.phase1Advice,
   })
 
   // Phase 2: Stall (~30%)
@@ -219,14 +221,14 @@ function buildPhases(profile, totalCookMin, tolerance, wrapped, ctx) {
     const phase2Min = totalCookMin * 0.30
     phases.push({
       num: 2,
-      title: 'Le Stall — la viande transpire',
+      title: pt.stall_title || 'Le Stall — la viande transpire',
       duration: formatApproxDuration(phase2Min, tolerance * 100),
-      objective: meatTips.stallObjective,
+      objective: pt.stall_objective || meatTips.stallObjective,
       markers: [
         { type: 'temp', text: `Plateau entre ${profile.cues.stall_temp_min}°C et ${profile.cues.stall_temp_max}°C — la sonde ne bouge plus` },
-        { type: 'info', text: meatTips.stallInfo },
+        { type: 'info', text: pt.stall_info || meatTips.stallInfo },
       ],
-      advice: meatTips.stallAdvice,
+      advice: pt.stall_advice || meatTips.stallAdvice,
     })
   }
 
@@ -234,42 +236,45 @@ function buildPhases(profile, totalCookMin, tolerance, wrapped, ctx) {
   if (wrapped && profile.supports_wrap) {
     phases.push({
       num: phases.length + 1,
-      title: 'Le Wrap — Texas Crutch',
+      title: pt.wrap_title || 'Le Wrap — Texas Crutch',
       duration: null,
-      objective: 'Passer le stall, garder l\'humidité et accélérer la dernière ligne droite',
+      objective: pt.wrap_objective || 'Passer le stall, garder l\'humidité et accélérer la dernière ligne droite',
       markers: [
         { type: 'temp', text: profile.cues?.wrap_temp_min ? `Emballer entre ${profile.cues.wrap_temp_min}°C et ${profile.cues.wrap_temp_max}°C interne` : 'Emballer quand la bark est bien fixée' },
         { type: 'visual', text: profile.cues?.visual_wrap || 'Bark sèche, sombre, ne se raye plus à l\'ongle' },
-        { type: 'info', text: meatTips.wrapTip },
+        { type: 'info', text: pt.wrap_tip || meatTips.wrapTip },
       ],
-      advice: meatTips.wrapAdvice,
+      advice: pt.wrap_advice || meatTips.wrapAdvice,
     })
   }
 
-  // Phase 4: La Transformation (~25%) — ex "Rendu du collagène"
+  // Phase 4: La Transformation (~25%)
   const phase4Min = totalCookMin * 0.25
   phases.push({
     num: phases.length + 1,
-    title: 'La Transformation',
+    title: pt.transform_title || 'La Transformation',
     duration: formatApproxDuration(phase4Min, tolerance * 100),
-    objective: meatTips.transformObjective,
+    objective: pt.transform_objective || meatTips.transformObjective,
     markers: [
       { type: 'temp', text: profile.cues?.begin_test_temp ? `Commencer les tests vers ${profile.cues.begin_test_temp}°C` : 'Commencer les tests vers 90°C' },
       { type: 'visual', text: profile.cues?.probe_tender || 'La sonde entre comme dans du beurre' },
       { type: 'temp', text: profile.cues?.target_temp_min ? `Cible : ${profile.cues.target_temp_min}–${profile.cues.target_temp_max}°C` : 'Cible : 92–97°C' },
-      { type: 'info', text: meatTips.transformInfo },
+      { type: 'info', text: pt.transform_info || meatTips.transformInfo },
     ],
-    advice: meatTips.transformAdvice,
+    advice: pt.transform_advice || meatTips.transformAdvice,
   })
 
   // Phase 5: Repos
+  const restMarkers = pt.rest_markers_text
+    ? pt.rest_markers_text.split('\n').filter(Boolean).map(t => ({ type: 'visual', text: t }))
+    : meatTips.restMarkers
   phases.push({
     num: phases.length + 1,
-    title: 'Le Repos — patience finale',
+    title: pt.rest_title || 'Le Repos — patience finale',
     duration: formatRange(ctx.restMin, ctx.restMax),
-    objective: meatTips.restObjective,
-    markers: meatTips.restMarkers,
-    advice: meatTips.restAdvice,
+    objective: pt.rest_objective || meatTips.restObjective,
+    markers: restMarkers,
+    advice: pt.rest_advice || meatTips.restAdvice,
   })
 
   return phases
@@ -402,74 +407,80 @@ function getLowSlowMeatTips(profile) {
 function buildRibsPhases(profile, wrapped, ctx) {
   const phases = []
   const isSpare = profile.id === 'spare_ribs'
+  const pt = profile.phases_text || {}
+
+  // Helper: parse markers text (one per line) or fallback to array
+  const parseMarkers = (textKey, fallback) => {
+    if (pt[textKey]) return pt[textKey].split('\n').filter(Boolean).map(t => ({ type: 'visual', text: t }))
+    return fallback
+  }
 
   if (wrapped) {
-    // Méthode 3-2-1 ou 2-2-1
     const smokeH = isSpare ? 3 : 2
     const wrapH = 2
     const finishH = 1
 
     phases.push({
       num: 1,
-      title: 'Fumée à nu',
+      title: pt.smoke_title || 'Fumée à nu',
       duration: `~${smokeH}h`,
-      objective: 'Développer la bark et les arômes fumés',
-      markers: [
+      objective: pt.smoke_objective || 'Développer la bark et les arômes fumés',
+      markers: parseMarkers('smoke_markers_text', [
         { type: 'visual', text: 'La surface fonce et devient sèche' },
         { type: 'temp', text: '110–120°C au fumoir' },
-      ],
-      advice: "Pas besoin de spritzer pendant cette phase. Laisser le feu faire son travail.",
+      ]),
+      advice: pt.smoke_advice || "Pas besoin de spritzer pendant cette phase. Laisser le feu faire son travail.",
     })
 
     phases.push({
       num: 2,
-      title: 'Emballé (wrap)',
+      title: pt.wrap_title || 'Emballé (wrap)',
       duration: `~${wrapH}h`,
-      objective: 'Attendrir la viande et accélérer la cuisson',
-      markers: [
+      objective: pt.wrap_objective || 'Attendrir la viande et accélérer la cuisson',
+      markers: parseMarkers('wrap_markers_text', [
         { type: 'visual', text: 'Emballer avec beurre, miel ou jus de pomme' },
         { type: 'visual', text: 'Papier alu ou papier boucher' },
-      ],
-      advice: "C'est pendant cette phase que la viande devient fondante. Ne pas ouvrir.",
+      ]),
+      advice: pt.wrap_advice || "C'est pendant cette phase que la viande devient fondante. Ne pas ouvrir.",
     })
 
     phases.push({
       num: 3,
-      title: 'Finition / laquage',
+      title: pt.finish_title || 'Finition / laquage',
       duration: `~${finishH}h`,
-      objective: 'Caraméliser la sauce et raffermir légèrement la surface',
-      markers: [
+      objective: pt.finish_objective || 'Caraméliser la sauce et raffermir légèrement la surface',
+      markers: parseMarkers('finish_markers_text', [
         { type: 'visual', text: 'Appliquer la sauce en couches fines' },
         { type: 'visual', text: 'La sauce doit devenir collante et brillante' },
-      ],
-      advice: "Remettre à nu dans le fumoir. Badigeonner toutes les 15-20 minutes.",
+      ]),
+      advice: pt.finish_advice || "Remettre à nu dans le fumoir. Badigeonner toutes les 15-20 minutes.",
     })
   } else {
     const totalH = isSpare ? '5 à 6' : '4 à 5'
     phases.push({
       num: 1,
-      title: 'Fumée complète à nu',
+      title: pt.unwrapped_title || 'Fumée complète à nu',
       duration: `~${totalH}h`,
-      objective: 'Cuisson lente sans emballage — bark maximale',
+      objective: pt.unwrapped_objective || 'Cuisson lente sans emballage — bark maximale',
       markers: [
         { type: 'visual', text: 'Surface très sombre et sèche' },
         { type: 'temp', text: '110–120°C au fumoir' },
         { type: 'visual', text: profile.cues?.probe_tender || 'Flex test : le rack plie et fissure' },
       ],
-      advice: "Sans wrap, la bark est plus prononcée mais la viande est moins fondante. Spritzer toutes les 45 min si nécessaire.",
+      advice: pt.unwrapped_advice || "Sans wrap, la bark est plus prononcée mais la viande est moins fondante. Spritzer toutes les 45 min si nécessaire.",
     })
   }
 
   // Repos ribs
   phases.push({
     num: phases.length + 1,
-    title: 'Repos',
+    title: pt.rest_title || 'Repos',
     duration: formatRange(ctx.restMin, ctx.restMax),
-    objective: 'Laisser les jus se redistribuer',
-    markers: [
+    objective: pt.rest_objective || 'Laisser les jus se redistribuer',
+    markers: parseMarkers('rest_markers_text', [
       { type: 'visual', text: 'Reposer 10-20 minutes à couvert' },
-    ],
-    advice: 'Les ribs ne nécessitent pas un long repos comme un brisket.',
+    ]),
+    advice: pt.rest_advice || 'Les ribs ne nécessitent pas un long repos comme un brisket.',
   })
 
   return phases
@@ -477,44 +488,45 @@ function buildRibsPhases(profile, wrapped, ctx) {
 
 function buildReverseSearPhases(profile, totalCookMin, tolerance, ctx) {
   const phases = []
+  const pt = profile.phases_text || {}
 
   // Phase 1: Cuisson indirecte
   phases.push({
     num: 1,
-    title: 'Cuisson indirecte basse température',
+    title: pt.indirect_title || 'Cuisson indirecte basse température',
     duration: formatApproxDuration(totalCookMin, tolerance * 100),
-    objective: 'Monter doucement en température pour une cuisson uniforme',
+    objective: pt.indirect_objective || 'Monter doucement en température pour une cuisson uniforme',
     markers: [
       { type: 'temp', text: `Fumoir à ${ctx.cookTempC}°C (zone indirecte)` },
       { type: 'temp', text: ctx.reversePullTemp ? `Sortir la viande à ${ctx.reversePullTemp}°C interne` : 'Sortir ~8°C avant la cible finale' },
     ],
-    advice: "La patience est la clé. Plus la montée est lente, plus la cuisson est uniforme d'un bord à l'autre.",
+    advice: pt.indirect_advice || "La patience est la clé. Plus la montée est lente, plus la cuisson est uniforme d'un bord à l'autre.",
   })
 
   // Phase 2: Saisie
   phases.push({
     num: 2,
-    title: 'Saisie finale (sear)',
+    title: pt.sear_title || 'Saisie finale (sear)',
     duration: `~${ctx.searMinutes} min total`,
-    objective: 'Créer une croûte caramélisée (réaction de Maillard)',
+    objective: pt.sear_objective || 'Créer une croûte caramélisée (réaction de Maillard)',
     markers: [
       { type: 'temp', text: 'Grill ou poêle en fonte à 250–300°C' },
       { type: 'visual', text: '~45–60 secondes par face' },
       { type: 'temp', text: ctx.targetFinalTemp ? `Cible finale : ${ctx.targetFinalTemp}°C` : '' },
     ].filter(m => m.text),
-    advice: "Sécher la surface avant de saisir. Une surface sèche = meilleure croûte.",
+    advice: pt.sear_advice || "Sécher la surface avant de saisir. Une surface sèche = meilleure croûte.",
   })
 
   // Phase 3: Repos court
   phases.push({
     num: 3,
-    title: 'Repos',
+    title: pt.rest_title || 'Repos',
     duration: formatRange(ctx.restMin, ctx.restMax),
-    objective: 'Redistribution des jus',
+    objective: pt.rest_objective || 'Redistribution des jus',
     markers: [
       { type: 'visual', text: 'Repos court sous aluminium' },
     ],
-    advice: "Ne pas couper immédiatement. Même 5 minutes font une différence.",
+    advice: pt.rest_advice || "Ne pas couper immédiatement. Même 5 minutes font une différence.",
   })
 
   return phases
@@ -587,66 +599,73 @@ function buildReverseSearGuide(profile, doneness) {
 function buildPoultryPhases(profile, totalCookMin, tolerance, ctx) {
   const phases = []
   const highTemp = ctx.cookTempC >= 150
+  const pt = profile.phases_text || {}
+
+  // Helper: parse markers text (one per line) or fallback to array
+  const parseMarkers = (textKey, fallback) => {
+    if (pt[textKey]) return pt[textKey].split('\n').filter(Boolean).map(t => ({ type: 'visual', text: t }))
+    return fallback
+  }
 
   // Phase 1: Mise en fumée
   const phase1Min = totalCookMin * 0.35
   phases.push({
     num: 1,
-    title: 'Mise en fumée',
+    title: pt.smoke_title || 'Mise en fumée',
     duration: formatApproxDuration(phase1Min, tolerance * 100),
-    objective: 'Absorption de la fumée et coloration de la peau',
-    markers: [
+    objective: pt.smoke_objective || 'Absorption de la fumée et coloration de la peau',
+    markers: parseMarkers('smoke_markers_text', [
       { type: 'visual', text: 'La peau commence à dorer et prend une teinte ambrée' },
       { type: 'temp', text: 'Température interne : ~40–55°C' },
       { type: 'visual', text: 'Placement de la sonde : piquer dans la partie la plus épaisse de la cuisse, sans toucher l\'os' },
-    ],
-    advice: 'Plante la sonde dans le gras de la cuisse, entre le pilon et le haut de cuisse, en visant le centre de la chair. C\'est la partie la plus longue à cuire — c\'est elle qui décide quand le poulet est prêt.',
+    ]),
+    advice: pt.smoke_advice || 'Plante la sonde dans le gras de la cuisse, entre le pilon et le haut de cuisse, en visant le centre de la chair. C\'est la partie la plus longue à cuire — c\'est elle qui décide quand le poulet est prêt.',
   })
 
   // Phase 2: Cuisson principale
   const phase2Min = totalCookMin * 0.45
   phases.push({
     num: 2,
-    title: 'Cuisson principale',
+    title: pt.cook_title || 'Cuisson principale',
     duration: formatApproxDuration(phase2Min, tolerance * 100),
-    objective: 'Montée en température progressive vers la cible de 74°C',
-    markers: [
+    objective: pt.cook_objective || 'Montée en température progressive vers la cible de 74°C',
+    markers: parseMarkers('cook_markers_text', [
       { type: 'temp', text: 'La température monte régulièrement — pas de stall comme le bœuf ou le porc' },
       { type: 'temp', text: 'Commencer à surveiller à partir de 65°C interne' },
       { type: 'visual', text: 'Le jus qui coule de la cuisse doit devenir clair (pas rosé)' },
-    ],
+    ]),
     advice: highTemp
-      ? 'À 150°C+ au fumoir, la peau croustille bien. C\'est le sweet spot pour un poulet fumé avec une belle peau.'
-      : 'En dessous de 130°C, la peau reste molle et caoutchouteuse. Pense à finir 10 min sur un grill chaud pour la crisper.',
+      ? (pt.cook_advice_high || 'À 150°C+ au fumoir, la peau croustille bien. C\'est le sweet spot pour un poulet fumé avec une belle peau.')
+      : (pt.cook_advice_low || 'En dessous de 130°C, la peau reste molle et caoutchouteuse. Pense à finir 10 min sur un grill chaud pour la crisper.'),
   })
 
   // Phase 3: Finition / vérification
   phases.push({
     num: 3,
-    title: 'Vérification & finition',
+    title: pt.finish_title || 'Vérification & finition',
     duration: '5–10 min',
-    objective: 'S\'assurer que le poulet est cuit à cœur et que la peau est à ton goût',
-    markers: [
+    objective: pt.finish_objective || 'S\'assurer que le poulet est cuit à cœur et que la peau est à ton goût',
+    markers: parseMarkers('finish_markers_text', [
       { type: 'temp', text: 'Cible : 74°C dans la cuisse (sécurité alimentaire)' },
       { type: 'temp', text: 'Vérifier aussi entre le blanc et la cuisse : piquer à la jonction, viser 74°C' },
       { type: 'visual', text: 'Remuer une cuisse — elle doit bouger facilement dans l\'articulation' },
-    ],
+    ]),
     advice: !highTemp
-      ? 'Peau molle ? Finis 5–10 min sur un grill très chaud (250°C+) ou sous le gril du four pour crisper la peau sans sur-cuire la chair.'
-      : 'Si la peau est déjà dorée et croustillante, c\'est prêt. Ne dépasse pas 80°C interne sinon les blancs sèchent.',
+      ? (pt.finish_advice_low || 'Peau molle ? Finis 5–10 min sur un grill très chaud (250°C+) ou sous le gril du four pour crisper la peau sans sur-cuire la chair.')
+      : (pt.finish_advice_high || 'Si la peau est déjà dorée et croustillante, c\'est prêt. Ne dépasse pas 80°C interne sinon les blancs sèchent.'),
   })
 
   // Phase 4: Repos
   phases.push({
     num: 4,
-    title: 'Repos',
+    title: pt.rest_title || 'Repos',
     duration: formatRange(ctx.restMin, ctx.restMax),
-    objective: 'Les jus se redistribuent — le poulet sera plus juteux à la découpe',
-    markers: [
+    objective: pt.rest_objective || 'Les jus se redistribuent — le poulet sera plus juteux à la découpe',
+    markers: parseMarkers('rest_markers_text', [
       { type: 'visual', text: 'Couvrir de papier alu en tente (sans serrer, pour garder la peau croustillante)' },
       { type: 'visual', text: 'Laisser reposer sur une planche, pas dans un plat (l\'humidité ramollit le dessous)' },
-    ],
-    advice: 'Un repos de 10–15 min suffit pour le poulet. Pas besoin de glacière comme pour le brisket — la volaille se découpe vite.',
+    ]),
+    advice: pt.rest_advice || 'Un repos de 10–15 min suffit pour le poulet. Pas besoin de glacière comme pour le brisket — la volaille se découpe vite.',
   })
 
   return phases

@@ -46,6 +46,7 @@ export async function fetchCookingProfiles() {
       reverse_sear: row.reverse_sear || undefined,
       doneness_targets: row.doneness_targets || undefined,
       cues: row.cues || {},
+      phases_text: row.phases_text || undefined,
     }))
     _cacheTime = now
     return _cache
