@@ -82,7 +82,7 @@ export default function Layout({ children }) {
     <div className="min-h-screen flex bg-[#080808]">
 
       {/* ══════════ SIDEBAR DESKTOP ══════════ */}
-      <aside aria-label="Navigation principale" className="hidden lg:flex flex-col w-[280px] shrink-0 bg-[#0c0c0c] border-r border-white/[0.04] relative overflow-hidden sticky top-0 h-screen overflow-y-auto texture-grain z-40">
+      <aside aria-label="Navigation principale" className="hidden lg:flex flex-col w-[280px] shrink-0 bg-[#0c0c0c] border-r border-white/[0.04] relative overflow-x-hidden overflow-y-auto sticky top-0 h-screen texture-grain z-40">
         {/* Ambient glows */}
         <div className="absolute -top-24 -left-24 w-80 h-80 bg-[#ff6b1a]/[0.02] rounded-full blur-[100px] pointer-events-none animate-fire-breathe" />
         <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-[#dc2626]/[0.015] rounded-full blur-[60px] pointer-events-none" />
