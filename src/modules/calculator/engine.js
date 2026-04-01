@@ -194,21 +194,24 @@ function buildPhases(profile, totalCookMin, tolerance, wrapped, ctx) {
     return buildPoultryPhases(profile, totalCookMin, tolerance, ctx)
   }
 
-  // ── Low & slow phases (bœuf, porc) ───────────────────
+  // ── Low & slow phases (bœuf, porc) — différenciées par viande ──
 
-  // Phase 1: Montée initiale (~25%)
+  // Repères spécifiques par profil
+  const meatTips = getLowSlowMeatTips(profile)
+
+  // Phase 1: Prise de fumée (~25%)
   const phase1Min = totalCookMin * 0.25
   phases.push({
     num: 1,
-    title: 'Montée initiale',
+    title: 'Prise de fumée',
     duration: formatApproxDuration(phase1Min, tolerance * 100),
-    objective: 'Formation de la bark et développement des saveurs',
+    objective: meatTips.phase1Objective,
     markers: [
-      { type: 'visual', text: 'La surface de la viande fonce progressivement' },
-      { type: 'visual', text: 'La surface devient sèche au toucher' },
-      { type: 'temp', text: `Température interne : ~65–75°C` },
+      { type: 'visual', text: meatTips.phase1Visual },
+      { type: 'temp', text: meatTips.phase1Temp },
+      { type: 'info', text: meatTips.phase1Info },
     ],
-    advice: 'Ne pas ouvrir le couvercle trop souvent. Chaque ouverture ajoute du temps.',
+    advice: meatTips.phase1Advice,
   })
 
   // Phase 2: Stall (~30%)
@@ -216,14 +219,14 @@ function buildPhases(profile, totalCookMin, tolerance, wrapped, ctx) {
     const phase2Min = totalCookMin * 0.30
     phases.push({
       num: 2,
-      title: 'Stall (plateau thermique)',
+      title: 'Le Stall — la viande transpire',
       duration: formatApproxDuration(phase2Min, tolerance * 100),
-      objective: 'Phase normale où la température interne semble stagner',
+      objective: meatTips.stallObjective,
       markers: [
-        { type: 'temp', text: `Plateau entre ${profile.cues.stall_temp_min}°C et ${profile.cues.stall_temp_max}°C` },
-        { type: 'info', text: "L'évaporation de l'eau refroidit la viande — c'est le même effet que la transpiration" },
+        { type: 'temp', text: `Plateau entre ${profile.cues.stall_temp_min}°C et ${profile.cues.stall_temp_max}°C — la sonde ne bouge plus` },
+        { type: 'info', text: meatTips.stallInfo },
       ],
-      advice: 'Ne pas monter la température du fumoir. Patience. Le stall finit toujours par passer.',
+      advice: meatTips.stallAdvice,
     })
   }
 
@@ -231,48 +234,169 @@ function buildPhases(profile, totalCookMin, tolerance, wrapped, ctx) {
   if (wrapped && profile.supports_wrap) {
     phases.push({
       num: phases.length + 1,
-      title: 'Wrap (Texas crutch)',
+      title: 'Le Wrap — Texas Crutch',
       duration: null,
-      objective: 'Accélérer la fin de cuisson et passer le stall plus vite',
+      objective: 'Passer le stall, garder l\'humidité et accélérer la dernière ligne droite',
       markers: [
-        { type: 'temp', text: profile.cues?.wrap_temp_min ? `Emballer entre ${profile.cues.wrap_temp_min}°C et ${profile.cues.wrap_temp_max}°C interne` : 'Emballer quand la bark est fixée' },
-        { type: 'visual', text: profile.cues?.visual_wrap || 'Bark sèche, sombre, ne se raye plus' },
+        { type: 'temp', text: profile.cues?.wrap_temp_min ? `Emballer entre ${profile.cues.wrap_temp_min}°C et ${profile.cues.wrap_temp_max}°C interne` : 'Emballer quand la bark est bien fixée' },
+        { type: 'visual', text: profile.cues?.visual_wrap || 'Bark sèche, sombre, ne se raye plus à l\'ongle' },
+        { type: 'info', text: meatTips.wrapTip },
       ],
-      advice: 'Papier boucher (meilleure bark) ou aluminium (plus rapide). Le wrap réduit le stall mais ramollit légèrement la bark.',
+      advice: meatTips.wrapAdvice,
     })
   }
 
-  // Phase 4: Rendu du collagène (~25%)
+  // Phase 4: La Transformation (~25%) — ex "Rendu du collagène"
   const phase4Min = totalCookMin * 0.25
   phases.push({
     num: phases.length + 1,
-    title: 'Rendu du collagène',
+    title: 'La Transformation',
     duration: formatApproxDuration(phase4Min, tolerance * 100),
-    objective: 'Le collagène se transforme en gélatine — la viande devient tendre',
+    objective: meatTips.transformObjective,
     markers: [
       { type: 'temp', text: profile.cues?.begin_test_temp ? `Commencer les tests vers ${profile.cues.begin_test_temp}°C` : 'Commencer les tests vers 90°C' },
       { type: 'visual', text: profile.cues?.probe_tender || 'La sonde entre comme dans du beurre' },
       { type: 'temp', text: profile.cues?.target_temp_min ? `Cible : ${profile.cues.target_temp_min}–${profile.cues.target_temp_max}°C` : 'Cible : 92–97°C' },
+      { type: 'info', text: meatTips.transformInfo },
     ],
-    advice: "C'est la texture qui décide, pas le thermomètre. La sonde doit entrer sans résistance.",
+    advice: meatTips.transformAdvice,
   })
 
   // Phase 5: Repos
   phases.push({
     num: phases.length + 1,
-    title: 'Repos',
+    title: 'Le Repos — patience finale',
     duration: formatRange(ctx.restMin, ctx.restMax),
-    objective: 'Les jus se redistribuent dans la viande',
-    markers: [
-      { type: 'visual', text: 'Emballer dans une serviette épaisse' },
-      { type: 'visual', text: 'Placer dans une glacière fermée (pas de glace)' },
-    ],
-    advice: ctx.restMax >= 60
-      ? "Le repos est aussi important que la cuisson. Un brisket peut rester 4h dans une glacière fermée sans problème."
-      : "Repos court mais nécessaire. Laisser reposer à couvert.",
+    objective: meatTips.restObjective,
+    markers: meatTips.restMarkers,
+    advice: meatTips.restAdvice,
   })
 
   return phases
+}
+
+/**
+ * Repères pitmaster spécifiques à chaque viande pour les phases low & slow.
+ * Chaque viande a ses propres marqueurs visuels, températures et conseils.
+ */
+function getLowSlowMeatTips(profile) {
+  const id = profile.id
+
+  // ── BRISKET ──
+  if (id === 'brisket') return {
+    phase1Objective: 'Formation de la bark — la croûte fumée qui fait toute la différence',
+    phase1Visual: 'La surface fonce du rose au brun acajou. Le gras de surface commence à rendre et nourrit la bark.',
+    phase1Temp: 'Température interne : ~55–70°C',
+    phase1Info: 'C\'est pendant cette phase que la viande absorbe le plus de fumée. Bois de choix : chêne, noyer, ou mesquite pour un goût texan.',
+    phase1Advice: 'Côté gras vers le haut ou le bas ? Ça dépend de ton fumoir. Gras vers la source de chaleur pour protéger la viande. Ne touche à rien pendant au moins 2h.',
+    stallObjective: 'La viande transpire — l\'évaporation fait stagner la température pendant parfois 2 à 4h',
+    stallInfo: 'C\'est normal et c\'est un bon signe. L\'eau s\'évapore en surface et refroidit la viande, comme la sueur. Plus le brisket est gros, plus le stall est long.',
+    stallAdvice: 'C\'est le moment où la plupart des débutants paniquent. Ne monte PAS la température du fumoir. Si tu as le temps, laisse faire. Sinon, c\'est le moment de wrapper.',
+    wrapTip: 'Pour le brisket, le papier boucher (peach paper) est le choix des compétiteurs — il garde la bark intacte tout en retenant l\'humidité.',
+    wrapAdvice: 'Papier boucher > aluminium pour le brisket. L\'alu donne un résultat plus « braisé ». Le papier garde la texture de la bark. Ajoute un filet de jus de cuisson ou de bouillon avant de fermer.',
+    transformObjective: 'Le tissu conjonctif fond et se transforme en gélatine — c\'est ça qui rend le brisket fondant',
+    transformInfo: 'Le thermomètre ne suffit pas. Deux briskets à 96°C peuvent avoir des textures complètement différentes. Fais confiance à la sonde : elle doit glisser sans aucune résistance.',
+    transformAdvice: 'Teste le flat (partie maigre) au point le plus épais. Si ça accroche encore, remets 30 min et reteste. La patience ici fait la différence entre un bon et un grand brisket.',
+    restObjective: 'Les jus se redistribuent et la gélatine se stabilise — le repos est AUSSI important que la cuisson',
+    restMarkers: [
+      { type: 'visual', text: 'Emballer serré dans du papier boucher, puis dans une serviette épaisse' },
+      { type: 'visual', text: 'Placer dans une glacière fermée (sans glace). Peut tenir 4h+ sans problème.' },
+      { type: 'info', text: 'Un brisket qui a reposé 2h sera toujours meilleur qu\'un brisket découpé à la sortie du fumoir.' },
+    ],
+    restAdvice: 'Minimum 1h de repos, idéalement 2h. Aaron Franklin repose ses briskets 2-3h en glacière. C\'est pendant le repos que la magie opère — la gélatine épaissit et retient les jus.',
+  }
+
+  // ── BEEF SHORT RIBS ──
+  if (id === 'beef_short_ribs') return {
+    phase1Objective: 'Développement de la bark et pénétration de la fumée dans les fibres épaisses',
+    phase1Visual: 'La surface caramélise lentement. Le gras entre les os commence à rendre et perle en surface.',
+    phase1Temp: 'Température interne : ~55–70°C',
+    phase1Info: 'Les short ribs sont très persillées — le gras intramusculaire fond pendant toute la cuisson et donne cette texture « beefy » incomparable.',
+    phase1Advice: 'Dispose les short ribs os vers le bas pour protéger la viande. Le gras va fondre vers le bas et nourrir la bark. Bois recommandé : chêne ou hickory.',
+    stallObjective: 'Stall classique — la température interne semble bloquée pendant que l\'eau s\'évapore',
+    stallInfo: 'Sur les short ribs, le stall peut être moins prononcé que sur un brisket car la pièce est plus petite, mais il est bien là.',
+    stallAdvice: 'Patience. Les short ribs ont beaucoup de tissu conjonctif qui a besoin de temps pour se transformer. Ne coupe pas la cuisson trop tôt.',
+    wrapTip: 'L\'aluminium fonctionne très bien pour les short ribs — l\'effet « braisé » est un plus sur cette pièce grasse.',
+    wrapAdvice: 'Alu ou papier boucher, les deux marchent. Ajoute un peu de bouillon de bœuf ou de jus de cuisson pour braiser légèrement. Le résultat sera spectaculaire.',
+    transformObjective: 'Le gras et les tissus conjonctifs fondent — la viande devient tremblotante comme de la gelée',
+    transformInfo: 'Les short ribs peuvent encaisser jusqu\'à 99°C sans problème. Plus tu pousses (dans la cible), plus c\'est fondant. Le gras protège la viande du dessèchement.',
+    transformAdvice: 'Secoue doucement le rack — la viande doit trembler comme de la gelée. C\'est le signe que c\'est prêt. Si c\'est encore ferme, remets 30 min.',
+    restObjective: 'Stabilisation des jus — repos modéré pour une viande prête à servir',
+    restMarkers: [
+      { type: 'visual', text: 'Reposer 30 min à 1h à couvert, dans l\'emballage' },
+      { type: 'visual', text: 'La viande doit légèrement « figer » en surface — c\'est le gras qui se stabilise' },
+    ],
+    restAdvice: 'Repos plus court que le brisket — 30 min à 1h suffit. Les short ribs se servent souvent en rack entier, découpées entre les os à table.',
+  }
+
+  // ── CHUCK ROAST / PALERON ──
+  if (id === 'chuck_roast') return {
+    phase1Objective: 'Formation de la bark sur cette pièce compacte et persillée',
+    phase1Visual: 'La surface fonce uniformément. Le paleron étant compact, la bark se forme plus vite que sur un brisket.',
+    phase1Temp: 'Température interne : ~55–70°C',
+    phase1Info: 'Le paleron est le « poor man\'s brisket » — moins cher, plus rapide, et excellent en pulled beef. Très persillé = très tolérant.',
+    phase1Advice: 'Pas besoin de spritzer le paleron — il a suffisamment de gras interne pour rester juteux. Laisse le fumoir faire son travail.',
+    stallObjective: 'Stall plus court que le brisket grâce à la taille plus modeste de la pièce',
+    stallInfo: 'Le paleron stalle aussi mais moins longtemps. Le réseau de gras interne aide à passer le plateau plus vite.',
+    stallAdvice: 'Le paleron est plus tolérant que le brisket. Même si tu dépasses un peu la cible en température, le gras interne compense.',
+    wrapTip: 'Le papier alu avec un fond de bouillon donne un excellent résultat « braisé » sur le paleron.',
+    wrapAdvice: 'Emballer avec un filet de bouillon de bœuf ou de Worcestershire. Le paleron se prête bien à un résultat mi-fumé, mi-braisé.',
+    transformObjective: 'Le réseau de gras et de tissus conjonctifs fond — le paleron se défait en filaments',
+    transformInfo: 'Cible 91–96°C. Le paleron est prêt quand tu peux le tirer en filaments avec deux fourchettes sans effort.',
+    transformAdvice: 'Teste en tirant un morceau avec une fourchette. Si ça se défait en filaments sans résistance, c\'est prêt pour du pulled beef. Sinon, remets 20 min.',
+    restObjective: 'Court repos pour stabiliser la texture avant d\'effilocher',
+    restMarkers: [
+      { type: 'visual', text: 'Reposer 30 min à couvert dans l\'emballage' },
+      { type: 'info', text: 'Le paleron peut être effiloché directement après le repos — pas besoin de glacière' },
+    ],
+    restAdvice: 'Repos de 30 min à 1h, puis effiloche dans un grand saladier. Mélange avec un peu de jus de cuisson récupéré dans l\'emballage.',
+  }
+
+  // ── PULLED PORK ──
+  if (id === 'pulled_pork') return {
+    phase1Objective: 'Formation de la bark et absorption maximale de la fumée — c\'est ici que le goût se construit',
+    phase1Visual: 'La surface rougit puis vire au brun-rouge foncé. La couche de gras externe commence à fondre et nourrit la bark.',
+    phase1Temp: 'Température interne : ~55–65°C',
+    phase1Info: 'L\'échine de porc (pork butt) est la pièce la plus tolérante du BBQ. Beaucoup de gras, beaucoup de tissu conjonctif = beaucoup de saveur et une grande marge d\'erreur.',
+    phase1Advice: 'Bois de choix : pommier, cerisier, ou hickory. Le fumoir à 107–121°C est le sweet spot. Ne soulève pas le couvercle pendant les 3 premières heures.',
+    stallObjective: 'Le porc stalle plus tôt et parfois plus longtemps que le bœuf — c\'est normal',
+    stallInfo: 'L\'échine de porc contient beaucoup d\'eau. Le stall peut commencer dès 63°C et durer plusieurs heures. C\'est la phase la plus longue.',
+    stallAdvice: 'C\'est LE moment de patience. Le pulled pork récompense ceux qui ne paniquent pas. Si tu as le temps, ne wrappe pas — la bark sera exceptionnelle.',
+    wrapTip: 'Pour le porc, l\'alu fonctionne aussi bien que le papier boucher. Ajoute du jus de pomme ou du vinaigre de cidre dans le wrap.',
+    wrapAdvice: 'Emballe avec un généreux filet de jus de pomme (ou bière, ou vinaigre de cidre). L\'acidité attendrit les fibres et ajoute une couche de saveur. Le porc est tolérant — difficile de rater.',
+    transformObjective: 'Le gras fond dans les fibres, les tissus se relâchent — la viande devient effilochable',
+    transformInfo: 'La cible est 93–96°C mais c\'est la sonde qui décide. L\'os doit tourner librement et se retirer presque tout seul — c\'est le signe ultime.',
+    transformAdvice: 'Essaie de faire tourner l\'os. S\'il bouge librement, c\'est prêt. La sonde doit glisser partout comme dans du beurre fondu. Si l\'os résiste encore, remets 30 min.',
+    restObjective: 'Les fibres se relâchent encore et les jus se redistribuent — le repos rend le effilochage plus facile',
+    restMarkers: [
+      { type: 'visual', text: 'Emballer dans du papier alu puis dans une serviette, placer en glacière (sans glace)' },
+      { type: 'visual', text: 'Le jus va continuer à s\'accumuler dans l\'emballage — récupère-le pour le mélanger au pulled pork' },
+    ],
+    restAdvice: 'Minimum 45 min, idéalement 1h30. Comme le brisket, le pulled pork peut tenir 3-4h en glacière sans problème. Plus tu reposes, plus c\'est facile à effilocher et juteux.',
+  }
+
+  // ── FALLBACK (profil inconnu) ──
+  return {
+    phase1Objective: 'Formation de la bark et développement des saveurs fumées',
+    phase1Visual: 'La surface de la viande fonce progressivement et devient sèche au toucher',
+    phase1Temp: 'Température interne : ~55–70°C',
+    phase1Info: 'C\'est pendant cette phase que la viande absorbe le plus de fumée. Ne pas ouvrir le couvercle trop souvent.',
+    phase1Advice: 'Chaque ouverture du couvercle ajoute 15-20 min de cuisson. Laisse le fumoir faire son travail.',
+    stallObjective: 'Phase normale où la température interne semble stagner — la viande transpire',
+    stallInfo: 'L\'évaporation de l\'eau refroidit la viande en surface — c\'est le même principe que la transpiration. Le stall finit toujours par passer.',
+    stallAdvice: 'Ne pas monter la température du fumoir. Patience. C\'est la phase la plus frustrante mais la plus importante.',
+    wrapTip: 'Papier boucher pour garder la bark, aluminium pour aller plus vite.',
+    wrapAdvice: 'Le wrap (Texas Crutch) accélère la fin de cuisson et passe le stall plus vite. Choisis papier boucher pour la bark, alu pour la vitesse.',
+    transformObjective: 'Les tissus conjonctifs se transforment en gélatine — la viande devient tendre et fondante',
+    transformInfo: 'C\'est la texture qui décide, pas le thermomètre. La sonde doit entrer sans résistance — c\'est le test ultime.',
+    transformAdvice: 'Teste au point le plus épais. Si ça accroche, remets 20-30 min et reteste. La patience ici fait toute la différence.',
+    restObjective: 'Les jus se redistribuent dans toute la viande',
+    restMarkers: [
+      { type: 'visual', text: 'Emballer dans une serviette épaisse' },
+      { type: 'visual', text: 'Placer dans une glacière fermée (sans glace)' },
+    ],
+    restAdvice: 'Repos à couvert. Un long repos en glacière améliore toujours le résultat.',
+  }
 }
 
 function buildRibsPhases(profile, wrapped, ctx) {
