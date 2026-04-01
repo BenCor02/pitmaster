@@ -6,22 +6,20 @@
  *
  * Protocole BLE Meater :
  * - Service UUID: a75cc7fc-c956-488f-ac2a-2dbc08b63a04
- * - Characteristic (temp): 7edda774-045e-4bbf-909b-45d1991571f8
- *   → 8 bytes : [tipRaw (2)] [ambientRaw (2)] [reserved (4)]
- *   → tipTemp°C  = tipRaw / 32 + 8
- *   → ambientTemp°C = ambientRaw / 32 + 8 + tipTemp
+ * - Characteristic (temp): 7edda774-045e-4bbf-909b-45d1991a2876
+ *   → bytes : [tipRaw (2)] [ambientRaw (2)] ...
+ *   → tipTemp°C  = (tipRaw + 8.0) / 16.0
+ *   → ambientTemp°C = (ambientRaw + 8.0) / 16.0 + tipTemp
  *
- * Sources : reverse-engineering communautaire (GitHub, Home Assistant)
+ * Sources : github.com/nathanfaber/meaterble (reverse-engineering)
+ * Note : l'app Meater officielle doit être fermée (une seule connexion BLE à la fois)
  */
 
 import { BleClient } from '@capacitor-community/bluetooth-le'
 import { isNative } from './capacitor.js'
 
 const MEATER_SERVICE = 'a75cc7fc-c956-488f-ac2a-2dbc08b63a04'
-const MEATER_TEMP_CHAR = '7edda774-045e-4bbf-909b-45d1991571f8'
-
-// Noms connus des sondes Meater en BLE advertising
-const MEATER_NAME_PREFIXES = ['MEATER', 'Meater']
+const MEATER_TEMP_CHAR = '7edda774-045e-4bbf-909b-45d1991a2876'
 
 let _connectedDevice = null
 let _notifyCallback = null
@@ -101,8 +99,9 @@ export async function startTemperatureStream(onData) {
       const tipRaw = data.getUint16(0, true)      // little-endian
       const ambientRaw = data.getUint16(2, true)
 
-      const tipTemp = tipRaw / 32 + 8
-      const ambientTemp = ambientRaw / 32 + 8 + tipTemp
+      // Formule reverse-engineered (nathanfaber/meaterble)
+      const tipTemp = (tipRaw + 8.0) / 16.0
+      const ambientTemp = (ambientRaw + 8.0) / 16.0 + tipTemp
 
       onData({
         connected: true,
