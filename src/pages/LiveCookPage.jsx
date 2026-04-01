@@ -459,6 +459,149 @@ function sendPushNotification(title, body) {
   sendNotification(title, body, { channelId: 'cuisson' }).catch(() => {})
 }
 
+// ── Live phases (guide étape par étape) ────────────────
+
+const PHASE_ICONS = ['🔥', '🥵', '📦', '🧈', '🍽️', '😴']
+
+function LivePhases({ phases, profile, device, cookPlan }) {
+  const internal = device?.temperature?.internal || 0
+
+  // Déterminer quelle phase est active
+  function getPhaseState(phase) {
+    if (phase.title.includes('Repos')) {
+      const st = device?.cook?.state
+      if (st === 'Resting' || st === 'Ready For Resting') return 'active'
+      if (profile?.cues?.target_temp_min && internal >= profile.cues.target_temp_min) return 'done'
+      return 'upcoming'
+    }
+    if (phase.title.includes('Stall') && profile?.cues?.stall_temp_min) {
+      if (internal > profile.cues.stall_temp_max) return 'done'
+      if (internal >= profile.cues.stall_temp_min) return 'active'
+      return 'upcoming'
+    }
+    if (phase.title.includes('Wrap') && profile?.cues?.wrap_temp_min) {
+      if (internal > profile.cues.wrap_temp_max + 5) return 'done'
+      if (internal >= profile.cues.wrap_temp_min) return 'active'
+      return 'upcoming'
+    }
+    if (phase.title.includes('collagène') && profile?.cues?.begin_test_temp) {
+      if (profile?.cues?.target_temp_min && internal >= profile.cues.target_temp_min) return 'done'
+      if (internal >= profile.cues.begin_test_temp) return 'active'
+      return 'upcoming'
+    }
+    if (phase.title.includes('Montée')) {
+      if (internal >= (profile?.cues?.stall_temp_min || 65)) return 'done'
+      return 'active'
+    }
+    if (phase.title.includes('Saisie') || phase.title.includes('Sear')) {
+      if (profile?.doneness_targets) {
+        const d = profile.default_doneness || Object.keys(profile.doneness_targets)[0]
+        const pullTemp = (profile.doneness_targets[d] || 54) - (profile.reverse_sear?.pull_before_target_c || 6)
+        if (internal >= pullTemp) return 'active'
+      }
+      return 'upcoming'
+    }
+    return 'upcoming'
+  }
+
+  return (
+    <div className="surface p-4">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <span className="text-sm">📋</span>
+          <h3 className="text-[13px] font-bold text-white">Étapes de cuisson</h3>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] text-zinc-500">Cuisson {cookPlan.cookEstimate}</span>
+          <span className="text-zinc-700">·</span>
+          <span className="text-[10px] text-zinc-500">Total {cookPlan.totalEstimate}</span>
+        </div>
+      </div>
+
+      <div className="space-y-0">
+        {phases.map((phase, i) => {
+          const state = getPhaseState(phase)
+          const icon = PHASE_ICONS[i] || '🔥'
+          const isLast = i === phases.length - 1
+
+          return (
+            <div key={i} className="flex gap-3">
+              {/* Timeline */}
+              <div className="flex flex-col items-center">
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm shrink-0 ${
+                  state === 'active' ? 'bg-[#ff6b1a] shadow-lg shadow-[#ff6b1a]/20' :
+                  state === 'done' ? 'bg-green-600/80' :
+                  'bg-zinc-800'
+                }`}>
+                  {state === 'done' ? '✓' : icon}
+                </div>
+                {!isLast && (
+                  <div className={`w-0.5 flex-1 my-1 min-h-[16px] ${
+                    state === 'done' ? 'bg-green-600/40' :
+                    state === 'active' ? 'bg-[#ff6b1a]/30' :
+                    'bg-zinc-800'
+                  }`} />
+                )}
+              </div>
+
+              {/* Content */}
+              <div className={`flex-1 pb-3 ${isLast ? '' : ''}`}>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className={`text-[13px] font-semibold ${
+                    state === 'active' ? 'text-[#ff6b1a]' :
+                    state === 'done' ? 'text-green-400' :
+                    'text-zinc-400'
+                  }`}>
+                    {phase.title}
+                  </span>
+                  {state === 'active' && (
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[#ff6b1a]/20 text-[#ff6b1a] animate-pulse">
+                      EN COURS
+                    </span>
+                  )}
+                  {state === 'done' && (
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400">
+                      FAIT
+                    </span>
+                  )}
+                  {phase.duration && (
+                    <span className="text-[10px] text-zinc-600 font-medium">{phase.duration}</span>
+                  )}
+                </div>
+                {phase.objective && (
+                  <p className={`text-[11px] mt-1 leading-relaxed ${
+                    state === 'active' ? 'text-zinc-300' : 'text-zinc-600'
+                  }`}>
+                    {phase.objective}
+                  </p>
+                )}
+                {/* Marqueurs de température pour la phase active */}
+                {state === 'active' && phase.markers?.length > 0 && (
+                  <div className="mt-2 space-y-1">
+                    {phase.markers.map((m, j) => (
+                      <div key={j} className="flex items-start gap-2 px-2.5 py-1.5 rounded-md bg-white/[0.03] border border-white/[0.05]">
+                        <span className="text-[10px] mt-0.5">{m.type === 'temp' ? '🌡️' : '👁️'}</span>
+                        <p className="text-[11px] text-zinc-400 leading-relaxed">{m.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {state === 'active' && phase.advice && (
+                  <div className="mt-2 px-2.5 py-1.5 rounded-md bg-[#ff6b1a]/[0.05] border border-[#ff6b1a]/[0.1]">
+                    <p className="text-[11px] text-zinc-400">
+                      <span className="text-[#ff6b1a] font-semibold">Conseil :</span> {phase.advice}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 // ── Alert badge colors ──────────────────────────────────
 
 const ALERT_COLORS = {
@@ -761,6 +904,21 @@ export default function LiveCookPage() {
                 )}
               </div>
 
+              {/* Phases de cuisson (guide étape par étape) */}
+              {cookPlan && (
+                <LivePhases phases={cookPlan.phases} profile={selectedProfile} device={selectedDevice} cookPlan={cookPlan} />
+              )}
+
+              {/* Pas de profil sélectionné → inciter à en choisir un */}
+              {!cookPlan && polling && (
+                <div className="px-4 py-3 rounded-xl bg-[#ff6b1a]/[0.06] border border-[#ff6b1a]/[0.12] flex items-center gap-3">
+                  <span className="text-lg">💡</span>
+                  <p className="text-xs text-zinc-400">
+                    <span className="text-[#ff6b1a] font-semibold">Conseil :</span> sélectionne ta viande, le poids et la température au-dessus pour voir les étapes de cuisson en temps réel.
+                  </p>
+                </div>
+              )}
+
               {/* Cook state badge */}
               {selectedDevice.cook && (
                 <div className="flex items-center gap-3">
@@ -918,70 +1076,7 @@ export default function LiveCookPage() {
                 </div>
               )}
 
-              {/* Cook plan phases */}
-              {cookPlan && (
-                <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 lg:p-6">
-                  <h3 className="text-sm font-bold text-white mb-4">
-                    Phases estimées — {cookPlan.profile}
-                    <span className="ml-2 text-[#ff6b1a] font-normal text-xs">{cookPlan.totalEstimate}</span>
-                  </h3>
-                  <div className="space-y-3">
-                    {cookPlan.phases.map((phase, i) => {
-                      // Determine if this phase is active based on internal temp
-                      const internal = selectedDevice.temperature.internal
-                      let isActivePhase = false
-
-                      if (phase.title.includes('Stall') && selectedProfile?.cues?.stall_temp_min) {
-                        isActivePhase = internal >= selectedProfile.cues.stall_temp_min && internal <= selectedProfile.cues.stall_temp_max
-                      } else if (phase.title.includes('Wrap') && selectedProfile?.cues?.wrap_temp_min) {
-                        isActivePhase = internal >= selectedProfile.cues.wrap_temp_min && internal <= (selectedProfile.cues.wrap_temp_max + 5)
-                      } else if (phase.title.includes('collagène') && selectedProfile?.cues?.begin_test_temp) {
-                        isActivePhase = internal >= selectedProfile.cues.begin_test_temp
-                      } else if (phase.title.includes('Montée')) {
-                        isActivePhase = internal < (selectedProfile?.cues?.stall_temp_min || 65)
-                      } else if (phase.title.includes('Repos')) {
-                        const st = selectedDevice.cook?.state
-                        isActivePhase = st === 'Resting' || st === 'Ready For Resting'
-                      }
-
-                      return (
-                        <div
-                          key={i}
-                          className={`flex items-start gap-3 p-3 rounded-xl transition-all ${
-                            isActivePhase
-                              ? 'bg-[#ff6b1a]/[0.08] border border-[#ff6b1a]/20'
-                              : 'bg-white/[0.02] border border-transparent'
-                          }`}
-                        >
-                          <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 ${
-                            isActivePhase
-                              ? 'bg-[#ff6b1a] text-white'
-                              : 'bg-zinc-800 text-zinc-500'
-                          }`}>
-                            {phase.num}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className={`text-sm font-semibold ${isActivePhase ? 'text-[#ff6b1a]' : 'text-zinc-300'}`}>
-                                {phase.title}
-                              </span>
-                              {isActivePhase && (
-                                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[#ff6b1a]/20 text-[#ff6b1a] animate-pulse">
-                                  EN COURS
-                                </span>
-                              )}
-                            </div>
-                            {phase.duration && (
-                              <p className="text-[11px] text-zinc-500 mt-0.5">{phase.duration}</p>
-                            )}
-                            <p className="text-xs text-zinc-500 mt-1">{phase.objective}</p>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              )}
+              {/* (phases déplacées au-dessus du graphique) */}
             </>
           )}
 
