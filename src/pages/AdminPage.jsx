@@ -22,6 +22,7 @@ const TABLE_MAP = {
   faq: 'faqs',
   woods: 'woods',
   bbq: 'bbq_types',
+  profiles: 'cooking_profiles',
 }
 
 const RECIPE_TYPE_OPTIONS = [
@@ -95,7 +96,7 @@ export default function AdminPage() {
 
   const loadCounts = async () => {
     try {
-      const [seo, aff, guides, recipes, faq, woods, bbq] = await Promise.all([
+      const [seo, aff, guides, recipes, faq, woods, bbq, profiles] = await Promise.all([
         adminCms.list('seo_blocks'),
         adminCms.list('affiliate_tools'),
         adminCms.list('guides'),
@@ -103,6 +104,7 @@ export default function AdminPage() {
         adminCms.list('faqs'),
         adminCms.list('woods').catch(() => []),
         adminCms.list('bbq_types').catch(() => []),
+        adminCms.list('cooking_profiles').catch(() => []),
       ])
       setCounts({
         seo: seo.length,
@@ -119,6 +121,8 @@ export default function AdminPage() {
         woods_pub: woods.filter(i => i.status === 'published').length,
         bbq: bbq.length,
         bbq_pub: bbq.filter(i => i.status === 'published').length,
+        profiles: profiles.length,
+        profiles_active: profiles.filter(i => i.is_active).length,
       })
     } catch (err) {
       console.error('Counts error:', err)
@@ -128,7 +132,7 @@ export default function AdminPage() {
   const handleSave = async (record) => {
     setSaving(true)
     try {
-      const isTextIdTable = tab === 'woods' || tab === 'bbq'
+      const isTextIdTable = tab === 'woods' || tab === 'bbq' || tab === 'profiles'
       const isNew = isTextIdTable ? !record._existing : !record.id
       // Auto-generate slug if empty
       if (record.title && !record.slug) {
@@ -158,9 +162,13 @@ export default function AdminPage() {
   }
 
   const handleToggle = async (row) => {
-    const newStatus = row.status === 'published' ? 'draft' : 'published'
     try {
-      await adminCms.toggleStatus(tableName, row.id, newStatus)
+      if (tab === 'profiles') {
+        await adminCms.update(tableName, row.id, { is_active: !row.is_active })
+      } else {
+        const newStatus = row.status === 'published' ? 'draft' : 'published'
+        await adminCms.toggleStatus(tableName, row.id, newStatus)
+      }
       await loadItems()
     } catch (err) {
       console.error('Toggle error:', err)
@@ -168,7 +176,7 @@ export default function AdminPage() {
   }
 
   const handleDelete = async (row) => {
-    if (!confirm(`Supprimer "${row.title || row.question}" ?`)) return
+    if (!confirm(`Supprimer "${row.title || row.name || row.question}" ?`)) return
     try {
       await adminCms.remove(tableName, row.id)
       await loadItems()
@@ -192,7 +200,7 @@ export default function AdminPage() {
           items={items}
           loading={loading}
           onNew={handleNew}
-          onEdit={(item) => setEditing((tab === 'woods' || tab === 'bbq') ? { ...item, _existing: true } : item)}
+          onEdit={(item) => setEditing((tab === 'woods' || tab === 'bbq' || tab === 'profiles') ? { ...item, _existing: true } : item)}
           onToggle={handleToggle}
           onDelete={handleDelete}
         />
@@ -222,6 +230,7 @@ function OverviewTab({ counts, onNavigate, profile, signOut }) {
     { key: 'faq', label: 'FAQ', icon: '❓', total: counts.faq, pub: counts.faq_pub },
     { key: 'woods', label: 'Essences de bois', icon: '🪵', total: counts.woods, pub: counts.woods_pub },
     { key: 'bbq', label: 'Types BBQ', icon: '🏭', total: counts.bbq, pub: counts.bbq_pub },
+    { key: 'profiles', label: 'Profils cuisson', icon: '🔥', total: counts.profiles, pub: counts.profiles_active },
   ]
 
   return (
@@ -324,7 +333,7 @@ function FormView({ tab, record, saving, onSave, onCancel }) {
         </h2>
 
         {/* Common fields */}
-        {(tab === 'woods' || tab === 'bbq') ? (
+        {(tab === 'woods' || tab === 'bbq' || tab === 'profiles') ? (
           <>
             <FormField label="Identifiant (id)" hint="Unique, minuscule, sans espaces. Non modifiable après création.">
               <TextInput value={form.id} onChange={v => set('id', v)} placeholder="offset, chene, etc." disabled={!!record.id && record._existing} />
@@ -352,16 +361,19 @@ function FormView({ tab, record, saving, onSave, onCancel }) {
         {tab === 'faq' && <FaqFields form={form} set={set} />}
         {tab === 'woods' && <WoodFields form={form} set={set} />}
         {tab === 'bbq' && <BbqFields form={form} set={set} />}
+        {tab === 'profiles' && <ProfileFields form={form} set={set} />}
 
-        {/* Common: status + sort */}
-        <div className="grid grid-cols-2 gap-4">
-          <FormField label="Statut">
-            <Select value={form.status} onChange={v => set('status', v)} options={STATUS_OPTIONS} />
-          </FormField>
-          <FormField label="Ordre d'affichage">
-            <TextInput type="number" value={form.sort_order} onChange={v => set('sort_order', parseInt(v) || 0)} />
-          </FormField>
-        </div>
+        {/* Common: status + sort (profiles uses is_active instead) */}
+        {tab !== 'profiles' && (
+          <div className="grid grid-cols-2 gap-4">
+            <FormField label="Statut">
+              <Select value={form.status} onChange={v => set('status', v)} options={STATUS_OPTIONS} />
+            </FormField>
+            <FormField label="Ordre d'affichage">
+              <TextInput type="number" value={form.sort_order} onChange={v => set('sort_order', parseInt(v) || 0)} />
+            </FormField>
+          </div>
+        )}
 
         <FormActions onSave={handleSubmit} onCancel={onCancel} saving={saving} />
       </div>
@@ -726,6 +738,136 @@ function BbqFields({ form, set }) {
   )
 }
 
+const COOK_TYPE_OPTIONS = [
+  { value: 'low_and_slow', label: 'Low & Slow' },
+  { value: 'reverse_sear', label: 'Reverse Sear' },
+]
+
+const CATEGORY_PROFILE_OPTIONS = [
+  { value: 'boeuf', label: 'Boeuf' },
+  { value: 'porc', label: 'Porc' },
+  { value: 'volaille', label: 'Volaille' },
+]
+
+function JsonField({ value, onChange, rows = 6, placeholder }) {
+  const text = typeof value === 'string' ? value : JSON.stringify(value || null, null, 2)
+  const [error, setError] = useState(null)
+
+  const handleChange = (v) => {
+    try {
+      const parsed = JSON.parse(v)
+      onChange(parsed)
+      setError(null)
+    } catch {
+      onChange(v)
+      setError('JSON invalide')
+    }
+  }
+
+  return (
+    <div>
+      <TextArea value={text} onChange={handleChange} rows={rows} placeholder={placeholder} />
+      {error && <p className="text-[11px] text-red-400 mt-1">{error}</p>}
+    </div>
+  )
+}
+
+function ProfileFields({ form, set }) {
+  return (
+    <>
+      <div className="grid grid-cols-2 gap-4">
+        <FormField label="Catégorie">
+          <Select value={form.category} onChange={v => set('category', v)} options={CATEGORY_PROFILE_OPTIONS} />
+        </FormField>
+        <FormField label="Type de cuisson">
+          <Select value={form.cook_type} onChange={v => set('cook_type', v)} options={COOK_TYPE_OPTIONS} />
+        </FormField>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <FormField label="Icône">
+          <TextInput value={form.icon} onChange={v => set('icon', v)} placeholder="🥩" />
+        </FormField>
+        <FormField label="Wrap supporté">
+          <Checkbox checked={form.supports_wrap} onChange={v => set('supports_wrap', v)} label="Ce profil supporte le wrap (Texas Crutch)" />
+        </FormField>
+      </div>
+
+      {/* Temp bands */}
+      <FormField label="Bandes de température (temp_bands)" hint='[{"temp_c":107,"min_per_kg":175},{"temp_c":121,"min_per_kg":135}]'>
+        <JsonField
+          value={form.temp_bands}
+          onChange={v => set('temp_bands', v)}
+          rows={6}
+          placeholder='[{"temp_c": 107, "min_per_kg": 175}]'
+        />
+      </FormField>
+
+      {/* Fixed times (for ribs) */}
+      <FormField label="Temps fixes (fixed_times)" hint='{"wrapped":{"min":330,"max":390},"unwrapped":{"min":300,"max":360}} — Pour les ribs'>
+        <JsonField
+          value={form.fixed_times}
+          onChange={v => set('fixed_times', v)}
+          rows={4}
+          placeholder='{"wrapped":{"min":330,"max":390},"unwrapped":{"min":300,"max":360}}'
+        />
+      </FormField>
+
+      {/* Wrap + Rest */}
+      <div className="grid grid-cols-3 gap-4">
+        <FormField label="Réduction wrap (%)" hint="% de temps gagné avec wrap">
+          <TextInput type="number" value={form.wrap_reduction_percent} onChange={v => set('wrap_reduction_percent', parseInt(v) || 0)} />
+        </FormField>
+        <FormField label="Repos min (minutes)">
+          <TextInput type="number" value={form.rest_min} onChange={v => set('rest_min', parseInt(v) || 0)} />
+        </FormField>
+        <FormField label="Repos max (minutes)">
+          <TextInput type="number" value={form.rest_max} onChange={v => set('rest_max', parseInt(v) || 0)} />
+        </FormField>
+      </div>
+
+      {/* Reverse sear */}
+      <FormField label="Reverse Sear (JSON)" hint='{"pull_before_target_c":8,"sear_total_minutes_min":3,"sear_total_minutes_max":6}'>
+        <JsonField
+          value={form.reverse_sear}
+          onChange={v => set('reverse_sear', v)}
+          rows={4}
+          placeholder='{"pull_before_target_c": 8, "sear_total_minutes_min": 3, "sear_total_minutes_max": 6}'
+        />
+      </FormField>
+
+      {/* Doneness targets */}
+      <FormField label="Cibles de cuisson (doneness_targets)" hint='{"rare":52,"medium_rare":54,"medium":60}'>
+        <JsonField
+          value={form.doneness_targets}
+          onChange={v => set('doneness_targets', v)}
+          rows={4}
+          placeholder='{"rare": 52, "medium_rare": 54, "medium": 60}'
+        />
+      </FormField>
+
+      {/* Cues */}
+      <FormField label="Repères visuels et conseils (cues)" hint="JSON complet des indicateurs de cuisson">
+        <JsonField
+          value={form.cues}
+          onChange={v => set('cues', v)}
+          rows={12}
+          placeholder='{"stall_temp_min":65,"stall_temp_max":77,"wrap_temp_min":68,"wrap_temp_max":74,...}'
+        />
+      </FormField>
+
+      {/* Active + Sort */}
+      <div className="grid grid-cols-2 gap-4">
+        <FormField label="Ordre d'affichage">
+          <TextInput type="number" value={form.sort_order} onChange={v => set('sort_order', parseInt(v) || 0)} />
+        </FormField>
+        <FormField label="Actif">
+          <Checkbox checked={form.is_active !== false} onChange={v => set('is_active', v)} label="Profil actif dans le calculateur" />
+        </FormField>
+      </div>
+    </>
+  )
+}
+
 // ── Settings Tab ──────────────────────────────────────────────
 
 const MODULE_LABELS = {
@@ -1021,6 +1163,32 @@ function getColumns(tab) {
         { key: 'fuel', label: 'Combustible' },
         statusCol,
       ]
+    case 'profiles':
+      return [
+        { key: 'name', label: 'Profil', render: row => (
+          <div className="flex items-center gap-2">
+            <span>{row.icon}</span>
+            <div>
+              <span className="font-medium text-white">{row.name}</span>
+              <p className="text-[11px] text-zinc-600 mt-0.5">{row.id} — {row.cook_type}</p>
+            </div>
+          </div>
+        )},
+        { key: 'category', label: 'Catégorie', render: row => {
+          const labels = { boeuf: 'Boeuf', porc: 'Porc', volaille: 'Volaille' }
+          return <span className="text-[12px] font-semibold">{labels[row.category] || row.category}</span>
+        }},
+        { key: 'cook_type', label: 'Type', render: row => {
+          const labels = { low_and_slow: 'Low & Slow', reverse_sear: 'Reverse Sear' }
+          const colors = { low_and_slow: 'text-amber-400', reverse_sear: 'text-rose-400' }
+          return <span className={`text-[12px] font-semibold ${colors[row.cook_type] || ''}`}>{labels[row.cook_type] || row.cook_type}</span>
+        }},
+        { key: 'is_active', label: 'Statut', render: row => (
+          <span className={`text-[11px] font-bold uppercase px-2 py-0.5 rounded ${row.is_active !== false ? 'text-green-400 bg-green-500/10' : 'text-zinc-500 bg-zinc-800'}`}>
+            {row.is_active !== false ? 'Actif' : 'Inactif'}
+          </span>
+        )},
+      ]
     default:
       return []
   }
@@ -1036,6 +1204,7 @@ function getEmptyRecord(tab) {
     case 'faq': return { ...base, question: '', answer: '', meat_type: '', cooking_method: '', is_global: false }
     case 'woods': return { ...base, id: '', name: '', scientific_name: '', emoji: '', intensity: 'moyen', flavor_profile: '', description: '', best_meats: [], avoid_meats: [], burn_characteristics: '', origin: '', availability_eu: '', safety_notes: '', pitmaster_tips: '', source: '', is_toxic: false, toxic_reason: '' }
     case 'bbq': return { ...base, id: '', name: '', alt_names: [], icon: '', tagline: '', description: '', temp_range: '', fuel: '', price_range: '', level: 'debutant', capacity: '', pros: [], cons: [], best_for: [], not_ideal_for: [], brands: [], tips: '' }
+    case 'profiles': return { sort_order: 0, id: '', name: '', category: 'boeuf', icon: '🥩', cook_type: 'low_and_slow', supports_wrap: true, temp_bands: [{ temp_c: 107, min_per_kg: 120 }, { temp_c: 121, min_per_kg: 90 }, { temp_c: 135, min_per_kg: 70 }], fixed_times: null, wrap_reduction_percent: 12, rest_min: 30, rest_max: 60, reverse_sear: null, doneness_targets: null, cues: { stall_temp_min: 65, stall_temp_max: 77, wrap_temp_min: 68, wrap_temp_max: 74, begin_test_temp: 90, target_temp_min: 93, target_temp_max: 98 }, is_active: true }
     default: return base
   }
 }
@@ -1049,6 +1218,7 @@ function getFormTitle(tab) {
     case 'faq': return 'FAQ'
     case 'woods': return 'essence de bois'
     case 'bbq': return 'type de BBQ'
+    case 'profiles': return 'profil de cuisson'
     default: return 'contenu'
   }
 }

@@ -14,6 +14,7 @@ const TABS = [
   { id: 'faq', label: 'FAQ', icon: '❓' },
   { id: 'woods', label: 'Bois', icon: '🪵' },
   { id: 'bbq', label: 'Types BBQ', icon: '🏭' },
+  { id: 'profiles', label: 'Profils cuisson', icon: '🔥' },
 ]
 
 export default function AdminShell({ activeTab, onTabChange, children }) {
