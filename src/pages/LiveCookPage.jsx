@@ -3,17 +3,64 @@ import { useLocation } from 'react-router-dom'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, ReferenceArea } from 'recharts'
 import * as meater from '../lib/meater.js'
 import * as fireboard from '../lib/fireboard.js'
+import * as meaterBLE from '../lib/meaterBLE.js'
+import { isNative } from '../lib/capacitor.js'
+import { sendNotification } from '../lib/notifications.js'
 import { MEAT_PROFILES } from '../modules/calculator/data.js'
 import { calculateCookPlan } from '../modules/calculator/engine.js'
 
 // ── Provider abstraction ────────────────────────────────
 
 const PROVIDERS = {
+  ...(isNative ? {
+    meater_ble: {
+      id: 'meater_ble',
+      name: 'Meater Bluetooth',
+      icon: '📶',
+      color: '#3b82f6',
+      mode: 'ble',
+      loginFields: [], // Pas de login — connexion directe BLE
+      login: async () => true,
+      logout: () => meaterBLE.disconnect(),
+      isConnected: meaterBLE.isProbeConnected,
+      // Le polling BLE est géré différemment (notifications push, pas de polling)
+      startPolling: ({ onData, onError }) => {
+        let running = true
+        ;(async () => {
+          try {
+            const probes = await meaterBLE.scanForProbes(8000)
+            if (!probes.length) {
+              onError(new Error('Aucune sonde Meater détectée. Vérifie que ta sonde est allumée et à proximité.'))
+              return
+            }
+            await meaterBLE.connectToProbe(probes[0].deviceId)
+            await meaterBLE.startTemperatureStream((data) => {
+              if (!running) return
+              onData([{
+                id: probes[0].deviceId,
+                provider: 'meater_ble',
+                name: probes[0].name,
+                temperature: { internal: data.tipTemp, ambient: data.ambientTemp },
+                cook: null, // Pas de state cook en BLE direct
+              }])
+            })
+          } catch (err) {
+            onError(err)
+          }
+        })()
+        return () => { running = false; meaterBLE.disconnect() }
+      },
+      getCookState: meater.getCookState,
+      normalize: (devices) => devices,
+      helpText: 'Connexion Bluetooth directe — pas besoin de l\'app Meater ni d\'internet.',
+    },
+  } : {}),
   meater: {
     id: 'meater',
-    name: 'Meater',
+    name: 'Meater Cloud',
     icon: '🌡️',
     color: '#ff6b1a',
+    mode: 'cloud',
     loginFields: [
       { key: 'email', label: 'Email Meater', type: 'email', placeholder: 'ton@email.com' },
       { key: 'password', label: 'Mot de passe', type: 'password', placeholder: '••••••••' },
@@ -66,11 +113,13 @@ function formatTime(date) {
 // ── Provider selector ───────────────────────────────────
 
 function ProviderSelector({ selected, onSelect }) {
+  const providerList = Object.values(PROVIDERS)
+  const cols = providerList.length > 2 ? 'grid-cols-3' : 'grid-cols-2'
   return (
-    <div className="max-w-md mx-auto mb-6">
+    <div className="max-w-lg mx-auto mb-6">
       <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-3 text-center">Connecte ta sonde</p>
-      <div className="grid grid-cols-2 gap-3">
-        {Object.values(PROVIDERS).map(p => (
+      <div className={`grid ${cols} gap-3`}>
+        {providerList.map(p => (
           <button
             key={p.id}
             onClick={() => onSelect(p.id)}
@@ -83,7 +132,7 @@ function ProviderSelector({ selected, onSelect }) {
             <span className="text-2xl">{p.icon}</span>
             <div className="text-left">
               <span className="text-sm font-bold text-white">{p.name}</span>
-              <p className="text-[10px] text-zinc-500">Cloud API</p>
+              <p className="text-[10px] text-zinc-500">{p.mode === 'ble' ? 'Bluetooth direct' : 'Cloud API'}</p>
             </div>
           </button>
         ))}
@@ -116,6 +165,43 @@ function ProbeLogin({ provider, onConnected }) {
     } finally {
       setLoading(false)
     }
+  }
+
+  // Mode BLE : pas de formulaire, juste un bouton scan
+  if (prov.mode === 'ble') {
+    return (
+      <div className="max-w-md mx-auto">
+        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
+          <div className="text-center mb-6">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-600/10 flex items-center justify-center text-3xl">
+              📶
+            </div>
+            <h2 className="text-xl font-bold text-white mb-1">Connexion Bluetooth</h2>
+            <p className="text-sm text-zinc-500">Recherche automatique des sondes à proximité</p>
+          </div>
+
+          {error && (
+            <div className="px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm mb-4">
+              {error}
+            </div>
+          )}
+
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:opacity-90 disabled:opacity-50 transition-opacity"
+          >
+            {loading ? '🔍 Recherche en cours...' : '📶 Scanner les sondes Meater'}
+          </button>
+
+          <div className="mt-5 p-4 rounded-xl bg-blue-500/[0.05] border border-blue-500/10">
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              <span className="text-blue-400 font-semibold">Bluetooth direct :</span> {prov.helpText}
+            </p>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -369,11 +455,8 @@ function useAlerts(device, profile) {
 }
 
 function sendPushNotification(title, body) {
-  if ('Notification' in window && Notification.permission === 'granted') {
-    try {
-      new Notification(title, { body, icon: '/icon-192.png', badge: '/icon-192.png' })
-    } catch {}
-  }
+  // Utilise le système natif Capacitor ou fallback web
+  sendNotification(title, body, { channelId: 'cuisson' }).catch(() => {})
 }
 
 // ── Alert badge colors ──────────────────────────────────
@@ -414,14 +497,16 @@ export default function LiveCookPage() {
   // Provider
   const [provider, setProvider] = useState(() => {
     // Auto-detect if already connected
+    if (meaterBLE.isProbeConnected()) return 'meater_ble'
     if (meater.isConnected()) return 'meater'
     if (fireboard.isConnected()) return 'fireboard'
-    return 'meater'
+    // Sur Android, proposer BLE en premier
+    return isNative ? 'meater_ble' : 'meater'
   })
   const prov = PROVIDERS[provider]
 
   // State
-  const [connected, setConnected] = useState(() => meater.isConnected() || fireboard.isConnected())
+  const [connected, setConnected] = useState(() => meaterBLE.isProbeConnected() || meater.isConnected() || fireboard.isConnected())
   const [devices, setDevices] = useState([])
   const [selectedDeviceId, setSelectedDeviceId] = useState(null)
   const [history, setHistory] = useState([])
@@ -453,11 +538,11 @@ export default function LiveCookPage() {
   // Alerts
   const alerts = useAlerts(selectedDevice, selectedProfile)
 
-  // Request notification permission
+  // Request notification permission (natif ou web)
   useEffect(() => {
-    if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission()
-    }
+    import('../lib/notifications.js').then(({ requestPermission }) => {
+      requestPermission().catch(() => {})
+    })
   }, [])
 
   // Start polling when connected
