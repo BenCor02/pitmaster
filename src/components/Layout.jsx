@@ -79,7 +79,7 @@ export default function Layout({ children }) {
   const levelLabel = profile?.experience_level ? LEVEL_LABELS[profile.experience_level] : null
 
   return (
-    <div className="min-h-screen bg-[#080808] flex flex-col">
+    <div className="min-h-screen bg-[#080808]">
 
       {/* ══════════ SIDEBAR DESKTOP ══════════ */}
       <aside aria-label="Navigation principale" className="hidden lg:flex flex-col w-[280px] bg-[#0c0c0c] border-r border-white/[0.04] fixed top-0 left-0 h-screen overflow-y-auto texture-grain z-40">
@@ -457,7 +457,7 @@ export default function Layout({ children }) {
       </div>
 
       {/* ══════════ MAIN CONTENT ══════════ */}
-      <main className="flex-1 min-w-0 lg:ml-[280px] pt-14 lg:pt-0 smoke-bg texture-grain">
+      <main className="min-h-screen lg:ml-[280px] pt-14 lg:pt-0 smoke-bg texture-grain">
         <div className="relative z-10">
           {children}
         </div>
