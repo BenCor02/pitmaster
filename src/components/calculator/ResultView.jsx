@@ -80,14 +80,18 @@ export default function ResultView({ result, contentBlocks, rubs, actionBar }) {
         </div>
 
         {/* Durées */}
-        <div className="grid grid-cols-2 gap-2.5">
-          <div className="rounded-xl p-3.5 bg-gradient-to-br from-[#ff6b1a]/[0.10] to-[#dc2626]/[0.04] border border-[#ff6b1a]/[0.20]">
-            <p className="text-[10px] font-bold text-[#ff6b1a]/70 uppercase tracking-wider">Durée totale</p>
-            <p className="text-[22px] font-black text-[#ff6b1a] leading-tight mt-0.5">{result.totalEstimate}</p>
+        <div className="grid grid-cols-3 gap-2">
+          <div className="rounded-xl p-3 bg-gradient-to-br from-[#ff6b1a]/[0.10] to-[#dc2626]/[0.04] border border-[#ff6b1a]/[0.20]">
+            <p className="text-[9px] font-bold text-[#ff6b1a]/70 uppercase tracking-wider">Cuisson</p>
+            <p className="text-[19px] font-black text-[#ff6b1a] leading-tight mt-0.5">{result.cookEstimate}</p>
           </div>
-          <div className="rounded-xl p-3.5 bg-white/[0.04] border border-white/[0.06]">
-            <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">Repos</p>
-            <p className="text-[22px] font-extrabold text-white leading-tight mt-0.5">{result.restEstimate}</p>
+          <div className="rounded-xl p-3 bg-white/[0.04] border border-white/[0.06]">
+            <p className="text-[9px] font-semibold text-zinc-500 uppercase tracking-wider">Repos</p>
+            <p className="text-[19px] font-extrabold text-white leading-tight mt-0.5">{result.restEstimate}</p>
+          </div>
+          <div className="rounded-xl p-3 bg-white/[0.04] border border-white/[0.06]">
+            <p className="text-[9px] font-semibold text-zinc-500 uppercase tracking-wider">Total</p>
+            <p className="text-[19px] font-extrabold text-white leading-tight mt-0.5">{result.totalEstimate}</p>
           </div>
         </div>
 

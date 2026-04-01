@@ -125,9 +125,11 @@ export function calculateCookPlan({ profile, weightKg, cookTempC, wrapped, donen
   // des plages absurdement larges. Le rest_max reste dispo
   // dans l'UI pour info mais ne gonfle plus l'estimation haute.
   const totalCookMin = Math.round(cookMinutes)
+  const cookLow = Math.max(0, Math.round(totalCookMin * (1 - tolerance)))
+  const cookHigh = Math.round(totalCookMin * (1 + tolerance))
   const restAvg = Math.round((restMin + restMax) / 2)
-  const totalLow = Math.max(0, Math.round(totalCookMin * (1 - tolerance) + restMin))
-  const totalHigh = Math.round(totalCookMin * (1 + tolerance) + restAvg)
+  const totalLow = Math.max(0, cookLow + restMin)
+  const totalHigh = cookHigh + restAvg
 
   // ── 8. Construction des phases ────────────────────────
   const phases = buildPhases(profile, totalCookMin, tolerance, wrapped, {
@@ -152,9 +154,14 @@ export function calculateCookPlan({ profile, weightKg, cookTempC, wrapped, donen
     cookTempC,
     wrapped,
 
+    cookEstimate: formatRange(cookLow, cookHigh),
+    cookLowMinutes: cookLow,
+    cookHighMinutes: cookHigh,
+
     totalEstimate: formatRange(totalLow, totalHigh),
     totalLowMinutes: totalLow,
     totalHighMinutes: totalHigh,
+
     restEstimate: formatRange(restMin, restMax),
     restMin,
     restMax,
