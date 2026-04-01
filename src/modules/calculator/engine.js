@@ -121,15 +121,12 @@ export function calculateCookPlan({ profile, weightKg, cookTempC, wrapped, donen
   const tolerance = weightKg > 6 ? 0.12 : weightKg > 3 ? 0.10 : 0.08
 
   // ── 7. Durée totale ───────────────────────────────────
-  // totalHigh utilise le rest MOYEN (pas le max) pour éviter
-  // des plages absurdement larges. Le rest_max reste dispo
-  // dans l'UI pour info mais ne gonfle plus l'estimation haute.
+  // Total = cuisson + repos, cohérent avec les plages affichées
   const totalCookMin = Math.round(cookMinutes)
   const cookLow = Math.max(0, Math.round(totalCookMin * (1 - tolerance)))
   const cookHigh = Math.round(totalCookMin * (1 + tolerance))
-  const restAvg = Math.round((restMin + restMax) / 2)
-  const totalLow = Math.max(0, cookLow + restMin)
-  const totalHigh = cookHigh + restAvg
+  const totalLow = cookLow + restMin
+  const totalHigh = cookHigh + restMax
 
   // ── 8. Construction des phases ────────────────────────
   const phases = buildPhases(profile, totalCookMin, tolerance, wrapped, {
