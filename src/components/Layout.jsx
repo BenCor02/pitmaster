@@ -144,6 +144,7 @@ export default function Layout({ children }) {
             label="Multi-cuisson"
             sublabel="Tout prêt en même temps"
             active={isActive('/multi')}
+            pro
           />
 
           {isModuleEnabled('recipes') && (
@@ -162,6 +163,7 @@ export default function Layout({ children }) {
               label="Comparateur"
               sublabel="Côte à côte"
               active={isActive('/comparateur')}
+              pro
             />
           )}
           {isModuleEnabled('wood_guide') && (
@@ -186,8 +188,9 @@ export default function Layout({ children }) {
             to="/live"
             icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isActive('/live') ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M12 2v4" /><path d="M12 18v4" /><path d="M4.93 4.93l2.83 2.83" /><path d="M16.24 16.24l2.83 2.83" /><path d="M2 12h4" /><path d="M18 12h4" /><circle cx="12" cy="12" r="4" /></svg>}
             label="Live Cook"
-            sublabel="Sonde Meater"
+            sublabel="Sonde en direct"
             active={isActive('/live')}
+            pro
           />
 
           {/* Mon espace */}
@@ -210,6 +213,7 @@ export default function Layout({ children }) {
                   label="Mon journal"
                   sublabel="Sessions de cuisson"
                   active={location.pathname === '/journal'}
+                  pro
                 />
               )}
             </div>
@@ -347,7 +351,7 @@ export default function Layout({ children }) {
               }`}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="3" y1="10" x2="21" y2="10" /><line x1="9" y1="4" x2="9" y2="22" /></svg>
-              Multi-cuisson
+              Multi-cuisson <ProBadge />
             </Link>
             {isModuleEnabled('recipes') && (
               <Link
@@ -370,7 +374,7 @@ export default function Layout({ children }) {
                 }`}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></svg>
-                Comparateur
+                Comparateur <ProBadge />
               </Link>
             )}
             {isModuleEnabled('wood_guide') && (
@@ -403,7 +407,7 @@ export default function Layout({ children }) {
               }`}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 2v4" /><path d="M12 18v4" /><path d="M4.93 4.93l2.83 2.83" /><path d="M16.24 16.24l2.83 2.83" /><path d="M2 12h4" /><path d="M18 12h4" /><circle cx="12" cy="12" r="4" /></svg>
-              Live Cook
+              Live Cook <ProBadge />
             </Link>
             {isAuthenticated && isModuleEnabled('favorites') && (
               <Link
@@ -438,7 +442,7 @@ export default function Layout({ children }) {
                 }`}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" /></svg>
-                Mon journal
+                Mon journal <ProBadge />
               </Link>
             )}
             {isAdmin && (
@@ -487,7 +491,15 @@ export default function Layout({ children }) {
 }
 
 /* ── Nav item component ── */
-function NavItem({ to, icon, label, sublabel, active }) {
+function ProBadge() {
+  return (
+    <span className="inline-flex items-center gap-0.5 text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400 border border-amber-500/20 whitespace-nowrap">
+      PRO
+    </span>
+  )
+}
+
+function NavItem({ to, icon, label, sublabel, active, pro }) {
   return (
     <Link
       to={to}
@@ -501,7 +513,10 @@ function NavItem({ to, icon, label, sublabel, active }) {
         {icon}
       </span>
       <div className="flex-1 min-w-0">
-        <span className={`text-[13px] ${active ? 'font-bold' : 'font-medium'}`}>{label}</span>
+        <div className="flex items-center gap-1.5">
+          <span className={`text-[13px] ${active ? 'font-bold' : 'font-medium'}`}>{label}</span>
+          {pro && <ProBadge />}
+        </div>
         {sublabel && (
           <p className={`text-[10px] ${active ? 'text-[#ff6b1a]/60' : 'text-zinc-600'}`}>{sublabel}</p>
         )}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../modules/auth/AuthContext.jsx'
 import { Link, useSearchParams } from 'react-router-dom'
+import ProLaunchBanner from '../components/ProLaunchBanner.jsx'
 import { journal } from '../lib/journal.js'
 
 // ── Rating stars ──────────────────────────────────────────
@@ -152,6 +153,9 @@ export default function JournalPage() {
 
   return (
     <div className="min-h-screen">
+      <div className="px-6 lg:px-10 pt-6 max-w-3xl">
+        <ProLaunchBanner />
+      </div>
       {/* Header */}
       <div className="px-6 lg:px-10 py-6 border-b border-white/[0.06]">
         <div className="max-w-3xl flex items-center justify-between">

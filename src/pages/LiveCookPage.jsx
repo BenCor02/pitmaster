@@ -7,6 +7,7 @@ import * as meaterBLE from '../lib/meaterBLE.js'
 import * as inkbirdBLE from '../lib/inkbirdBLE.js'
 import { isNative } from '../lib/capacitor.js'
 import { sendNotification } from '../lib/notifications.js'
+import ProLaunchBanner from '../components/ProLaunchBanner.jsx'
 import { MEAT_PROFILES } from '../modules/calculator/data.js'
 import { calculateCookPlan } from '../modules/calculator/engine.js'
 
@@ -800,6 +801,7 @@ export default function LiveCookPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 lg:py-12">
+      <ProLaunchBanner />
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
