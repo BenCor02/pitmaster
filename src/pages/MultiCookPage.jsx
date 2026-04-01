@@ -35,7 +35,7 @@ export default function MultiCookPage() {
       weightKg: isFixed ? '' : '4',
       cookTempC: midTemp,
       wrapped: profile.supports_wrap || false,
-      doneness: isRS ? 'medium_rare' : null,
+      doneness: isRS ? (profile.default_doneness || Object.keys(profile.doneness_targets || {})[0] || 'medium_rare') : null,
       isFixed,
       isRS,
     }])
@@ -636,12 +636,12 @@ function MeatEntry({ entry, index, plan, serviceHour, onUpdate, onRemove }) {
               <div>
                 <label className="text-[9px] font-bold text-zinc-600 uppercase tracking-wider block mb-1">Cuisson</label>
                 <select
-                  value={entry.doneness || 'medium_rare'}
+                  value={entry.doneness || entry.profile?.default_doneness || 'medium_rare'}
                   onChange={(e) => onUpdate('doneness', e.target.value)}
                   className="w-full px-3 py-2 bg-white/[0.03] border border-white/[0.08] rounded-lg text-[12px] font-semibold text-white focus:outline-none focus:border-[#ff6b1a]/30 transition-all appearance-none"
                 >
-                  {Object.entries(DONENESS_LABELS).map(([k, v]) => (
-                    <option key={k} value={k} className="bg-zinc-900">{v}</option>
+                  {Object.entries(entry.profile?.doneness_targets || {}).map(([k]) => (
+                    <option key={k} value={k} className="bg-zinc-900">{DONENESS_LABELS[k] || k}</option>
                   ))}
                 </select>
               </div>

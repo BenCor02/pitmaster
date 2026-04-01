@@ -107,7 +107,7 @@ export function calculateCookPlan({ profile, weightKg, cookTempC, wrapped, donen
   let targetFinalTemp = null
 
   if (profile.cook_type === 'reverse_sear') {
-    const d = doneness || profile.default_doneness || 'medium_rare'
+    const d = doneness || profile.default_doneness || Object.keys(profile.doneness_targets || {})[0] || 'medium_rare'
     targetFinalTemp = profile.doneness_targets?.[d] || 54
     reversePullTemp = targetFinalTemp - (profile.reverse_sear?.pull_before_target_c || 8)
     searMinutes = Math.round(average(
@@ -768,8 +768,14 @@ function buildRibsMethod(profile) {
 function buildReverseSearGuide(profile, doneness) {
   if (profile.cook_type !== 'reverse_sear') return null
 
-  const d = doneness || profile.default_doneness || 'medium_rare'
+  const d = doneness || profile.default_doneness || Object.keys(profile.doneness_targets || {})[0] || 'medium_rare'
   const temps = profile.doneness_targets || {}
+
+  // Labels français pour chaque clé de cuisson
+  const DONENESS_DISPLAY = {
+    bleu: 'Bleu', rare: 'Saignant', medium_rare: 'À point', medium: 'Bien cuit',
+    rose: 'Rosé', a_point: 'À point', bien_cuit: 'Bien cuit',
+  }
 
   return {
     title: '🔥 Reverse Sear recommandé',
@@ -781,12 +787,9 @@ function buildReverseSearGuide(profile, doneness) {
       'Monter le grill très fort (250–300°C)',
       'Saisir 45–60 secondes par face',
     ],
-    targets: {
-      bleu: { temp: temps.bleu || 45, label: 'Bleu' },
-      rare: { temp: temps.rare || 52, label: 'Saignant' },
-      medium_rare: { temp: temps.medium_rare || 54, label: 'À point' },
-      medium: { temp: temps.medium || 60, label: 'Bien cuit' },
-    },
+    targets: Object.fromEntries(
+      Object.entries(temps).map(([key, temp]) => [key, { temp, label: DONENESS_DISPLAY[key] || key }])
+    ),
     selectedDoneness: d,
     advantages: [
       'Cuisson parfaitement uniforme du bord au centre',

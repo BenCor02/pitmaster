@@ -328,7 +328,8 @@ function useAlerts(device, profile) {
 
     // Reverse sear pull temp
     if (profile.cook_type === 'reverse_sear' && profile.doneness_targets) {
-      const pullTemp = (profile.doneness_targets.medium_rare || 54) - (profile.reverse_sear?.pull_before_target_c || 6)
+      const selectedDoneness = profile.default_doneness || Object.keys(profile.doneness_targets)[0] || 'medium_rare'
+      const pullTemp = (profile.doneness_targets[selectedDoneness] || 54) - (profile.reverse_sear?.pull_before_target_c || 6)
       if (internal >= pullTemp) {
         if (!firedRef.current.has('pull')) {
           firedRef.current.add('pull')
@@ -750,9 +751,9 @@ export default function LiveCookPage() {
                           />
                         )}
                         {/* Reverse sear pull temp */}
-                        {selectedProfile?.cook_type === 'reverse_sear' && selectedProfile?.doneness_targets?.medium_rare && (
+                        {selectedProfile?.cook_type === 'reverse_sear' && selectedProfile?.doneness_targets && (
                           <ReferenceLine
-                            y={(selectedProfile.doneness_targets.medium_rare) - (selectedProfile.reverse_sear?.pull_before_target_c || 6)}
+                            y={(selectedProfile.doneness_targets[selectedProfile.default_doneness || Object.keys(selectedProfile.doneness_targets)[0]] || 54) - (selectedProfile.reverse_sear?.pull_before_target_c || 6)}
                             stroke="#f59e0b"
                             strokeDasharray="6 3"
                             label={{ value: 'Sear', position: 'right', fill: '#f59e0b', fontSize: 10 }}

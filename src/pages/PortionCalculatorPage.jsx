@@ -23,7 +23,7 @@ const PORTIONS_DATA = [
     yield_pct: 50,
     note: 'Rendement ~50%. Un brisket de 5kg nourrit ~11 personnes. Prévoir un peu plus si tu sers en sandwich.',
     serving_style: 'Tranché ou en sandwich',
-    cook_link: '/?m=brisket',
+    cook_link: '/calculateur?m=brisket',
   },
   {
     id: 'beef_short_ribs',
@@ -34,7 +34,7 @@ const PORTIONS_DATA = [
     yield_pct: 45,
     note: 'Beaucoup d\'os = rendement plus faible (~45%). Compte ~500g brut par personne.',
     serving_style: 'Entier ou effiloché',
-    cook_link: '/?m=beef_short_ribs',
+    cook_link: '/calculateur?m=beef_short_ribs',
   },
   {
     id: 'chuck_roast',
@@ -45,7 +45,7 @@ const PORTIONS_DATA = [
     yield_pct: 55,
     note: 'Bon rendement (~55%). Parfait pour du pulled beef en mode tacos ou burgers.',
     serving_style: 'Effiloché',
-    cook_link: '/?m=chuck_roast',
+    cook_link: '/calculateur?m=chuck_roast',
   },
   {
     id: 'prime_rib',
@@ -56,7 +56,7 @@ const PORTIONS_DATA = [
     yield_pct: 70,
     note: 'Rendement élevé (~70%) car cuisson douce. Compter 1 côte (~400g) par personne.',
     serving_style: 'Tranché épais',
-    cook_link: '/?m=prime_rib',
+    cook_link: '/calculateur?m=prime_rib',
   },
   {
     id: 'tomahawk',
@@ -67,7 +67,7 @@ const PORTIONS_DATA = [
     yield_pct: 65,
     note: 'L\'os pèse lourd (~30% du poids). Un tomahawk de 1kg peut nourrir 2 personnes.',
     serving_style: 'Tranché et partagé',
-    cook_link: '/?m=tomahawk',
+    cook_link: '/calculateur?m=tomahawk',
   },
 
   // ── PORC ──
@@ -80,7 +80,7 @@ const PORTIONS_DATA = [
     yield_pct: 50,
     note: 'Rendement ~50%. Un pork butt de 4kg donne ~2kg de pulled = ~9 personnes en sandwich.',
     serving_style: 'Effiloché en sandwich ou assiette',
-    cook_link: '/?m=pulled_pork',
+    cook_link: '/calculateur?m=pulled_pork',
   },
   {
     id: 'spare_ribs',
@@ -91,7 +91,7 @@ const PORTIONS_DATA = [
     yield_pct: 50,
     note: 'Un rack de spare ribs (~1.5kg) nourrit 2-3 personnes. Beaucoup d\'os.',
     serving_style: 'Par côtes (3-4 côtes/personne)',
-    cook_link: '/?m=spare_ribs',
+    cook_link: '/calculateur?m=spare_ribs',
   },
   {
     id: 'baby_back_ribs',
@@ -102,7 +102,7 @@ const PORTIONS_DATA = [
     yield_pct: 50,
     note: 'Plus petites que les spare ribs. Un rack (~1kg) nourrit 2 personnes.',
     serving_style: 'Par côtes (4-5 côtes/personne)',
-    cook_link: '/?m=baby_back_ribs',
+    cook_link: '/calculateur?m=baby_back_ribs',
   },
 
   // ── VOLAILLE ──
@@ -115,7 +115,7 @@ const PORTIONS_DATA = [
     yield_pct: 65,
     note: 'Un poulet de 1.8kg nourrit 4 personnes. Le fumoir donne une peau incroyable.',
     serving_style: 'Découpé (cuisse, blanc, aile)',
-    cook_link: '/?m=whole_chicken',
+    cook_link: '/calculateur?m=whole_chicken',
   },
 ]
 
