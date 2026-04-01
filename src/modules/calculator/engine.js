@@ -693,6 +693,7 @@ function buildPoultryPhases(profile, totalCookMin, tolerance, ctx) {
   const phases = []
   const highTemp = ctx.cookTempC >= 150
   const pt = profile.phases_text || {}
+  const id = profile.id
 
   // Helper: parse markers text (one per line) or fallback to array
   const parseMarkers = (textKey, fallback) => {
@@ -700,19 +701,18 @@ function buildPoultryPhases(profile, totalCookMin, tolerance, ctx) {
     return fallback
   }
 
+  // Textes spécifiques par profil volaille
+  const texts = getPoultryTexts(id, highTemp)
+
   // Phase 1: Mise en fumée
   const phase1Min = totalCookMin * 0.35
   phases.push({
     num: 1,
     title: pt.smoke_title || 'Mise en fumée',
     duration: formatApproxDuration(phase1Min, tolerance * 100),
-    objective: pt.smoke_objective || 'Absorption de la fumée et coloration de la peau',
-    markers: parseMarkers('smoke_markers_text', [
-      { type: 'visual', text: 'La peau commence à dorer et prend une teinte ambrée' },
-      { type: 'temp', text: 'Température interne : ~40–55°C' },
-      { type: 'visual', text: 'Placement de la sonde : piquer dans la partie la plus épaisse de la cuisse, sans toucher l\'os' },
-    ]),
-    advice: pt.smoke_advice || 'Plante la sonde dans le gras de la cuisse, entre le pilon et le haut de cuisse, en visant le centre de la chair. C\'est la partie la plus longue à cuire — c\'est elle qui décide quand le poulet est prêt.',
+    objective: pt.smoke_objective || texts.smokeObjective,
+    markers: parseMarkers('smoke_markers_text', texts.smokeMarkers),
+    advice: pt.smoke_advice || texts.smokeAdvice,
   })
 
   // Phase 2: Cuisson principale
@@ -721,15 +721,11 @@ function buildPoultryPhases(profile, totalCookMin, tolerance, ctx) {
     num: 2,
     title: pt.cook_title || 'Cuisson principale',
     duration: formatApproxDuration(phase2Min, tolerance * 100),
-    objective: pt.cook_objective || 'Montée en température progressive vers la cible de 74°C',
-    markers: parseMarkers('cook_markers_text', [
-      { type: 'temp', text: 'La température monte régulièrement — pas de stall comme le bœuf ou le porc' },
-      { type: 'temp', text: 'Commencer à surveiller à partir de 65°C interne' },
-      { type: 'visual', text: 'Le jus qui coule de la cuisse doit devenir clair (pas rosé)' },
-    ]),
+    objective: pt.cook_objective || texts.cookObjective,
+    markers: parseMarkers('cook_markers_text', texts.cookMarkers),
     advice: highTemp
-      ? (pt.cook_advice_high || 'À 150°C+ au fumoir, la peau croustille bien. C\'est le sweet spot pour un poulet fumé avec une belle peau.')
-      : (pt.cook_advice_low || 'En dessous de 130°C, la peau reste molle et caoutchouteuse. Pense à finir 10 min sur un grill chaud pour la crisper.'),
+      ? (pt.cook_advice_high || texts.cookAdviceHigh)
+      : (pt.cook_advice_low || texts.cookAdviceLow),
   })
 
   // Phase 3: Finition / vérification
@@ -737,15 +733,11 @@ function buildPoultryPhases(profile, totalCookMin, tolerance, ctx) {
     num: 3,
     title: pt.finish_title || 'Vérification & finition',
     duration: '5–10 min',
-    objective: pt.finish_objective || 'S\'assurer que le poulet est cuit à cœur et que la peau est à ton goût',
-    markers: parseMarkers('finish_markers_text', [
-      { type: 'temp', text: 'Cible : 74°C dans la cuisse (sécurité alimentaire)' },
-      { type: 'temp', text: 'Vérifier aussi entre le blanc et la cuisse : piquer à la jonction, viser 74°C' },
-      { type: 'visual', text: 'Remuer une cuisse — elle doit bouger facilement dans l\'articulation' },
-    ]),
+    objective: pt.finish_objective || texts.finishObjective,
+    markers: parseMarkers('finish_markers_text', texts.finishMarkers),
     advice: !highTemp
-      ? (pt.finish_advice_low || 'Peau molle ? Finis 5–10 min sur un grill très chaud (250°C+) ou sous le gril du four pour crisper la peau sans sur-cuire la chair.')
-      : (pt.finish_advice_high || 'Si la peau est déjà dorée et croustillante, c\'est prêt. Ne dépasse pas 80°C interne sinon les blancs sèchent.'),
+      ? (pt.finish_advice_low || texts.finishAdviceLow)
+      : (pt.finish_advice_high || texts.finishAdviceHigh),
   })
 
   // Phase 4: Repos
@@ -753,15 +745,118 @@ function buildPoultryPhases(profile, totalCookMin, tolerance, ctx) {
     num: 4,
     title: pt.rest_title || 'Repos',
     duration: formatRange(ctx.restMin, ctx.restMax),
-    objective: pt.rest_objective || 'Les jus se redistribuent — le poulet sera plus juteux à la découpe',
-    markers: parseMarkers('rest_markers_text', [
-      { type: 'visual', text: 'Couvrir de papier alu en tente (sans serrer, pour garder la peau croustillante)' },
-      { type: 'visual', text: 'Laisser reposer sur une planche, pas dans un plat (l\'humidité ramollit le dessous)' },
-    ]),
-    advice: pt.rest_advice || 'Un repos de 10–15 min suffit pour le poulet. Pas besoin de glacière comme pour le brisket — la volaille se découpe vite.',
+    objective: pt.rest_objective || texts.restObjective,
+    markers: parseMarkers('rest_markers_text', texts.restMarkers),
+    advice: pt.rest_advice || texts.restAdvice,
   })
 
   return phases
+}
+
+/**
+ * Textes spécifiques par type de volaille pour buildPoultryPhases.
+ * Chaque volaille a ses propres repères visuels et conseils.
+ */
+function getPoultryTexts(id, highTemp) {
+
+  // ── CUISSES DE POULET ──
+  if (id === 'chicken_thighs') return {
+    smokeObjective: 'Absorption de la fumée et coloration de la peau des cuisses',
+    smokeMarkers: [
+      { type: 'visual', text: 'La peau des cuisses commence à dorer et prend une teinte ambrée' },
+      { type: 'temp', text: 'Température interne : ~40–55°C' },
+      { type: 'visual', text: 'Placement de la sonde : piquer dans la partie la plus épaisse de la cuisse, sans toucher l\'os du fémur' },
+    ],
+    smokeAdvice: 'Plante la sonde au centre de la partie la plus charnue, loin de l\'os. Les cuisses sont tolérantes — elles pardonnent un peu de sur-cuisson grâce au gras et au collagène.',
+    cookObjective: 'Montée en température vers 77–82°C — le dark meat est meilleur au-delà de 74°C',
+    cookMarkers: [
+      { type: 'temp', text: 'La température monte régulièrement — pas de stall sur les cuisses' },
+      { type: 'temp', text: 'Commencer à surveiller à partir de 70°C interne' },
+      { type: 'visual', text: 'La viande commence à se rétracter autour de l\'os — c\'est normal' },
+    ],
+    cookAdviceHigh: 'À 150°C+ au fumoir, la peau croustille bien. C\'est le sweet spot pour des cuisses avec une belle peau.',
+    cookAdviceLow: 'En dessous de 135°C, la peau reste molle et caoutchouteuse. Astuce compétition : finis 5 min sur un grill très chaud pour crisper.',
+    finishObjective: 'S\'assurer que les cuisses sont cuites à cœur — le dark meat supporte bien la chaleur',
+    finishMarkers: [
+      { type: 'temp', text: 'Cible : 77–82°C dans la cuisse (74°C minimum sécurité alimentaire)' },
+      { type: 'visual', text: 'Le jus qui coule doit être clair, pas rosé' },
+      { type: 'visual', text: 'La viande se détache facilement de l\'os quand tu tires dessus' },
+    ],
+    finishAdviceLow: 'Peau molle ? Finis 5 min sur un grill très chaud (250°C+) pour crisper sans sur-cuire.',
+    finishAdviceHigh: 'Les cuisses sont très tolérantes. Tant que tu ne dépasses pas 85°C, elles restent juteuses grâce au gras.',
+    restObjective: 'Repos très court — les cuisses se servent chaudes',
+    restMarkers: [
+      { type: 'visual', text: 'Laisser reposer 5 min sur une planche' },
+      { type: 'visual', text: 'Pas besoin d\'aluminium — on veut garder la peau croustillante' },
+    ],
+    restAdvice: '5 minutes de repos suffisent pour les cuisses. Elles refroidissent vite — sers rapidement.',
+  }
+
+  // ── POITRINE DE DINDE ──
+  if (id === 'turkey_breast') return {
+    smokeObjective: 'Absorption de la fumée et coloration dorée de la poitrine',
+    smokeMarkers: [
+      { type: 'visual', text: 'La peau de la poitrine dore progressivement' },
+      { type: 'temp', text: 'Température interne : ~35–50°C' },
+      { type: 'visual', text: 'Placement de la sonde : piquer horizontalement au centre de la partie la plus épaisse de la poitrine, loin de l\'os' },
+    ],
+    smokeAdvice: 'La dinde absorbe beaucoup de fumée — utilise du bois fruitier léger (pommier, cerisier, érable). Le hickory ou le mesquite donnent un goût amer sur la dinde. 2-3 petits morceaux suffisent.',
+    cookObjective: 'Montée en température progressive vers 68–74°C — la poitrine sèche vite au-delà',
+    cookMarkers: [
+      { type: 'temp', text: 'La température monte régulièrement — pas de stall sur la dinde' },
+      { type: 'temp', text: 'Commencer à surveiller à partir de 60°C interne' },
+      { type: 'visual', text: 'La peau doit être dorée et tendue. Le jus qui perle doit être clair.' },
+    ],
+    cookAdviceHigh: 'À 150°C+ la peau croustille et la cuisson est plus rapide. Attention à ne pas dépasser 74°C interne — la poitrine de dinde sèche très vite.',
+    cookAdviceLow: 'En dessous de 130°C, la peau reste molle. Prévois une finition 10 min au grill ou au four très chaud pour la crisper.',
+    finishObjective: 'S\'assurer que la poitrine est cuite à cœur sans la dessécher',
+    finishMarkers: [
+      { type: 'temp', text: 'Pull temp : 68°C — le carryover amène à 74°C pendant le repos' },
+      { type: 'temp', text: 'Ne PAS dépasser 74°C au fumoir — la poitrine de dinde sèche très rapidement au-delà' },
+      { type: 'visual', text: 'Le jus doit être parfaitement clair. La chair ne doit plus être rosée au centre.' },
+    ],
+    finishAdviceLow: 'Peau molle ? Passe 5–10 min sous le gril du four à 250°C pour crisper sans sur-cuire la chair.',
+    finishAdviceHigh: 'Ne pousse pas au-delà de 74°C. La poitrine de dinde est la pièce la moins tolérante — chaque degré de trop se paie en sécheresse.',
+    restObjective: 'Les jus se redistribuent — le repos est crucial pour la dinde',
+    restMarkers: [
+      { type: 'visual', text: 'Couvrir de papier alu en tente (sans serrer)' },
+      { type: 'visual', text: 'Le repos est CRUCIAL pour la dinde — c\'est ce qui fait la différence entre juteux et sec' },
+    ],
+    restAdvice: 'Minimum 15 min de repos, idéalement 20-30 min. La poitrine de dinde bénéficie d\'un long repos. C\'est pendant ce temps que le carryover finit le travail et que les jus se redistribuent.',
+  }
+
+  // ── POULET ENTIER (défaut) ──
+  return {
+    smokeObjective: 'Absorption de la fumée et coloration de la peau',
+    smokeMarkers: [
+      { type: 'visual', text: 'La peau commence à dorer et prend une teinte ambrée' },
+      { type: 'temp', text: 'Température interne : ~40–55°C' },
+      { type: 'visual', text: 'Placement de la sonde : piquer dans la partie la plus épaisse de la cuisse, sans toucher l\'os' },
+    ],
+    smokeAdvice: 'Plante la sonde dans le gras de la cuisse, entre le pilon et le haut de cuisse, en visant le centre de la chair. C\'est la partie la plus longue à cuire — c\'est elle qui décide quand le poulet est prêt.',
+    cookObjective: 'Montée en température progressive vers la cible de 74°C',
+    cookMarkers: [
+      { type: 'temp', text: 'La température monte régulièrement — pas de stall comme le bœuf ou le porc' },
+      { type: 'temp', text: 'Commencer à surveiller à partir de 65°C interne' },
+      { type: 'visual', text: 'Le jus qui coule de la cuisse doit devenir clair (pas rosé)' },
+    ],
+    cookAdviceHigh: 'À 150°C+ au fumoir, la peau croustille bien. C\'est le sweet spot pour un poulet fumé avec une belle peau.',
+    cookAdviceLow: 'En dessous de 130°C, la peau reste molle et caoutchouteuse. Pense à finir 10 min sur un grill chaud pour la crisper.',
+    finishObjective: 'S\'assurer que le poulet est cuit à cœur et que la peau est à ton goût',
+    finishMarkers: [
+      { type: 'temp', text: 'Cible : 74°C dans la cuisse (sécurité alimentaire)' },
+      { type: 'temp', text: 'Vérifier aussi entre le blanc et la cuisse : piquer à la jonction, viser 74°C' },
+      { type: 'visual', text: 'Remuer une cuisse — elle doit bouger facilement dans l\'articulation' },
+    ],
+    finishAdviceLow: 'Peau molle ? Finis 5–10 min sur un grill très chaud (250°C+) ou sous le gril du four pour crisper la peau sans sur-cuire la chair.',
+    finishAdviceHigh: 'Si la peau est déjà dorée et croustillante, c\'est prêt. Ne dépasse pas 80°C interne sinon les blancs sèchent.',
+    restObjective: 'Les jus se redistribuent — le poulet sera plus juteux à la découpe',
+    restMarkers: [
+      { type: 'visual', text: 'Couvrir de papier alu en tente (sans serrer, pour garder la peau croustillante)' },
+      { type: 'visual', text: 'Laisser reposer sur une planche, pas dans un plat (l\'humidité ramollit le dessous)' },
+    ],
+    restAdvice: 'Un repos de 10–15 min suffit pour le poulet. Pas besoin de glacière comme pour le brisket — la volaille se découpe vite.',
+  }
 }
 
 // ── Conseils pitmaster ──────────────────────────────────
@@ -769,17 +864,29 @@ function buildPoultryPhases(profile, totalCookMin, tolerance, ctx) {
 function buildTips(profile, wrapped, weightKg, cookTempC) {
   const tips = []
 
-  // Conseils spécifiques volaille
+  // Conseils spécifiques volaille — adaptés par profil
   if (profile.category === 'volaille') {
-    tips.push('Plante la sonde dans la cuisse, pas dans le blanc. La cuisse est la dernière partie à atteindre 74°C — c\'est elle qui décide.')
-    tips.push('74°C dans la cuisse = poulet cuit et juteux. Au-delà de 80°C, les blancs commencent à sécher.')
+    if (profile.id === 'turkey_breast') {
+      tips.push('Plante la sonde horizontalement au centre de la partie la plus épaisse de la poitrine, loin de l\'os et du bord.')
+      tips.push('Pull temp : 68°C. Le carryover amène à 74°C pendant le repos. Ne dépasse JAMAIS 74°C au fumoir — la dinde sèche très vite.')
+      tips.push('La dinde absorbe beaucoup de fumée — bois fruitier léger uniquement (pommier, cerisier, érable). Le hickory donne un goût amer.')
+      tips.push('Astuce : brine la veille (40g sel + 30g sucre par litre d\'eau, 12h au frigo). Ça fait toute la différence pour le juteux.')
+    } else if (profile.id === 'chicken_thighs') {
+      tips.push('Plante la sonde au centre de la cuisse, dans la partie la plus charnue, sans toucher l\'os du fémur.')
+      tips.push('Les cuisses sont tolérantes : vise 77–82°C pour une texture fondante. Le dark meat est meilleur bien cuit que le blanc.')
+      tips.push('Astuce compétition : sèche les cuisses à l\'air libre au frigo 2h avant de fumer. Peau sèche = peau croustillante.')
+    } else {
+      // Poulet entier
+      tips.push('Plante la sonde dans la cuisse, pas dans le blanc. La cuisse est la dernière partie à atteindre 74°C — c\'est elle qui décide.')
+      tips.push('74°C dans la cuisse = poulet cuit et juteux. Au-delà de 80°C, les blancs commencent à sécher.')
+      tips.push('Astuce pro : sèche bien la peau avec du papier absorbant avant d\'appliquer le rub. Une peau sèche = une peau croustillante.')
+    }
     if (cookTempC < 140) {
       tips.push('En dessous de 140°C au fumoir, la peau ne croustillera pas. Prévois une finition au grill ou au four (250°C, 5–10 min).')
     }
     if (cookTempC >= 150) {
-      tips.push('À 150°C+ au fumoir, la peau devrait bien crisper. C\'est la température idéale pour un poulet fumé.')
+      tips.push('À 150°C+ au fumoir, la peau devrait bien crisper.')
     }
-    tips.push('Astuce pro : sèche bien la peau avec du papier absorbant avant d\'appliquer le rub. Une peau sèche = une peau croustillante.')
     tips.push("Chaque cuisson est différente. Les durées sont des estimations — c'est la viande qui décide, pas la montre.")
     return tips
   }
