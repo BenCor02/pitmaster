@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <!-- Background gradient -->
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a1a"/>
+      <stop offset="100%" stop-color="#0a0a0a"/>
+    </linearGradient>
+    <!-- Main flame gradient -->
+    <linearGradient id="flame-main" x1="0.5" y1="1" x2="0.5" y2="0">
+      <stop offset="0%" stop-color="#dc2626"/>
+      <stop offset="35%" stop-color="#ea580c"/>
+      <stop offset="65%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#fb923c"/>
+    </linearGradient>
+    <!-- Inner flame gradient -->
+    <linearGradient id="flame-inner" x1="0.5" y1="1" x2="0.5" y2="0">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="50%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#fde68a"/>
+    </linearGradient>
+    <!-- Core glow -->
+    <linearGradient id="flame-core" x1="0.5" y1="1" x2="0.5" y2="0">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#fef9c3"/>
+    </linearGradient>
+    <!-- Glossy overlay -->
+    <linearGradient id="gloss" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/>
+      <stop offset="45%" stop-color="#ffffff" stop-opacity="0.08"/>
+      <stop offset="55%" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.15"/>
+    </linearGradient>
+    <!-- Outer glow filter -->
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <!-- Inner shadow for depth -->
+    <filter id="inner-glow">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <!-- Subtle drop shadow -->
+    <filter id="shadow" x="-10%" y="-5%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#f97316" flood-opacity="0.3"/>
+    </filter>
+    <!-- Background radial glow -->
+    <radialGradient id="bg-glow" cx="0.5" cy="0.45" r="0.4">
+      <stop offset="0%" stop-color="#f97316" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#f97316" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Rounded square background -->
+  <rect width="512" height="512" rx="108" fill="url(#bg)"/>
+
+  <!-- Subtle background glow behind flame -->
+  <rect width="512" height="512" rx="108" fill="url(#bg-glow)"/>
+
+  <!-- Left wisp -->
+  <path d="M168 390 C140 340 120 290 135 230 C145 195 170 175 178 205 C186 240 178 290 188 330 C193 352 178 378 168 390Z"
+    fill="url(#flame-main)" opacity="0.35" filter="url(#inner-glow)"/>
+
+  <!-- Right wisp -->
+  <path d="M344 390 C372 340 392 290 377 230 C367 195 342 175 334 205 C326 240 334 290 324 330 C319 352 334 378 344 390Z"
+    fill="url(#flame-main)" opacity="0.35" filter="url(#inner-glow)"/>
+
+  <!-- Main flame body -->
+  <path d="M256 68
+    C256 68 142 165 142 290
+    C142 332 158 366 188 394
+    C190 348 214 308 256 280
+    C298 308 322 348 324 394
+    C354 366 370 332 370 290
+    C370 165 256 68 256 68Z"
+    fill="url(#flame-main)" filter="url(#shadow)"/>
+
+  <!-- Middle flame layer -->
+  <path d="M256 140
+    C256 140 185 215 185 305
+    C185 338 203 362 228 378
+    C230 348 240 325 256 310
+    C272 325 282 348 284 378
+    C309 362 327 338 327 305
+    C327 215 256 140 256 140Z"
+    fill="url(#flame-inner)" opacity="0.8"/>
+
+  <!-- Inner bright core -->
+  <path d="M256 220
+    C256 220 210 275 210 320
+    C210 348 230 370 256 378
+    C282 370 302 348 302 320
+    C302 275 256 220 256 220Z"
+    fill="url(#flame-core)" opacity="0.85"/>
+
+  <!-- Bright center highlight -->
+  <path d="M256 270
+    C256 270 235 300 235 325
+    C235 340 244 350 256 355
+    C268 350 277 340 277 325
+    C277 300 256 270 256 270Z"
+    fill="#fef9c3" opacity="0.6"/>
+
+  <!-- Embers -->
+  <circle cx="200" cy="420" r="8" fill="#f97316" opacity="0.5"/>
+  <circle cx="232" cy="428" r="6" fill="#fb923c" opacity="0.35"/>
+  <circle cx="256" cy="424" r="7" fill="#fbbf24" opacity="0.4"/>
+  <circle cx="280" cy="428" r="6" fill="#fb923c" opacity="0.35"/>
+  <circle cx="312" cy="420" r="8" fill="#f97316" opacity="0.5"/>
+
+  <!-- Glossy overlay for modern look -->
+  <rect width="512" height="512" rx="108" fill="url(#gloss)"/>
+
+  <!-- Top edge highlight -->
+  <rect x="40" y="8" width="432" height="1" rx="0.5" fill="white" opacity="0.15"/>
+</svg>
