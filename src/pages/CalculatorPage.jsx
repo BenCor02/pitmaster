@@ -35,7 +35,7 @@ function saveToURL(params) {
   window.history.replaceState({}, '', url)
 }
 
-const VALID_DONENESS = ['bleu', 'rare', 'medium_rare', 'medium', 'medium_well', 'well_done']
+const VALID_DONENESS = ['bleu', 'rare', 'medium_rare', 'medium', 'medium_well', 'well_done', 'rose', 'a_point', 'bien_cuit']
 
 function readFromURL() {
   const params = new URLSearchParams(window.location.search)
@@ -121,6 +121,9 @@ export default function CalculatorPage() {
       setCookTempC(p.temp_bands[Math.floor(p.temp_bands.length / 2)].temp_c)
     }
     setWrapped(p?.supports_wrap || false)
+    // Doneness par défaut selon le profil (ex: porc = rosé, boeuf = medium_rare)
+    const defaultDoneness = p?.default_doneness || (p?.doneness_targets ? Object.keys(p.doneness_targets)[0] : 'medium_rare')
+    setDoneness(defaultDoneness)
     setResult(null)
     setStep(2)
     setTimeout(() => step2Ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
@@ -335,15 +338,19 @@ export default function CalculatorPage() {
                   )}
 
                   {/* Doneness (reverse sear) */}
-                  {isReverseSear && (
+                  {isReverseSear && selectedProfile.doneness_targets && (
                     <div className="surface p-5">
                       <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-[0.08em] mb-3 block">Cuisson souhaitée</label>
                       <div className="flex flex-wrap gap-2">
-                        {Object.entries(DONENESS_LABELS).map(([key, label]) => (
-                          <button key={key} onClick={() => { setDoneness(key); setResult(null) }} className={`px-4 py-2.5 rounded-xl text-[13px] font-medium border transition-all ${doneness === key ? 'bg-[#ff6b1a]/8 border-[#ff6b1a]/25 text-[#ff6b1a]' : 'border-white/[0.06] text-zinc-500 hover:text-zinc-300 hover:border-white/[0.1]'}`}>
-                            {label} <span className="text-[11px] ml-1 text-zinc-600">{selectedProfile.doneness_targets[key]}°C</span>
-                          </button>
-                        ))}
+                        {Object.keys(selectedProfile.doneness_targets).map((key) => {
+                          const label = DONENESS_LABELS[key] || key
+                          const temp = selectedProfile.doneness_targets[key]
+                          return (
+                            <button key={key} onClick={() => { setDoneness(key); setResult(null) }} className={`px-4 py-2.5 rounded-xl text-[13px] font-medium border transition-all ${doneness === key ? 'bg-[#ff6b1a]/8 border-[#ff6b1a]/25 text-[#ff6b1a]' : 'border-white/[0.06] text-zinc-500 hover:text-zinc-300 hover:border-white/[0.1]'}`}>
+                              {label} <span className="text-[11px] ml-1 text-zinc-600">{temp}°C</span>
+                            </button>
+                          )
+                        })}
                       </div>
                     </div>
                   )}

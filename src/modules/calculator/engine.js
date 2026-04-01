@@ -107,7 +107,7 @@ export function calculateCookPlan({ profile, weightKg, cookTempC, wrapped, donen
   let targetFinalTemp = null
 
   if (profile.cook_type === 'reverse_sear') {
-    const d = doneness || 'medium_rare'
+    const d = doneness || profile.default_doneness || 'medium_rare'
     targetFinalTemp = profile.doneness_targets?.[d] || 54
     reversePullTemp = targetFinalTemp - (profile.reverse_sear?.pull_before_target_c || 8)
     searMinutes = Math.round(average(
@@ -663,7 +663,7 @@ function getReverseSearTexts(id) {
     searAdvice: 'Le filet est rond et fin — fais-le tourner pour saisir toute la surface uniformément. Une minute par « face » suffit largement.',
     restObjective: 'Repos court — le filet refroidit très vite',
     restMarker: 'Repos 5 min sous alu en tente — découper en médaillons de 2 cm',
-    restAdvice: 'Découpe en médaillons épais (2 cm). Le filet mignon de porc est excellent rosé (60°C) — ça surprend les gens habitués au porc bien cuit, mais c\'est safe et tellement meilleur.',
+    restAdvice: 'Découpe en médaillons épais (2 cm). Le filet mignon de porc est excellent rosé (63°C) — safe selon l\'ANSES et l\'USDA, juteux et fondant. À point (68°C) pour ceux qui préfèrent sans rose.',
   }
 
   // ── MAGRET DE CANARD ──
@@ -768,7 +768,7 @@ function buildRibsMethod(profile) {
 function buildReverseSearGuide(profile, doneness) {
   if (profile.cook_type !== 'reverse_sear') return null
 
-  const d = doneness || 'medium_rare'
+  const d = doneness || profile.default_doneness || 'medium_rare'
   const temps = profile.doneness_targets || {}
 
   return {
@@ -1025,7 +1025,7 @@ function buildTips(profile, wrapped, weightKg, cookTempC) {
 
   // Tips spécifiques filet mignon de porc
   if (profile.id === 'pork_tenderloin') {
-    tips.push('Le filet mignon est la pièce la plus maigre du porc — elle sèche très vite. Ne dépasse pas 65°C interne.')
+    tips.push('Le filet mignon est la pièce la plus maigre du porc — elle sèche très vite. Rosé (63°C) ou à point (68°C), ne dépasse jamais 74°C.')
     tips.push('Bois fruitier léger : pommier ou cerisier. Le hickory est trop fort pour cette pièce délicate.')
     tips.push('Sonde au centre du filet, dans la partie la plus épaisse. La montée est rapide — surveille de près à partir de 50°C.')
     tips.push('Le filet mignon de porc se mange rosé (60°C) en toute sécurité. C\'est le standard moderne — oublie le porc gris de mamie.')

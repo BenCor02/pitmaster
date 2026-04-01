@@ -406,12 +406,13 @@ export const MEAT_PROFILES = [
       sear_total_minutes_max: 4,
     },
     doneness_targets: {
-      medium_rare: 60,  // 140°F — le porc moderne est safe à 63°C, on pull à 60 pour le carryover
-      medium: 65,       // 150°F — juteux et rosé au centre (USDA recommande 63°C minimum)
-      well_done: 71,    // 160°F — bien cuit, encore acceptable si pas trop sec
+      rose: 63,         // Rosé — standard français moderne, juteux et légèrement rosé (USDA 63°C, ANSES idem)
+      a_point: 68,      // À point — plus de rose, encore juteux, cuisson préférée en France
+      bien_cuit: 74,    // Bien cuit — aucune trace de rose, texture plus ferme
     },
+    default_doneness: 'rose',
     cues: {
-      reverse_note: "Le filet mignon de porc est une pièce très maigre et fine — elle sèche vite. Fume à basse température (110°C) avec du bois fruitier léger (pommier, cerisier). Sors le filet 5°C sous ta cible. Saisie rapide 1 min par face à 250°C+. Ne dépasse jamais 65°C interne pour garder le juteux.",
+      reverse_note: "Le filet mignon de porc est une pièce très maigre et fine — elle sèche vite. Fume à basse température (110°C) avec du bois fruitier léger (pommier, cerisier). Sors le filet 5°C sous ta cible. Saisie rapide 1 min par face à 250°C+. Ne dépasse jamais 68°C interne pour garder le juteux. En France, le porc se mange rosé (63°C) ou à point (68°C) — jamais saignant.",
     },
   },
 
@@ -492,9 +493,14 @@ export const MEAT_PROFILES = [
 ]
 
 export const DONENESS_LABELS = {
+  // Boeuf / Agneau
   bleu: 'Bleu',
   rare: 'Saignant',
-  medium_rare: 'À point (medium rare)',
-  medium: 'Bien cuit (medium)',
+  medium_rare: 'À point',
+  medium: 'Bien cuit',
   well_done: 'Très bien cuit',
+  // Porc (en France : rosé ou cuit, jamais saignant)
+  rose: 'Rosé',
+  a_point: 'À point',
+  bien_cuit: 'Bien cuit',
 }

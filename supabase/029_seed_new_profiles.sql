@@ -111,8 +111,8 @@ VALUES
     5,
     10,
     '{"pull_before_target_c":5,"sear_total_minutes_min":2,"sear_total_minutes_max":4}'::jsonb,
-    '{"medium_rare":60,"medium":65,"well_done":71}'::jsonb,
-    '{"reverse_note":"Le filet mignon de porc est une pièce très maigre et fine — elle sèche vite. Fume à basse température (110°C) avec du bois fruitier léger (pommier, cerisier). Sors le filet 5°C sous ta cible. Saisie rapide 1 min par face à 250°C+. Ne dépasse jamais 65°C interne pour garder le juteux."}'::jsonb,
+    '{"rose":63,"a_point":68,"bien_cuit":74}'::jsonb,
+    '{"reverse_note":"Le filet mignon de porc est une pièce très maigre et fine — elle sèche vite. Fume à basse température (110°C) avec du bois fruitier léger (pommier, cerisier). Sors le filet 5°C sous ta cible. Saisie rapide 1 min par face à 250°C+. Ne dépasse jamais 68°C interne pour garder le juteux. En France, le porc se mange rosé (63°C) ou à point (68°C) — jamais saignant."}'::jsonb,
     15,
     true
   ),
