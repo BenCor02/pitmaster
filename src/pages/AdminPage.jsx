@@ -773,81 +773,100 @@ function JsonField({ value, onChange, rows = 6, placeholder }) {
 }
 
 /**
+ * Champ texte pour une phase — titre court (une ligne)
+ */
+function PhaseTitle({ label, value, onChange }) {
+  return (
+    <FormField label={label}>
+      <TextInput value={value || ''} onChange={onChange} placeholder={label} />
+    </FormField>
+  )
+}
+
+/**
+ * Champ texte pour une phase — texte long (multi-lignes)
+ */
+function PhaseText({ label, value, onChange, rows = 2, hint }) {
+  return (
+    <FormField label={label} hint={hint}>
+      <TextArea value={value || ''} onChange={onChange} rows={rows} placeholder={label} />
+    </FormField>
+  )
+}
+
+/**
+ * Bloc visuel d'une phase (cadre coloré avec champs)
+ */
+function PhaseBlock({ color, label, children }) {
+  const colorClass = {
+    orange: 'text-[#ff6b1a]',
+    amber: 'text-amber-400',
+    blue: 'text-blue-400',
+    red: 'text-red-400',
+    green: 'text-green-400',
+    zinc: 'text-zinc-400',
+  }[color] || 'text-zinc-400'
+
+  return (
+    <div className="p-4 rounded-xl bg-zinc-800/30 border border-white/[0.04] space-y-3">
+      <p className={`text-[11px] font-bold uppercase tracking-wider ${colorClass}`}>{label}</p>
+      {children}
+    </div>
+  )
+}
+
+/**
  * Éditeur structuré des textes de phases.
  * Affiche des champs texte individuels selon le cook_type.
  * Le résultat est un objet JSON stocké dans phases_text.
  */
 function PhasesTextEditor({ cookType, fixedTimes, value, onChange }) {
-  const pt = value || {}
+  const pt = (typeof value === 'object' && value !== null) ? value : {}
   const update = (key, val) => onChange({ ...pt, [key]: val })
-
-  // Helper pour un champ texte de phase
-  const PhaseField = ({ label, field, rows = 2, hint }) => (
-    <FormField label={label} hint={hint}>
-      <TextArea value={pt[field] || ''} onChange={v => update(field, v)} rows={rows} placeholder={label} />
-    </FormField>
-  )
-
-  const PhaseTitle = ({ label, field }) => (
-    <FormField label={label}>
-      <TextInput value={pt[field] || ''} onChange={v => update(field, v)} placeholder={label} />
-    </FormField>
-  )
 
   const isRibs = !!fixedTimes
   const isReverseSear = cookType === 'reverse_sear'
-  const isPoultry = cookType === 'low_and_slow' && pt.smoke_title // detect volaille by presence
 
-  // ── Low & Slow (boeuf, porc) ──
+  // ── Low & Slow (boeuf, porc, volaille) ──
   if (!isRibs && !isReverseSear) {
     return (
       <div className="space-y-6">
-        {/* Phase 1: Prise de fumée */}
-        <div className="p-4 rounded-xl bg-zinc-800/30 border border-white/[0.04] space-y-3">
-          <p className="text-[11px] font-bold text-[#ff6b1a] uppercase tracking-wider">Phase 1 — Prise de fumée</p>
-          <PhaseTitle label="Titre de la phase" field="phase1_title" />
-          <PhaseField label="Objectif" field="phase1_objective" />
-          <PhaseField label="Repère visuel" field="phase1_visual" />
-          <PhaseField label="Repère température" field="phase1_temp" rows={1} />
-          <PhaseField label="Info complémentaire" field="phase1_info" />
-          <PhaseField label="Conseil pitmaster" field="phase1_advice" rows={3} />
-        </div>
+        <PhaseBlock color="orange" label="Phase 1 — Prise de fumée">
+          <PhaseTitle label="Titre de la phase" value={pt.phase1_title} onChange={v => update('phase1_title', v)} />
+          <PhaseText label="Objectif" value={pt.phase1_objective} onChange={v => update('phase1_objective', v)} />
+          <PhaseText label="Repère visuel" value={pt.phase1_visual} onChange={v => update('phase1_visual', v)} />
+          <PhaseText label="Repère température" value={pt.phase1_temp} onChange={v => update('phase1_temp', v)} rows={1} />
+          <PhaseText label="Info complémentaire" value={pt.phase1_info} onChange={v => update('phase1_info', v)} />
+          <PhaseText label="Conseil pitmaster" value={pt.phase1_advice} onChange={v => update('phase1_advice', v)} rows={3} />
+        </PhaseBlock>
 
-        {/* Phase 2: Stall */}
-        <div className="p-4 rounded-xl bg-zinc-800/30 border border-white/[0.04] space-y-3">
-          <p className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Phase 2 — Stall</p>
-          <PhaseTitle label="Titre de la phase" field="stall_title" />
-          <PhaseField label="Objectif" field="stall_objective" />
-          <PhaseField label="Info complémentaire" field="stall_info" />
-          <PhaseField label="Conseil pitmaster" field="stall_advice" rows={3} />
-        </div>
+        <PhaseBlock color="amber" label="Phase 2 — Stall">
+          <PhaseTitle label="Titre de la phase" value={pt.stall_title} onChange={v => update('stall_title', v)} />
+          <PhaseText label="Objectif" value={pt.stall_objective} onChange={v => update('stall_objective', v)} />
+          <PhaseText label="Info complémentaire" value={pt.stall_info} onChange={v => update('stall_info', v)} />
+          <PhaseText label="Conseil pitmaster" value={pt.stall_advice} onChange={v => update('stall_advice', v)} rows={3} />
+        </PhaseBlock>
 
-        {/* Phase 3: Wrap */}
-        <div className="p-4 rounded-xl bg-zinc-800/30 border border-white/[0.04] space-y-3">
-          <p className="text-[11px] font-bold text-blue-400 uppercase tracking-wider">Phase 3 — Wrap (Texas Crutch)</p>
-          <PhaseTitle label="Titre de la phase" field="wrap_title" />
-          <PhaseField label="Objectif" field="wrap_objective" />
-          <PhaseField label="Astuce wrap" field="wrap_tip" />
-          <PhaseField label="Conseil pitmaster" field="wrap_advice" rows={3} />
-        </div>
+        <PhaseBlock color="blue" label="Phase 3 — Wrap (Texas Crutch)">
+          <PhaseTitle label="Titre de la phase" value={pt.wrap_title} onChange={v => update('wrap_title', v)} />
+          <PhaseText label="Objectif" value={pt.wrap_objective} onChange={v => update('wrap_objective', v)} />
+          <PhaseText label="Astuce wrap" value={pt.wrap_tip} onChange={v => update('wrap_tip', v)} />
+          <PhaseText label="Conseil pitmaster" value={pt.wrap_advice} onChange={v => update('wrap_advice', v)} rows={3} />
+        </PhaseBlock>
 
-        {/* Phase 4: Transformation */}
-        <div className="p-4 rounded-xl bg-zinc-800/30 border border-white/[0.04] space-y-3">
-          <p className="text-[11px] font-bold text-red-400 uppercase tracking-wider">Phase 4 — La Transformation</p>
-          <PhaseTitle label="Titre de la phase" field="transform_title" />
-          <PhaseField label="Objectif" field="transform_objective" />
-          <PhaseField label="Info complémentaire" field="transform_info" />
-          <PhaseField label="Conseil pitmaster" field="transform_advice" rows={3} />
-        </div>
+        <PhaseBlock color="red" label="Phase 4 — La Transformation">
+          <PhaseTitle label="Titre de la phase" value={pt.transform_title} onChange={v => update('transform_title', v)} />
+          <PhaseText label="Objectif" value={pt.transform_objective} onChange={v => update('transform_objective', v)} />
+          <PhaseText label="Info complémentaire" value={pt.transform_info} onChange={v => update('transform_info', v)} />
+          <PhaseText label="Conseil pitmaster" value={pt.transform_advice} onChange={v => update('transform_advice', v)} rows={3} />
+        </PhaseBlock>
 
-        {/* Phase 5: Repos */}
-        <div className="p-4 rounded-xl bg-zinc-800/30 border border-white/[0.04] space-y-3">
-          <p className="text-[11px] font-bold text-green-400 uppercase tracking-wider">Phase 5 — Repos</p>
-          <PhaseTitle label="Titre de la phase" field="rest_title" />
-          <PhaseField label="Objectif" field="rest_objective" />
-          <PhaseField label="Repères (un par ligne)" field="rest_markers_text" rows={4} hint="Chaque ligne = un repère visuel affiché séparément" />
-          <PhaseField label="Conseil pitmaster" field="rest_advice" rows={3} />
-        </div>
+        <PhaseBlock color="green" label="Phase 5 — Repos">
+          <PhaseTitle label="Titre de la phase" value={pt.rest_title} onChange={v => update('rest_title', v)} />
+          <PhaseText label="Objectif" value={pt.rest_objective} onChange={v => update('rest_objective', v)} />
+          <PhaseText label="Repères (un par ligne)" value={pt.rest_markers_text} onChange={v => update('rest_markers_text', v)} rows={4} hint="Chaque ligne = un repère visuel affiché séparément" />
+          <PhaseText label="Conseil pitmaster" value={pt.rest_advice} onChange={v => update('rest_advice', v)} rows={3} />
+        </PhaseBlock>
       </div>
     )
   }
@@ -856,75 +875,64 @@ function PhasesTextEditor({ cookType, fixedTimes, value, onChange }) {
   if (isRibs) {
     return (
       <div className="space-y-6">
-        <div className="p-4 rounded-xl bg-zinc-800/30 border border-white/[0.04] space-y-3">
-          <p className="text-[11px] font-bold text-[#ff6b1a] uppercase tracking-wider">Phase 1 — Fumée à nu</p>
-          <PhaseTitle label="Titre" field="smoke_title" />
-          <PhaseField label="Objectif" field="smoke_objective" />
-          <PhaseField label="Repères (un par ligne)" field="smoke_markers_text" rows={3} />
-          <PhaseField label="Conseil" field="smoke_advice" rows={2} />
-        </div>
-        <div className="p-4 rounded-xl bg-zinc-800/30 border border-white/[0.04] space-y-3">
-          <p className="text-[11px] font-bold text-blue-400 uppercase tracking-wider">Phase 2 — Wrap</p>
-          <PhaseTitle label="Titre" field="wrap_title" />
-          <PhaseField label="Objectif" field="wrap_objective" />
-          <PhaseField label="Repères (un par ligne)" field="wrap_markers_text" rows={3} />
-          <PhaseField label="Conseil" field="wrap_advice" rows={2} />
-        </div>
-        <div className="p-4 rounded-xl bg-zinc-800/30 border border-white/[0.04] space-y-3">
-          <p className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Phase 3 — Finition / laquage</p>
-          <PhaseTitle label="Titre" field="finish_title" />
-          <PhaseField label="Objectif" field="finish_objective" />
-          <PhaseField label="Repères (un par ligne)" field="finish_markers_text" rows={3} />
-          <PhaseField label="Conseil" field="finish_advice" rows={2} />
-        </div>
-        <div className="p-4 rounded-xl bg-zinc-800/30 border border-white/[0.04] space-y-3">
-          <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Alternative — Sans wrap</p>
-          <PhaseTitle label="Titre" field="unwrapped_title" />
-          <PhaseField label="Objectif" field="unwrapped_objective" />
-          <PhaseField label="Conseil" field="unwrapped_advice" rows={2} />
-        </div>
-        <div className="p-4 rounded-xl bg-zinc-800/30 border border-white/[0.04] space-y-3">
-          <p className="text-[11px] font-bold text-green-400 uppercase tracking-wider">Repos</p>
-          <PhaseTitle label="Titre" field="rest_title" />
-          <PhaseField label="Objectif" field="rest_objective" />
-          <PhaseField label="Repères (un par ligne)" field="rest_markers_text" rows={2} />
-          <PhaseField label="Conseil" field="rest_advice" rows={2} />
-        </div>
+        <PhaseBlock color="orange" label="Phase 1 — Fumée à nu">
+          <PhaseTitle label="Titre" value={pt.smoke_title} onChange={v => update('smoke_title', v)} />
+          <PhaseText label="Objectif" value={pt.smoke_objective} onChange={v => update('smoke_objective', v)} />
+          <PhaseText label="Repères (un par ligne)" value={pt.smoke_markers_text} onChange={v => update('smoke_markers_text', v)} rows={3} />
+          <PhaseText label="Conseil" value={pt.smoke_advice} onChange={v => update('smoke_advice', v)} />
+        </PhaseBlock>
+
+        <PhaseBlock color="blue" label="Phase 2 — Wrap">
+          <PhaseTitle label="Titre" value={pt.wrap_title} onChange={v => update('wrap_title', v)} />
+          <PhaseText label="Objectif" value={pt.wrap_objective} onChange={v => update('wrap_objective', v)} />
+          <PhaseText label="Repères (un par ligne)" value={pt.wrap_markers_text} onChange={v => update('wrap_markers_text', v)} rows={3} />
+          <PhaseText label="Conseil" value={pt.wrap_advice} onChange={v => update('wrap_advice', v)} />
+        </PhaseBlock>
+
+        <PhaseBlock color="amber" label="Phase 3 — Finition / laquage">
+          <PhaseTitle label="Titre" value={pt.finish_title} onChange={v => update('finish_title', v)} />
+          <PhaseText label="Objectif" value={pt.finish_objective} onChange={v => update('finish_objective', v)} />
+          <PhaseText label="Repères (un par ligne)" value={pt.finish_markers_text} onChange={v => update('finish_markers_text', v)} rows={3} />
+          <PhaseText label="Conseil" value={pt.finish_advice} onChange={v => update('finish_advice', v)} />
+        </PhaseBlock>
+
+        <PhaseBlock color="zinc" label="Alternative — Sans wrap">
+          <PhaseTitle label="Titre" value={pt.unwrapped_title} onChange={v => update('unwrapped_title', v)} />
+          <PhaseText label="Objectif" value={pt.unwrapped_objective} onChange={v => update('unwrapped_objective', v)} />
+          <PhaseText label="Conseil" value={pt.unwrapped_advice} onChange={v => update('unwrapped_advice', v)} />
+        </PhaseBlock>
+
+        <PhaseBlock color="green" label="Repos">
+          <PhaseTitle label="Titre" value={pt.rest_title} onChange={v => update('rest_title', v)} />
+          <PhaseText label="Objectif" value={pt.rest_objective} onChange={v => update('rest_objective', v)} />
+          <PhaseText label="Repères (un par ligne)" value={pt.rest_markers_text} onChange={v => update('rest_markers_text', v)} />
+          <PhaseText label="Conseil" value={pt.rest_advice} onChange={v => update('rest_advice', v)} />
+        </PhaseBlock>
       </div>
     )
   }
 
   // ── Reverse Sear ──
-  if (isReverseSear) {
-    return (
-      <div className="space-y-6">
-        <div className="p-4 rounded-xl bg-zinc-800/30 border border-white/[0.04] space-y-3">
-          <p className="text-[11px] font-bold text-[#ff6b1a] uppercase tracking-wider">Phase 1 — Cuisson indirecte</p>
-          <PhaseTitle label="Titre" field="indirect_title" />
-          <PhaseField label="Objectif" field="indirect_objective" />
-          <PhaseField label="Conseil" field="indirect_advice" rows={3} />
-        </div>
-        <div className="p-4 rounded-xl bg-zinc-800/30 border border-white/[0.04] space-y-3">
-          <p className="text-[11px] font-bold text-red-400 uppercase tracking-wider">Phase 2 — Saisie</p>
-          <PhaseTitle label="Titre" field="sear_title" />
-          <PhaseField label="Objectif" field="sear_objective" />
-          <PhaseField label="Conseil" field="sear_advice" rows={3} />
-        </div>
-        <div className="p-4 rounded-xl bg-zinc-800/30 border border-white/[0.04] space-y-3">
-          <p className="text-[11px] font-bold text-green-400 uppercase tracking-wider">Repos</p>
-          <PhaseTitle label="Titre" field="rest_title" />
-          <PhaseField label="Objectif" field="rest_objective" />
-          <PhaseField label="Conseil" field="rest_advice" rows={2} />
-        </div>
-      </div>
-    )
-  }
-
-  // Fallback: JSON brut
   return (
-    <FormField label="Textes des phases (JSON)" hint="Éditeur structuré non disponible pour ce type">
-      <JsonField value={value} onChange={onChange} rows={20} />
-    </FormField>
+    <div className="space-y-6">
+      <PhaseBlock color="orange" label="Phase 1 — Cuisson indirecte">
+        <PhaseTitle label="Titre" value={pt.indirect_title} onChange={v => update('indirect_title', v)} />
+        <PhaseText label="Objectif" value={pt.indirect_objective} onChange={v => update('indirect_objective', v)} />
+        <PhaseText label="Conseil" value={pt.indirect_advice} onChange={v => update('indirect_advice', v)} rows={3} />
+      </PhaseBlock>
+
+      <PhaseBlock color="red" label="Phase 2 — Saisie">
+        <PhaseTitle label="Titre" value={pt.sear_title} onChange={v => update('sear_title', v)} />
+        <PhaseText label="Objectif" value={pt.sear_objective} onChange={v => update('sear_objective', v)} />
+        <PhaseText label="Conseil" value={pt.sear_advice} onChange={v => update('sear_advice', v)} rows={3} />
+      </PhaseBlock>
+
+      <PhaseBlock color="green" label="Repos">
+        <PhaseTitle label="Titre" value={pt.rest_title} onChange={v => update('rest_title', v)} />
+        <PhaseText label="Objectif" value={pt.rest_objective} onChange={v => update('rest_objective', v)} />
+        <PhaseText label="Conseil" value={pt.rest_advice} onChange={v => update('rest_advice', v)} />
+      </PhaseBlock>
+    </div>
   )
 }
 
