@@ -79,10 +79,10 @@ export default function Layout({ children }) {
   const levelLabel = profile?.experience_level ? LEVEL_LABELS[profile.experience_level] : null
 
   return (
-    <div className="min-h-screen flex bg-[#080808]">
+    <div className="min-h-screen flex bg-[#080808] overflow-x-hidden">
 
       {/* ══════════ SIDEBAR DESKTOP ══════════ */}
-      <aside aria-label="Navigation principale" className="hidden lg:flex flex-col w-[280px] shrink-0 bg-[#0c0c0c] border-r border-white/[0.04] relative sticky top-0 h-screen overflow-y-auto texture-grain z-40">
+      <aside aria-label="Navigation principale" className="hidden lg:flex flex-col w-[280px] shrink-0 bg-[#0c0c0c] border-r border-white/[0.04] relative sticky top-0 h-screen overflow-y-auto z-40">
         {/* Ambient glows — isolated in a clipped container so they don't affect scroll */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
           <div className="absolute -top-24 -left-24 w-80 h-80 bg-[#ff6b1a]/[0.02] rounded-full blur-[100px] animate-fire-breathe" />
@@ -90,7 +90,7 @@ export default function Layout({ children }) {
         </div>
 
         {/* ── Brand header ── */}
-        <div className="relative z-10 px-5 pt-7 pb-4 shrink-0">
+        <div className="px-5 pt-7 pb-4 shrink-0">
           <Link to="/" className="group">
             <LogoFull iconSize={30} className="group-hover:opacity-90 transition-opacity" />
           </Link>
@@ -100,7 +100,7 @@ export default function Layout({ children }) {
         <div className="mx-5 fire-divider shrink-0" />
 
         {/* ── Status card ── */}
-        <div className="relative z-10 mx-4 mt-4 mb-2 shrink-0 rounded-xl bg-gradient-to-br from-[#ff6b1a]/[0.08] to-[#dc2626]/[0.04] border border-[#ff6b1a]/[0.10] p-3.5">
+        <div className="mx-4 mt-4 mb-4 shrink-0 rounded-xl bg-gradient-to-br from-[#ff6b1a]/[0.08] to-[#dc2626]/[0.04] border border-[#ff6b1a]/[0.10] p-3.5">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#ff6b1a] to-[#dc2626] flex items-center justify-center shadow-lg shadow-[#ff6b1a]/20 shrink-0">
               <span className="text-base">🔥</span>
@@ -113,7 +113,7 @@ export default function Layout({ children }) {
         </div>
 
         {/* ── Navigation ── */}
-        <nav className="relative z-10 flex-1 px-3 mt-4">
+        <nav className="flex-1 px-3 mt-2">
           <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-600 px-3 mb-2">Outils</p>
 
           <NavItem
@@ -240,7 +240,7 @@ export default function Layout({ children }) {
         <div className="mx-5 fire-divider shrink-0" />
 
         {/* ── User section ── */}
-        <div className="relative z-10 p-4 shrink-0">
+        <div className="p-4 shrink-0">
           {isAuthenticated ? (
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#ff6b1a] to-[#dc2626] flex items-center justify-center text-[13px] font-bold text-white shadow-lg shadow-[#ff6b1a]/20 shrink-0">
