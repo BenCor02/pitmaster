@@ -38,14 +38,31 @@ export default async function handler(req, res) {
     }
 
     const response = await fetch(targetUrl, fetchOpts)
-    const data = await response.json()
+
+    // Lire le body brut d'abord
+    const text = await response.text()
+
+    // Tenter de parser en JSON
+    let data
+    try {
+      data = JSON.parse(text)
+    } catch {
+      // Meater a renvoyé du non-JSON (HTML d'erreur, etc.)
+      return res.status(response.status).json({
+        statusCode: response.status,
+        message: `Réponse non-JSON de Meater (HTTP ${response.status})`,
+        raw: text.slice(0, 500),
+      })
+    }
 
     // Relayer le status code original
     res.status(response.status).json(data)
   } catch (err) {
+    console.error('Meater proxy error:', err)
     res.status(502).json({
       statusCode: 502,
-      message: 'Impossible de joindre le serveur Meater. Réessaie dans quelques instants.',
+      message: 'Impossible de joindre le serveur Meater.',
+      error: err.message || String(err),
     })
   }
 }
