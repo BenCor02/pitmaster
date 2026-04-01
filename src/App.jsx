@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { Analytics } from '@vercel/analytics/react'
 import { useAuth } from './modules/auth/AuthContext.jsx'
 import { useSiteSettings } from './hooks/useSiteSettings.jsx'
 import Layout from './components/Layout.jsx'
@@ -105,6 +106,7 @@ export default function App() {
       </Suspense>
       </ChunkErrorBoundary>
       </MaintenanceGuard>
+      <Analytics />
     </Layout>
     </>
   )
