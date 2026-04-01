@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './modules/auth/AuthContext.jsx'
 import Layout from './components/Layout.jsx'
+import ChunkErrorBoundary from './components/ChunkErrorBoundary.jsx'
 
 // Code splitting — chaque page est chargée à la demande
 const CalculatorPage = lazy(() => import('./pages/CalculatorPage.jsx'))
@@ -53,6 +54,7 @@ function AdminGuard({ children }) {
 export default function App() {
   return (
     <Layout>
+      <ChunkErrorBoundary>
       <Suspense fallback={<PageLoader />}>
       <Routes>
         <Route path="/" element={<CalculatorPage />} />
@@ -81,6 +83,7 @@ export default function App() {
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
       </Suspense>
+      </ChunkErrorBoundary>
     </Layout>
   )
 }

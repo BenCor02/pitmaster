@@ -31,13 +31,24 @@ export function isConnected() {
 }
 
 export async function login(email, password) {
-  const res = await fetch(`${BASE_URL}/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
-  })
+  let res
+  try {
+    res = await fetch(`${BASE_URL}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    })
+  } catch (err) {
+    // Erreur réseau (CORS, serveur down, offline…)
+    throw new Error('Impossible de joindre le serveur Meater. Vérifie ta connexion internet.')
+  }
 
-  const json = await res.json()
+  let json
+  try {
+    json = await res.json()
+  } catch {
+    throw new Error(`Réponse invalide du serveur Meater (HTTP ${res.status})`)
+  }
 
   if (json.statusCode !== 200 || !json.data?.token) {
     throw new Error(json.message || 'Identifiants Meater invalides')
@@ -74,11 +85,21 @@ export async function getDevices() {
   const token = getMeaterToken()
   if (!token) throw new Error('Non connecté à Meater')
 
-  const res = await fetch(`${BASE_URL}/devices`, {
-    headers: { 'Authorization': `Bearer ${token}` },
-  })
+  let res
+  try {
+    res = await fetch(`${BASE_URL}/devices`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    })
+  } catch {
+    throw new Error('Impossible de joindre le serveur Meater. Vérifie ta connexion internet.')
+  }
 
-  const json = await res.json()
+  let json
+  try {
+    json = await res.json()
+  } catch {
+    throw new Error(`Réponse invalide du serveur Meater (HTTP ${res.status})`)
+  }
 
   if (json.statusCode === 401) {
     logout()
@@ -96,11 +117,21 @@ export async function getDevice(deviceId) {
   const token = getMeaterToken()
   if (!token) throw new Error('Non connecté à Meater')
 
-  const res = await fetch(`${BASE_URL}/devices/${deviceId}`, {
-    headers: { 'Authorization': `Bearer ${token}` },
-  })
+  let res
+  try {
+    res = await fetch(`${BASE_URL}/devices/${deviceId}`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    })
+  } catch {
+    throw new Error('Impossible de joindre le serveur Meater. Vérifie ta connexion internet.')
+  }
 
-  const json = await res.json()
+  let json
+  try {
+    json = await res.json()
+  } catch {
+    throw new Error(`Réponse invalide du serveur Meater (HTTP ${res.status})`)
+  }
 
   if (json.statusCode === 401) {
     logout()
