@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Charbon &amp; Flamme</string>
+    <string name="title_activity_main">Charbon &amp; Flamme</string>
+    <string name="package_name">fr.charbonetflamme.app</string>
+    <string name="custom_url_scheme">fr.charbonetflamme.app</string>
+</resources>
