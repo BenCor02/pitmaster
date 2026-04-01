@@ -4,6 +4,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import * as meater from '../lib/meater.js'
 import * as fireboard from '../lib/fireboard.js'
 import * as meaterBLE from '../lib/meaterBLE.js'
+import * as inkbirdBLE from '../lib/inkbirdBLE.js'
 import { isNative } from '../lib/capacitor.js'
 import { sendNotification } from '../lib/notifications.js'
 import { MEAT_PROFILES } from '../modules/calculator/data.js'
@@ -53,6 +54,50 @@ const PROVIDERS = {
       getCookState: meater.getCookState,
       normalize: (devices) => devices,
       helpText: 'Connexion Bluetooth directe — pas besoin de l\'app Meater ni d\'internet.',
+    },
+    inkbird_ble: {
+      id: 'inkbird_ble',
+      name: 'Inkbird iBBQ',
+      icon: '🔗',
+      color: '#10b981',
+      mode: 'ble',
+      loginFields: [],
+      login: async () => true,
+      logout: () => inkbirdBLE.disconnect(),
+      isConnected: inkbirdBLE.isProbeConnected,
+      startPolling: ({ onData, onError }) => {
+        let running = true
+        ;(async () => {
+          try {
+            const probes = await inkbirdBLE.scanForProbes(8000)
+            if (!probes.length) {
+              onError(new Error('Aucun thermomètre Inkbird détecté. Vérifie qu\'il est allumé et à proximité.'))
+              return
+            }
+            await inkbirdBLE.connectToProbe(probes[0].deviceId)
+            await inkbirdBLE.startTemperatureStream((data) => {
+              if (!running) return
+              if (!data.connected) {
+                onError(new Error('Inkbird déconnecté'))
+                return
+              }
+              onData([{
+                id: probes[0].deviceId,
+                provider: 'inkbird_ble',
+                name: probes[0].name,
+                temperature: { internal: data.tipTemp, ambient: data.ambientTemp },
+                cook: null,
+              }])
+            })
+          } catch (err) {
+            onError(err)
+          }
+        })()
+        return () => { running = false; inkbirdBLE.disconnect() }
+      },
+      getCookState: meater.getCookState,
+      normalize: (devices) => devices,
+      helpText: 'Connexion Bluetooth directe aux thermomètres Inkbird iBBQ (IBT-4XS, IBT-2X, IBBQ-4BW…).',
     },
   } : {}),
   meater: {
