@@ -167,8 +167,8 @@ VALUES
     5,
     10,
     '{"pull_before_target_c":5,"sear_total_minutes_min":3,"sear_total_minutes_max":5}'::jsonb,
-    '{"bleu":46,"rare":52,"medium_rare":57,"medium":63}'::jsonb,
-    '{"reverse_note":"Le magret a une épaisse couche de gras côté peau — score-la en croisillons avant de fumer pour qu''elle rende son gras. Fume côté chair vers le bas à 110°C avec du bois fruitier (cerisier, érable). Sors à 5°C sous ta cible. Saisie côté peau d''abord, 2-3 min sur fonte brûlante pour crisper le gras. Le magret se mange rosé — ne dépasse pas 57°C pour le sweet spot."}'::jsonb,
+    '{"rose":54,"a_point":58,"bien_cuit":65}'::jsonb,
+    '{"reverse_note":"Le magret a une épaisse couche de gras côté peau — score-la en croisillons avant de fumer pour qu''elle rende son gras. Fume côté chair vers le bas à 110°C avec du bois fruitier (cerisier, érable). Sors à 5°C sous ta cible. Saisie côté peau d''abord, 2-3 min sur fonte brûlante pour crisper le gras. Le magret se mange rosé (54°C) — ne dépasse pas 58°C pour garder le fondant."}'::jsonb,
     18,
     true
   )

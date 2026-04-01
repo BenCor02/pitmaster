@@ -678,7 +678,7 @@ function getReverseSearTexts(id) {
     searObjective: 'Crisper la peau et le gras du magret — c\'est ce qui fait toute la différence',
     searTemp: 'Poêle en fonte brûlante à 250–300°C',
     searDuration: '~2-3 min côté peau d\'abord, puis ~1 min côté chair',
-    searAdvice: 'Saisie CÔTÉ PEAU D\'ABORD — c\'est le gras qui doit croustiller. Le gras va rendre et grésiller : c\'est normal. Retourne une seule fois. Le magret se mange rosé — 52-57°C max.',
+    searAdvice: 'Saisie CÔTÉ PEAU D\'ABORD — c\'est le gras qui doit croustiller. Le gras va rendre et grésiller : c\'est normal. Retourne une seule fois. Le magret se mange rosé (54°C) ou à point (58°C).',
     restObjective: 'Les jus se redistribuent — repos court pour garder le croustillant du gras',
     restMarker: 'Repos 5-10 min sur une planche (pas sous alu, pour garder la peau croustillante)',
     restAdvice: 'Découpe en tranches fines en biais. Le magret fumé se sert rosé, comme un bon steak. Accompagne avec une sauce aux fruits rouges ou au miel pour jouer avec le fumé.',
@@ -979,7 +979,7 @@ function buildTips(profile, wrapped, weightKg, cookTempC) {
   if (profile.id === 'duck_breast') {
     tips.push('Score le gras en croisillons avant de fumer — ça aide à rendre le gras et crisper la peau.')
     tips.push('Bois fruitier léger uniquement : cerisier, érable ou pommier. Le hickory écrase le canard.')
-    tips.push('Le magret se mange rosé en France : vise 52–57°C max. Au-delà, la viande devient sèche et perd tout intérêt.')
+    tips.push('Le magret se mange rosé en France : vise 54°C (rosé) ou 58°C (à point) max. Au-delà, la viande devient sèche et perd tout intérêt.')
     tips.push('Saisie côté peau d\'abord sur fonte brûlante — c\'est le gras qui croustille, pas la chair.')
     tips.push('Sèche bien la surface avant la saisie. Une surface humide = vapeur au lieu de croûte.')
     tips.push("Chaque cuisson est différente. Les durées sont des estimations — c'est la viande qui décide, pas la montre.")

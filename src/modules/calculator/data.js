@@ -481,13 +481,13 @@ export const MEAT_PROFILES = [
       sear_total_minutes_max: 5,
     },
     doneness_targets: {
-      bleu: 46,       // le magret se mange très rosé en France
-      rare: 52,       // saignant — le standard français pour le magret
-      medium_rare: 57, // rosé — consensus FR/US (DuckChar, Canards du Lac Brome)
-      medium: 63,      // à point — max recommandé, au-delà le magret est sec
+      rose: 54,        // Rosé — le standard français pour le magret, coeur rose vif
+      a_point: 58,     // À point — encore rosé au centre mais plus cuit sur les bords
+      bien_cuit: 65,   // Bien cuit — déconseillé, le magret devient sec au-delà de 63°C
     },
+    default_doneness: 'rose',
     cues: {
-      reverse_note: "Le magret a une épaisse couche de gras côté peau — score-la en croisillons avant de fumer pour qu'elle rende son gras. Fume côté chair vers le bas à 110°C avec du bois fruitier (cerisier, érable). Sors à 5°C sous ta cible. Saisie côté peau d'abord, 2-3 min sur fonte brûlante pour crisper le gras. Le magret se mange rosé — ne dépasse pas 57°C pour le sweet spot.",
+      reverse_note: "Le magret a une épaisse couche de gras côté peau — score-la en croisillons avant de fumer pour qu'elle rende son gras. Fume côté chair vers le bas à 110°C avec du bois fruitier (cerisier, érable). Sors à 5°C sous ta cible. Saisie côté peau d'abord, 2-3 min sur fonte brûlante pour crisper le gras. Le magret se mange rosé (54°C) — ne dépasse pas 58°C pour garder le fondant.",
     },
   },
 ]
