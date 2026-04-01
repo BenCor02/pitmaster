@@ -90,17 +90,17 @@ export default function Layout({ children }) {
         </div>
 
         {/* ── Brand header ── */}
-        <div className="relative z-10 px-5 pt-7 pb-4">
+        <div className="relative z-10 px-5 pt-7 pb-4 shrink-0">
           <Link to="/" className="group">
             <LogoFull iconSize={30} className="group-hover:opacity-90 transition-opacity" />
           </Link>
         </div>
 
         {/* ── Fire separator ── */}
-        <div className="mx-5 fire-divider" />
+        <div className="mx-5 fire-divider shrink-0" />
 
         {/* ── Status card ── */}
-        <div className="relative z-10 mx-4 mt-4 mb-2 rounded-xl overflow-hidden bg-gradient-to-br from-[#ff6b1a]/[0.08] to-[#dc2626]/[0.04] border border-[#ff6b1a]/[0.10] p-3.5">
+        <div className="relative z-10 mx-4 mt-4 mb-2 shrink-0 rounded-xl bg-gradient-to-br from-[#ff6b1a]/[0.08] to-[#dc2626]/[0.04] border border-[#ff6b1a]/[0.10] p-3.5">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#ff6b1a] to-[#dc2626] flex items-center justify-center shadow-lg shadow-[#ff6b1a]/20 shrink-0">
               <span className="text-base">🔥</span>
@@ -237,10 +237,10 @@ export default function Layout({ children }) {
         </nav>
 
         {/* ── Fire separator ── */}
-        <div className="mx-5 fire-divider" />
+        <div className="mx-5 fire-divider shrink-0" />
 
         {/* ── User section ── */}
-        <div className="relative z-10 p-4">
+        <div className="relative z-10 p-4 shrink-0">
           {isAuthenticated ? (
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#ff6b1a] to-[#dc2626] flex items-center justify-center text-[13px] font-bold text-white shadow-lg shadow-[#ff6b1a]/20 shrink-0">
