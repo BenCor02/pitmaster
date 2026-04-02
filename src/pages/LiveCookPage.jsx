@@ -8,6 +8,7 @@ import * as inkbirdBLE from '../lib/inkbirdBLE.js'
 import { isNative } from '../lib/capacitor.js'
 import { sendNotification, requestPermission } from '../lib/notifications.js'
 import { MEAT_PROFILES } from '../modules/calculator/data.js'
+import { fetchCookingProfiles } from '../lib/cookingProfiles.js'
 import { calculateCookPlan } from '../modules/calculator/engine.js'
 
 // ── Provider abstraction ────────────────────────────────
@@ -785,10 +786,16 @@ export default function LiveCookPage() {
   const [cookTempC, setCookTempC] = useState(preCookTemp || '')
   const [wrapped, setWrapped] = useState(preWrapped)
 
+  // Profils Supabase (avec fallback data.js)
+  const [profiles, setProfiles] = useState(MEAT_PROFILES)
+  useEffect(() => {
+    fetchCookingProfiles().then(setProfiles).catch(() => setProfiles(MEAT_PROFILES))
+  }, [])
+
   const stopRef = useRef(null)
 
   const selectedDevice = devices.find(d => d.id === selectedDeviceId) || null
-  const selectedProfile = MEAT_PROFILES.find(p => p.id === profileId) || null
+  const selectedProfile = profiles.find(p => p.id === profileId) || null
 
   // Compute cook plan for phase overlay
   const cookPlan = selectedProfile && weightKg && cookTempC
@@ -926,7 +933,7 @@ export default function LiveCookPage() {
                 className="w-full px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white text-sm focus:border-[#ff6b1a]/40 focus:outline-none"
               >
                 <option value="">— Choisir —</option>
-                {MEAT_PROFILES.map(p => (
+                {profiles.map(p => (
                   <option key={p.id} value={p.id}>{p.icon} {p.name}</option>
                 ))}
               </select>
