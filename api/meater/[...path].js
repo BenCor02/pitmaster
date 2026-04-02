@@ -14,7 +14,18 @@ export default async function handler(req, res) {
   // Extraire le chemin après /api/meater/
   const { path } = req.query
   const subPath = Array.isArray(path) ? path.join('/') : path || ''
+
+  // Sécurité : si pas de subPath, on ne veut pas appeler la racine /v1/
+  if (!subPath) {
+    return res.status(400).json({
+      statusCode: 400,
+      message: 'Chemin API manquant. Utilise /api/meater/login, /api/meater/devices, etc.',
+      debug: { path, subPath },
+    })
+  }
+
   const targetUrl = `${MEATER_BASE}/${subPath}`
+  console.log(`[meater-proxy] ${req.method} ${targetUrl}`)
 
   // Construire les headers à relayer
   const headers = {

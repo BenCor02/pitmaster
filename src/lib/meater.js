@@ -38,9 +38,12 @@ export function isConnected() {
 }
 
 export async function login(email, password) {
+  const loginUrl = `${BASE_URL}/login`
+  console.log('[meater] login →', loginUrl, '(isNative:', isNative, ', DEV:', import.meta.env.DEV, ')')
+
   let res
   try {
-    res = await fetch(`${BASE_URL}/login`, {
+    res = await fetch(loginUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -74,6 +77,7 @@ export async function login(email, password) {
   }
 
   if (status === 404) {
+    console.error('[meater] 404 — res.status:', res.status, 'json.statusCode:', json.statusCode, 'json:', json)
     throw new Error(
       'L\'API Meater est indisponible (404). ' +
       'Soit le service est en panne, soit le proxy n\'est pas déployé. ' +
