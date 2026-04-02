@@ -249,11 +249,12 @@ export const MEAT_PROFILES = [
     supports_wrap: false,
     // Volaille : pas de base+coeff, la plage de temp (110-165°C) est trop large
     // On reste sur l'interpolation temp_bands qui gère bien chaque palier
+    // Recalibré avril 2026 — sources : ThermoWorks, Traeger, AmazingRibs, terrain FR
     temp_bands: [
-      { temp_c: 110, min_per_kg: 115 },   // 2kg ≈ 3h50
-      { temp_c: 135, min_per_kg: 86 },    // 2kg ≈ 2h52
-      { temp_c: 150, min_per_kg: 62 },    // 2kg ≈ 2h04
-      { temp_c: 165, min_per_kg: 48 },    // 2kg ≈ 1h36
+      { temp_c: 110, min_per_kg: 98 },    // 2kg ≈ 3h16 (terrain: 3h00-3h30)
+      { temp_c: 135, min_per_kg: 78 },    // 2kg ≈ 2h36 (terrain: 2h30-3h00)
+      { temp_c: 150, min_per_kg: 56 },    // 2kg ≈ 1h52 (terrain: 1h45-2h00)
+      { temp_c: 165, min_per_kg: 45 },    // 2kg ≈ 1h30 (terrain: 1h30-1h45)
     ],
     rest_min: 10,
     rest_max: 20,
@@ -455,10 +456,12 @@ export const MEAT_PROFILES = [
     icon: '🍗',
     cook_type: 'low_and_slow',
     supports_wrap: false,
+    // Recalibré avril 2026 — cuisses = pièces individuelles, le temps
+    // dépend de l'épaisseur de chaque cuisse, pas du poids total
     temp_bands: [
-      { temp_c: 135, min_per_kg: 100 },   // 1kg ≈ 1h40
-      { temp_c: 150, min_per_kg: 70 },    // 1kg ≈ 1h10
-      { temp_c: 165, min_per_kg: 52 },    // 1kg ≈ 52min
+      { temp_c: 135, min_per_kg: 80 },    // 1kg ≈ 1h24 (terrain: 1h15-1h30)
+      { temp_c: 150, min_per_kg: 58 },    // 1kg ≈ 1h01 (terrain: ~1h)
+      { temp_c: 165, min_per_kg: 44 },    // 1kg ≈ 46min (terrain: 45min-1h)
     ],
     rest_min: 5,
     rest_max: 10,
@@ -477,10 +480,11 @@ export const MEAT_PROFILES = [
     icon: '🦃',
     cook_type: 'low_and_slow',
     supports_wrap: false,
+    // Recalibré avril 2026 — 30min/lb @225F, 25min/lb @250F (consensus US)
     temp_bands: [
-      { temp_c: 107, min_per_kg: 118 },   // 2kg ≈ 3h56
-      { temp_c: 121, min_per_kg: 100 },   // 2kg ≈ 3h20
-      { temp_c: 135, min_per_kg: 72 },    // 2kg ≈ 2h24
+      { temp_c: 107, min_per_kg: 110 },   // 2kg ≈ 3h40 (terrain: 3h30-4h)
+      { temp_c: 121, min_per_kg: 90 },    // 2kg ≈ 3h00 (terrain: 2h45-3h15)
+      { temp_c: 135, min_per_kg: 66 },    // 2kg ≈ 2h12 (terrain: 2h00-2h30)
     ],
     rest_min: 15,
     rest_max: 30,    // le repos est crucial pour la dinde — les jus se redistribuent
