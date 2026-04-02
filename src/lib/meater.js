@@ -44,7 +44,12 @@ export async function login(email, password) {
     })
   } catch (err) {
     // Erreur réseau (CORS, serveur down, offline…)
-    throw new Error('Impossible de joindre le serveur Meater. Vérifie ta connexion internet.')
+    throw new Error(
+      'Impossible de joindre le serveur Meater. ' +
+      (import.meta.env.DEV
+        ? 'En mode dev, le CORS bloque les appels directs — utilise le proxy Vercel ou un tunnel.'
+        : 'Vérifie ta connexion internet.')
+    )
   }
 
   let json
@@ -54,8 +59,22 @@ export async function login(email, password) {
     throw new Error(`Réponse invalide du serveur Meater (HTTP ${res.status})`)
   }
 
-  if (json.statusCode !== 200 || !json.data?.token) {
-    throw new Error(json.message || 'Identifiants Meater invalides')
+  // L'API Meater retourne statusCode dans le JSON ou via HTTP status
+  const status = json.statusCode || res.status
+
+  if (status === 401 || status === 403) {
+    throw new Error('Email ou mot de passe Meater incorrect.')
+  }
+
+  if (status === 429) {
+    throw new Error('Trop de tentatives de connexion. Réessaie dans quelques minutes.')
+  }
+
+  if (!json.data?.token) {
+    throw new Error(
+      json.message ||
+      `Erreur de connexion Meater (HTTP ${status}). Vérifie tes identifiants.`
+    )
   }
 
   _token = json.data.token
@@ -105,13 +124,15 @@ export async function getDevices() {
     throw new Error(`Réponse invalide du serveur Meater (HTTP ${res.status})`)
   }
 
-  if (json.statusCode === 401) {
+  const status = json.statusCode || res.status
+
+  if (status === 401 || status === 403) {
     logout()
-    throw new Error('Session Meater expirée')
+    throw new Error('Session Meater expirée — reconnecte-toi.')
   }
 
-  if (json.statusCode !== 200) {
-    throw new Error(json.message || 'Erreur API Meater')
+  if (status !== 200) {
+    throw new Error(json.message || `Erreur API Meater (HTTP ${status})`)
   }
 
   return json.data?.devices || []
@@ -137,13 +158,15 @@ export async function getDevice(deviceId) {
     throw new Error(`Réponse invalide du serveur Meater (HTTP ${res.status})`)
   }
 
-  if (json.statusCode === 401) {
+  const status = json.statusCode || res.status
+
+  if (status === 401 || status === 403) {
     logout()
-    throw new Error('Session Meater expirée')
+    throw new Error('Session Meater expirée — reconnecte-toi.')
   }
 
-  if (json.statusCode !== 200) {
-    throw new Error(json.message || 'Erreur API Meater')
+  if (status !== 200) {
+    throw new Error(json.message || `Erreur API Meater (HTTP ${status})`)
   }
 
   return json.data || null

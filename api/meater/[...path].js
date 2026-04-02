@@ -55,6 +55,11 @@ export default async function handler(req, res) {
       })
     }
 
+    // S'assurer que statusCode est dans le JSON (certaines réponses Meater l'omettent)
+    if (data && !data.statusCode) {
+      data.statusCode = response.status
+    }
+
     // Relayer le status code original
     res.status(response.status).json(data)
   } catch (err) {
