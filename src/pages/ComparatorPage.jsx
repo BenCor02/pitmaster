@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import { updateMeta } from '../lib/seo.js'
 import { fetchRecipes } from '../lib/cms.js'
 
 const TYPE_LABELS = { rub: 'Rub', mop: 'Mop', marinade: 'Marinade', injection: 'Injection', glaze: 'Glaze' }
@@ -26,6 +27,14 @@ export default function ComparatorPage() {
   const [selected, setSelected] = useState([])   // array of recipe ids
   const [search, setSearch] = useState('')
   const [filterType, setFilterType] = useState('all')
+
+  useEffect(() => {
+    updateMeta({
+      title: 'Comparateur de recettes BBQ — Rubs, marinades, mops | Charbon & Flamme',
+      description: 'Compare les rubs, marinades, mops et glazes BBQ côte à côte. Trouve la recette parfaite pour ton brisket, pulled pork ou ribs.',
+      canonical: 'https://charbonetflamme.fr/comparateur',
+    })
+  }, [])
 
   useEffect(() => {
     fetchRecipes().then(data => { setRecipes(data); setLoading(false) })

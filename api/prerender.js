@@ -240,9 +240,13 @@ function buildRecipePage(recipe) {
 
 function buildToolPage(slug) {
   const TOOL_PAGES = {
+    calculateur: {
+      title: 'Calculateur BBQ — Temps de cuisson brisket, pulled pork, ribs',
+      description: 'Calcule le temps de cuisson exact pour ton BBQ : brisket, pulled pork, ribs, poulet fumé, reverse sear. Température, repos, wrap — tout est calculé automatiquement.',
+    },
     comparateur: {
-      title: 'Comparateur de cuissons BBQ',
-      description: 'Compare côte à côte les temps de cuisson, températures et méthodes pour différentes viandes au fumoir.',
+      title: 'Comparateur de recettes BBQ — Rubs, marinades, mops',
+      description: 'Compare les rubs, marinades, mops et glazes BBQ côte à côte. Trouve la recette parfaite pour ton brisket, pulled pork ou ribs.',
     },
     portions: {
       title: 'Calculateur de quantités BBQ',
@@ -382,7 +386,7 @@ export default async function handler(req, res) {
     }
 
     // ── Pages outils (comparateur, portions, multi, bois, bbq, live)
-    else if (['comparateur', 'portions', 'multi', 'bois', 'bbq', 'live'].includes(path.replace('/', ''))) {
+    else if (['calculateur', 'comparateur', 'portions', 'multi', 'bois', 'bbq', 'live'].includes(path.replace('/', ''))) {
       const slug = path.replace('/', '')
       html = buildToolPage(slug) || build404Page()
     }

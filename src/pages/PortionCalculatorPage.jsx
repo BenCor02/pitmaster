@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { updateMeta } from '../lib/seo.js'
 
 /**
  * Données de rendement par viande.
@@ -126,6 +127,14 @@ export default function PortionCalculatorPage() {
   const [guests, setGuests] = useState(8)
   const [appetite, setAppetite] = useState('normal') // light | normal | big
   const [selectedMeat, setSelectedMeat] = useState(null)
+
+  useEffect(() => {
+    updateMeta({
+      title: 'Calculateur de portions BBQ — Combien de viande par personne | Charbon & Flamme',
+      description: 'Combien de brisket, pulled pork ou ribs acheter ? Calcule les portions exactes par personne en tenant compte du rendement de cuisson.',
+      canonical: 'https://charbonetflamme.fr/portions',
+    })
+  }, [])
 
   const appetiteMultiplier = appetite === 'light' ? 0.75 : appetite === 'big' ? 1.35 : 1
 

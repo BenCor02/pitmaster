@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
+import { updateMeta } from '../lib/seo.js'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, ReferenceArea } from 'recharts'
 import * as meater from '../lib/meater.js'
 import * as fireboard from '../lib/fireboard.js'
@@ -753,6 +754,14 @@ function ChartTooltip({ active, payload }) {
 
 export default function LiveCookPage() {
   const location = useLocation()
+
+  useEffect(() => {
+    updateMeta({
+      title: 'Live Cook — Suivi cuisson BBQ en temps réel | Charbon & Flamme',
+      description: 'Suis ta cuisson BBQ en direct avec sonde Meater ou FireBoard. Courbe de température, alertes et phases de cuisson en temps réel.',
+      canonical: 'https://charbonetflamme.fr/live',
+    })
+  }, [])
 
   // Pre-fill from calculator
   const preSelectedProfile = location.state?.profileId || null

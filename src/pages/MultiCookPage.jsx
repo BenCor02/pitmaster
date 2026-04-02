@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { updateMeta } from '../lib/seo.js'
 import { useCalculatorData } from '../modules/calculator/useCalculatorData.js'
 import { calculateCookPlan, formatHours } from '../modules/calculator/engine.js'
 import { DONENESS_LABELS } from '../modules/calculator/data.js'
@@ -10,6 +11,14 @@ export default function MultiCookPage() {
   const [entries, setEntries] = useState([])
   const [serviceHour, setServiceHour] = useState(19)
   const [showPicker, setShowPicker] = useState(false)
+
+  useEffect(() => {
+    updateMeta({
+      title: 'Planificateur multi-cuisson BBQ — Tout prêt à la même heure | Charbon & Flamme',
+      description: 'Planifie plusieurs viandes au BBQ pour qu\'elles soient prêtes en même temps. Brisket + ribs + poulet : calcule l\'heure de démarrage de chaque pièce.',
+      canonical: 'https://charbonetflamme.fr/multi',
+    })
+  }, [])
 
   const profilesByCategory = useMemo(() => {
     if (!profiles) return {}

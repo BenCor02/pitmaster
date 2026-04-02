@@ -5,6 +5,7 @@
  */
 
 import { useState, useEffect, useMemo } from 'react'
+import { updateMeta } from '../lib/seo.js'
 import { fetchWoods } from '../lib/woods.js'
 
 /* ── Intensity config ── */
@@ -28,6 +29,14 @@ export default function WoodGuidePage() {
   const [filter, setFilter] = useState('all')
   const [expandedId, setExpandedId] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
+
+  useEffect(() => {
+    updateMeta({
+      title: 'Guide des bois de fumage BBQ — Chêne, pommier, hickory | Charbon & Flamme',
+      description: 'Quel bois utiliser pour fumer ? Guide complet des essences : chêne, hickory, pommier, cerisier, mesquite. Intensité, accords viandes et bois toxiques à éviter.',
+      canonical: 'https://charbonetflamme.fr/bois',
+    })
+  }, [])
 
   useEffect(() => {
     fetchWoods().then(data => { setWoods(data); setLoading(false) })

@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
+import { updateMeta, injectJsonLd } from '../lib/seo.js'
 import { useCalculatorData } from '../modules/calculator/useCalculatorData.js'
 import { calculateCookPlan } from '../modules/calculator/engine.js'
 import { DONENESS_LABELS } from '../modules/calculator/data.js'
@@ -64,6 +65,25 @@ function readFromURL() {
 
 export default function CalculatorPage() {
   const { profiles, loading } = useCalculatorData()
+
+  useEffect(() => {
+    updateMeta({
+      title: 'Calculateur BBQ — Temps de cuisson brisket, pulled pork, ribs | Charbon & Flamme',
+      description: 'Calcule le temps de cuisson exact pour ton BBQ : brisket, pulled pork, ribs, poulet fumé, reverse sear. Température, repos, wrap — tout est calculé automatiquement.',
+      canonical: 'https://charbonetflamme.fr/calculateur',
+    })
+    injectJsonLd('calculator-schema', {
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: 'Calculateur BBQ Charbon & Flamme',
+      url: 'https://charbonetflamme.fr/calculateur',
+      applicationCategory: 'UtilitiesApplication',
+      description: 'Calculateur de temps de cuisson BBQ pour brisket, pulled pork, ribs, poulet fumé et plus. Intègre wrap, température fumoir et repos.',
+      inLanguage: 'fr',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+    })
+    return () => injectJsonLd('calculator-schema', null)
+  }, [])
 
   const [selectedProfile, setSelectedProfile] = useState(null)
   const [weightKg, setWeightKg] = useState('')

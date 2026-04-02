@@ -36,6 +36,7 @@ export default async function handler(req, res) {
 
   const staticPages = [
     { url: '/', changefreq: 'weekly', priority: '1.0' },
+    { url: '/calculateur', changefreq: 'monthly', priority: '0.9' },
     { url: '/recettes', changefreq: 'weekly', priority: '0.9' },
     { url: '/guides', changefreq: 'weekly', priority: '0.8' },
     { url: '/comparateur', changefreq: 'monthly', priority: '0.7' },

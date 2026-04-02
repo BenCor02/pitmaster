@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, Navigate } from 'react-router-dom'
+import { updateMeta } from '../lib/seo.js'
 import { useAuth } from '../modules/auth/AuthContext.jsx'
 import { fetchFavorites, removeFavorite } from '../lib/favorites.js'
 
@@ -29,6 +30,14 @@ export default function FavoritesPage() {
   const { session, isLoading, isAuthenticated } = useAuth()
   const [favorites, setFavorites] = useState([])
   const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    updateMeta({
+      title: 'Mon carnet BBQ — Recettes favorites | Charbon & Flamme',
+      description: 'Retrouve tes recettes BBQ favorites : rubs, marinades, mops et glazes sauvegardés dans ton carnet personnel.',
+      canonical: 'https://charbonetflamme.fr/carnet',
+    })
+  }, [])
 
   useEffect(() => {
     if (!session?.user?.id) return
