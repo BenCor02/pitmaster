@@ -26,19 +26,33 @@ async function getPlugin() {
  * À appeler au premier lancement ou quand l'utilisateur active les notifs.
  */
 export async function requestPermission() {
+  console.log('[Notif] requestPermission called, isNative:', isNative)
   const plugin = await getPlugin()
+  console.log('[Notif] plugin:', plugin ? 'loaded' : 'null')
 
   if (plugin) {
-    const result = await plugin.requestPermissions()
-    return result.display === 'granted'
+    try {
+      const check = await plugin.checkPermissions()
+      console.log('[Notif] current permission:', check.display)
+      if (check.display === 'granted') return true
+      const result = await plugin.requestPermissions()
+      console.log('[Notif] requestPermissions result:', result.display)
+      return result.display === 'granted'
+    } catch (err) {
+      console.error('[Notif] permission error:', err)
+      return false
+    }
   }
 
   // Fallback web
   if ('Notification' in window) {
+    console.log('[Notif] web fallback, current:', Notification.permission)
     const result = await Notification.requestPermission()
+    console.log('[Notif] web result:', result)
     return result === 'granted'
   }
 
+  console.log('[Notif] no notification support')
   return false
 }
 
