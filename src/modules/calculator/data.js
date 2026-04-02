@@ -170,7 +170,7 @@ export const MEAT_PROFILES = [
     cook_type: 'low_and_slow',
     supports_wrap: true,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 230 },   // 225°F — terrain : 1.75h/lb (1.5-2h/lb). 4kg ≈ 15h. Pork butt dense
+      { temp_c: 107, min_per_kg: 215 },   // 225°F — terrain US+FR croisé : 1.5-2h/lb. 4kg ≈ 14h. Validé Esprit BBQ FR
       { temp_c: 121, min_per_kg: 180 },   // 250°F — terrain : 1.25h/lb. 4kg ≈ 12h
       { temp_c: 135, min_per_kg: 145 },   // 275°F — terrain : 1h/lb. 4kg ≈ 9.5h
     ],
@@ -235,7 +235,7 @@ export const MEAT_PROFILES = [
     cook_type: 'low_and_slow',
     supports_wrap: false,
     temp_bands: [
-      { temp_c: 110, min_per_kg: 100 },   // fumage basse temp — terrain : 2kg ≈ 3.5h. Peau molle mais fumé intense
+      { temp_c: 110, min_per_kg: 110 },   // fumage basse temp — terrain FR : 1.8kg ≈ 3-4h (Bradley Smoker FR). Peau molle
       { temp_c: 135, min_per_kg: 65 },    // ~275°F — terrain : 2kg ≈ 2h10. Transition, peau encore molle
       { temp_c: 150, min_per_kg: 50 },    // 300°F — terrain : 2kg ≈ 1h40. Sweet spot peau croustillante
       { temp_c: 165, min_per_kg: 40 },    // 325°F — terrain : 2kg ≈ 1h20. Rapide, peau bien crispy
@@ -287,9 +287,9 @@ export const MEAT_PROFILES = [
     cook_type: 'low_and_slow',
     supports_wrap: false,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 110 },   // 225°F — terrain : 2.5kg ≈ 4.5h (target medium-rare 54°C, pas pulled)
-      { temp_c: 121, min_per_kg: 85 },    // 250°F — terrain : 2.5kg ≈ 3.5h. Gigot maigre, cuit plus vite
-      { temp_c: 135, min_per_kg: 65 },    // 275°F — terrain : 2.5kg ≈ 2.5h
+      { temp_c: 107, min_per_kg: 120 },   // 225°F — terrain FR : 2.5kg ≈ 5h (Bradley Smoker FR). Target rosé 54-60°C
+      { temp_c: 121, min_per_kg: 92 },    // 250°F — terrain FR : 2.5kg ≈ 3.5-4h. Gigot maigre, cuit plus vite
+      { temp_c: 135, min_per_kg: 70 },    // 275°F — terrain FR : 2.5kg ≈ 3h
     ],
     rest_min: 15,
     rest_max: 30,
@@ -336,9 +336,9 @@ export const MEAT_PROFILES = [
     cook_type: 'reverse_sear',
     supports_wrap: false,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 47 },    // terrain : 800g ≈ 35-40min (ATBBQ, GrillinFools). Reverse sear lent
-      { temp_c: 121, min_per_kg: 38 },    // terrain : 800g ≈ 28-32min. Sweet spot
-      { temp_c: 135, min_per_kg: 30 },    // terrain : 800g ≈ 22-26min
+      { temp_c: 107, min_per_kg: 58 },    // terrain FR : 800g ≈ 45-50min (ToutFeuToutFlamme, Bradley FR). Reverse sear lent
+      { temp_c: 121, min_per_kg: 46 },    // terrain FR : 800g ≈ 35-38min. Sweet spot
+      { temp_c: 135, min_per_kg: 35 },    // terrain FR : 800g ≈ 26-30min
     ],
     rest_min: 5,
     rest_max: 10,
