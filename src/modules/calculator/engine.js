@@ -85,14 +85,20 @@ export function calculateCookPlan({ profile, weightKg, cookTempC, wrapped, donen
     // Souris d'agneau : temps fixe par tranche de poids
     const bracket = profile.fixed_times_by_weight.find(b => weightKg <= b.max_kg)
       || profile.fixed_times_by_weight[profile.fixed_times_by_weight.length - 1]
-    cookMinutes = bracket.minutes
+    cookMinutes = average(bracket.min, bracket.max)
   } else if (profile.cook_type === 'reverse_sear' && profile.thickness_coeff) {
     // Reverse sear : épaisseur × coefficient
-    const epaisseur = thicknessCm || (weightKg * 2.2) // fallback : estimation épaisseur depuis poids
+    // Priorité : épaisseur explicite > défaut profil > estimation depuis poids
+    const epaisseur = thicknessCm || profile.default_thickness_cm || (weightKg * 2.2)
     cookMinutes = epaisseur * profile.thickness_coeff
   } else if (profile.base_minutes != null && profile.coeff != null) {
     // Low & slow v3 : base + (poids × coeff)
-    cookMinutes = profile.base_minutes + (weightKg * profile.coeff)
+    // Au-delà de 5kg, rendement dégressif : le surplus de poids au-delà de 5kg
+    // compte à 70% (la chaleur pénètre moins linéairement sur grosses pièces)
+    const effectiveKg = weightKg <= 5
+      ? weightKg
+      : 5 + (weightKg - 5) * 0.7
+    cookMinutes = profile.base_minutes + (effectiveKg * profile.coeff)
   } else {
     // Fallback legacy : interpolation min_per_kg
     const minPerKg = interpolateMinPerKg(profile.temp_bands, cookTempC)
@@ -117,7 +123,8 @@ export function calculateCookPlan({ profile, weightKg, cookTempC, wrapped, donen
     }
 
     // 2c. Haute température fumoir (>125°C) : cuisson accélérée
-    if (cookTempC > 125 && profile.cook_type === 'low_and_slow') {
+    // Ne s'applique PAS à la volaille (cuite normalement à 135-165°C)
+    if (cookTempC > 125 && profile.cook_type === 'low_and_slow' && profile.category !== 'volaille') {
       cookMinutes *= 0.88
     }
   }
@@ -154,8 +161,25 @@ export function calculateCookPlan({ profile, weightKg, cookTempC, wrapped, donen
   // ── 7. Durée totale ───────────────────────────────────
   // Total = cuisson + repos, cohérent avec les plages affichées
   const totalCookMin = Math.round(cookMinutes)
-  const cookLow = Math.max(0, Math.round(totalCookMin * (1 - tolerance)))
-  const cookHigh = Math.round(totalCookMin * (1 + tolerance))
+  let cookLow, cookHigh
+
+  if (profile.fixed_times_by_weight) {
+    // Souris : utiliser les min/max du bracket directement
+    const bracket = profile.fixed_times_by_weight.find(b => weightKg <= b.max_kg)
+      || profile.fixed_times_by_weight[profile.fixed_times_by_weight.length - 1]
+    cookLow = bracket.min
+    cookHigh = bracket.max
+  } else if (profile.fixed_times) {
+    // Ribs : utiliser les min/max des fixed_times
+    const fixed = wrapped && profile.fixed_times.wrapped
+      ? profile.fixed_times.wrapped
+      : profile.fixed_times.unwrapped
+    cookLow = fixed.min
+    cookHigh = fixed.max
+  } else {
+    cookLow = Math.max(0, Math.round(totalCookMin * (1 - tolerance)))
+    cookHigh = Math.round(totalCookMin * (1 + tolerance))
+  }
   const totalLow = cookLow + restMin
   const totalHigh = cookHigh + restMax
 

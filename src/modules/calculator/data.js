@@ -118,6 +118,7 @@ export const MEAT_PROFILES = [
     supports_wrap: false,
     // Nouveau modèle reverse sear : épaisseur_cm × thickness_coeff
     thickness_coeff: 11,   // min par cm d'épaisseur
+    default_thickness_cm: 5, // côte de bœuf classique ~5cm
     temp_bands: [
       { temp_c: 107, min_per_kg: 48 },    // fallback legacy
       { temp_c: 121, min_per_kg: 38 },
@@ -148,6 +149,7 @@ export const MEAT_PROFILES = [
     cook_type: 'reverse_sear',
     supports_wrap: false,
     thickness_coeff: 11,   // même que côte de bœuf
+    default_thickness_cm: 6, // tomahawk typique ~6cm
     temp_bands: [
       { temp_c: 107, min_per_kg: 58 },    // fallback legacy
       { temp_c: 121, min_per_kg: 46 },
@@ -328,9 +330,9 @@ export const MEAT_PROFILES = [
     supports_wrap: true,
     // Souris : temps fixe par tranche de poids (le modèle per-kg donne des résultats absurdes)
     fixed_times_by_weight: [
-      { max_kg: 0.5, minutes: 60 },    // <500g : 1h
-      { max_kg: 0.8, minutes: 90 },    // 500-800g : 1h30
-      { max_kg: Infinity, minutes: 120 }, // >800g : 2h
+      { max_kg: 0.5, min: 50, max: 75 },      // <500g : ~1h (50-75min)
+      { max_kg: 0.8, min: 75, max: 105 },     // 500-800g : ~1h30 (75-105min)
+      { max_kg: Infinity, min: 105, max: 140 }, // >800g : ~2h (105-140min)
     ],
     temp_bands: [
       { temp_c: 107, min_per_kg: 660 },   // fallback legacy (non utilisé si fixed_times_by_weight)
@@ -360,6 +362,7 @@ export const MEAT_PROFILES = [
     cook_type: 'reverse_sear',
     supports_wrap: false,
     thickness_coeff: 9,   // min par cm d'épaisseur
+    default_thickness_cm: 4, // carré d'agneau classique ~4cm
     temp_bands: [
       { temp_c: 107, min_per_kg: 50 },    // fallback legacy
       { temp_c: 121, min_per_kg: 40 },
@@ -421,6 +424,7 @@ export const MEAT_PROFILES = [
     cook_type: 'reverse_sear',
     supports_wrap: false,
     thickness_coeff: 8,   // min par cm d'épaisseur
+    default_thickness_cm: 5, // filet mignon ~5cm de diamètre
     temp_bands: [
       { temp_c: 107, min_per_kg: 55 },    // fallback legacy
       { temp_c: 121, min_per_kg: 42 },
@@ -501,6 +505,7 @@ export const MEAT_PROFILES = [
     cook_type: 'reverse_sear',
     supports_wrap: false,
     thickness_coeff: 7,   // min par cm d'épaisseur
+    default_thickness_cm: 2.5, // magret typique ~2.5cm (gras inclus)
     temp_bands: [
       { temp_c: 107, min_per_kg: 45 },    // fallback legacy
       { temp_c: 121, min_per_kg: 34 },
