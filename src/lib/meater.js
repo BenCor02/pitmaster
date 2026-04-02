@@ -73,6 +73,14 @@ export async function login(email, password) {
     throw new Error('Trop de tentatives de connexion. Réessaie dans quelques minutes.')
   }
 
+  if (status === 404) {
+    throw new Error(
+      'L\'API Meater est indisponible (404). ' +
+      'Soit le service est en panne, soit le proxy n\'est pas déployé. ' +
+      'Vérifie que tu as bien fait git push et que Vercel est à jour.'
+    )
+  }
+
   if (!json.data?.token) {
     throw new Error(
       json.message ||
