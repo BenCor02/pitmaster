@@ -20,9 +20,8 @@ UPDATE cooking_profiles SET base_minutes = 72,  coeff = 150 WHERE id = 'pulled_p
 UPDATE cooking_profiles SET base_minutes = 0,   coeff = 132 WHERE id = 'pork_belly';
 UPDATE cooking_profiles SET base_minutes = 45,  coeff = 138 WHERE id = 'lamb_shoulder';
 UPDATE cooking_profiles SET base_minutes = 0,   coeff = 84  WHERE id = 'lamb_leg';
-UPDATE cooking_profiles SET base_minutes = 0,   coeff = 90  WHERE id = 'whole_chicken';
-UPDATE cooking_profiles SET base_minutes = 0,   coeff = 78  WHERE id = 'chicken_thighs';
-UPDATE cooking_profiles SET base_minutes = 0,   coeff = 102 WHERE id = 'turkey_breast';
+-- Volaille : pas de base+coeff, reste sur temp_bands interpolé
+-- (la plage de temp 110-165°C est trop large pour un modèle linéaire)
 
 -- ── 3. Reverse sear : thickness_coeff (min/cm) + fallback épaisseur par famille
 UPDATE cooking_profiles SET thickness_coeff = 11, thickness_fallback = '{"min_cm":4,"kg_factor":2.2}'::jsonb   WHERE id = 'prime_rib';

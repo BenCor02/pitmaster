@@ -248,13 +248,13 @@ export const MEAT_PROFILES = [
     icon: '🍗',
     cook_type: 'low_and_slow',
     supports_wrap: false,
-    base_minutes: 0,
-    coeff: 90,
+    // Volaille : pas de base+coeff, la plage de temp (110-165°C) est trop large
+    // On reste sur l'interpolation temp_bands qui gère bien chaque palier
     temp_bands: [
-      { temp_c: 110, min_per_kg: 115 },   // fallback legacy
-      { temp_c: 135, min_per_kg: 86 },
-      { temp_c: 150, min_per_kg: 62 },
-      { temp_c: 165, min_per_kg: 48 },
+      { temp_c: 110, min_per_kg: 115 },   // 2kg ≈ 3h50
+      { temp_c: 135, min_per_kg: 86 },    // 2kg ≈ 2h52
+      { temp_c: 150, min_per_kg: 62 },    // 2kg ≈ 2h04
+      { temp_c: 165, min_per_kg: 48 },    // 2kg ≈ 1h36
     ],
     rest_min: 10,
     rest_max: 20,
@@ -456,12 +456,10 @@ export const MEAT_PROFILES = [
     icon: '🍗',
     cook_type: 'low_and_slow',
     supports_wrap: false,
-    base_minutes: 0,
-    coeff: 78,
     temp_bands: [
-      { temp_c: 135, min_per_kg: 100 },   // fallback legacy
-      { temp_c: 150, min_per_kg: 70 },
-      { temp_c: 165, min_per_kg: 52 },
+      { temp_c: 135, min_per_kg: 100 },   // 1kg ≈ 1h40
+      { temp_c: 150, min_per_kg: 70 },    // 1kg ≈ 1h10
+      { temp_c: 165, min_per_kg: 52 },    // 1kg ≈ 52min
     ],
     rest_min: 5,
     rest_max: 10,
@@ -480,12 +478,10 @@ export const MEAT_PROFILES = [
     icon: '🦃',
     cook_type: 'low_and_slow',
     supports_wrap: false,
-    base_minutes: 0,
-    coeff: 102,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 118 },   // fallback legacy
-      { temp_c: 121, min_per_kg: 100 },
-      { temp_c: 135, min_per_kg: 72 },
+      { temp_c: 107, min_per_kg: 118 },   // 2kg ≈ 3h56
+      { temp_c: 121, min_per_kg: 100 },   // 2kg ≈ 3h20
+      { temp_c: 135, min_per_kg: 72 },    // 2kg ≈ 2h24
     ],
     rest_min: 15,
     rest_max: 30,    // le repos est crucial pour la dinde — les jus se redistribuent
