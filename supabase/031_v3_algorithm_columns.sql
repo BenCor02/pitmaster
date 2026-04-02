@@ -9,7 +9,7 @@ ALTER TABLE cooking_profiles
   ADD COLUMN IF NOT EXISTS base_minutes integer,
   ADD COLUMN IF NOT EXISTS coeff integer,
   ADD COLUMN IF NOT EXISTS thickness_coeff integer,
-  ADD COLUMN IF NOT EXISTS default_thickness_cm numeric,
+  ADD COLUMN IF NOT EXISTS thickness_fallback jsonb,
   ADD COLUMN IF NOT EXISTS fixed_times_by_weight jsonb;
 
 -- ── 2. Low & slow : base_minutes + coeff ───────────────
@@ -24,12 +24,12 @@ UPDATE cooking_profiles SET base_minutes = 0,   coeff = 90  WHERE id = 'whole_ch
 UPDATE cooking_profiles SET base_minutes = 0,   coeff = 78  WHERE id = 'chicken_thighs';
 UPDATE cooking_profiles SET base_minutes = 0,   coeff = 102 WHERE id = 'turkey_breast';
 
--- ── 3. Reverse sear : thickness_coeff (min/cm) + épaisseur par défaut
-UPDATE cooking_profiles SET thickness_coeff = 11, default_thickness_cm = 5   WHERE id = 'prime_rib';
-UPDATE cooking_profiles SET thickness_coeff = 11, default_thickness_cm = 6   WHERE id = 'tomahawk';
-UPDATE cooking_profiles SET thickness_coeff = 9,  default_thickness_cm = 4   WHERE id = 'rack_of_lamb';
-UPDATE cooking_profiles SET thickness_coeff = 7,  default_thickness_cm = 2.5 WHERE id = 'duck_breast';
-UPDATE cooking_profiles SET thickness_coeff = 8,  default_thickness_cm = 5   WHERE id = 'pork_tenderloin';
+-- ── 3. Reverse sear : thickness_coeff (min/cm) + fallback épaisseur par famille
+UPDATE cooking_profiles SET thickness_coeff = 11, thickness_fallback = '{"min_cm":4,"kg_factor":2.2}'::jsonb   WHERE id = 'prime_rib';
+UPDATE cooking_profiles SET thickness_coeff = 11, thickness_fallback = '{"min_cm":4,"kg_factor":2.2}'::jsonb   WHERE id = 'tomahawk';
+UPDATE cooking_profiles SET thickness_coeff = 9,  thickness_fallback = '{"min_cm":2.5,"kg_factor":2.0}'::jsonb WHERE id = 'rack_of_lamb';
+UPDATE cooking_profiles SET thickness_coeff = 7,  thickness_fallback = '{"min_cm":2,"kg_factor":5.0}'::jsonb   WHERE id = 'duck_breast';
+UPDATE cooking_profiles SET thickness_coeff = 8,  thickness_fallback = '{"min_cm":3,"kg_factor":3.5}'::jsonb   WHERE id = 'pork_tenderloin';
 
 -- ── 4. Souris d'agneau : temps fixe par tranche de poids
 UPDATE cooking_profiles

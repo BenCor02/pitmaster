@@ -88,8 +88,14 @@ export function calculateCookPlan({ profile, weightKg, cookTempC, wrapped, donen
     cookMinutes = average(bracket.min, bracket.max)
   } else if (profile.cook_type === 'reverse_sear' && profile.thickness_coeff) {
     // Reverse sear : épaisseur × coefficient
-    // Priorité : épaisseur explicite > défaut profil > estimation depuis poids
-    const epaisseur = thicknessCm || profile.default_thickness_cm || (weightKg * 2.2)
+    // Priorité : épaisseur explicite > fallback par famille (min_cm + kg_factor)
+    let epaisseur = thicknessCm
+    if (!epaisseur) {
+      const fb = profile.thickness_fallback
+      epaisseur = fb
+        ? Math.max(fb.min_cm, weightKg * fb.kg_factor)
+        : (weightKg * 2.2)  // dernier recours si pas de fallback défini
+    }
     cookMinutes = epaisseur * profile.thickness_coeff
   } else if (profile.base_minutes != null && profile.coeff != null) {
     // Low & slow v3 : base + (poids × coeff)

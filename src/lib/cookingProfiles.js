@@ -44,7 +44,7 @@ export async function fetchCookingProfiles() {
       base_minutes: row.base_minutes ?? undefined,
       coeff: row.coeff ?? undefined,
       thickness_coeff: row.thickness_coeff ?? undefined,
-      default_thickness_cm: row.default_thickness_cm ?? undefined,
+      thickness_fallback: row.thickness_fallback || undefined,
       fixed_times_by_weight: row.fixed_times_by_weight || undefined,
       wrap_reduction_percent: row.wrap_reduction_percent || 0,
       rest_min: row.rest_min,
