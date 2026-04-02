@@ -29,9 +29,9 @@ export const MEAT_PROFILES = [
     cook_type: 'low_and_slow',
     supports_wrap: true,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 195 },   // ~225°F — terrain : 1.5h/lb médiane (1.25-1.75h/lb). 5.5kg ≈ 14-16h
-      { temp_c: 121, min_per_kg: 150 },   // ~250°F — terrain : 1.1h/lb médiane. 5.5kg ≈ 11-12h
-      { temp_c: 135, min_per_kg: 110 },   // ~275°F — hot & fast terrain : 0.8h/lb. 5.5kg ≈ 8-9h
+      { temp_c: 107, min_per_kg: 202 },   // moyenne terrain (195) + ref pitmaster (210). 5.5kg ≈ 15-17h
+      { temp_c: 121, min_per_kg: 165 },   // moyenne terrain (150) + ref (180). 5.5kg ≈ 12-13h
+      { temp_c: 135, min_per_kg: 120 },   // moyenne terrain (110) + ref (130). 5.5kg ≈ 9-10h
     ],
     wrap_reduction_percent: 15,
     rest_min: 60,
@@ -56,9 +56,9 @@ export const MEAT_PROFILES = [
     cook_type: 'low_and_slow',
     supports_wrap: true,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 235 },   // terrain : 8-10h pour ~2.5kg, pièces épaisses collagène dense
-      { temp_c: 121, min_per_kg: 180 },   // sweet spot compétition — 6-7.5h pour ~2.5kg (ThermoWorks, AmazingRibs)
-      { temp_c: 135, min_per_kg: 130 },   // hot & fast — ~4.5-5.5h pour 2.5kg
+      { temp_c: 107, min_per_kg: 222 },   // moyenne terrain (235) + ref (210). 2.5kg ≈ 9h
+      { temp_c: 121, min_per_kg: 168 },   // moyenne terrain (180) + ref (156). 2.5kg ≈ 7h
+      { temp_c: 135, min_per_kg: 122 },   // moyenne terrain (130) + ref (115). 2.5kg ≈ 5h
     ],
     wrap_reduction_percent: 10,
     rest_min: 30,
@@ -110,9 +110,9 @@ export const MEAT_PROFILES = [
     cook_type: 'reverse_sear',
     supports_wrap: false,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 40 },    // terrain : 35-50min/lb à 225°F. 1.5kg ≈ 55-75min (reverse sear lent)
-      { temp_c: 121, min_per_kg: 30 },    // terrain : 25-35min/lb à 250°F. 1.5kg ≈ 40-50min
-      { temp_c: 135, min_per_kg: 22 },    // terrain : 20-25min/lb à 275°F. 1.5kg ≈ 30-35min
+      { temp_c: 107, min_per_kg: 48 },    // moyenne terrain (40) + ref (55). 1.5kg ≈ 72min
+      { temp_c: 121, min_per_kg: 38 },    // moyenne terrain (30) + ref (45). 1.5kg ≈ 57min
+      { temp_c: 135, min_per_kg: 27 },    // moyenne terrain (22) + ref (32). 1.5kg ≈ 40min
     ],
     rest_min: 10,
     rest_max: 20,
@@ -139,9 +139,9 @@ export const MEAT_PROFILES = [
     cook_type: 'reverse_sear',
     supports_wrap: false,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 55 },    // terrain : 45-65min/kg à 225°F. Steak très épais 5-7cm
-      { temp_c: 121, min_per_kg: 42 },    // terrain : 35-50min/kg à 250°F
-      { temp_c: 135, min_per_kg: 30 },    // terrain : 25-35min/kg à 275°F
+      { temp_c: 107, min_per_kg: 58 },    // moyenne terrain (55) + ref (60). 1.2kg ≈ 70min
+      { temp_c: 121, min_per_kg: 46 },    // moyenne terrain (42) + ref (50). 1.2kg ≈ 55min
+      { temp_c: 135, min_per_kg: 33 },    // moyenne terrain (30) + ref (36). 1.2kg ≈ 40min
     ],
     rest_min: 5,
     rest_max: 10,
@@ -170,9 +170,9 @@ export const MEAT_PROFILES = [
     cook_type: 'low_and_slow',
     supports_wrap: true,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 215 },   // 225°F — terrain US+FR croisé : 1.5-2h/lb. 4kg ≈ 14h. Validé Esprit BBQ FR
-      { temp_c: 121, min_per_kg: 180 },   // 250°F — terrain : 1.25h/lb. 4kg ≈ 12h
-      { temp_c: 135, min_per_kg: 145 },   // 275°F — terrain : 1h/lb. 4kg ≈ 9.5h
+      { temp_c: 107, min_per_kg: 212 },   // moyenne terrain (215) + ref (210). 4kg ≈ 14h
+      { temp_c: 121, min_per_kg: 180 },   // terrain = ref = 180. 4kg ≈ 12h
+      { temp_c: 135, min_per_kg: 140 },   // moyenne terrain (145) + ref (135). 4kg ≈ 9h20
     ],
     wrap_reduction_percent: 12,
     rest_min: 45,
@@ -235,10 +235,10 @@ export const MEAT_PROFILES = [
     cook_type: 'low_and_slow',
     supports_wrap: false,
     temp_bands: [
-      { temp_c: 110, min_per_kg: 110 },   // fumage basse temp — terrain FR : 1.8kg ≈ 3-4h (Bradley Smoker FR). Peau molle
-      { temp_c: 135, min_per_kg: 65 },    // ~275°F — terrain : 2kg ≈ 2h10. Transition, peau encore molle
-      { temp_c: 150, min_per_kg: 50 },    // 300°F — terrain : 2kg ≈ 1h40. Sweet spot peau croustillante
-      { temp_c: 165, min_per_kg: 40 },    // 325°F — terrain : 2kg ≈ 1h20. Rapide, peau bien crispy
+      { temp_c: 110, min_per_kg: 115 },   // moyenne terrain (110) + ref (120). 2kg ≈ 3h50
+      { temp_c: 135, min_per_kg: 86 },    // moyenne terrain (65) + ref (108). 2kg ≈ 2h52
+      { temp_c: 150, min_per_kg: 62 },    // moyenne terrain (50) + ref (75). 2kg ≈ 2h04
+      { temp_c: 165, min_per_kg: 48 },    // moyenne terrain (40) + ref (55). 2kg ≈ 1h36
     ],
     rest_min: 10,
     rest_max: 20,
@@ -260,9 +260,9 @@ export const MEAT_PROFILES = [
     cook_type: 'low_and_slow',
     supports_wrap: true,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 195 },   // 225°F — terrain : 2kg ≈ 6.5h (180-210 min/kg). Collagène fond vite
-      { temp_c: 121, min_per_kg: 155 },   // 250°F — terrain : 2kg ≈ 5h. Sweet spot FR
-      { temp_c: 135, min_per_kg: 115 },   // 275°F — terrain : 2kg ≈ 3.5-4h. Hot & fast
+      { temp_c: 107, min_per_kg: 198 },   // moyenne terrain (195) + ref (200). 2kg ≈ 6h36
+      { temp_c: 121, min_per_kg: 162 },   // moyenne terrain (155) + ref (168). 2kg ≈ 5h24
+      { temp_c: 135, min_per_kg: 120 },   // moyenne terrain (115) + ref (125). 2kg ≈ 4h
     ],
     wrap_reduction_percent: 12,
     rest_min: 30,
@@ -287,9 +287,9 @@ export const MEAT_PROFILES = [
     cook_type: 'low_and_slow',
     supports_wrap: false,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 120 },   // 225°F — terrain FR : 2.5kg ≈ 5h (Bradley Smoker FR). Target rosé 54-60°C
-      { temp_c: 121, min_per_kg: 92 },    // 250°F — terrain FR : 2.5kg ≈ 3.5-4h. Gigot maigre, cuit plus vite
-      { temp_c: 135, min_per_kg: 70 },    // 275°F — terrain FR : 2.5kg ≈ 3h
+      { temp_c: 107, min_per_kg: 115 },   // moyenne terrain (120) + ref (110). 2.5kg ≈ 4h48
+      { temp_c: 121, min_per_kg: 94 },    // moyenne terrain (92) + ref (96). 2.5kg ≈ 3h55
+      { temp_c: 135, min_per_kg: 71 },    // moyenne terrain (70) + ref (72). 2.5kg ≈ 2h58
     ],
     rest_min: 15,
     rest_max: 30,
@@ -336,9 +336,9 @@ export const MEAT_PROFILES = [
     cook_type: 'reverse_sear',
     supports_wrap: false,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 58 },    // terrain FR : 800g ≈ 45-50min (ToutFeuToutFlamme, Bradley FR). Reverse sear lent
-      { temp_c: 121, min_per_kg: 46 },    // terrain FR : 800g ≈ 35-38min. Sweet spot
-      { temp_c: 135, min_per_kg: 35 },    // terrain FR : 800g ≈ 26-30min
+      { temp_c: 107, min_per_kg: 50 },    // moyenne terrain (58) + ref (42). 800g ≈ 40min
+      { temp_c: 121, min_per_kg: 40 },    // moyenne terrain (46) + ref (35). 800g ≈ 32min
+      { temp_c: 135, min_per_kg: 31 },    // moyenne terrain (35) + ref (27). 800g ≈ 25min
     ],
     rest_min: 5,
     rest_max: 10,
@@ -367,9 +367,9 @@ export const MEAT_PROFILES = [
     cook_type: 'low_and_slow',
     supports_wrap: true,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 180 },   // 225°F — terrain : 1-1.5h/lb pour slab. 2kg ≈ 6h. Poitrine plus fine que butt
-      { temp_c: 121, min_per_kg: 140 },   // 250°F — terrain : 0.8-1h/lb. 2kg ≈ 4.5h
-      { temp_c: 135, min_per_kg: 105 },   // 275°F — terrain : 0.6-0.8h/lb. 2kg ≈ 3.5h
+      { temp_c: 107, min_per_kg: 182 },   // moyenne terrain (180) + ref (185). 2kg ≈ 6h
+      { temp_c: 121, min_per_kg: 148 },   // moyenne terrain (140) + ref (156). 2kg ≈ 5h
+      { temp_c: 135, min_per_kg: 110 },   // moyenne terrain (105) + ref (115). 2kg ≈ 3h40
     ],
     wrap_reduction_percent: 12,
     rest_min: 30,
@@ -394,9 +394,9 @@ export const MEAT_PROFILES = [
     cook_type: 'reverse_sear',
     supports_wrap: false,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 70 },    // 225°F — terrain : 500g ≈ 35min. Pièce fine, sèche vite
-      { temp_c: 121, min_per_kg: 55 },    // 250°F — terrain : 500g ≈ 27min
-      { temp_c: 135, min_per_kg: 40 },    // 275°F — terrain : 500g ≈ 20min
+      { temp_c: 107, min_per_kg: 55 },    // moyenne terrain (70) + ref (40). 500g ≈ 28min
+      { temp_c: 121, min_per_kg: 42 },    // moyenne terrain (55) + ref (30). 500g ≈ 21min
+      { temp_c: 135, min_per_kg: 31 },    // moyenne terrain (40) + ref (22). 500g ≈ 16min
     ],
     rest_min: 5,
     rest_max: 10,
@@ -425,9 +425,9 @@ export const MEAT_PROFILES = [
     cook_type: 'low_and_slow',
     supports_wrap: false,
     temp_bands: [
-      { temp_c: 135, min_per_kg: 110 },   // 275°F — terrain : 1kg cuisses ≈ 1h50. Individual 250g ≈ 45-60min
-      { temp_c: 150, min_per_kg: 75 },    // 300°F — terrain : 1kg ≈ 1h15. Compétition (ThermoWorks)
-      { temp_c: 165, min_per_kg: 55 },    // 325°F — terrain : 1kg ≈ 55min. Rapide, peau croustillante
+      { temp_c: 135, min_per_kg: 100 },   // moyenne terrain (110) + ref (90). 1kg ≈ 1h40
+      { temp_c: 150, min_per_kg: 70 },    // moyenne terrain (75) + ref (65). 1kg ≈ 1h10
+      { temp_c: 165, min_per_kg: 52 },    // moyenne terrain (55) + ref (48). 1kg ≈ 52min
     ],
     rest_min: 5,
     rest_max: 10,
@@ -447,9 +447,9 @@ export const MEAT_PROFILES = [
     cook_type: 'low_and_slow',
     supports_wrap: false,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 100 },   // 225°F — 30-45min/lb (ThermoWorks, BBQ Report). ~2kg ≈ 3-3.5h
-      { temp_c: 121, min_per_kg: 80 },    // 250°F — 25min/lb. ~2kg ≈ 2.5-3h
-      { temp_c: 135, min_per_kg: 60 },    // 275°F — 20min/lb. ~2kg ≈ 2h (MasterClass)
+      { temp_c: 107, min_per_kg: 118 },   // moyenne terrain (100) + ref (135). 2kg ≈ 3h56
+      { temp_c: 121, min_per_kg: 100 },   // moyenne terrain (80) + ref (120). 2kg ≈ 3h20
+      { temp_c: 135, min_per_kg: 72 },    // moyenne terrain (60) + ref (85). 2kg ≈ 2h24
     ],
     rest_min: 15,
     rest_max: 30,    // le repos est crucial pour la dinde — les jus se redistribuent
@@ -469,9 +469,9 @@ export const MEAT_PROFILES = [
     cook_type: 'reverse_sear',
     supports_wrap: false,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 55 },    // 225°F — ~400g ≈ 20-25min (Bonappeteach, DuckChar). Score le gras pour le rendre
-      { temp_c: 121, min_per_kg: 42 },    // 250°F — ~15-18min pour 400g
-      { temp_c: 135, min_per_kg: 32 },    // 275°F — ~12-15min pour 400g
+      { temp_c: 107, min_per_kg: 45 },    // moyenne terrain (55) + ref (35). 400g ≈ 18min
+      { temp_c: 121, min_per_kg: 34 },    // moyenne terrain (42) + ref (25). 400g ≈ 14min
+      { temp_c: 135, min_per_kg: 25 },    // moyenne terrain (32) + ref (18). 400g ≈ 10min
     ],
     rest_min: 5,
     rest_max: 10,
