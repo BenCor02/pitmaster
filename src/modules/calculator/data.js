@@ -29,9 +29,9 @@ export const MEAT_PROFILES = [
     cook_type: 'low_and_slow',
     supports_wrap: true,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 175 },   // ~225°F — 1h20-1h30/lb. Recalibré : Franklin/Meathead convergent sur ~14h wrappé pour 5.5kg
-      { temp_c: 121, min_per_kg: 135 },   // ~250°F — Franklin standard (~1h/lb). 5.5kg wrappé ≈ 10-11h cook
-      { temp_c: 135, min_per_kg: 90 },    // ~275°F — hot & fast (Myron Mixon ~7h wrappé pour 5.5kg) ✓
+      { temp_c: 107, min_per_kg: 195 },   // ~225°F — terrain : 1.5h/lb médiane (1.25-1.75h/lb). 5.5kg ≈ 14-16h
+      { temp_c: 121, min_per_kg: 150 },   // ~250°F — terrain : 1.1h/lb médiane. 5.5kg ≈ 11-12h
+      { temp_c: 135, min_per_kg: 110 },   // ~275°F — hot & fast terrain : 0.8h/lb. 5.5kg ≈ 8-9h
     ],
     wrap_reduction_percent: 15,
     rest_min: 60,
@@ -56,9 +56,9 @@ export const MEAT_PROFILES = [
     cook_type: 'low_and_slow',
     supports_wrap: true,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 240 },   // pièces très épaisses, collagène dense — convergence 8-10h pour ~2.5kg
-      { temp_c: 121, min_per_kg: 185 },   // sweet spot compétition — 6-8h pour ~2.5kg (ThermoWorks, AmazingRibs)
-      { temp_c: 135, min_per_kg: 135 },   // hot & fast — ~4.5-5.5h pour 2.5kg
+      { temp_c: 107, min_per_kg: 235 },   // terrain : 8-10h pour ~2.5kg, pièces épaisses collagène dense
+      { temp_c: 121, min_per_kg: 180 },   // sweet spot compétition — 6-7.5h pour ~2.5kg (ThermoWorks, AmazingRibs)
+      { temp_c: 135, min_per_kg: 130 },   // hot & fast — ~4.5-5.5h pour 2.5kg
     ],
     wrap_reduction_percent: 10,
     rest_min: 30,
@@ -110,9 +110,9 @@ export const MEAT_PROFILES = [
     cook_type: 'reverse_sear',
     supports_wrap: false,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 30 },    // recalibré pour côte de bœuf FR (~1-1.5kg, 3-4cm)
-      { temp_c: 121, min_per_kg: 22 },    // Rafa/Rohan : 20-30min pour ~1.5kg à 110°C
-      { temp_c: 135, min_per_kg: 16 },    // Plus chaud = plus rapide
+      { temp_c: 107, min_per_kg: 40 },    // terrain : 35-50min/lb à 225°F. 1.5kg ≈ 55-75min (reverse sear lent)
+      { temp_c: 121, min_per_kg: 30 },    // terrain : 25-35min/lb à 250°F. 1.5kg ≈ 40-50min
+      { temp_c: 135, min_per_kg: 22 },    // terrain : 20-25min/lb à 275°F. 1.5kg ≈ 30-35min
     ],
     rest_min: 10,
     rest_max: 20,
@@ -139,9 +139,9 @@ export const MEAT_PROFILES = [
     cook_type: 'reverse_sear',
     supports_wrap: false,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 55 },    // légèrement augmenté — les tomahawks sont très épais
-      { temp_c: 121, min_per_kg: 40 },
-      { temp_c: 135, min_per_kg: 30 },
+      { temp_c: 107, min_per_kg: 55 },    // terrain : 45-65min/kg à 225°F. Steak très épais 5-7cm
+      { temp_c: 121, min_per_kg: 42 },    // terrain : 35-50min/kg à 250°F
+      { temp_c: 135, min_per_kg: 30 },    // terrain : 25-35min/kg à 275°F
     ],
     rest_min: 5,
     rest_max: 10,
@@ -170,9 +170,9 @@ export const MEAT_PROFILES = [
     cook_type: 'low_and_slow',
     supports_wrap: true,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 165 },   // 225°F — ~11h pour 4kg. Calibré retour terrain (1h15/lb)
-      { temp_c: 121, min_per_kg: 124 },   // 250°F — ~8h15 pour 4kg
-      { temp_c: 135, min_per_kg: 83 },    // 275°F — ~5h30 pour 4kg, hot & fast
+      { temp_c: 107, min_per_kg: 230 },   // 225°F — terrain : 1.75h/lb (1.5-2h/lb). 4kg ≈ 15h. Pork butt dense
+      { temp_c: 121, min_per_kg: 180 },   // 250°F — terrain : 1.25h/lb. 4kg ≈ 12h
+      { temp_c: 135, min_per_kg: 145 },   // 275°F — terrain : 1h/lb. 4kg ≈ 9.5h
     ],
     wrap_reduction_percent: 12,
     rest_min: 45,
@@ -235,10 +235,10 @@ export const MEAT_PROFILES = [
     cook_type: 'low_and_slow',
     supports_wrap: false,
     temp_bands: [
-      { temp_c: 110, min_per_kg: 110 },   // fumage FR basse temp (Barbecue-co, MaitreFumeur) — peau molle mais fumé intense
-      { temp_c: 135, min_per_kg: 66 },    // ~275°F — transition, peau encore molle
-      { temp_c: 150, min_per_kg: 55 },    // 300°F — sweet spot peau croustillante (US standard)
-      { temp_c: 165, min_per_kg: 44 },    // 325°F — rapide, peau bien crispy
+      { temp_c: 110, min_per_kg: 100 },   // fumage basse temp — terrain : 2kg ≈ 3.5h. Peau molle mais fumé intense
+      { temp_c: 135, min_per_kg: 65 },    // ~275°F — terrain : 2kg ≈ 2h10. Transition, peau encore molle
+      { temp_c: 150, min_per_kg: 50 },    // 300°F — terrain : 2kg ≈ 1h40. Sweet spot peau croustillante
+      { temp_c: 165, min_per_kg: 40 },    // 325°F — terrain : 2kg ≈ 1h20. Rapide, peau bien crispy
     ],
     rest_min: 10,
     rest_max: 20,
@@ -260,9 +260,9 @@ export const MEAT_PROFILES = [
     cook_type: 'low_and_slow',
     supports_wrap: true,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 200 },   // 225°F — ~2kg ≈ 6-7h (ThermoWorks, Jess Pryles). Plus rapide que pulled pork grâce au collagène + gras intra-musculaire
-      { temp_c: 121, min_per_kg: 155 },   // 250°F — sweet spot FR (Le BBQ de Rafa, French Smoker). ~5h pour 2kg
-      { temp_c: 135, min_per_kg: 110 },   // 275°F — hot & fast. ~3.5-4h pour 2kg (SmokedBBQSource)
+      { temp_c: 107, min_per_kg: 195 },   // 225°F — terrain : 2kg ≈ 6.5h (180-210 min/kg). Collagène fond vite
+      { temp_c: 121, min_per_kg: 155 },   // 250°F — terrain : 2kg ≈ 5h. Sweet spot FR
+      { temp_c: 135, min_per_kg: 115 },   // 275°F — terrain : 2kg ≈ 3.5-4h. Hot & fast
     ],
     wrap_reduction_percent: 12,
     rest_min: 30,
@@ -287,9 +287,9 @@ export const MEAT_PROFILES = [
     cook_type: 'low_and_slow',
     supports_wrap: false,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 130 },   // 225°F — ~2.5-3kg ≈ 5.5-6.5h (ThermoWorks, Malcom Reed). Le gigot est plus maigre que l'épaule
-      { temp_c: 121, min_per_kg: 100 },   // 250°F — standard (BBQ Québec, SmokingMeatForums). ~4-4.5h pour 2.5kg
-      { temp_c: 135, min_per_kg: 75 },    // 275°F — hot & fast. ~3h pour 2.5kg
+      { temp_c: 107, min_per_kg: 110 },   // 225°F — terrain : 2.5kg ≈ 4.5h (target medium-rare 54°C, pas pulled)
+      { temp_c: 121, min_per_kg: 85 },    // 250°F — terrain : 2.5kg ≈ 3.5h. Gigot maigre, cuit plus vite
+      { temp_c: 135, min_per_kg: 65 },    // 275°F — terrain : 2.5kg ≈ 2.5h
     ],
     rest_min: 15,
     rest_max: 30,
@@ -336,9 +336,9 @@ export const MEAT_PROFILES = [
     cook_type: 'reverse_sear',
     supports_wrap: false,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 45 },    // ~200°F — 30-45min pour un carré de ~800g (ATBBQ, GrillinFools)
-      { temp_c: 121, min_per_kg: 35 },    // ~250°F — plus rapide, ~25-30min pour 800g
-      { temp_c: 135, min_per_kg: 25 },    // ~275°F — ~20min pour 800g
+      { temp_c: 107, min_per_kg: 47 },    // terrain : 800g ≈ 35-40min (ATBBQ, GrillinFools). Reverse sear lent
+      { temp_c: 121, min_per_kg: 38 },    // terrain : 800g ≈ 28-32min. Sweet spot
+      { temp_c: 135, min_per_kg: 30 },    // terrain : 800g ≈ 22-26min
     ],
     rest_min: 5,
     rest_max: 10,
@@ -367,9 +367,9 @@ export const MEAT_PROFILES = [
     cook_type: 'low_and_slow',
     supports_wrap: true,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 264 },   // 225°F — 1.5-2h/lb (Bradley Smoker, Smoking-meat.com). ~4kg ≈ 8-9h
-      { temp_c: 121, min_per_kg: 198 },   // 250°F — sweet spot (Hey Grill Hey, Urban Cowgirl). ~4kg ≈ 6-7h
-      { temp_c: 135, min_per_kg: 145 },   // 275°F — hot & fast. ~4kg ≈ 5h
+      { temp_c: 107, min_per_kg: 180 },   // 225°F — terrain : 1-1.5h/lb pour slab. 2kg ≈ 6h. Poitrine plus fine que butt
+      { temp_c: 121, min_per_kg: 140 },   // 250°F — terrain : 0.8-1h/lb. 2kg ≈ 4.5h
+      { temp_c: 135, min_per_kg: 105 },   // 275°F — terrain : 0.6-0.8h/lb. 2kg ≈ 3.5h
     ],
     wrap_reduction_percent: 12,
     rest_min: 30,
@@ -394,9 +394,9 @@ export const MEAT_PROFILES = [
     cook_type: 'reverse_sear',
     supports_wrap: false,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 65 },    // 225°F — pièce fine ~500g ≈ 30-35min (Masterbuilt, Grill Masters Club)
-      { temp_c: 121, min_per_kg: 50 },    // 250°F — ~25min pour 500g
-      { temp_c: 135, min_per_kg: 38 },    // 275°F — ~20min pour 500g
+      { temp_c: 107, min_per_kg: 70 },    // 225°F — terrain : 500g ≈ 35min. Pièce fine, sèche vite
+      { temp_c: 121, min_per_kg: 55 },    // 250°F — terrain : 500g ≈ 27min
+      { temp_c: 135, min_per_kg: 40 },    // 275°F — terrain : 500g ≈ 20min
     ],
     rest_min: 5,
     rest_max: 10,
@@ -425,9 +425,9 @@ export const MEAT_PROFILES = [
     cook_type: 'low_and_slow',
     supports_wrap: false,
     temp_bands: [
-      { temp_c: 135, min_per_kg: 200 },   // 275°F — 250g/cuisse ≈ 50min (Hey Grill Hey: 45-75min). L'os ralentit la cuisson
-      { temp_c: 150, min_per_kg: 130 },   // 300°F — compétition (ThermoWorks). 250g ≈ 32min +repos. Lot 1kg ≈ 2h10
-      { temp_c: 165, min_per_kg: 100 },   // 325°F — rapide, peau croustillante. 250g ≈ 25min
+      { temp_c: 135, min_per_kg: 110 },   // 275°F — terrain : 1kg cuisses ≈ 1h50. Individual 250g ≈ 45-60min
+      { temp_c: 150, min_per_kg: 75 },    // 300°F — terrain : 1kg ≈ 1h15. Compétition (ThermoWorks)
+      { temp_c: 165, min_per_kg: 55 },    // 325°F — terrain : 1kg ≈ 55min. Rapide, peau croustillante
     ],
     rest_min: 5,
     rest_max: 10,
