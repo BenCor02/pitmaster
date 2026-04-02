@@ -40,6 +40,11 @@ export async function fetchCookingProfiles() {
       supports_wrap: row.supports_wrap,
       temp_bands: row.temp_bands || undefined,
       fixed_times: row.fixed_times || undefined,
+      // v3 algorithm fields
+      base_minutes: row.base_minutes ?? undefined,
+      coeff: row.coeff ?? undefined,
+      thickness_coeff: row.thickness_coeff ?? undefined,
+      fixed_times_by_weight: row.fixed_times_by_weight || undefined,
       wrap_reduction_percent: row.wrap_reduction_percent || 0,
       rest_min: row.rest_min,
       rest_max: row.rest_max,

@@ -63,36 +63,67 @@ export function formatRange(minMinutes, maxMinutes) {
 /**
  * Calcule le plan de cuisson par phases approximatives.
  * Zéro heure exacte. Tout en durées et repères.
+ *
+ * Modèles de calcul v3 :
+ * - Low & slow : base_minutes + (poids_kg × coeff)
+ * - Reverse sear : épaisseur_cm × thickness_coeff (+ sear + repos)
+ * - Souris : fixed_times_by_weight (tranches de poids)
+ * - Ribs : fixed_times (méthode 3-2-1 / 2-2-1)
+ * - Smart adjustments : poids, wrap, température fumoir
  */
-export function calculateCookPlan({ profile, weightKg, cookTempC, wrapped, doneness = null }) {
+export function calculateCookPlan({ profile, weightKg, cookTempC, wrapped, doneness = null, thicknessCm = null }) {
   // ── 1. Temps de cuisson brut ──────────────────────────
   let cookMinutes = 0
 
   if (profile.fixed_times) {
+    // Ribs : méthode fixe (3-2-1 / 2-2-1)
     const fixed = wrapped && profile.fixed_times.wrapped
       ? profile.fixed_times.wrapped
       : profile.fixed_times.unwrapped
     cookMinutes = average(fixed.min, fixed.max)
+  } else if (profile.fixed_times_by_weight) {
+    // Souris d'agneau : temps fixe par tranche de poids
+    const bracket = profile.fixed_times_by_weight.find(b => weightKg <= b.max_kg)
+      || profile.fixed_times_by_weight[profile.fixed_times_by_weight.length - 1]
+    cookMinutes = bracket.minutes
+  } else if (profile.cook_type === 'reverse_sear' && profile.thickness_coeff) {
+    // Reverse sear : épaisseur × coefficient
+    const epaisseur = thicknessCm || (weightKg * 2.2) // fallback : estimation épaisseur depuis poids
+    cookMinutes = epaisseur * profile.thickness_coeff
+  } else if (profile.base_minutes != null && profile.coeff != null) {
+    // Low & slow v3 : base + (poids × coeff)
+    cookMinutes = profile.base_minutes + (weightKg * profile.coeff)
   } else {
+    // Fallback legacy : interpolation min_per_kg
     const minPerKg = interpolateMinPerKg(profile.temp_bands, cookTempC)
     cookMinutes = weightKg * minPerKg
   }
 
-  // ── 2. Réduction wrap ─────────────────────────────────
-  if (wrapped && profile.wrap_reduction_percent) {
-    cookMinutes *= 1 - profile.wrap_reduction_percent / 100
+  // ── 2. Smart adjustments ──────────────────────────────
+  // Ne s'appliquent PAS aux ribs (fixed_times) ni aux souris (fixed_times_by_weight)
+  if (!profile.fixed_times && !profile.fixed_times_by_weight) {
+    // 2a. Wrap : accélère la cuisson de 8%
+    if (wrapped && profile.supports_wrap) {
+      cookMinutes *= 0.92
+    }
+
+    // 2b. Ajustement poids (low & slow uniquement)
+    if (profile.cook_type === 'low_and_slow') {
+      if (weightKg < 2) {
+        cookMinutes *= 1.05  // petites pièces : ratio surface/volume défavorable
+      } else if (weightKg > 6) {
+        cookMinutes *= 1.07  // grosses pièces : stall plus long, inertie thermique
+      }
+    }
+
+    // 2c. Haute température fumoir (>125°C) : cuisson accélérée
+    if (cookTempC > 125 && profile.cook_type === 'low_and_slow') {
+      cookMinutes *= 0.88
+    }
   }
 
-  // ── 3. Pénalité grosses pièces ────────────────────────
-  if (weightKg > 6 && !profile.fixed_times) {
-    cookMinutes *= 1 + (weightKg - 6) * 0.03
-  }
-
-  // ── 3b. Temps minimum de cuisson ─────────────────────
-  // Aucune pièce ne développe de saveur fumée en moins de 30 min.
-  // Reverse sear : minimum 20 min en fumoir.
-  // Low & slow : minimum 45 min.
-  if (!profile.fixed_times) {
+  // ── 3. Temps minimum de cuisson ─────────────────────
+  if (!profile.fixed_times && !profile.fixed_times_by_weight) {
     const minCook = profile.cook_type === 'reverse_sear' ? 20 : 45
     cookMinutes = Math.max(cookMinutes, minCook)
   }

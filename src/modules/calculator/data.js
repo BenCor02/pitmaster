@@ -28,10 +28,13 @@ export const MEAT_PROFILES = [
     icon: '🥩',
     cook_type: 'low_and_slow',
     supports_wrap: true,
+    // Nouveau modèle : temps = base_minutes + (poids_kg × coeff)
+    base_minutes: 90,
+    coeff: 156,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 202 },   // moyenne terrain (195) + ref pitmaster (210). 5.5kg ≈ 15-17h
-      { temp_c: 121, min_per_kg: 165 },   // moyenne terrain (150) + ref (180). 5.5kg ≈ 12-13h
-      { temp_c: 135, min_per_kg: 120 },   // moyenne terrain (110) + ref (130). 5.5kg ≈ 9-10h
+      { temp_c: 107, min_per_kg: 202 },   // fallback legacy
+      { temp_c: 121, min_per_kg: 165 },
+      { temp_c: 135, min_per_kg: 120 },
     ],
     wrap_reduction_percent: 15,
     rest_min: 60,
@@ -55,10 +58,12 @@ export const MEAT_PROFILES = [
     icon: '🥩',
     cook_type: 'low_and_slow',
     supports_wrap: true,
+    base_minutes: 45,
+    coeff: 138,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 222 },   // moyenne terrain (235) + ref (210). 2.5kg ≈ 9h
-      { temp_c: 121, min_per_kg: 168 },   // moyenne terrain (180) + ref (156). 2.5kg ≈ 7h
-      { temp_c: 135, min_per_kg: 122 },   // moyenne terrain (130) + ref (115). 2.5kg ≈ 5h
+      { temp_c: 107, min_per_kg: 222 },   // fallback legacy
+      { temp_c: 121, min_per_kg: 168 },
+      { temp_c: 135, min_per_kg: 122 },
     ],
     wrap_reduction_percent: 10,
     rest_min: 30,
@@ -82,10 +87,12 @@ export const MEAT_PROFILES = [
     icon: '🥩',
     cook_type: 'low_and_slow',
     supports_wrap: true,
+    base_minutes: 45,
+    coeff: 144,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 270 },   // 225°F — terrain : 8-10h pour 2kg. Pièce compacte, stall prononcé
-      { temp_c: 121, min_per_kg: 210 },   // 250°F — terrain : 6-8h pour 2kg. Sweet spot fumoir
-      { temp_c: 135, min_per_kg: 150 },   // 275°F — hot & fast : 5-6h pour 2kg
+      { temp_c: 107, min_per_kg: 270 },   // fallback legacy
+      { temp_c: 121, min_per_kg: 210 },
+      { temp_c: 135, min_per_kg: 150 },
     ],
     wrap_reduction_percent: 12,
     rest_min: 30,
@@ -109,10 +116,12 @@ export const MEAT_PROFILES = [
     icon: '🥩',
     cook_type: 'reverse_sear',
     supports_wrap: false,
+    // Nouveau modèle reverse sear : épaisseur_cm × thickness_coeff
+    thickness_coeff: 11,   // min par cm d'épaisseur
     temp_bands: [
-      { temp_c: 107, min_per_kg: 48 },    // moyenne terrain (40) + ref (55). 1.5kg ≈ 72min
-      { temp_c: 121, min_per_kg: 38 },    // moyenne terrain (30) + ref (45). 1.5kg ≈ 57min
-      { temp_c: 135, min_per_kg: 27 },    // moyenne terrain (22) + ref (32). 1.5kg ≈ 40min
+      { temp_c: 107, min_per_kg: 48 },    // fallback legacy
+      { temp_c: 121, min_per_kg: 38 },
+      { temp_c: 135, min_per_kg: 27 },
     ],
     rest_min: 10,
     rest_max: 20,
@@ -138,10 +147,11 @@ export const MEAT_PROFILES = [
     icon: '🥩',
     cook_type: 'reverse_sear',
     supports_wrap: false,
+    thickness_coeff: 11,   // même que côte de bœuf
     temp_bands: [
-      { temp_c: 107, min_per_kg: 58 },    // moyenne terrain (55) + ref (60). 1.2kg ≈ 70min
-      { temp_c: 121, min_per_kg: 46 },    // moyenne terrain (42) + ref (50). 1.2kg ≈ 55min
-      { temp_c: 135, min_per_kg: 33 },    // moyenne terrain (30) + ref (36). 1.2kg ≈ 40min
+      { temp_c: 107, min_per_kg: 58 },    // fallback legacy
+      { temp_c: 121, min_per_kg: 46 },
+      { temp_c: 135, min_per_kg: 33 },
     ],
     rest_min: 5,
     rest_max: 10,
@@ -169,10 +179,12 @@ export const MEAT_PROFILES = [
     icon: '🐷',
     cook_type: 'low_and_slow',
     supports_wrap: true,
+    base_minutes: 72,
+    coeff: 150,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 212 },   // moyenne terrain (215) + ref (210). 4kg ≈ 14h
-      { temp_c: 121, min_per_kg: 180 },   // terrain = ref = 180. 4kg ≈ 12h
-      { temp_c: 135, min_per_kg: 140 },   // moyenne terrain (145) + ref (135). 4kg ≈ 9h20
+      { temp_c: 107, min_per_kg: 212 },   // fallback legacy
+      { temp_c: 121, min_per_kg: 180 },
+      { temp_c: 135, min_per_kg: 140 },
     ],
     wrap_reduction_percent: 12,
     rest_min: 45,
@@ -234,11 +246,13 @@ export const MEAT_PROFILES = [
     icon: '🍗',
     cook_type: 'low_and_slow',
     supports_wrap: false,
+    base_minutes: 0,
+    coeff: 90,
     temp_bands: [
-      { temp_c: 110, min_per_kg: 115 },   // moyenne terrain (110) + ref (120). 2kg ≈ 3h50
-      { temp_c: 135, min_per_kg: 86 },    // moyenne terrain (65) + ref (108). 2kg ≈ 2h52
-      { temp_c: 150, min_per_kg: 62 },    // moyenne terrain (50) + ref (75). 2kg ≈ 2h04
-      { temp_c: 165, min_per_kg: 48 },    // moyenne terrain (40) + ref (55). 2kg ≈ 1h36
+      { temp_c: 110, min_per_kg: 115 },   // fallback legacy
+      { temp_c: 135, min_per_kg: 86 },
+      { temp_c: 150, min_per_kg: 62 },
+      { temp_c: 165, min_per_kg: 48 },
     ],
     rest_min: 10,
     rest_max: 20,
@@ -259,10 +273,12 @@ export const MEAT_PROFILES = [
     icon: '🐑',
     cook_type: 'low_and_slow',
     supports_wrap: true,
+    base_minutes: 45,
+    coeff: 138,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 198 },   // moyenne terrain (195) + ref (200). 2kg ≈ 6h36
-      { temp_c: 121, min_per_kg: 162 },   // moyenne terrain (155) + ref (168). 2kg ≈ 5h24
-      { temp_c: 135, min_per_kg: 120 },   // moyenne terrain (115) + ref (125). 2kg ≈ 4h
+      { temp_c: 107, min_per_kg: 198 },   // fallback legacy
+      { temp_c: 121, min_per_kg: 162 },
+      { temp_c: 135, min_per_kg: 120 },
     ],
     wrap_reduction_percent: 12,
     rest_min: 30,
@@ -286,10 +302,12 @@ export const MEAT_PROFILES = [
     icon: '🐑',
     cook_type: 'low_and_slow',
     supports_wrap: false,
+    base_minutes: 0,
+    coeff: 84,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 115 },   // moyenne terrain (120) + ref (110). 2.5kg ≈ 4h48
-      { temp_c: 121, min_per_kg: 94 },    // moyenne terrain (92) + ref (96). 2.5kg ≈ 3h55
-      { temp_c: 135, min_per_kg: 71 },    // moyenne terrain (70) + ref (72). 2.5kg ≈ 2h58
+      { temp_c: 107, min_per_kg: 115 },   // fallback legacy
+      { temp_c: 121, min_per_kg: 94 },
+      { temp_c: 135, min_per_kg: 71 },
     ],
     rest_min: 15,
     rest_max: 30,
@@ -308,10 +326,16 @@ export const MEAT_PROFILES = [
     icon: '🐑',
     cook_type: 'low_and_slow',
     supports_wrap: true,
+    // Souris : temps fixe par tranche de poids (le modèle per-kg donne des résultats absurdes)
+    fixed_times_by_weight: [
+      { max_kg: 0.5, minutes: 60 },    // <500g : 1h
+      { max_kg: 0.8, minutes: 90 },    // 500-800g : 1h30
+      { max_kg: Infinity, minutes: 120 }, // >800g : 2h
+    ],
     temp_bands: [
-      { temp_c: 107, min_per_kg: 660 },   // 225°F — pièce ultra-conjonctive, 400g ≈ 4-5h (Smoking-meat.com, FOGO). La souris est dense et l'os conduit peu
-      { temp_c: 121, min_per_kg: 540 },   // 250°F — sweet spot. 400g ≈ 3.5-4h (AGrillForAllSeasons)
-      { temp_c: 135, min_per_kg: 420 },   // 275°F — 400g ≈ 2.5-3h (Mad Backyard)
+      { temp_c: 107, min_per_kg: 660 },   // fallback legacy (non utilisé si fixed_times_by_weight)
+      { temp_c: 121, min_per_kg: 540 },
+      { temp_c: 135, min_per_kg: 420 },
     ],
     wrap_reduction_percent: 10,
     rest_min: 15,
@@ -335,10 +359,11 @@ export const MEAT_PROFILES = [
     icon: '🐑',
     cook_type: 'reverse_sear',
     supports_wrap: false,
+    thickness_coeff: 9,   // min par cm d'épaisseur
     temp_bands: [
-      { temp_c: 107, min_per_kg: 50 },    // moyenne terrain (58) + ref (42). 800g ≈ 40min
-      { temp_c: 121, min_per_kg: 40 },    // moyenne terrain (46) + ref (35). 800g ≈ 32min
-      { temp_c: 135, min_per_kg: 31 },    // moyenne terrain (35) + ref (27). 800g ≈ 25min
+      { temp_c: 107, min_per_kg: 50 },    // fallback legacy
+      { temp_c: 121, min_per_kg: 40 },
+      { temp_c: 135, min_per_kg: 31 },
     ],
     rest_min: 5,
     rest_max: 10,
@@ -366,10 +391,12 @@ export const MEAT_PROFILES = [
     icon: '🐷',
     cook_type: 'low_and_slow',
     supports_wrap: true,
+    base_minutes: 0,
+    coeff: 132,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 182 },   // moyenne terrain (180) + ref (185). 2kg ≈ 6h
-      { temp_c: 121, min_per_kg: 148 },   // moyenne terrain (140) + ref (156). 2kg ≈ 5h
-      { temp_c: 135, min_per_kg: 110 },   // moyenne terrain (105) + ref (115). 2kg ≈ 3h40
+      { temp_c: 107, min_per_kg: 182 },   // fallback legacy
+      { temp_c: 121, min_per_kg: 148 },
+      { temp_c: 135, min_per_kg: 110 },
     ],
     wrap_reduction_percent: 12,
     rest_min: 30,
@@ -393,10 +420,11 @@ export const MEAT_PROFILES = [
     icon: '🐷',
     cook_type: 'reverse_sear',
     supports_wrap: false,
+    thickness_coeff: 8,   // min par cm d'épaisseur
     temp_bands: [
-      { temp_c: 107, min_per_kg: 55 },    // moyenne terrain (70) + ref (40). 500g ≈ 28min
-      { temp_c: 121, min_per_kg: 42 },    // moyenne terrain (55) + ref (30). 500g ≈ 21min
-      { temp_c: 135, min_per_kg: 31 },    // moyenne terrain (40) + ref (22). 500g ≈ 16min
+      { temp_c: 107, min_per_kg: 55 },    // fallback legacy
+      { temp_c: 121, min_per_kg: 42 },
+      { temp_c: 135, min_per_kg: 31 },
     ],
     rest_min: 5,
     rest_max: 10,
@@ -424,10 +452,12 @@ export const MEAT_PROFILES = [
     icon: '🍗',
     cook_type: 'low_and_slow',
     supports_wrap: false,
+    base_minutes: 0,
+    coeff: 78,
     temp_bands: [
-      { temp_c: 135, min_per_kg: 100 },   // moyenne terrain (110) + ref (90). 1kg ≈ 1h40
-      { temp_c: 150, min_per_kg: 70 },    // moyenne terrain (75) + ref (65). 1kg ≈ 1h10
-      { temp_c: 165, min_per_kg: 52 },    // moyenne terrain (55) + ref (48). 1kg ≈ 52min
+      { temp_c: 135, min_per_kg: 100 },   // fallback legacy
+      { temp_c: 150, min_per_kg: 70 },
+      { temp_c: 165, min_per_kg: 52 },
     ],
     rest_min: 5,
     rest_max: 10,
@@ -446,10 +476,12 @@ export const MEAT_PROFILES = [
     icon: '🦃',
     cook_type: 'low_and_slow',
     supports_wrap: false,
+    base_minutes: 0,
+    coeff: 102,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 118 },   // moyenne terrain (100) + ref (135). 2kg ≈ 3h56
-      { temp_c: 121, min_per_kg: 100 },   // moyenne terrain (80) + ref (120). 2kg ≈ 3h20
-      { temp_c: 135, min_per_kg: 72 },    // moyenne terrain (60) + ref (85). 2kg ≈ 2h24
+      { temp_c: 107, min_per_kg: 118 },   // fallback legacy
+      { temp_c: 121, min_per_kg: 100 },
+      { temp_c: 135, min_per_kg: 72 },
     ],
     rest_min: 15,
     rest_max: 30,    // le repos est crucial pour la dinde — les jus se redistribuent
@@ -468,10 +500,11 @@ export const MEAT_PROFILES = [
     icon: '🦆',
     cook_type: 'reverse_sear',
     supports_wrap: false,
+    thickness_coeff: 7,   // min par cm d'épaisseur
     temp_bands: [
-      { temp_c: 107, min_per_kg: 45 },    // moyenne terrain (55) + ref (35). 400g ≈ 18min
-      { temp_c: 121, min_per_kg: 34 },    // moyenne terrain (42) + ref (25). 400g ≈ 14min
-      { temp_c: 135, min_per_kg: 25 },    // moyenne terrain (32) + ref (18). 400g ≈ 10min
+      { temp_c: 107, min_per_kg: 45 },    // fallback legacy
+      { temp_c: 121, min_per_kg: 34 },
+      { temp_c: 135, min_per_kg: 25 },
     ],
     rest_min: 5,
     rest_max: 10,
