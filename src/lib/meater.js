@@ -7,9 +7,12 @@
  * API docs : https://github.com/apption-labs/meater-cloud-public-rest-api
  */
 
-// En prod (Vercel) → proxy serveur pour éviter le CORS
-// En dev → appel direct (Vite proxy possible via vite.config.js)
-const BASE_URL = import.meta.env.DEV
+import { isNative } from './capacitor.js'
+
+// Natif (Capacitor) → appel direct (pas de CORS en natif)
+// Dev (Vite)        → appel direct (proxy possible via vite.config.js)
+// Prod web (Vercel) → proxy serveur pour contourner CORS
+const BASE_URL = (isNative || import.meta.env.DEV)
   ? 'https://public-api.cloud.meater.com/v1'
   : '/api/meater'
 
