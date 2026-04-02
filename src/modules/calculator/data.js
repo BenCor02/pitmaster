@@ -87,12 +87,11 @@ export const MEAT_PROFILES = [
     icon: '🥩',
     cook_type: 'low_and_slow',
     supports_wrap: true,
-    base_minutes: 45,
-    coeff: 144,
+    // Paleron : retour sur temp_bands — l'écart 107→135°C est trop large pour base+coeff
     temp_bands: [
-      { temp_c: 107, min_per_kg: 270 },   // fallback legacy
-      { temp_c: 121, min_per_kg: 210 },
-      { temp_c: 135, min_per_kg: 150 },
+      { temp_c: 107, min_per_kg: 270 },   // 225°F — 2kg ≈ 9h
+      { temp_c: 121, min_per_kg: 210 },   // 250°F — 2kg ≈ 7h
+      { temp_c: 135, min_per_kg: 150 },   // 275°F — 2kg ≈ 5h
     ],
     wrap_reduction_percent: 12,
     rest_min: 30,
@@ -430,8 +429,8 @@ export const MEAT_PROFILES = [
       { temp_c: 121, min_per_kg: 42 },
       { temp_c: 135, min_per_kg: 31 },
     ],
-    rest_min: 5,
-    rest_max: 10,
+    rest_min: 3,
+    rest_max: 5,   // pièce fine, refroidit très vite
     reverse_sear: {
       pull_before_target_c: 5,   // carryover modéré — pièce fine
       sear_total_minutes_min: 2,
@@ -507,8 +506,8 @@ export const MEAT_PROFILES = [
       { temp_c: 121, min_per_kg: 34 },
       { temp_c: 135, min_per_kg: 25 },
     ],
-    rest_min: 5,
-    rest_max: 10,
+    rest_min: 3,
+    rest_max: 5,   // pièce fine, ne pas couvrir d'alu pour garder le croustillant
     reverse_sear: {
       pull_before_target_c: 5,   // pièce fine, carryover modéré
       sear_total_minutes_min: 3,
