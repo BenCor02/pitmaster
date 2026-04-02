@@ -83,9 +83,9 @@ export const MEAT_PROFILES = [
     cook_type: 'low_and_slow',
     supports_wrap: true,
     temp_bands: [
-      { temp_c: 107, min_per_kg: 240 },   // ~2h/lb — consensus pitmaster. Un peu moins que brisket car pièce plus petite
-      { temp_c: 121, min_per_kg: 180 },   // ~1.5h/lb — sweet spot fumoir. 2kg ≈ 6h, 3kg ≈ 9h
-      { temp_c: 135, min_per_kg: 120 },   // hot & fast — 2kg ≈ 4h
+      { temp_c: 107, min_per_kg: 270 },   // 225°F — terrain : 8-10h pour 2kg. Pièce compacte, stall prononcé
+      { temp_c: 121, min_per_kg: 210 },   // 250°F — terrain : 6-8h pour 2kg. Sweet spot fumoir
+      { temp_c: 135, min_per_kg: 150 },   // 275°F — hot & fast : 5-6h pour 2kg
     ],
     wrap_reduction_percent: 12,
     rest_min: 30,
