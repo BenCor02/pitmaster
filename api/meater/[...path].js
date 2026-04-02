@@ -12,15 +12,21 @@ const MEATER_BASE = 'https://public-api.cloud.meater.com/v1'
 
 export default async function handler(req, res) {
   // Extraire le chemin après /api/meater/
+  // Méthode 1 : req.query.path (catch-all Vercel)
+  // Méthode 2 : fallback sur req.url si query vide
   const { path } = req.query
-  const subPath = Array.isArray(path) ? path.join('/') : path || ''
+  let subPath = Array.isArray(path) ? path.join('/') : path || ''
 
-  // Sécurité : si pas de subPath, on ne veut pas appeler la racine /v1/
+  if (!subPath) {
+    // Fallback : extraire depuis l'URL brute
+    const match = (req.url || '').match(/\/api\/meater\/(.+?)(?:\?|$)/)
+    subPath = match ? match[1] : ''
+  }
+
   if (!subPath) {
     return res.status(400).json({
       statusCode: 400,
       message: 'Chemin API manquant. Utilise /api/meater/login, /api/meater/devices, etc.',
-      debug: { path, subPath },
     })
   }
 

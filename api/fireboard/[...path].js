@@ -12,7 +12,20 @@ const FIREBOARD_BASE = 'https://fireboard.io/api'
 
 export default async function handler(req, res) {
   const { path } = req.query
-  const subPath = Array.isArray(path) ? path.join('/') : path || ''
+  let subPath = Array.isArray(path) ? path.join('/') : path || ''
+
+  if (!subPath) {
+    const match = (req.url || '').match(/\/api\/fireboard\/(.+?)(?:\?|$)/)
+    subPath = match ? match[1] : ''
+  }
+
+  if (!subPath) {
+    return res.status(400).json({
+      statusCode: 400,
+      message: 'Chemin API manquant.',
+    })
+  }
+
   const targetUrl = `${FIREBOARD_BASE}/${subPath}`
 
   const headers = {
