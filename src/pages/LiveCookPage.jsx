@@ -31,7 +31,7 @@ const PROVIDERS = {
           try {
             const probes = await meaterBLE.scanForProbes(8000)
             if (!probes.length) {
-              onError(new Error('Aucune sonde Meater détectée. Vérifie que ta sonde est allumée et à proximité.'))
+              onError(new Error('Aucune sonde Meater détectée à proximité. Vérifie qu\'elle est allumée.'))
               return
             }
             await meaterBLE.connectToProbe(probes[0].deviceId)
@@ -236,7 +236,7 @@ function ProbeLogin({ provider, onConnected }) {
             disabled={loading}
             className="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:opacity-90 disabled:opacity-50 transition-opacity"
           >
-            {loading ? '🔍 Recherche en cours...' : '📶 Scanner les sondes Meater'}
+            {loading ? '🔍 Recherche en cours...' : `📶 Scanner les sondes ${prov.name}`}
           </button>
 
           <div className="mt-5 p-4 rounded-xl bg-blue-500/[0.05] border border-blue-500/10">
@@ -308,7 +308,7 @@ function DeviceSelector({ devices, selectedId, onSelect }) {
       <div className="text-center py-8">
         <div className="text-4xl mb-3">📡</div>
         <p className="text-zinc-400 text-sm">Aucune sonde détectée</p>
-        <p className="text-zinc-600 text-xs mt-1">Vérifie que ta sonde est connectée dans l'app Meater</p>
+        <p className="text-zinc-600 text-xs mt-1">Vérifie que ta sonde est allumée et à proximité</p>
       </div>
     )
   }
@@ -1213,7 +1213,7 @@ export default function LiveCookPage() {
             <div className="text-center py-16">
               <div className="text-5xl mb-4 animate-pulse">📡</div>
               <p className="text-zinc-400">Recherche de sondes...</p>
-              <p className="text-xs text-zinc-600 mt-2">Assure-toi que ta sonde Meater est allumée et connectée via l'app</p>
+              <p className="text-xs text-zinc-600 mt-2">Assure-toi que ta sonde est allumée et à proximité</p>
             </div>
           )}
 
