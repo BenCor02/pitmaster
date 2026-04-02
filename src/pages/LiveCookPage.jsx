@@ -159,26 +159,23 @@ function formatTime(date) {
 
 function ProviderSelector({ selected, onSelect }) {
   const providerList = Object.values(PROVIDERS)
-  const cols = providerList.length > 2 ? 'grid-cols-3' : 'grid-cols-2'
   return (
     <div className="max-w-lg mx-auto mb-6">
       <p className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-3 text-center">Connecte ta sonde</p>
-      <div className={`grid ${cols} gap-3`}>
+      <div className="grid grid-cols-2 gap-2">
         {providerList.map(p => (
           <button
             key={p.id}
             onClick={() => onSelect(p.id)}
-            className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${
+            className={`flex flex-col items-center justify-center text-center p-3 rounded-xl border transition-all min-h-[72px] ${
               selected === p.id
                 ? 'border-[#ff6b1a]/30 bg-[#ff6b1a]/[0.08]'
                 : 'border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]'
             }`}
           >
-            <span className="text-2xl">{p.icon}</span>
-            <div className="text-left">
-              <span className="text-sm font-bold text-white">{p.name}</span>
-              <p className="text-[10px] text-zinc-500">{p.mode === 'ble' ? 'Bluetooth direct' : 'Cloud API'}</p>
-            </div>
+            <span className="text-xl mb-1">{p.icon}</span>
+            <span className="text-[12px] font-bold text-white leading-tight">{p.name}</span>
+            <span className="text-[9px] text-zinc-500 mt-0.5">{p.mode === 'ble' ? 'Bluetooth' : 'Cloud'}</span>
           </button>
         ))}
       </div>
@@ -234,9 +231,9 @@ function ProbeLogin({ provider, onConnected }) {
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:opacity-90 disabled:opacity-50 transition-opacity"
+            className="w-full py-3 px-4 rounded-xl font-bold text-white text-sm text-center bg-gradient-to-r from-blue-500 to-blue-600 hover:opacity-90 disabled:opacity-50 transition-opacity"
           >
-            {loading ? '🔍 Recherche en cours...' : `📶 Scanner les sondes ${prov.name}`}
+            {loading ? '🔍 Recherche...' : `📶 Scanner ${prov.name}`}
           </button>
 
           <div className="mt-5 p-4 rounded-xl bg-blue-500/[0.05] border border-blue-500/10">
@@ -284,9 +281,9 @@ function ProbeLogin({ provider, onConnected }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-[#ff6b1a] to-[#dc2626] hover:opacity-90 disabled:opacity-50 transition-opacity"
+            className="w-full py-3 px-4 rounded-xl font-bold text-white text-sm text-center bg-gradient-to-r from-[#ff6b1a] to-[#dc2626] hover:opacity-90 disabled:opacity-50 transition-opacity"
           >
-            {loading ? 'Connexion...' : `Se connecter à ${prov.name}`}
+            {loading ? 'Connexion...' : `Connecter ${prov.name}`}
           </button>
         </form>
 
