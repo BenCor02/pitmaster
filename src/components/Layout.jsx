@@ -480,19 +480,21 @@ export default function Layout({ children }) {
             )}
             <div className="h-px bg-white/[0.06] my-2" />
             {isAuthenticated ? (
-              <button
-                onClick={() => { signOut(); setMobileOpen(false) }}
-                className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-zinc-500 w-full"
-              >
-                <IconLogout />
-                Déconnexion
-              </button>
-              <button
-                onClick={() => { setShowDeleteConfirm(true); setMobileOpen(false) }}
-                className="flex items-center gap-3 px-3 py-1.5 text-[12px] text-zinc-600 hover:text-red-400 w-full"
-              >
-                Supprimer mon compte
-              </button>
+              <>
+                <button
+                  onClick={() => { signOut(); setMobileOpen(false) }}
+                  className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-zinc-500 w-full"
+                >
+                  <IconLogout />
+                  Déconnexion
+                </button>
+                <button
+                  onClick={() => { setShowDeleteConfirm(true); setMobileOpen(false) }}
+                  className="flex items-center gap-3 px-3 py-1.5 text-[12px] text-zinc-600 hover:text-red-400 w-full"
+                >
+                  Supprimer mon compte
+                </button>
+              </>
             ) : (
               <Link
                 to="/login"
