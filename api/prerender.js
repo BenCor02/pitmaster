@@ -386,6 +386,21 @@ export default async function handler(req, res) {
     }
 
     // ── Pages outils (comparateur, portions, multi, bois, bbq, live)
+    // ── Page confidentialité
+    else if (path === '/confidentialite') {
+      html = htmlShell({
+        title: 'Politique de confidentialité — Charbon & Flamme',
+        description: 'Politique de confidentialité de l\'application Charbon & Flamme. Données collectées, utilisation et vos droits RGPD.',
+        canonical: `${SITE}/confidentialite`,
+        body: `
+          <h1>Politique de confidentialité</h1>
+          <p>Charbon & Flamme respecte votre vie privée. Découvrez quelles données sont collectées, comment elles sont utilisées, et comment exercer vos droits RGPD.</p>
+          <nav><a href="/">Retour à l'accueil</a></nav>
+        `,
+      })
+    }
+
+    // ── Pages outils (comparateur, portions, multi, bois, bbq, live)
     else if (['calculateur', 'comparateur', 'portions', 'multi', 'bois', 'bbq', 'live'].includes(path.replace('/', ''))) {
       const slug = path.replace('/', '')
       html = buildToolPage(slug) || build404Page()

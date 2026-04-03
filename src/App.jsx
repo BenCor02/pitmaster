@@ -26,6 +26,7 @@ const SharedCookPage = lazy(() => import('./pages/SharedCookPage.jsx'))
 const WoodGuidePage = lazy(() => import('./pages/WoodGuidePage.jsx'))
 const BbqGuidePage = lazy(() => import('./pages/BbqGuidePage.jsx'))
 const LiveCookPage = lazy(() => import('./pages/LiveCookPage.jsx'))
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage.jsx'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage.jsx'))
 
 function PageLoader() {
@@ -93,6 +94,7 @@ export default function App() {
         <Route path="/carnet" element={<FavoritesPage />} />
         <Route path="/partage/:code" element={<SharedCookPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/confidentialite" element={<PrivacyPage />} />
         <Route
           path="/admin/*"
           element={
