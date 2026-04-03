@@ -267,35 +267,37 @@ export default function Layout({ children }) {
         {/* ── User section ── */}
         <div className="p-4 shrink-0">
           {isAuthenticated ? (
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#ff6b1a] to-[#dc2626] flex items-center justify-center text-[13px] font-bold text-white shadow-lg shadow-[#ff6b1a]/20 shrink-0">
-                {userInitial}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-[13px] font-semibold text-zinc-200 truncate">{userName}</p>
-                <p className="text-[10px] text-zinc-600 font-medium">{userRole}</p>
-                {(smokerLabel || levelLabel) && (
-                  <div className="flex items-center gap-1.5 mt-1">
-                    {smokerLabel && <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-[#ff6b1a]/10 text-[#ff6b1a] font-medium">{smokerLabel}</span>}
-                    {levelLabel && <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-zinc-700/50 text-zinc-400 font-medium">{levelLabel}</span>}
-                  </div>
-                )}
+            <>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#ff6b1a] to-[#dc2626] flex items-center justify-center text-[13px] font-bold text-white shadow-lg shadow-[#ff6b1a]/20 shrink-0">
+                  {userInitial}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[13px] font-semibold text-zinc-200 truncate">{userName}</p>
+                  <p className="text-[10px] text-zinc-600 font-medium">{userRole}</p>
+                  {(smokerLabel || levelLabel) && (
+                    <div className="flex items-center gap-1.5 mt-1">
+                      {smokerLabel && <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-[#ff6b1a]/10 text-[#ff6b1a] font-medium">{smokerLabel}</span>}
+                      {levelLabel && <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-zinc-700/50 text-zinc-400 font-medium">{levelLabel}</span>}
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={signOut}
+                  className="text-zinc-600 hover:text-zinc-400 transition-colors p-1.5 rounded-lg hover:bg-white/[0.04]"
+                  title="Déconnexion"
+                  aria-label="Se déconnecter"
+                >
+                  <IconLogout />
+                </button>
               </div>
               <button
-                onClick={signOut}
-                className="text-zinc-600 hover:text-zinc-400 transition-colors p-1.5 rounded-lg hover:bg-white/[0.04]"
-                title="Déconnexion"
-                aria-label="Se déconnecter"
+                onClick={() => setShowDeleteConfirm(true)}
+                className="w-full text-left text-[11px] text-zinc-600 hover:text-red-400 transition-colors mt-2 px-1"
               >
-                <IconLogout />
+                Supprimer mon compte
               </button>
-            </div>
-            <button
-              onClick={() => setShowDeleteConfirm(true)}
-              className="w-full text-left text-[11px] text-zinc-600 hover:text-red-400 transition-colors mt-2 px-1"
-            >
-              Supprimer mon compte
-            </button>
+            </>
           ) : (
             <Link
               to="/login"
