@@ -91,6 +91,23 @@ export function AuthProvider({ children }) {
     await supabase.auth.signOut()
   }
 
+  const deleteAccount = async () => {
+    if (!session?.access_token) return { error: 'Non connecté' }
+    try {
+      const res = await fetch('/api/delete-account', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const data = await res.json()
+      if (!res.ok) return { error: data.error || 'Erreur suppression' }
+      // Déconnexion locale après suppression
+      await supabase.auth.signOut()
+      return { error: null }
+    } catch (err) {
+      return { error: err.message }
+    }
+  }
+
   const isLoading = session === undefined
   const isAuthenticated = !!session
   const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin'
@@ -106,6 +123,7 @@ export function AuthProvider({ children }) {
         signIn,
         signUp,
         signOut,
+        deleteAccount,
         updateProfile,
       }}
     >

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../modules/auth/AuthContext.jsx'
 import { useSiteSettings } from '../hooks/useSiteSettings.jsx'
@@ -63,10 +63,23 @@ function IconUser() {
 }
 
 export default function Layout({ children }) {
-  const { isAuthenticated, isAdmin, signOut, profile } = useAuth()
+  const { isAuthenticated, isAdmin, signOut, deleteAccount, profile } = useAuth()
   const { isModuleEnabled } = useSiteSettings()
   const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+
+  const handleDeleteAccount = useCallback(async () => {
+    setDeleting(true)
+    const { error } = await deleteAccount()
+    setDeleting(false)
+    if (error) {
+      alert('Erreur : ' + error)
+    } else {
+      setShowDeleteConfirm(false)
+    }
+  }, [deleteAccount])
 
   const isActive = (path) => location.pathname === path
   const userName = profile?.display_name || profile?.email || 'Utilisateur'
@@ -277,6 +290,12 @@ export default function Layout({ children }) {
                 <IconLogout />
               </button>
             </div>
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="w-full text-left text-[11px] text-zinc-600 hover:text-red-400 transition-colors mt-2 px-1"
+            >
+              Supprimer mon compte
+            </button>
           ) : (
             <Link
               to="/login"
@@ -466,6 +485,12 @@ export default function Layout({ children }) {
                 <IconLogout />
                 Déconnexion
               </button>
+              <button
+                onClick={() => { setShowDeleteConfirm(true); setMobileOpen(false) }}
+                className="flex items-center gap-3 px-3 py-1.5 text-[12px] text-zinc-600 hover:text-red-400 w-full"
+              >
+                Supprimer mon compte
+              </button>
             ) : (
               <Link
                 to="/login"
@@ -486,6 +511,34 @@ export default function Layout({ children }) {
           {children}
         </div>
       </main>
+
+      {/* ══════════ MODALE SUPPRESSION COMPTE ══════════ */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-zinc-900 border border-white/10 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+            <h3 className="text-lg font-bold text-white mb-2">Supprimer mon compte</h3>
+            <p className="text-sm text-zinc-400 mb-6">
+              Cette action est irréversible. Toutes tes données (profil, favoris, journal de cuisson) seront définitivement supprimées.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={deleting}
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-300 bg-zinc-800 hover:bg-zinc-700 transition-colors"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={deleting}
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-white bg-red-600 hover:bg-red-500 transition-colors disabled:opacity-50"
+              >
+                {deleting ? 'Suppression...' : 'Supprimer'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
