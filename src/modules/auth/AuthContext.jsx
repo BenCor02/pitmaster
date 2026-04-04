@@ -44,6 +44,25 @@ export function AuthProvider({ children }) {
         setProfile(null)
       } else {
         setProfile(data)
+
+        // Appliquer l'onboarding en attente (si inscription avec confirmation email)
+        if (!data.onboarding_done) {
+          try {
+            const pending = sessionStorage.getItem('cf_onboarding')
+            if (pending) {
+              const updates = JSON.parse(pending)
+              const { role, ...safeUpdates } = updates
+              const { data: updated } = await supabase
+                .from('profiles')
+                .update(safeUpdates)
+                .eq('id', session.user.id)
+                .select()
+                .single()
+              if (updated) setProfile(updated)
+              sessionStorage.removeItem('cf_onboarding')
+            }
+          } catch (_) {}
+        }
       }
     }
 

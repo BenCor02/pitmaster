@@ -95,7 +95,11 @@ export default function LoginPage() {
     setOnboardingSaving(false)
 
     if (err) {
-      setError(typeof err === 'string' ? err : err.message)
+      // Si pas de session (email non confirmé), sauvegarder pour plus tard
+      try {
+        sessionStorage.setItem('cf_onboarding', JSON.stringify(updates))
+      } catch (_) {}
+      navigate(from, { replace: true })
     } else {
       navigate(from, { replace: true })
     }
@@ -103,7 +107,10 @@ export default function LoginPage() {
 
   const handleSkipOnboarding = async () => {
     setOnboardingSaving(true)
-    await updateProfile({ onboarding_done: true })
+    const { error: err } = await updateProfile({ onboarding_done: true })
+    if (err) {
+      try { sessionStorage.setItem('cf_onboarding', JSON.stringify({ onboarding_done: true })) } catch (_) {}
+    }
     setOnboardingSaving(false)
     navigate(from, { replace: true })
   }
