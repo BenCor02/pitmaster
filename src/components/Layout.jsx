@@ -64,7 +64,7 @@ function IconUser() {
 
 // Pages qui utilisent leur propre chrome (CFHeader/CFFooter, design v3 light mode).
 // On bypass complètement le Layout dark mode ici.
-const CF_DESIGN_ROUTES = new Set(['/', '/calculateur'])
+const CF_DESIGN_ROUTES = new Set(['/', '/calculateur', '/recettes'])
 
 export default function Layout({ children }) {
   const { isAuthenticated, isAdmin, signOut, deleteAccount, profile } = useAuth()
