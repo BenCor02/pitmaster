@@ -62,6 +62,10 @@ function IconUser() {
   )
 }
 
+// Pages qui utilisent leur propre chrome (CFHeader/CFFooter, design v3 light mode).
+// On bypass complètement le Layout dark mode ici.
+const CF_DESIGN_ROUTES = new Set(['/', '/calculateur'])
+
 export default function Layout({ children }) {
   const { isAuthenticated, isAdmin, signOut, deleteAccount, profile } = useAuth()
   const { isModuleEnabled } = useSiteSettings()
@@ -69,6 +73,11 @@ export default function Layout({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
+
+  // Pages design v3 (light mode pitmaster) → on rend les enfants tels quels.
+  if (CF_DESIGN_ROUTES.has(location.pathname)) {
+    return <>{children}</>
+  }
 
   const handleDeleteAccount = useCallback(async () => {
     setDeleting(true)
