@@ -11,6 +11,7 @@ import {
   slugify, MEAT_OPTIONS, METHOD_OPTIONS, STATUS_OPTIONS, CATEGORY_OPTIONS,
 } from '../components/admin/AdminForm.jsx'
 import MarkdownEditor from '../components/admin/MarkdownEditor.jsx'
+import StatisticsTab from '../components/admin/StatisticsTab.jsx'
 
 // ── Tab mapping ────────────────────────────────────────────
 
@@ -192,6 +193,7 @@ export default function AdminPage() {
   return (
     <AdminShell activeTab={tab} onTabChange={setTab}>
       {tab === 'overview' && <OverviewTab counts={counts} onNavigate={setTab} profile={profile} signOut={signOut} />}
+      {tab === 'stats' && <StatisticsTab />}
       {tab === 'settings' && <SettingsTab />}
 
       {tableName && !editing && (

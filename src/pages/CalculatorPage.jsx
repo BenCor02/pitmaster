@@ -3,6 +3,7 @@ import { updateMeta, injectJsonLd } from '../lib/seo.js'
 import { useCalculatorData } from '../modules/calculator/useCalculatorData.js'
 import { calculateCookPlan } from '../modules/calculator/engine.js'
 import { DONENESS_LABELS } from '../modules/calculator/data.js'
+import { logCalculation } from '../lib/calcTracking.js'
 import ContentBlocks from '../components/content/ContentBlocks.jsx'
 import ResultView from '../components/calculator/ResultView.jsx'
 import { ActionBar, RubSection } from '../components/calculator/ActionCards.jsx'
@@ -165,6 +166,14 @@ export default function CalculatorPage() {
     setResult(plan)
     setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100)
     saveToURL({ profileId: selectedProfile.id, weightKg, cookTempC, wrapped, doneness: isReverseSear ? doneness : null })
+    // Tracking anonyme (fire-and-forget)
+    logCalculation({
+      profile: selectedProfile,
+      weightKg: isFixedTime ? null : parseFloat(weightKg),
+      cookTempC: isFixedTime ? null : cookTempC,
+      wrapped,
+      doneness: isReverseSear ? doneness : null,
+    })
   }
 
   const handleReset = () => {

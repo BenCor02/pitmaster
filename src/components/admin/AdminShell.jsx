@@ -6,6 +6,7 @@ import { useState } from 'react'
 
 const TABS = [
   { id: 'overview', label: 'Vue d\'ensemble', icon: '📊' },
+  { id: 'stats', label: 'Statistiques', icon: '📈' },
   { id: 'settings', label: 'Réglages', icon: '⚙️' },
   { id: 'seo', label: 'Blocs SEO', icon: '🔍' },
   { id: 'affiliate', label: 'Affiliation', icon: '🛠️' },
