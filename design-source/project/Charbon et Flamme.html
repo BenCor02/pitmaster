@@ -1,0 +1,2728 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<title>Charbon & Flamme — Designs</title>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<style>
+/* Charbon & Flamme — Design Tokens */
+
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root {
+  /* ─── Couleurs ─── */
+  /* Fonds */
+  --cf-cream: #EFE7D8;
+  --cf-cream-soft: #F5EFE0;
+  --cf-cream-deep: #E5DBC6;
+  --cf-paper: #FAF6EE;
+  --cf-kraft: #D9CDB5;
+
+  /* Texte */
+  --cf-charcoal: #1F1A14;
+  --cf-charcoal-soft: #2D261C;
+  --cf-ink: #3A3025;
+  --cf-smoke: #6E6356;
+  --cf-smoke-light: #968A7A;
+  --cf-bone: #B8AC97;
+
+  /* Accents */
+  --cf-fire: #8B1A1A;
+  --cf-fire-deep: #6B1212;
+  --cf-fire-bright: #A52828;
+  --cf-ember: #C44A1F;
+  --cf-ember-soft: #D9692F;
+  --cf-glow: #E8A53C;
+
+  /* Surfaces */
+  --cf-line: rgba(31, 26, 20, 0.12);
+  --cf-line-strong: rgba(31, 26, 20, 0.22);
+  --cf-shadow-warm: rgba(75, 35, 15, 0.18);
+
+  /* ─── Typo ─── */
+  --cf-serif: 'Oswald', 'Bebas Neue', 'Helvetica Neue', sans-serif;
+  --cf-sans: 'IBM Plex Sans', -apple-system, system-ui, sans-serif;
+  --cf-mono: 'IBM Plex Mono', 'Menlo', monospace;
+
+  /* ─── Espacement ─── */
+  --cf-space-1: 4px;
+  --cf-space-2: 8px;
+  --cf-space-3: 12px;
+  --cf-space-4: 16px;
+  --cf-space-5: 24px;
+  --cf-space-6: 32px;
+  --cf-space-7: 48px;
+  --cf-space-8: 64px;
+  --cf-space-9: 96px;
+
+  /* Radius */
+  --cf-radius-xs: 2px;
+  --cf-radius-sm: 4px;
+  --cf-radius-md: 8px;
+  --cf-radius-lg: 14px;
+  --cf-radius-xl: 22px;
+
+  /* Shadows */
+  --cf-shadow-sm: 0 1px 2px rgba(31,26,20,.08), 0 0 0 1px rgba(31,26,20,.04);
+  --cf-shadow-md: 0 4px 12px rgba(31,26,20,.10), 0 1px 3px rgba(31,26,20,.06);
+  --cf-shadow-lg: 0 12px 32px rgba(31,26,20,.18), 0 2px 6px rgba(31,26,20,.08);
+  --cf-shadow-fire: 0 0 24px -4px rgba(139,26,26,.45);
+}
+
+/* ─── Reset léger pour les artboards ─── */
+.cf-root {
+  font-family: var(--cf-sans);
+  color: var(--cf-charcoal);
+  background: var(--cf-cream);
+  line-height: 1.5;
+  font-feature-settings: "ss01", "ss02";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.cf-root *,
+.cf-root *::before,
+.cf-root *::after {
+  box-sizing: border-box;
+}
+.cf-root h1, .cf-root h2, .cf-root h3, .cf-root h4 {
+  font-family: var(--cf-serif);
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.05;
+  margin: 0;
+  color: var(--cf-charcoal);
+}
+.cf-root p { margin: 0; }
+.cf-root button { font-family: inherit; cursor: pointer; }
+.cf-root a { color: inherit; text-decoration: none; }
+
+/* ─── Subtle paper texture ─── */
+.cf-paper-bg {
+  background-color: var(--cf-cream);
+  background-image:
+    radial-gradient(ellipse at top left, rgba(139,26,26,0.04), transparent 60%),
+    radial-gradient(ellipse at bottom right, rgba(196,74,31,0.03), transparent 50%),
+    repeating-linear-gradient(0deg, rgba(31,26,20,0.012) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(31,26,20,0.008) 0 1px, transparent 1px 3px);
+}
+
+.cf-kraft-bg {
+  background-color: var(--cf-kraft);
+  background-image:
+    radial-gradient(ellipse at center, rgba(255,255,255,0.05), transparent 70%),
+    repeating-linear-gradient(45deg, rgba(31,26,20,0.025) 0 1px, transparent 1px 4px);
+}
+
+.cf-charcoal-bg {
+  background-color: var(--cf-charcoal);
+  background-image:
+    radial-gradient(ellipse at top, rgba(196,74,31,0.18), transparent 55%),
+    radial-gradient(ellipse at bottom, rgba(139,26,26,0.12), transparent 60%);
+}
+
+/* ─── Utility classes ─── */
+.cf-eyebrow {
+  font-family: var(--cf-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cf-smoke);
+  font-weight: 500;
+}
+.cf-divider {
+  height: 1px;
+  background: var(--cf-line);
+  border: none;
+  margin: 0;
+}
+.cf-divider-thick {
+  height: 2px;
+  background: var(--cf-charcoal);
+  border: none;
+}
+
+/* ─── Animations ─── */
+@keyframes cfEmberPulse {
+  0%, 100% { opacity: 0.85; filter: brightness(1); }
+  50% { opacity: 1; filter: brightness(1.18); }
+}
+@keyframes cfEmberPulseFast {
+  0%, 100% { opacity: 0.7; }
+  35% { opacity: 1; }
+  70% { opacity: 0.85; }
+}
+@keyframes cfSmokeRise {
+  0% { transform: translate3d(0,20px,0) scale(0.95); opacity: 0; }
+  20% { opacity: 0.45; }
+  100% { transform: translate3d(20px,-80px,0) scale(1.4); opacity: 0; }
+}
+@keyframes cfSmokeDrift {
+  0% { transform: translate3d(-20px,0,0); }
+  50% { transform: translate3d(20px,-10px,0); }
+  100% { transform: translate3d(-20px,0,0); }
+}
+@keyframes cfStampSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes cfFlicker {
+  0%, 100% { opacity: 1; }
+  3% { opacity: .85; }
+  6% { opacity: 1; }
+  10% { opacity: .92; }
+  14% { opacity: 1; }
+}
+@keyframes cfTimerTick {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.cf-ember-pulse { animation: cfEmberPulse 2.4s ease-in-out infinite; }
+.cf-ember-fast { animation: cfEmberPulseFast 1.6s ease-in-out infinite; }
+.cf-flicker { animation: cfFlicker 4s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cf-ember-pulse, .cf-ember-fast, .cf-flicker { animation: none !important; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ─── Hide scrollbars in artboards ─── */
+.cf-noscroll::-webkit-scrollbar { display: none; }
+.cf-noscroll { scrollbar-width: none; }
+
+</style>
+<style>
+  body { margin: 0; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react" data-src="design-canvas.jsx">
+
+// DesignCanvas.jsx — Figma-ish design canvas wrapper
+// Warm gray grid bg + Sections + Artboards + PostIt notes.
+// Artboards are reorderable (grip-drag), labels/titles are inline-editable,
+// and any artboard can be opened in a fullscreen focus overlay (←/→/Esc).
+// State persists to a .design-canvas.state.json sidecar via the host
+// bridge. No assets, no deps.
+//
+// Usage:
+//   <DesignCanvas>
+//     <DCSection id="onboarding" title="Onboarding" subtitle="First-run variants">
+//       <DCArtboard id="a" label="A · Dusk" width={260} height={480}>…</DCArtboard>
+//       <DCArtboard id="b" label="B · Minimal" width={260} height={480}>…</DCArtboard>
+//     </DCSection>
+//   </DesignCanvas>
+
+const DC = {
+  bg: '#f0eee9',
+  grid: 'rgba(0,0,0,0.06)',
+  label: 'rgba(60,50,40,0.7)',
+  title: 'rgba(40,30,20,0.85)',
+  subtitle: 'rgba(60,50,40,0.6)',
+  postitBg: '#fef4a8',
+  postitText: '#5a4a2a',
+  font: '-apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif',
+};
+
+// One-time CSS injection (classes are dc-prefixed so they don't collide with
+// the hosted design's own styles).
+if (typeof document !== 'undefined' && !document.getElementById('dc-styles')) {
+  const s = document.createElement('style');
+  s.id = 'dc-styles';
+  s.textContent = [
+    '.dc-editable{cursor:text;outline:none;white-space:nowrap;border-radius:3px;padding:0 2px;margin:0 -2px}',
+    '.dc-editable:focus{background:#fff;box-shadow:0 0 0 1.5px #c96442}',
+    '[data-dc-slot]{transition:transform .18s cubic-bezier(.2,.7,.3,1)}',
+    '[data-dc-slot].dc-dragging{transition:none;z-index:10;pointer-events:none}',
+    '[data-dc-slot].dc-dragging .dc-card{box-shadow:0 12px 40px rgba(0,0,0,.25),0 0 0 2px #c96442;transform:scale(1.02)}',
+    '.dc-card{transition:box-shadow .15s,transform .15s}',
+    '.dc-card *{scrollbar-width:none}',
+    '.dc-card *::-webkit-scrollbar{display:none}',
+    '.dc-labelrow{display:flex;align-items:center;gap:4px;height:24px}',
+    '.dc-grip{cursor:grab;display:flex;align-items:center;padding:5px 4px;border-radius:4px;transition:background .12s}',
+    '.dc-grip:hover{background:rgba(0,0,0,.08)}',
+    '.dc-grip:active{cursor:grabbing}',
+    '.dc-labeltext{cursor:pointer;border-radius:4px;padding:3px 6px;display:flex;align-items:center;transition:background .12s}',
+    '.dc-labeltext:hover{background:rgba(0,0,0,.05)}',
+    '.dc-expand{position:absolute;bottom:100%;right:0;margin-bottom:5px;z-index:2;opacity:0;transition:opacity .12s,background .12s;',
+    '  width:22px;height:22px;border-radius:5px;border:none;cursor:pointer;padding:0;',
+    '  background:transparent;color:rgba(60,50,40,.7);display:flex;align-items:center;justify-content:center}',
+    '.dc-expand:hover{background:rgba(0,0,0,.06);color:#2a251f}',
+    '[data-dc-slot]:hover .dc-expand{opacity:1}',
+  ].join('\n');
+  document.head.appendChild(s);
+}
+
+const DCCtx = React.createContext(null);
+
+// ─────────────────────────────────────────────────────────────
+// DesignCanvas — stateful wrapper around the pan/zoom viewport.
+// Owns runtime state (per-section order, renamed titles/labels, focused
+// artboard). Order/titles/labels persist to a .design-canvas.state.json
+// sidecar next to the HTML. Reads go via plain fetch() so the saved
+// arrangement is visible anywhere the HTML + sidecar are served together
+// (omelette preview, direct link, downloaded zip). Writes go through the
+// host's window.omelette bridge — editing requires the omelette runtime.
+// Focus is ephemeral.
+// ─────────────────────────────────────────────────────────────
+const DC_STATE_FILE = '.design-canvas.state.json';
+
+function DesignCanvas({ children, minScale, maxScale, style }) {
+  const [state, setState] = React.useState({ sections: {}, focus: null });
+  // Hold rendering until the sidecar read settles so the saved order/titles
+  // appear on first paint (no source-order flash). didRead gates writes until
+  // the read settles so the empty initial state can't clobber a slow read;
+  // skipNextWrite suppresses the one echo-write that would otherwise follow
+  // hydration.
+  const [ready, setReady] = React.useState(false);
+  const didRead = React.useRef(false);
+  const skipNextWrite = React.useRef(false);
+
+  React.useEffect(() => {
+    let off = false;
+    fetch('./' + DC_STATE_FILE)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((saved) => {
+        if (off || !saved || !saved.sections) return;
+        skipNextWrite.current = true;
+        setState((s) => ({ ...s, sections: saved.sections }));
+      })
+      .catch(() => {})
+      .finally(() => { didRead.current = true; if (!off) setReady(true); });
+    const t = setTimeout(() => { if (!off) setReady(true); }, 150);
+    return () => { off = true; clearTimeout(t); };
+  }, []);
+
+  React.useEffect(() => {
+    if (!didRead.current) return;
+    if (skipNextWrite.current) { skipNextWrite.current = false; return; }
+    const t = setTimeout(() => {
+      window.omelette?.writeFile(DC_STATE_FILE, JSON.stringify({ sections: state.sections })).catch(() => {});
+    }, 250);
+    return () => clearTimeout(t);
+  }, [state.sections]);
+
+  // Build registries synchronously from children so FocusOverlay can read
+  // them in the same render. Only direct DCSection > DCArtboard children are
+  // walked — wrapping them in other elements opts out of focus/reorder.
+  const registry = {};     // slotId -> { sectionId, artboard }
+  const sectionMeta = {};  // sectionId -> { title, subtitle, slotIds[] }
+  const sectionOrder = [];
+  React.Children.forEach(children, (sec) => {
+    if (!sec || sec.type !== DCSection) return;
+    const sid = sec.props.id ?? sec.props.title;
+    if (!sid) return;
+    sectionOrder.push(sid);
+    const persisted = state.sections[sid] || {};
+    const srcIds = [];
+    React.Children.forEach(sec.props.children, (ab) => {
+      if (!ab || ab.type !== DCArtboard) return;
+      const aid = ab.props.id ?? ab.props.label;
+      if (!aid) return;
+      registry[`${sid}/${aid}`] = { sectionId: sid, artboard: ab };
+      srcIds.push(aid);
+    });
+    const kept = (persisted.order || []).filter((k) => srcIds.includes(k));
+    sectionMeta[sid] = {
+      title: persisted.title ?? sec.props.title,
+      subtitle: sec.props.subtitle,
+      slotIds: [...kept, ...srcIds.filter((k) => !kept.includes(k))],
+    };
+  });
+
+  const api = React.useMemo(() => ({
+    state,
+    section: (id) => state.sections[id] || {},
+    patchSection: (id, p) => setState((s) => ({
+      ...s,
+      sections: { ...s.sections, [id]: { ...s.sections[id], ...(typeof p === 'function' ? p(s.sections[id] || {}) : p) } },
+    })),
+    setFocus: (slotId) => setState((s) => ({ ...s, focus: slotId })),
+  }), [state]);
+
+  // Esc exits focus; any outside pointerdown commits an in-progress rename.
+  React.useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') api.setFocus(null); };
+    const onPd = (e) => {
+      const ae = document.activeElement;
+      if (ae && ae.isContentEditable && !ae.contains(e.target)) ae.blur();
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('pointerdown', onPd, true);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('pointerdown', onPd, true);
+    };
+  }, [api]);
+
+  return (
+    <DCCtx.Provider value={api}>
+      <DCViewport minScale={minScale} maxScale={maxScale} style={style}>{ready && children}</DCViewport>
+      {state.focus && registry[state.focus] && (
+        <DCFocusOverlay entry={registry[state.focus]} sectionMeta={sectionMeta} sectionOrder={sectionOrder} />
+      )}
+    </DCCtx.Provider>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// DCViewport — transform-based pan/zoom (internal)
+//
+// Input mapping (Figma-style):
+//   • trackpad pinch  → zoom   (ctrlKey wheel; Safari gesture* events)
+//   • trackpad scroll → pan    (two-finger)
+//   • mouse wheel     → zoom   (notched; distinguished from trackpad scroll)
+//   • middle-drag / primary-drag-on-bg → pan
+//
+// Transform state lives in a ref and is written straight to the DOM
+// (translate3d + will-change) so wheel ticks don't go through React —
+// keeps pans at 60fps on dense canvases.
+// ─────────────────────────────────────────────────────────────
+function DCViewport({ children, minScale = 0.1, maxScale = 8, style = {} }) {
+  const vpRef = React.useRef(null);
+  const worldRef = React.useRef(null);
+  const tf = React.useRef({ x: 0, y: 0, scale: 1 });
+
+  const apply = React.useCallback(() => {
+    const { x, y, scale } = tf.current;
+    const el = worldRef.current;
+    if (el) el.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${scale})`;
+  }, []);
+
+  React.useEffect(() => {
+    const vp = vpRef.current;
+    if (!vp) return;
+
+    const zoomAt = (cx, cy, factor) => {
+      const r = vp.getBoundingClientRect();
+      const px = cx - r.left, py = cy - r.top;
+      const t = tf.current;
+      const next = Math.min(maxScale, Math.max(minScale, t.scale * factor));
+      const k = next / t.scale;
+      // keep the world point under the cursor fixed
+      t.x = px - (px - t.x) * k;
+      t.y = py - (py - t.y) * k;
+      t.scale = next;
+      apply();
+    };
+
+    // Mouse-wheel vs trackpad-scroll heuristic. A physical wheel sends
+    // line-mode deltas (Firefox) or large integer pixel deltas with no X
+    // component (Chrome/Safari, typically multiples of 100/120). Trackpad
+    // two-finger scroll sends small/fractional pixel deltas, often with
+    // non-zero deltaX. ctrlKey is set by the browser for trackpad pinch.
+    const isMouseWheel = (e) =>
+      e.deltaMode !== 0 ||
+      (e.deltaX === 0 && Number.isInteger(e.deltaY) && Math.abs(e.deltaY) >= 40);
+
+    const onWheel = (e) => {
+      e.preventDefault();
+      if (isGesturing) return; // Safari: gesture* owns the pinch — discard concurrent wheels
+      if (e.ctrlKey) {
+        // trackpad pinch (or explicit ctrl+wheel)
+        zoomAt(e.clientX, e.clientY, Math.exp(-e.deltaY * 0.01));
+      } else if (isMouseWheel(e)) {
+        // notched mouse wheel — fixed-ratio step per click
+        zoomAt(e.clientX, e.clientY, Math.exp(-Math.sign(e.deltaY) * 0.18));
+      } else {
+        // trackpad two-finger scroll — pan
+        tf.current.x -= e.deltaX;
+        tf.current.y -= e.deltaY;
+        apply();
+      }
+    };
+
+    // Safari sends native gesture* events for trackpad pinch with a smooth
+    // e.scale; preferring these over the ctrl+wheel fallback gives a much
+    // better feel there. No-ops on other browsers. Safari also fires
+    // ctrlKey wheel events during the same pinch — isGesturing makes
+    // onWheel drop those entirely so they neither zoom nor pan.
+    let gsBase = 1;
+    let isGesturing = false;
+    const onGestureStart = (e) => { e.preventDefault(); isGesturing = true; gsBase = tf.current.scale; };
+    const onGestureChange = (e) => {
+      e.preventDefault();
+      zoomAt(e.clientX, e.clientY, (gsBase * e.scale) / tf.current.scale);
+    };
+    const onGestureEnd = (e) => { e.preventDefault(); isGesturing = false; };
+
+    // Drag-pan: middle button anywhere, or primary button on canvas
+    // background (anything that isn't an artboard or an inline editor).
+    let drag = null;
+    const onPointerDown = (e) => {
+      const onBg = !e.target.closest('[data-dc-slot], .dc-editable');
+      if (!(e.button === 1 || (e.button === 0 && onBg))) return;
+      e.preventDefault();
+      vp.setPointerCapture(e.pointerId);
+      drag = { id: e.pointerId, lx: e.clientX, ly: e.clientY };
+      vp.style.cursor = 'grabbing';
+    };
+    const onPointerMove = (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      tf.current.x += e.clientX - drag.lx;
+      tf.current.y += e.clientY - drag.ly;
+      drag.lx = e.clientX; drag.ly = e.clientY;
+      apply();
+    };
+    const onPointerUp = (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      vp.releasePointerCapture(e.pointerId);
+      drag = null;
+      vp.style.cursor = '';
+    };
+
+    vp.addEventListener('wheel', onWheel, { passive: false });
+    vp.addEventListener('gesturestart', onGestureStart, { passive: false });
+    vp.addEventListener('gesturechange', onGestureChange, { passive: false });
+    vp.addEventListener('gestureend', onGestureEnd, { passive: false });
+    vp.addEventListener('pointerdown', onPointerDown);
+    vp.addEventListener('pointermove', onPointerMove);
+    vp.addEventListener('pointerup', onPointerUp);
+    vp.addEventListener('pointercancel', onPointerUp);
+    return () => {
+      vp.removeEventListener('wheel', onWheel);
+      vp.removeEventListener('gesturestart', onGestureStart);
+      vp.removeEventListener('gesturechange', onGestureChange);
+      vp.removeEventListener('gestureend', onGestureEnd);
+      vp.removeEventListener('pointerdown', onPointerDown);
+      vp.removeEventListener('pointermove', onPointerMove);
+      vp.removeEventListener('pointerup', onPointerUp);
+      vp.removeEventListener('pointercancel', onPointerUp);
+    };
+  }, [apply, minScale, maxScale]);
+
+  const gridSvg = `url("data:image/svg+xml,%3Csvg width='120' height='120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M120 0H0v120' fill='none' stroke='${encodeURIComponent(DC.grid)}' stroke-width='1'/%3E%3C/svg%3E")`;
+  return (
+    <div
+      ref={vpRef}
+      className="design-canvas"
+      style={{
+        height: '100vh', width: '100vw',
+        background: DC.bg,
+        overflow: 'hidden',
+        overscrollBehavior: 'none',
+        touchAction: 'none',
+        position: 'relative',
+        fontFamily: DC.font,
+        boxSizing: 'border-box',
+        ...style,
+      }}
+    >
+      <div
+        ref={worldRef}
+        style={{
+          position: 'absolute', top: 0, left: 0,
+          transformOrigin: '0 0',
+          willChange: 'transform',
+          width: 'max-content', minWidth: '100%',
+          minHeight: '100%',
+          padding: '60px 0 80px',
+        }}
+      >
+        <div style={{ position: 'absolute', inset: -6000, backgroundImage: gridSvg, backgroundSize: '120px 120px', pointerEvents: 'none', zIndex: -1 }} />
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// DCSection — editable title + h-row of artboards in persisted order
+// ─────────────────────────────────────────────────────────────
+function DCSection({ id, title, subtitle, children, gap = 48 }) {
+  const ctx = React.useContext(DCCtx);
+  const sid = id ?? title;
+  const all = React.Children.toArray(children);
+  const artboards = all.filter((c) => c && c.type === DCArtboard);
+  const rest = all.filter((c) => !(c && c.type === DCArtboard));
+  const srcOrder = artboards.map((a) => a.props.id ?? a.props.label);
+  const sec = (ctx && sid && ctx.section(sid)) || {};
+
+  const order = React.useMemo(() => {
+    const kept = (sec.order || []).filter((k) => srcOrder.includes(k));
+    return [...kept, ...srcOrder.filter((k) => !kept.includes(k))];
+  }, [sec.order, srcOrder.join('|')]);
+
+  const byId = Object.fromEntries(artboards.map((a) => [a.props.id ?? a.props.label, a]));
+
+  return (
+    <div data-dc-section={sid} style={{ marginBottom: 80, position: 'relative' }}>
+      <div style={{ padding: '0 60px 56px' }}>
+        <DCEditable tag="div" value={sec.title ?? title}
+          onChange={(v) => ctx && sid && ctx.patchSection(sid, { title: v })}
+          style={{ fontSize: 28, fontWeight: 600, color: DC.title, letterSpacing: -0.4, marginBottom: 6, display: 'inline-block' }} />
+        {subtitle && <div style={{ fontSize: 16, color: DC.subtitle }}>{subtitle}</div>}
+      </div>
+      <div style={{ display: 'flex', gap, padding: '0 60px', alignItems: 'flex-start', width: 'max-content' }}>
+        {order.map((k) => (
+          <DCArtboardFrame key={k} sectionId={sid} artboard={byId[k]} order={order}
+            label={(sec.labels || {})[k] ?? byId[k].props.label}
+            onRename={(v) => ctx && ctx.patchSection(sid, (x) => ({ labels: { ...x.labels, [k]: v } }))}
+            onReorder={(next) => ctx && ctx.patchSection(sid, { order: next })}
+            onFocus={() => ctx && ctx.setFocus(`${sid}/${k}`)} />
+        ))}
+      </div>
+      {rest}
+    </div>
+  );
+}
+
+// DCArtboard — marker; rendered by DCArtboardFrame via DCSection.
+function DCArtboard() { return null; }
+
+function DCArtboardFrame({ sectionId, artboard, label, order, onRename, onReorder, onFocus }) {
+  const { id: rawId, label: rawLabel, width = 260, height = 480, children, style = {} } = artboard.props;
+  const id = rawId ?? rawLabel;
+  const ref = React.useRef(null);
+
+  // Live drag-reorder: dragged card sticks to cursor; siblings slide into
+  // their would-be slots in real time via transforms. DOM order only
+  // changes on drop.
+  const onGripDown = (e) => {
+    e.preventDefault(); e.stopPropagation();
+    const me = ref.current;
+    // translateX is applied in local (pre-scale) space but pointer deltas and
+    // getBoundingClientRect().left are screen-space — divide by the viewport's
+    // current scale so the dragged card tracks the cursor at any zoom level.
+    const scale = me.getBoundingClientRect().width / me.offsetWidth || 1;
+    const peers = Array.from(document.querySelectorAll(`[data-dc-section="${sectionId}"] [data-dc-slot]`));
+    const homes = peers.map((el) => ({ el, id: el.dataset.dcSlot, x: el.getBoundingClientRect().left }));
+    const slotXs = homes.map((h) => h.x);
+    const startIdx = order.indexOf(id);
+    const startX = e.clientX;
+    let liveOrder = order.slice();
+    me.classList.add('dc-dragging');
+
+    const layout = () => {
+      for (const h of homes) {
+        if (h.id === id) continue;
+        const slot = liveOrder.indexOf(h.id);
+        h.el.style.transform = `translateX(${(slotXs[slot] - h.x) / scale}px)`;
+      }
+    };
+
+    const move = (ev) => {
+      const dx = ev.clientX - startX;
+      me.style.transform = `translateX(${dx / scale}px)`;
+      const cur = homes[startIdx].x + dx;
+      let nearest = 0, best = Infinity;
+      for (let i = 0; i < slotXs.length; i++) {
+        const d = Math.abs(slotXs[i] - cur);
+        if (d < best) { best = d; nearest = i; }
+      }
+      if (liveOrder.indexOf(id) !== nearest) {
+        liveOrder = order.filter((k) => k !== id);
+        liveOrder.splice(nearest, 0, id);
+        layout();
+      }
+    };
+
+    const up = () => {
+      document.removeEventListener('pointermove', move);
+      document.removeEventListener('pointerup', up);
+      const finalSlot = liveOrder.indexOf(id);
+      me.classList.remove('dc-dragging');
+      me.style.transform = `translateX(${(slotXs[finalSlot] - homes[startIdx].x) / scale}px)`;
+      // After the settle transition, kill transitions + clear transforms +
+      // commit the reorder in the same frame so there's no visual snap-back.
+      setTimeout(() => {
+        for (const h of homes) { h.el.style.transition = 'none'; h.el.style.transform = ''; }
+        if (liveOrder.join('|') !== order.join('|')) onReorder(liveOrder);
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+          for (const h of homes) h.el.style.transition = '';
+        }));
+      }, 180);
+    };
+    document.addEventListener('pointermove', move);
+    document.addEventListener('pointerup', up);
+  };
+
+  return (
+    <div ref={ref} data-dc-slot={id} style={{ position: 'relative', flexShrink: 0 }}>
+      <div className="dc-labelrow" style={{ position: 'absolute', bottom: '100%', left: -4, marginBottom: 4, color: DC.label }}>
+        <div className="dc-grip" onPointerDown={onGripDown} title="Drag to reorder">
+          <svg width="9" height="13" viewBox="0 0 9 13" fill="currentColor"><circle cx="2" cy="2" r="1.1"/><circle cx="7" cy="2" r="1.1"/><circle cx="2" cy="6.5" r="1.1"/><circle cx="7" cy="6.5" r="1.1"/><circle cx="2" cy="11" r="1.1"/><circle cx="7" cy="11" r="1.1"/></svg>
+        </div>
+        <div className="dc-labeltext" onClick={onFocus} title="Click to focus">
+          <DCEditable value={label} onChange={onRename} onClick={(e) => e.stopPropagation()}
+            style={{ fontSize: 15, fontWeight: 500, color: DC.label, lineHeight: 1 }} />
+        </div>
+      </div>
+      <button className="dc-expand" onClick={onFocus} onPointerDown={(e) => e.stopPropagation()} title="Focus">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M7 1h4v4M5 11H1V7M11 1L7.5 4.5M1 11l3.5-3.5"/></svg>
+      </button>
+      <div className="dc-card"
+        style={{ borderRadius: 2, boxShadow: '0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.06)', overflow: 'hidden', width, height, background: '#fff', ...style }}>
+        {children || <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#bbb', fontSize: 13, fontFamily: DC.font }}>{id}</div>}
+      </div>
+    </div>
+  );
+}
+
+// Inline rename — commits on blur or Enter.
+function DCEditable({ value, onChange, style, tag = 'span', onClick }) {
+  const T = tag;
+  return (
+    <T className="dc-editable" contentEditable suppressContentEditableWarning
+      onClick={onClick}
+      onPointerDown={(e) => e.stopPropagation()}
+      onBlur={(e) => onChange && onChange(e.currentTarget.textContent)}
+      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.currentTarget.blur(); } }}
+      style={style}>{value}</T>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Focus mode — overlay one artboard; ←/→ within section, ↑/↓ across
+// sections, Esc or backdrop click to exit.
+// ─────────────────────────────────────────────────────────────
+function DCFocusOverlay({ entry, sectionMeta, sectionOrder }) {
+  const ctx = React.useContext(DCCtx);
+  const { sectionId, artboard } = entry;
+  const sec = ctx.section(sectionId);
+  const meta = sectionMeta[sectionId];
+  const peers = meta.slotIds;
+  const aid = artboard.props.id ?? artboard.props.label;
+  const idx = peers.indexOf(aid);
+  const secIdx = sectionOrder.indexOf(sectionId);
+
+  const go = (d) => { const n = peers[(idx + d + peers.length) % peers.length]; if (n) ctx.setFocus(`${sectionId}/${n}`); };
+  const goSection = (d) => {
+    const ns = sectionOrder[(secIdx + d + sectionOrder.length) % sectionOrder.length];
+    const first = sectionMeta[ns] && sectionMeta[ns].slotIds[0];
+    if (first) ctx.setFocus(`${ns}/${first}`);
+  };
+
+  React.useEffect(() => {
+    const k = (e) => {
+      if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); go(1); }
+      if (e.key === 'ArrowUp') { e.preventDefault(); goSection(-1); }
+      if (e.key === 'ArrowDown') { e.preventDefault(); goSection(1); }
+    };
+    document.addEventListener('keydown', k);
+    return () => document.removeEventListener('keydown', k);
+  });
+
+  const { width = 260, height = 480, children } = artboard.props;
+  const [vp, setVp] = React.useState({ w: window.innerWidth, h: window.innerHeight });
+  React.useEffect(() => { const r = () => setVp({ w: window.innerWidth, h: window.innerHeight }); window.addEventListener('resize', r); return () => window.removeEventListener('resize', r); }, []);
+  const scale = Math.max(0.1, Math.min((vp.w - 200) / width, (vp.h - 260) / height, 2));
+
+  const [ddOpen, setDd] = React.useState(false);
+  const Arrow = ({ dir, onClick }) => (
+    <button onClick={(e) => { e.stopPropagation(); onClick(); }}
+      style={{ position: 'absolute', top: '50%', [dir]: 28, transform: 'translateY(-50%)',
+        border: 'none', background: 'rgba(255,255,255,.08)', color: 'rgba(255,255,255,.9)',
+        width: 44, height: 44, borderRadius: 22, fontSize: 18, cursor: 'pointer',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background .15s' }}
+      onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,.18)')}
+      onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,.08)')}>
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+        <path d={dir === 'left' ? 'M11 3L5 9l6 6' : 'M7 3l6 6-6 6'} /></svg>
+    </button>
+  );
+
+  // Portal to body so position:fixed is the real viewport regardless of any
+  // transform on DesignCanvas's ancestors (including the canvas zoom itself).
+  return ReactDOM.createPortal(
+    <div onClick={() => ctx.setFocus(null)}
+      onWheel={(e) => e.preventDefault()}
+      style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(24,20,16,.6)', backdropFilter: 'blur(14px)',
+        fontFamily: DC.font, color: '#fff' }}>
+
+      {/* top bar: section dropdown (left) · close (right) */}
+      <div onClick={(e) => e.stopPropagation()}
+        style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 72, display: 'flex', alignItems: 'flex-start', padding: '16px 20px 0', gap: 16 }}>
+        <div style={{ position: 'relative' }}>
+          <button onClick={() => setDd((o) => !o)}
+            style={{ border: 'none', background: 'transparent', color: '#fff', cursor: 'pointer', padding: '6px 8px',
+              borderRadius: 6, textAlign: 'left', fontFamily: 'inherit' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 18, fontWeight: 600, letterSpacing: -0.3 }}>{meta.title}</span>
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" style={{ opacity: .7 }}><path d="M2 4l3.5 3.5L9 4"/></svg>
+            </span>
+            {meta.subtitle && <span style={{ display: 'block', fontSize: 13, opacity: .6, fontWeight: 400, marginTop: 2 }}>{meta.subtitle}</span>}
+          </button>
+          {ddOpen && (
+            <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, background: '#2a251f', borderRadius: 8,
+              boxShadow: '0 8px 32px rgba(0,0,0,.4)', padding: 4, minWidth: 200, zIndex: 10 }}>
+              {sectionOrder.map((sid) => (
+                <button key={sid} onClick={() => { setDd(false); const f = sectionMeta[sid].slotIds[0]; if (f) ctx.setFocus(`${sid}/${f}`); }}
+                  style={{ display: 'block', width: '100%', textAlign: 'left', border: 'none', cursor: 'pointer',
+                    background: sid === sectionId ? 'rgba(255,255,255,.1)' : 'transparent', color: '#fff',
+                    padding: '8px 12px', borderRadius: 5, fontSize: 14, fontWeight: sid === sectionId ? 600 : 400, fontFamily: 'inherit' }}>
+                  {sectionMeta[sid].title}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        <div style={{ flex: 1 }} />
+        <button onClick={() => ctx.setFocus(null)}
+          onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,.12)')}
+          onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+          style={{ border: 'none', background: 'transparent', color: 'rgba(255,255,255,.7)', width: 32, height: 32,
+            borderRadius: 16, fontSize: 20, cursor: 'pointer', lineHeight: 1, transition: 'background .12s' }}>×</button>
+      </div>
+
+      {/* card centered, label + index below — only the card itself stops
+          propagation so any backdrop click (including the margins around
+          the card) exits focus */}
+      <div
+        style={{ position: 'absolute', top: 64, bottom: 56, left: 100, right: 100, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16 }}>
+        <div onClick={(e) => e.stopPropagation()} style={{ width: width * scale, height: height * scale, position: 'relative' }}>
+          <div style={{ width, height, transform: `scale(${scale})`, transformOrigin: 'top left', background: '#fff', borderRadius: 2, overflow: 'hidden',
+            boxShadow: '0 20px 80px rgba(0,0,0,.4)' }}>
+            {children || <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#bbb' }}>{aid}</div>}
+          </div>
+        </div>
+        <div onClick={(e) => e.stopPropagation()} style={{ fontSize: 14, fontWeight: 500, opacity: .85, textAlign: 'center' }}>
+          {(sec.labels || {})[aid] ?? artboard.props.label}
+          <span style={{ opacity: .5, marginLeft: 10, fontVariantNumeric: 'tabular-nums' }}>{idx + 1} / {peers.length}</span>
+        </div>
+      </div>
+
+      <Arrow dir="left" onClick={() => go(-1)} />
+      <Arrow dir="right" onClick={() => go(1)} />
+
+      {/* dots */}
+      <div onClick={(e) => e.stopPropagation()}
+        style={{ position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 8 }}>
+        {peers.map((p, i) => (
+          <button key={p} onClick={() => ctx.setFocus(`${sectionId}/${p}`)}
+            style={{ border: 'none', padding: 0, cursor: 'pointer', width: 6, height: 6, borderRadius: 3,
+              background: i === idx ? '#fff' : 'rgba(255,255,255,.3)' }} />
+        ))}
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Post-it — absolute-positioned sticky note
+// ─────────────────────────────────────────────────────────────
+window.DCPostIt = DCPostIt;
+window.DesignCanvas = DesignCanvas;
+window.DCSection = DCSection;
+window.DCArtboard = DCArtboard;
+
+function DCPostIt({ children, top, left, right, bottom, rotate = -2, width = 180 }) {
+  return (
+    <div style={{
+      position: 'absolute', top, left, right, bottom, width,
+      background: DC.postitBg, padding: '14px 16px',
+      fontFamily: '"Comic Sans MS", "Marker Felt", "Segoe Print", cursive',
+      fontSize: 14, lineHeight: 1.4, color: DC.postitText,
+      boxShadow: '0 2px 8px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08)',
+      transform: `rotate(${rotate}deg)`,
+      zIndex: 5,
+    }}>{children}</div>
+  );
+}
+
+Object.assign(window, { DesignCanvas, DCSection, DCArtboard, DCPostIt });
+
+
+</script>
+
+<script type="text/babel" data-presets="react" data-src="components/primitives.jsx">
+// Charbon & Flamme — Shared visual primitives
+// Badges-tampons, animations fumée/braises, placeholders éditoriaux
+
+// ─────────────────────────────────────────────────────────────
+// SmokeBackdrop — fumée animée discrète, full-bleed dans un parent relative
+// ─────────────────────────────────────────────────────────────
+function SmokeBackdrop({ intensity = 0.5, dark = false }) {
+  const baseColor = dark ? 'rgba(220,210,195,' : 'rgba(255,245,230,';
+  const wisps = React.useMemo(() => Array.from({ length: 8 }, (_, i) => ({
+    left: 5 + i * 12 + (i % 2) * 4,
+    delay: -i * 1.4,
+    duration: 7 + (i % 3),
+    size: 60 + (i % 3) * 20,
+    opacity: (0.25 + (i % 3) * 0.15) * intensity,
+  })), [intensity]);
+  return (
+    <div style={{ position:'absolute', inset:0, overflow:'hidden', pointerEvents:'none' }}>
+      {wisps.map((w, i) => (
+        <div key={i} style={{
+          position:'absolute',
+          bottom: -40,
+          left: `${w.left}%`,
+          width: w.size,
+          height: w.size,
+          borderRadius:'50%',
+          background:`radial-gradient(circle, ${baseColor}${w.opacity}) 0%, ${baseColor}0) 70%)`,
+          filter:'blur(14px)',
+          animation:`cfSmokeRise ${w.duration}s ease-out infinite`,
+          animationDelay:`${w.delay}s`,
+        }} />
+      ))}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// EmberGlow — petites particules de braises rougeoyantes
+// ─────────────────────────────────────────────────────────────
+function EmberGlow({ count = 14 }) {
+  const embers = React.useMemo(() => Array.from({ length: count }, (_, i) => ({
+    left: (i * 37) % 100,
+    top: (i * 53) % 100,
+    size: 2 + (i % 3),
+    delay: -i * 0.3,
+    duration: 1.4 + (i % 4) * 0.4,
+    color: i % 3 === 0 ? '#E8A53C' : (i % 3 === 1 ? '#D9692F' : '#A52828'),
+  })), [count]);
+  return (
+    <div style={{ position:'absolute', inset:0, overflow:'hidden', pointerEvents:'none' }}>
+      {embers.map((e, i) => (
+        <div key={i} className="cf-ember-fast" style={{
+          position:'absolute',
+          left:`${e.left}%`,
+          top:`${e.top}%`,
+          width:e.size, height:e.size,
+          borderRadius:'50%',
+          background: e.color,
+          boxShadow:`0 0 ${e.size * 3}px ${e.color}`,
+          animationDelay:`${e.delay}s`,
+          animationDuration:`${e.duration}s`,
+        }} />
+      ))}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// MeatPlaceholder — visuel évocateur (gradient brûlé + grill marks)
+// when no real photography. Gives off "appetizing" without fake SVG meat.
+// ─────────────────────────────────────────────────────────────
+function MeatPlaceholder({ label, height = '100%', dark = true, accent = '#8B1A1A' }) {
+  return (
+    <div style={{
+      position:'relative',
+      width:'100%',
+      height,
+      overflow:'hidden',
+      background: dark
+        ? `radial-gradient(ellipse 80% 60% at 50% 60%, #4A2818 0%, #2A1810 50%, #14100B 100%)`
+        : `radial-gradient(ellipse at 35% 40%, ${accent} 0%, #6B1212 40%, #2A1810 90%)`,
+    }}>
+      {/* grill marks diagonals */}
+      <div style={{
+        position:'absolute', inset:0,
+        background:`repeating-linear-gradient(125deg, transparent 0 38px, rgba(0,0,0,0.35) 38px 42px, transparent 42px 80px)`,
+        mixBlendMode:'multiply',
+      }} />
+      {/* charred speckle */}
+      <div style={{
+        position:'absolute', inset:0,
+        backgroundImage:`radial-gradient(circle at 20% 30%, rgba(0,0,0,0.5) 1px, transparent 2px),
+                         radial-gradient(circle at 70% 60%, rgba(0,0,0,0.4) 1px, transparent 2px),
+                         radial-gradient(circle at 40% 80%, rgba(0,0,0,0.5) 1.5px, transparent 2px),
+                         radial-gradient(circle at 85% 20%, rgba(0,0,0,0.45) 1px, transparent 2px)`,
+        backgroundSize:'40px 40px, 60px 60px, 50px 50px, 70px 70px',
+      }} />
+      {/* ember glow underside */}
+      <div className="cf-ember-pulse" style={{
+        position:'absolute', left:0, right:0, bottom:0, height:'40%',
+        background:`linear-gradient(to top, rgba(232,165,60,0.35), rgba(196,74,31,0.18) 40%, transparent)`,
+      }} />
+      <EmberGlow count={10} />
+      {label && (
+        <div style={{
+          position:'absolute', left: 12, bottom: 10,
+          fontFamily:'var(--cf-mono)',
+          fontSize: 10,
+          color:'rgba(255,240,220,0.55)',
+          letterSpacing:'0.1em',
+          textTransform:'uppercase',
+        }}>{label}</div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// StampBadge — circular brewery-stamp badge w/ curved text + center icon
+// ─────────────────────────────────────────────────────────────
+function StampBadge({ size = 96, topText = 'CHARBON & FLAMME', bottomText = 'PITMASTER', center = '★', accent = '#8B1A1A', tone = 'dark', borderStyle = 'double' }) {
+  const id = React.useId();
+  const r = size / 2;
+  const innerR = r - 8;
+  const textR = r - 16;
+  const colorMain = tone === 'dark' ? '#1F1A14' : '#F5EFE0';
+  const colorAccent = accent;
+  return (
+    <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size} style={{ display:'block' }}>
+      <defs>
+        <path id={`top-${id}`} d={`M ${r - textR} ${r} A ${textR} ${textR} 0 0 1 ${r + textR} ${r}`} fill="none" />
+        <path id={`bot-${id}`} d={`M ${r - textR} ${r} A ${textR} ${textR} 0 0 0 ${r + textR} ${r}`} fill="none" />
+      </defs>
+      {/* outer ring */}
+      <circle cx={r} cy={r} r={r - 1} fill="none" stroke={colorMain} strokeWidth="1.5" />
+      {borderStyle === 'double' && <circle cx={r} cy={r} r={r - 4} fill="none" stroke={colorMain} strokeWidth="0.7" />}
+      {borderStyle === 'dashed' && <circle cx={r} cy={r} r={r - 5} fill="none" stroke={colorMain} strokeWidth="0.6" strokeDasharray="2 2" />}
+      {/* inner divider arcs */}
+      <circle cx={r} cy={r} r={innerR - 4} fill="none" stroke={colorMain} strokeWidth="0.5" opacity="0.5" />
+      {/* curved top text */}
+      <text fill={colorMain} fontFamily="var(--cf-serif)" fontSize={size * 0.11} fontWeight="600" letterSpacing={size * 0.018}>
+        <textPath href={`#top-${id}`} startOffset="50%" textAnchor="middle">{topText}</textPath>
+      </text>
+      {/* curved bottom text */}
+      <text fill={colorMain} fontFamily="var(--cf-serif)" fontSize={size * 0.10} fontWeight="500" letterSpacing={size * 0.015}>
+        <textPath href={`#bot-${id}`} startOffset="50%" textAnchor="middle">{bottomText}</textPath>
+      </text>
+      {/* side stars */}
+      <text x={6} y={r + size * 0.04} fill={colorAccent} fontSize={size * 0.14} fontFamily="serif">✦</text>
+      <text x={size - 14} y={r + size * 0.04} fill={colorAccent} fontSize={size * 0.14} fontFamily="serif">✦</text>
+      {/* center icon */}
+      <text x={r} y={r + size * 0.05} textAnchor="middle" fontSize={size * 0.32} fontFamily="var(--cf-serif)" fontWeight="700" fill={colorAccent}>{center}</text>
+    </svg>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// MethodBadge — large stamp-style badge for cooking methods
+// ─────────────────────────────────────────────────────────────
+function MethodBadge({ method = 'low', size = 120 }) {
+  const config = {
+    low:    { icon: <FlameIcon variant="low" size={size*0.4} />, top: 'LOW & SLOW', bottom: '· FUMÉE LENTE ·' },
+    hot:    { icon: <FlameIcon variant="hot" size={size*0.4} />, top: 'HOT & FAST', bottom: '· FEU VIF ·' },
+    reverse:{ icon: <FlameIcon variant="reverse" size={size*0.4} />, top: 'REVERSE SEAR', bottom: '· DOUBLE CUISSON ·' },
+  }[method];
+  const id = React.useId();
+  const r = size/2;
+  const textR = r - 14;
+  return (
+    <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size}>
+      <defs>
+        <path id={`m-top-${id}`} d={`M ${r - textR} ${r} A ${textR} ${textR} 0 0 1 ${r + textR} ${r}`} fill="none" />
+        <path id={`m-bot-${id}`} d={`M ${r - textR} ${r} A ${textR} ${textR} 0 0 0 ${r + textR} ${r}`} fill="none" />
+      </defs>
+      <circle cx={r} cy={r} r={r-1} fill="#EFE7D8" stroke="#1F1A14" strokeWidth="1.5"/>
+      <circle cx={r} cy={r} r={r-5} fill="none" stroke="#1F1A14" strokeWidth="0.6"/>
+      <text fill="#1F1A14" fontFamily="var(--cf-serif)" fontSize={size*0.11} fontWeight="600" letterSpacing={size*0.02}>
+        <textPath href={`#m-top-${id}`} startOffset="50%" textAnchor="middle">{config.top}</textPath>
+      </text>
+      <text fill="#8B1A1A" fontFamily="var(--cf-serif)" fontSize={size*0.085} fontWeight="500" letterSpacing={size*0.015}>
+        <textPath href={`#m-bot-${id}`} startOffset="50%" textAnchor="middle">{config.bottom}</textPath>
+      </text>
+      <g transform={`translate(${r}, ${r})`}>
+        <foreignObject x={-size*0.2} y={-size*0.22} width={size*0.4} height={size*0.4}>
+          {config.icon}
+        </foreignObject>
+      </g>
+    </svg>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// FlameIcon — stylized flame for badges
+// ─────────────────────────────────────────────────────────────
+function FlameIcon({ variant = 'low', size = 40 }) {
+  const flames = {
+    low:    [{ h: 0.6, c: '#8B1A1A' }],
+    hot:    [{ h: 0.8, c: '#A52828' }, { h: 0.6, c: '#D9692F' }, { h: 0.4, c: '#E8A53C' }],
+    reverse:[{ h: 0.7, c: '#8B1A1A' }, { h: 0.5, c: '#E8A53C' }],
+  }[variant];
+  return (
+    <svg viewBox="0 0 40 40" width={size} height={size} style={{ display:'block', margin:'auto' }}>
+      {flames.map((f, i) => (
+        <path key={i}
+          d={`M 20 ${40 - f.h * 36}
+              C ${15 - i * 2} ${28 - i * 4}, ${10 - i} ${22}, ${14 - i} ${14 + i * 2}
+              C ${16 - i} ${10 + i}, ${20} ${4 + i * 4}, ${20} ${4 + i * 4}
+              C ${20} ${4 + i * 4}, ${24 + i} ${10 + i}, ${26 + i} ${14 + i * 2}
+              C ${30 + i} ${22}, ${25 + i * 2} ${28 - i * 4}, ${20} ${40 - f.h * 36} Z`}
+          fill={f.c}
+          opacity={1 - i * 0.15}
+        />
+      ))}
+    </svg>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// CutIcon — small badge identifying meat cuts (silhouette + label)
+// ─────────────────────────────────────────────────────────────
+function CutIcon({ cut, size = 64 }) {
+  // simple geometric silhouettes — abstract, not literal meat drawings
+  const shapes = {
+    picanha: <path d="M 8 32 Q 20 14, 40 18 Q 56 22, 56 36 Q 50 48, 30 46 Q 12 44, 8 32 Z" fill="#8B1A1A"/>,
+    brisket: <path d="M 6 36 L 12 22 Q 30 14, 48 22 L 58 36 Q 50 46, 32 46 Q 14 46, 6 36 Z" fill="#6B1212"/>,
+    ribs:    <g><rect x="10" y="22" width="44" height="6" rx="3" fill="#8B1A1A"/><rect x="10" y="32" width="44" height="6" rx="3" fill="#8B1A1A"/><rect x="10" y="42" width="44" height="6" rx="3" fill="#8B1A1A"/></g>,
+    poulet:  <path d="M 24 12 Q 40 8, 48 20 Q 56 36, 44 50 Q 26 54, 14 42 Q 8 28, 16 18 Q 20 14, 24 12 Z" fill="#A52828"/>,
+    porc:    <path d="M 12 22 Q 24 14, 40 18 Q 54 24, 52 38 Q 44 50, 26 48 Q 10 44, 12 22 Z" fill="#8B1A1A"/>,
+    boeuf:   <path d="M 10 30 Q 18 18, 32 18 Q 50 20, 54 30 Q 50 42, 32 44 Q 14 42, 10 30 Z" fill="#6B1212"/>,
+    agneau:  <path d="M 16 18 Q 32 12, 48 22 Q 52 36, 40 46 Q 22 48, 14 36 Q 10 24, 16 18 Z" fill="#A52828"/>,
+    saumon:  <path d="M 6 32 L 18 22 Q 36 18, 50 26 L 58 32 L 50 38 Q 36 46, 18 42 Z" fill="#C44A1F"/>,
+    legumes: <g><circle cx="20" cy="32" r="10" fill="#6B1212"/><circle cx="38" cy="28" r="8" fill="#A52828"/><circle cx="44" cy="40" r="6" fill="#D9692F"/></g>,
+  }[cut] || <rect x="12" y="20" width="40" height="24" fill="#8B1A1A"/>;
+  return (
+    <svg viewBox="0 0 64 64" width={size} height={size}>
+      {shapes}
+    </svg>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Buttons
+// ─────────────────────────────────────────────────────────────
+function FireButton({ children, size = 'md', icon, fullWidth, onClick, style, type = 'primary' }) {
+  const sizes = {
+    sm: { px: 14, py: 8, fs: 12 },
+    md: { px: 20, py: 12, fs: 14 },
+    lg: { px: 28, py: 16, fs: 16 },
+  }[size];
+  const variants = {
+    primary: { bg:'#8B1A1A', color:'#F5EFE0', border:'1.5px solid #8B1A1A', hover:'#6B1212' },
+    secondary: { bg:'#1F1A14', color:'#F5EFE0', border:'1.5px solid #1F1A14', hover:'#2D261C' },
+    ghost: { bg:'transparent', color:'#1F1A14', border:'1.5px solid #1F1A14', hover:'rgba(31,26,20,0.06)' },
+    cream: { bg:'#F5EFE0', color:'#1F1A14', border:'1.5px solid #1F1A14', hover:'#EFE7D8' },
+  }[type];
+  const [hover, setHover] = React.useState(false);
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        background: hover ? variants.hover : variants.bg,
+        color: variants.color,
+        border: variants.border,
+        padding: `${sizes.py}px ${sizes.px}px`,
+        fontFamily: 'var(--cf-serif)',
+        fontSize: sizes.fs,
+        fontWeight: 600,
+        letterSpacing: '0.08em',
+        textTransform: 'uppercase',
+        borderRadius: 2,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        width: fullWidth ? '100%' : 'auto',
+        boxShadow: type === 'primary' && hover ? '0 0 24px -4px rgba(139,26,26,0.6)' : 'none',
+        transition: 'all .2s',
+        ...style,
+      }}>
+      {children}
+      {icon}
+    </button>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Pill — small category / filter pills
+// ─────────────────────────────────────────────────────────────
+function Pill({ children, active, onClick, dark }) {
+  return (
+    <button onClick={onClick} style={{
+      fontFamily:'var(--cf-mono)',
+      fontSize:10,
+      letterSpacing:'0.12em',
+      textTransform:'uppercase',
+      padding:'6px 10px',
+      borderRadius: 999,
+      border: `1px solid ${active ? '#8B1A1A' : (dark ? 'rgba(245,239,224,0.3)' : 'rgba(31,26,20,0.25)')}`,
+      background: active ? '#8B1A1A' : 'transparent',
+      color: active ? '#F5EFE0' : (dark ? '#F5EFE0' : '#3A3025'),
+      cursor:'pointer',
+      whiteSpace:'nowrap',
+    }}>{children}</button>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// SectionEyebrow — small title above big titles
+// ─────────────────────────────────────────────────────────────
+function SectionEyebrow({ children, accent }) {
+  return (
+    <div style={{ display:'flex', alignItems:'center', gap: 8 }}>
+      <span style={{ width: 24, height: 1, background: accent || '#8B1A1A' }} />
+      <span className="cf-eyebrow" style={{ color: accent || '#8B1A1A' }}>{children}</span>
+    </div>
+  );
+}
+
+// Expose globally for other Babel scripts
+Object.assign(window, {
+  SmokeBackdrop, EmberGlow, MeatPlaceholder, StampBadge, MethodBadge,
+  FlameIcon, CutIcon, FireButton, Pill, SectionEyebrow,
+});
+
+</script>
+
+<script type="text/babel" data-presets="react" data-src="components/chrome.jsx">
+// Charbon & Flamme — Header / Footer / Newsletter / Sponsor
+
+function CFLogo({ size = 28, color = '#1F1A14', accent = '#8B1A1A' }) {
+  return (
+    <div style={{ display:'flex', alignItems:'center', gap: 10 }}>
+      <svg viewBox="0 0 40 40" width={size + 8} height={size + 8}>
+        <circle cx="20" cy="20" r="19" fill="none" stroke={color} strokeWidth="1.5"/>
+        <circle cx="20" cy="20" r="15" fill="none" stroke={color} strokeWidth="0.6"/>
+        <path d="M 20 32 C 14 28, 12 22, 16 16 C 18 14, 20 11, 20 8 C 20 11, 22 14, 24 16 C 28 22, 26 28, 20 32 Z" fill={accent}/>
+        <path d="M 20 30 C 17 27, 16 24, 18 20 C 19 18, 20 16, 20 14 C 20 16, 21 18, 22 20 C 24 24, 23 27, 20 30 Z" fill="#E8A53C"/>
+      </svg>
+      <div style={{ lineHeight: 0.95 }}>
+        <div style={{ fontFamily:'var(--cf-serif)', fontSize: size * 0.7, fontWeight: 700, letterSpacing: '0.02em', color }}>CHARBON</div>
+        <div style={{ fontFamily:'var(--cf-serif)', fontSize: size * 0.42, fontWeight: 400, letterSpacing: '0.4em', color: accent, fontStyle:'italic' }}>& FLAMME</div>
+      </div>
+    </div>
+  );
+}
+
+function Header({ mobile, dark, currentPage = 'home' }) {
+  const items = [
+    { id:'calc', label:'Calculateur' },
+    { id:'recettes', label:'Recettes' },
+    { id:'rubs', label:'Rubs' },
+    { id:'articles', label:'Articles' },
+    { id:'compte', label:'Mon compte' },
+  ];
+  const bg = dark ? 'rgba(20,16,11,0.92)' : 'rgba(239,231,216,0.92)';
+  const fg = dark ? '#F5EFE0' : '#1F1A14';
+  const accent = '#8B1A1A';
+  if (mobile) {
+    return (
+      <header style={{
+        position:'sticky', top:0, zIndex: 50,
+        display:'flex', alignItems:'center', justifyContent:'space-between',
+        padding:'12px 16px',
+        background: bg,
+        backdropFilter:'blur(8px)',
+        borderBottom: `1px solid ${dark ? 'rgba(245,239,224,0.1)' : 'rgba(31,26,20,0.12)'}`,
+      }}>
+        <CFLogo size={20} color={fg} accent={accent}/>
+        <div style={{ display:'flex', alignItems:'center', gap: 12 }}>
+          <button style={{ background:'none', border:'none', padding: 4 }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={fg} strokeWidth="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          </button>
+          <button style={{ background:'none', border:'none', padding: 4 }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={fg} strokeWidth="1.8"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+          </button>
+        </div>
+      </header>
+    );
+  }
+  return (
+    <header style={{
+      position:'sticky', top:0, zIndex: 50,
+      display:'flex', alignItems:'center', justifyContent:'space-between',
+      padding:'18px 48px',
+      background: bg,
+      backdropFilter:'blur(8px)',
+      borderBottom: `1px solid ${dark ? 'rgba(245,239,224,0.1)' : 'rgba(31,26,20,0.12)'}`,
+    }}>
+      <CFLogo size={26} color={fg} accent={accent}/>
+      <nav style={{ display:'flex', gap: 4 }}>
+        {items.map(item => (
+          <a key={item.id} style={{
+            fontFamily:'var(--cf-serif)', fontSize: 14, fontWeight: 500,
+            letterSpacing: '0.06em', textTransform:'uppercase',
+            padding: '8px 14px',
+            color: currentPage === item.id ? accent : fg,
+            borderBottom: currentPage === item.id ? `2px solid ${accent}` : '2px solid transparent',
+            cursor: 'pointer',
+          }}>{item.label}</a>
+        ))}
+      </nav>
+      <div style={{ display:'flex', alignItems:'center', gap: 12 }}>
+        <button style={{ background:'none', border:'none', padding: 6, color: fg }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        </button>
+        <FireButton size="sm" type={dark ? 'cream' : 'primary'}>Newsletter</FireButton>
+      </div>
+    </header>
+  );
+}
+
+function NewsletterBlock({ mobile }) {
+  return (
+    <section style={{
+      position:'relative',
+      padding: mobile ? '40px 20px' : '80px 64px',
+      overflow:'hidden',
+      background: '#14100B',
+      color:'#F5EFE0',
+    }}>
+      <div className="cf-charcoal-bg" style={{ position:'absolute', inset:0 }}/>
+      <SmokeBackdrop intensity={0.4} dark={true}/>
+      <EmberGlow count={20}/>
+      <div style={{ position:'relative', maxWidth: 720, margin:'0 auto', textAlign:'center' }}>
+        <SectionEyebrow accent="#E8A53C">La newsletter</SectionEyebrow>
+        <h2 style={{
+          fontSize: mobile ? 42 : 72,
+          fontWeight: 700,
+          letterSpacing: '-0.01em',
+          textTransform:'uppercase',
+          margin: '16px 0',
+          color: '#F5EFE0',
+          textShadow: '0 0 20px rgba(232,165,60,0.2)',
+        }}>La gazette<br/>des pitmasters</h2>
+        <p style={{ fontSize: mobile ? 14 : 16, color:'#B8AC97', maxWidth: 480, margin:'0 auto 28px', lineHeight: 1.6 }}>
+          Chaque dimanche matin : une recette, une technique, un coup de cœur produit. <span style={{ color:'#E8A53C' }}>Pas de spam, jamais.</span>
+        </p>
+        <div style={{
+          display:'flex', flexDirection: mobile ? 'column' : 'row',
+          gap: 8, maxWidth: 480, margin:'0 auto',
+        }}>
+          <input placeholder="ton.email@charbon.fr" style={{
+            flex: 1,
+            padding:'14px 16px',
+            background:'rgba(245,239,224,0.06)',
+            border:'1px solid rgba(245,239,224,0.2)',
+            color:'#F5EFE0',
+            fontFamily:'var(--cf-sans)', fontSize: 14,
+            outline:'none',
+          }}/>
+          <FireButton type="primary" size="md">Je m'abonne</FireButton>
+        </div>
+        <div style={{ display:'flex', gap: 16, justifyContent:'center', marginTop: 20, fontFamily:'var(--cf-mono)', fontSize: 11, letterSpacing:'0.08em', color:'#6E6356', textTransform:'uppercase' }}>
+          <span>· 4 200+ inscrits</span>
+          <span>· hebdomadaire</span>
+          <span>· 100% bbq</span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Footer({ mobile }) {
+  return (
+    <footer style={{
+      background:'#1F1A14',
+      color:'#B8AC97',
+      padding: mobile ? '32px 20px 20px' : '56px 64px 28px',
+      borderTop:'4px solid #8B1A1A',
+    }}>
+      <div style={{
+        display:'grid',
+        gridTemplateColumns: mobile ? '1fr' : '1.4fr 1fr 1fr 1fr',
+        gap: mobile ? 28 : 48,
+        marginBottom: 40,
+      }}>
+        <div>
+          <CFLogo size={22} color="#F5EFE0" accent="#E8A53C"/>
+          <p style={{ marginTop: 16, fontSize: 13, lineHeight: 1.6, maxWidth: 280 }}>
+            Le calculateur et le média BBQ français. Pour ceux qui aiment cuisiner au feu.
+          </p>
+        </div>
+        {[
+          { title:'Naviguer', items:['Calculateur','Recettes','Rubs','Articles'] },
+          { title:'Pour les marques', items:['Partenariats','Sponsoring','Kit média','Contact'] },
+          { title:'Suivre', items:['Instagram','YouTube','TikTok','Pinterest'] },
+        ].map(col => (
+          <div key={col.title}>
+            <div style={{ fontFamily:'var(--cf-serif)', fontSize: 13, fontWeight: 600, letterSpacing:'0.1em', textTransform:'uppercase', color:'#F5EFE0', marginBottom: 12 }}>{col.title}</div>
+            <ul style={{ listStyle:'none', padding: 0, margin: 0, display:'flex', flexDirection:'column', gap: 8 }}>
+              {col.items.map(item => <li key={item} style={{ fontSize: 13 }}>{item}</li>)}
+            </ul>
+          </div>
+        ))}
+      </div>
+      <div style={{
+        paddingTop: 24, borderTop:'1px solid rgba(245,239,224,0.1)',
+        display:'flex', flexDirection: mobile ? 'column' : 'row', justifyContent:'space-between',
+        gap: 12,
+        fontFamily:'var(--cf-mono)', fontSize: 11, letterSpacing:'0.08em', color:'#6E6356', textTransform:'uppercase',
+      }}>
+        <div>© 2026 Charbon & Flamme · Site indépendant — soutenu par nos partenaires</div>
+        <div style={{ display:'flex', gap: 16 }}>
+          <span>Mentions légales</span>
+          <span>Cookies</span>
+          <span>RGPD</span>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+function SponsorSlot({ label = 'Sponsorisé par', name = 'Weber Genesis EX-435', mobile, big }) {
+  return (
+    <div style={{
+      border:'1px dashed rgba(31,26,20,0.3)',
+      background:'#FAF6EE',
+      padding: big ? (mobile ? 20 : 32) : (mobile ? 14 : 18),
+      display:'flex', alignItems:'center', gap: big ? 20 : 14,
+      flexDirection: big && mobile ? 'column' : 'row',
+      textAlign: big && mobile ? 'center' : 'left',
+    }}>
+      <div style={{
+        width: big ? 64 : 40, height: big ? 64 : 40,
+        background:'#1F1A14', color:'#E8A53C',
+        display:'flex', alignItems:'center', justifyContent:'center',
+        fontFamily:'var(--cf-serif)', fontWeight: 700, fontSize: big ? 24 : 16,
+        letterSpacing:'0.05em',
+        flexShrink: 0,
+      }}>W</div>
+      <div style={{ flex: 1 }}>
+        <div className="cf-eyebrow" style={{ marginBottom: 4 }}>{label}</div>
+        <div style={{ fontFamily:'var(--cf-serif)', fontSize: big ? 22 : 15, fontWeight: 600, color:'#1F1A14' }}>{name}</div>
+        {big && <div style={{ fontSize: 13, color:'#6E6356', marginTop: 4 }}>Le grill connecté qui cuit comme un pitmaster du Texas, dans ton jardin.</div>}
+      </div>
+      {big && !mobile && <FireButton size="sm" type="ghost">Découvrir →</FireButton>}
+    </div>
+  );
+}
+
+Object.assign(window, { CFLogo, Header, NewsletterBlock, Footer, SponsorSlot });
+
+</script>
+
+<script type="text/babel" data-presets="react" data-src="components/cards.jsx">
+// Charbon & Flamme — Cards (Recipe / Cut / Method / Featured)
+
+const RECIPE_IMAGES = {
+  brisket: 'https://images.unsplash.com/photo-1558030006-450675393462?w=600&q=80',
+  ribs: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80',
+  picanha: 'https://images.unsplash.com/photo-1607116176544-cdf72050cbf2?w=600&q=80',
+  poulet: 'https://images.unsplash.com/photo-1598103442257-e0a51d2d2cf2?w=600&q=80',
+  pulled: 'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=600&q=80',
+  burger: 'https://images.unsplash.com/photo-1553979459-d2229ba7433b?w=600&q=80',
+  saumon: 'https://images.unsplash.com/photo-1485921325833-c519f76c4927?w=600&q=80',
+  legumes: 'https://images.unsplash.com/photo-1607013251379-e6eecfffe234?w=600&q=80',
+  fire: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&q=80',
+  smoke: 'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=600&q=80',
+  steak: 'https://images.unsplash.com/photo-1603048719539-9ecb4aa395e3?w=600&q=80',
+  rub: 'https://images.unsplash.com/photo-1599909533730-d68bd7160d8d?w=600&q=80',
+};
+
+function RecipeCard({ image, category, title, time, difficulty, sponsor, compact }) {
+  return (
+    <article style={{
+      background:'#FAF6EE',
+      border:'1px solid rgba(31,26,20,0.08)',
+      display:'flex', flexDirection:'column',
+      cursor:'pointer',
+      transition:'transform .2s, box-shadow .2s',
+    }}>
+      <div style={{
+        width:'100%',
+        aspectRatio: compact ? '4/3' : '3/4',
+        backgroundImage: `url(${image})`,
+        backgroundSize:'cover', backgroundPosition:'center',
+        position:'relative',
+      }}>
+        {category && (
+          <div style={{
+            position:'absolute', top: 10, left: 10,
+            background:'#1F1A14', color:'#F5EFE0',
+            fontFamily:'var(--cf-mono)', fontSize: 10,
+            letterSpacing:'0.12em', textTransform:'uppercase',
+            padding:'4px 8px',
+          }}>{category}</div>
+        )}
+        {sponsor && (
+          <div style={{
+            position:'absolute', top: 10, right: 10,
+            background:'#E8A53C', color:'#1F1A14',
+            fontFamily:'var(--cf-mono)', fontSize: 9,
+            letterSpacing:'0.12em', textTransform:'uppercase',
+            padding:'4px 6px', fontWeight: 600,
+          }}>★ Sponsor</div>
+        )}
+      </div>
+      <div style={{ padding: compact ? 14 : 18, display:'flex', flexDirection:'column', gap: 8, flex: 1 }}>
+        <h3 style={{ fontSize: compact ? 18 : 22, lineHeight: 1.05, fontWeight: 600, textTransform:'uppercase' }}>{title}</h3>
+        <div style={{ marginTop:'auto', display:'flex', gap: 12, fontFamily:'var(--cf-mono)', fontSize: 10, letterSpacing:'0.1em', color:'#6E6356', textTransform:'uppercase' }}>
+          {time && <span>⏱ {time}</span>}
+          {difficulty && <span>· {difficulty}</span>}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function FeaturedRecipe({ image, eyebrow, title, dek, meta, mobile }) {
+  return (
+    <article style={{
+      display:'grid',
+      gridTemplateColumns: mobile ? '1fr' : '1.2fr 1fr',
+      gap: mobile ? 0 : 0,
+      background:'#FAF6EE',
+      border:'1px solid rgba(31,26,20,0.1)',
+      overflow:'hidden',
+    }}>
+      <div style={{
+        backgroundImage: `url(${image})`,
+        backgroundSize:'cover', backgroundPosition:'center',
+        minHeight: mobile ? 240 : 380,
+        position:'relative',
+      }}>
+        <div style={{
+          position:'absolute', top: 16, left: 16,
+          background:'#8B1A1A', color:'#F5EFE0',
+          fontFamily:'var(--cf-mono)', fontSize: 10,
+          letterSpacing:'0.16em', textTransform:'uppercase',
+          padding:'6px 10px', fontWeight: 600,
+        }}>★ À LA UNE</div>
+      </div>
+      <div style={{ padding: mobile ? 24 : 40, display:'flex', flexDirection:'column', justifyContent:'center', gap: 14 }}>
+        <SectionEyebrow>{eyebrow}</SectionEyebrow>
+        <h2 style={{ fontSize: mobile ? 32 : 44, lineHeight: 1.0, textTransform:'uppercase', fontWeight: 600 }}>{title}</h2>
+        <p style={{ fontSize: mobile ? 14 : 16, lineHeight: 1.55, color:'#3A3025' }}>{dek}</p>
+        <div style={{ display:'flex', gap: 16, marginTop: 8, fontFamily:'var(--cf-mono)', fontSize: 11, letterSpacing:'0.1em', color:'#6E6356', textTransform:'uppercase' }}>
+          {meta.map((m, i) => <span key={i}>{i > 0 && '· '}{m}</span>)}
+        </div>
+        <div style={{ marginTop: 12 }}>
+          <FireButton size="md">Lire l'article</FireButton>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function MethodCard({ method, title, subtitle, range, image, mobile }) {
+  return (
+    <div style={{
+      position:'relative',
+      background:'#1F1A14',
+      color:'#F5EFE0',
+      overflow:'hidden',
+      cursor:'pointer',
+      minHeight: mobile ? 320 : 440,
+      display:'flex', flexDirection:'column',
+    }}>
+      <div style={{
+        position:'absolute', inset: 0,
+        backgroundImage:`linear-gradient(to top, rgba(20,16,11,0.95) 0%, rgba(20,16,11,0.6) 50%, rgba(20,16,11,0.3) 100%), url(${image})`,
+        backgroundSize:'cover', backgroundPosition:'center',
+      }}/>
+      <EmberGlow count={8}/>
+      <div style={{ position:'relative', padding: mobile ? 20 : 28, display:'flex', flexDirection:'column', height:'100%', flex: 1 }}>
+        <div style={{ marginBottom: 'auto' }}>
+          <MethodBadge method={method} size={mobile ? 88 : 110}/>
+        </div>
+        <div>
+          <div className="cf-eyebrow" style={{ color:'#E8A53C', marginBottom: 6 }}>Méthode {method === 'low' ? '01' : method === 'hot' ? '02' : '03'}</div>
+          <h3 style={{ fontSize: mobile ? 30 : 40, lineHeight: 1, textTransform:'uppercase', fontWeight: 700, color:'#F5EFE0', marginBottom: 8 }}>{title}</h3>
+          <p style={{ fontSize: mobile ? 13 : 14, lineHeight: 1.5, color:'#B8AC97', marginBottom: 14 }}>{subtitle}</p>
+          <div style={{ fontFamily:'var(--cf-mono)', fontSize: 11, letterSpacing:'0.1em', color:'#E8A53C', textTransform:'uppercase' }}>{range}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StepCard({ num, title, body, badge }) {
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap: 14, alignItems:'flex-start' }}>
+      <div style={{ display:'flex', alignItems:'center', gap: 14 }}>
+        <div style={{
+          width: 56, height: 56,
+          border:'1.5px solid #1F1A14',
+          borderRadius:'50%',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          fontFamily:'var(--cf-serif)', fontSize: 28, fontWeight: 700, color:'#8B1A1A',
+        }}>{num}</div>
+        <StampBadge size={56} topText="ÉTAPE" bottomText="·" center={badge} accent="#8B1A1A"/>
+      </div>
+      <h3 style={{ fontSize: 22, lineHeight: 1.05, textTransform:'uppercase', fontWeight: 600 }}>{title}</h3>
+      <p style={{ fontSize: 14, lineHeight: 1.6, color:'#3A3025' }}>{body}</p>
+    </div>
+  );
+}
+
+Object.assign(window, { RECIPE_IMAGES, RecipeCard, FeaturedRecipe, MethodCard, StepCard });
+
+</script>
+
+<script type="text/babel" data-presets="react" data-src="pages/landing.jsx">
+// Charbon & Flamme — Landing page (Mobile + Desktop)
+
+function LandingHero({ mobile }) {
+  return (
+    <section style={{
+      position:'relative',
+      minHeight: mobile ? 580 : 720,
+      overflow:'hidden',
+      background:'#14100B',
+      color:'#F5EFE0',
+    }}>
+      <div style={{
+        position:'absolute', inset:0,
+        backgroundImage:`linear-gradient(to bottom, rgba(20,16,11,0.55) 0%, rgba(20,16,11,0.4) 40%, rgba(20,16,11,0.92) 100%), url(${RECIPE_IMAGES.fire})`,
+        backgroundSize:'cover', backgroundPosition:'center',
+      }}/>
+      <SmokeBackdrop intensity={0.7} dark={true}/>
+      <EmberGlow count={mobile ? 14 : 24}/>
+      <div style={{
+        position:'relative',
+        padding: mobile ? '40px 20px 60px' : '88px 64px 96px',
+        maxWidth: mobile ? '100%' : 1280,
+        margin:'0 auto',
+        display:'flex', flexDirection:'column',
+        gap: mobile ? 20 : 28,
+        minHeight: mobile ? 580 : 720,
+      }}>
+        <div style={{ display:'flex', alignItems:'center', gap: 12 }}>
+          <span style={{ width: 32, height: 1.5, background:'#E8A53C' }}/>
+          <span className="cf-eyebrow" style={{ color:'#E8A53C' }}>Le calculateur BBQ français · Édition 2026</span>
+        </div>
+        <h1 style={{
+          fontSize: mobile ? 56 : 128,
+          lineHeight: 0.92,
+          fontWeight: 700,
+          letterSpacing: '-0.015em',
+          textTransform:'uppercase',
+          color:'#F5EFE0',
+          textShadow:'0 2px 30px rgba(20,16,11,0.6)',
+          maxWidth: mobile ? '100%' : 1100,
+        }}>
+          Ne rate plus<br/>
+          jamais une <span style={{ color:'#E8A53C', fontStyle:'italic', fontWeight: 600 }}>cuisson</span>.
+        </h1>
+        <p style={{
+          fontSize: mobile ? 16 : 20,
+          lineHeight: 1.5,
+          color:'#D9CDB5',
+          maxWidth: mobile ? '100%' : 560,
+        }}>
+          Le calculateur de cuisson BBQ qui pense comme un pitmaster. Plus le magazine pour les vrais amateurs de feu, de fumée, et de viande bien cuite.
+        </p>
+        <div style={{ display:'flex', flexDirection: mobile ? 'column' : 'row', gap: 12, alignItems: mobile ? 'stretch' : 'center', marginTop: mobile ? 8 : 16 }}>
+          <FireButton size="lg" type="primary" fullWidth={mobile} icon={<span style={{ fontSize: 18 }}>→</span>}>
+            Lance le calculateur
+          </FireButton>
+          <FireButton size="lg" type="ghost" fullWidth={mobile} style={{ color:'#F5EFE0', borderColor:'rgba(245,239,224,0.4)' }}>
+            Découvrir le mag
+          </FireButton>
+        </div>
+        <div style={{
+          marginTop:'auto',
+          display:'flex', flexDirection: mobile ? 'column' : 'row',
+          gap: mobile ? 12 : 32,
+          paddingTop: mobile ? 24 : 40,
+          borderTop:'1px solid rgba(245,239,224,0.15)',
+          fontFamily:'var(--cf-mono)', fontSize: 11, letterSpacing:'0.12em', color:'#B8AC97', textTransform:'uppercase',
+        }}>
+          <span><span style={{ color:'#E8A53C' }}>9</span> cuts de viande</span>
+          <span><span style={{ color:'#E8A53C' }}>3</span> méthodes pitmaster</span>
+          <span><span style={{ color:'#E8A53C' }}>4 200+</span> abonnés newsletter</span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function MethodsSection({ mobile }) {
+  return (
+    <section style={{ padding: mobile ? '48px 20px' : '96px 64px', maxWidth: 1400, margin:'0 auto' }}>
+      <div style={{ display:'flex', flexDirection: mobile ? 'column' : 'row', justifyContent:'space-between', alignItems: mobile ? 'flex-start' : 'flex-end', gap: 16, marginBottom: mobile ? 28 : 56 }}>
+        <div>
+          <SectionEyebrow>01 · Les méthodes</SectionEyebrow>
+          <h2 style={{ fontSize: mobile ? 40 : 72, lineHeight: 0.95, textTransform:'uppercase', fontWeight: 700, marginTop: 12 }}>
+            Trois écoles.<br/><span style={{ color:'#8B1A1A', fontStyle:'italic' }}>Une seule</span> obsession.
+          </h2>
+        </div>
+        <p style={{ fontSize: 14, color:'#3A3025', maxWidth: 320, lineHeight: 1.6 }}>
+          Low & slow pour la patience. Hot & fast pour le geste. Reverse sear pour le meilleur des deux. Choisis ton camp — ou alterne, on ne juge pas.
+        </p>
+      </div>
+      <div style={{
+        display:'grid',
+        gridTemplateColumns: mobile ? '1fr' : 'repeat(3, 1fr)',
+        gap: mobile ? 16 : 20,
+      }}>
+        <MethodCard mobile={mobile} method="low" title="Low & Slow" subtitle="La fumée prend son temps. Le collagène fond. Le résultat fond aussi." range="95–135°C · 6–14h" image={RECIPE_IMAGES.smoke}/>
+        <MethodCard mobile={mobile} method="hot" title="Hot & Fast" subtitle="Feu vif, croûte épaisse, jus retenu. Le geste qui marque la viande." range="220–280°C · 5–25 min" image={RECIPE_IMAGES.fire}/>
+        <MethodCard mobile={mobile} method="reverse" title="Reverse Sear" subtitle="Cuisson douce d'abord, saisie agressive ensuite. La précision américaine." range="110°C → 280°C · 1–3h" image={RECIPE_IMAGES.steak}/>
+      </div>
+    </section>
+  );
+}
+
+function MiniCalcSection({ mobile }) {
+  const [step, setStep] = React.useState(1);
+  const [cut, setCut] = React.useState('picanha');
+  const [method, setMethod] = React.useState('reverse');
+  const [weight, setWeight] = React.useState(1.2);
+
+  const cuts = [
+    { id:'picanha', name:'Picanha', cat:'Bœuf' },
+    { id:'brisket', name:'Brisket', cat:'Bœuf' },
+    { id:'ribs', name:'Travers', cat:'Porc' },
+    { id:'poulet', name:'Poulet entier', cat:'Volaille' },
+  ];
+
+  // simple cooking time logic
+  const baseMinPerKg = { low: 240, hot: 8, reverse: 75 }[method];
+  const totalMin = Math.round(weight * baseMinPerKg);
+  const tempCible = { low: 95, hot: 240, reverse: 110 }[method];
+
+  return (
+    <section style={{
+      padding: mobile ? '48px 20px' : '96px 64px',
+      background: '#E5DBC6',
+      borderTop:'2px solid #1F1A14',
+      borderBottom:'2px solid #1F1A14',
+    }}>
+      <div style={{ maxWidth: 1280, margin:'0 auto' }}>
+        <div style={{ textAlign:'center', marginBottom: mobile ? 28 : 48 }}>
+          <SectionEyebrow>02 · Démo en direct</SectionEyebrow>
+          <h2 style={{ fontSize: mobile ? 40 : 64, lineHeight: 0.95, textTransform:'uppercase', fontWeight: 700, marginTop: 12 }}>
+            Teste-le. <span style={{ color:'#8B1A1A', fontStyle:'italic' }}>Maintenant.</span>
+          </h2>
+          <p style={{ marginTop: 12, fontSize: 14, color:'#3A3025', maxWidth: 480, margin:'12px auto 0', lineHeight: 1.5 }}>
+            Trois clics, un résultat. La version complète a 9 cuts, des paramètres avancés, un timer et des notifs.
+          </p>
+        </div>
+        <div style={{
+          background:'#FAF6EE',
+          border:'2px solid #1F1A14',
+          padding: mobile ? 16 : 32,
+          display:'grid',
+          gridTemplateColumns: mobile ? '1fr' : '1.2fr 1fr',
+          gap: mobile ? 20 : 32,
+          boxShadow:'8px 8px 0 #8B1A1A',
+        }}>
+          {/* Inputs */}
+          <div>
+            <div className="cf-eyebrow" style={{ marginBottom: 12 }}>① Choisis le cut</div>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(2, 1fr)', gap: 8, marginBottom: 24 }}>
+              {cuts.map(c => (
+                <button key={c.id} onClick={() => setCut(c.id)} style={{
+                  padding:'12px',
+                  border: cut === c.id ? '2px solid #8B1A1A' : '1px solid rgba(31,26,20,0.2)',
+                  background: cut === c.id ? '#FBE9E0' : '#FAF6EE',
+                  textAlign:'left', cursor:'pointer',
+                  display:'flex', alignItems:'center', gap: 10,
+                }}>
+                  <CutIcon cut={c.id} size={36}/>
+                  <div>
+                    <div className="cf-eyebrow" style={{ fontSize: 9 }}>{c.cat}</div>
+                    <div style={{ fontFamily:'var(--cf-serif)', fontSize: 16, fontWeight: 600, textTransform:'uppercase' }}>{c.name}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+            <div className="cf-eyebrow" style={{ marginBottom: 12 }}>② Méthode</div>
+            <div style={{ display:'flex', gap: 8, marginBottom: 24, flexWrap:'wrap' }}>
+              {[{id:'low',l:'Low & Slow'},{id:'hot',l:'Hot & Fast'},{id:'reverse',l:'Reverse Sear'}].map(m => (
+                <button key={m.id} onClick={() => setMethod(m.id)} style={{
+                  padding:'10px 14px',
+                  border: method === m.id ? '2px solid #8B1A1A' : '1px solid rgba(31,26,20,0.2)',
+                  background: method === m.id ? '#8B1A1A' : 'transparent',
+                  color: method === m.id ? '#F5EFE0' : '#1F1A14',
+                  fontFamily:'var(--cf-serif)', fontSize: 13, fontWeight: 600, letterSpacing:'0.06em', textTransform:'uppercase',
+                  cursor:'pointer',
+                }}>{m.l}</button>
+              ))}
+            </div>
+            <div className="cf-eyebrow" style={{ marginBottom: 12 }}>③ Poids · {weight.toFixed(1)} kg</div>
+            <input type="range" min="0.4" max="6" step="0.1" value={weight} onChange={e => setWeight(parseFloat(e.target.value))}
+              style={{ width:'100%', accentColor:'#8B1A1A' }}/>
+          </div>
+          {/* Output */}
+          <div style={{ background:'#1F1A14', color:'#F5EFE0', padding: mobile ? 20 : 28, position:'relative', overflow:'hidden' }}>
+            <EmberGlow count={6}/>
+            <div className="cf-eyebrow" style={{ color:'#E8A53C', marginBottom: 12, position:'relative' }}>Résultat estimé</div>
+            <div style={{ position:'relative' }}>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap: 20, marginBottom: 20 }}>
+                <div>
+                  <div style={{ fontFamily:'var(--cf-serif)', fontSize: 56, fontWeight: 700, lineHeight: 1, color:'#E8A53C' }}>
+                    {Math.floor(totalMin/60)}<span style={{ fontSize: 24, color:'#B8AC97' }}>h</span>{(totalMin%60).toString().padStart(2,'0')}
+                  </div>
+                  <div className="cf-eyebrow" style={{ color:'#B8AC97', marginTop: 4 }}>Durée totale</div>
+                </div>
+                <div>
+                  <div style={{ fontFamily:'var(--cf-serif)', fontSize: 56, fontWeight: 700, lineHeight: 1, color:'#E8A53C' }}>{tempCible}<span style={{ fontSize: 24, color:'#B8AC97' }}>°C</span></div>
+                  <div className="cf-eyebrow" style={{ color:'#B8AC97', marginTop: 4 }}>Temp. cible</div>
+                </div>
+              </div>
+              <div style={{ height: 1, background:'rgba(245,239,224,0.15)', margin:'16px 0' }}/>
+              <div style={{ display:'flex', flexDirection:'column', gap: 8, fontFamily:'var(--cf-mono)', fontSize: 12, color:'#D9CDB5' }}>
+                <div style={{ display:'flex', justifyContent:'space-between' }}><span>Préchauffe</span><span>20 min</span></div>
+                <div style={{ display:'flex', justifyContent:'space-between' }}><span>Cuisson</span><span>{Math.floor(totalMin*0.85/60)}h{(Math.round(totalMin*0.85)%60).toString().padStart(2,'0')}</span></div>
+                <div style={{ display:'flex', justifyContent:'space-between' }}><span>Repos</span><span>{Math.round(totalMin*0.15)} min</span></div>
+              </div>
+              <div style={{ marginTop: 20 }}>
+                <FireButton size="md" type="primary" fullWidth icon={<span>→</span>}>Calculateur complet</FireButton>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function HowItWorks({ mobile }) {
+  return (
+    <section style={{ padding: mobile ? '48px 20px' : '96px 64px', maxWidth: 1280, margin:'0 auto' }}>
+      <div style={{ marginBottom: mobile ? 28 : 56 }}>
+        <SectionEyebrow>03 · Comment ça marche</SectionEyebrow>
+        <h2 style={{ fontSize: mobile ? 40 : 64, lineHeight: 0.95, textTransform:'uppercase', fontWeight: 700, marginTop: 12, maxWidth: 800 }}>
+          Trois étapes,<br/>un <span style={{ color:'#8B1A1A', fontStyle:'italic' }}>résultat</span>.
+        </h2>
+      </div>
+      <div style={{ display:'grid', gridTemplateColumns: mobile ? '1fr' : 'repeat(3, 1fr)', gap: mobile ? 32 : 48 }}>
+        <StepCard num="1" badge="◉" title="Choisis ta pièce" body="9 cuts disponibles, du brisket de 5kg à la côte de bœuf en passant par la picanha brésilienne. Photos et fiches techniques pour chacun."/>
+        <StepCard num="2" badge="≋" title="Pose tes paramètres" body="Méthode, poids, cuisson désirée, paramètres avancés (température extérieure, type de bois, repos). On adapte le calcul à ta réalité."/>
+        <StepCard num="3" badge="✦" title="Cuis avec confiance" body="Timer intégré, alertes aux étapes clés, checklist pitmaster. Sauvegarde, partage avec les copains, exporte en PDF pour la cuisine."/>
+      </div>
+    </section>
+  );
+}
+
+function ArticlesGrid({ mobile }) {
+  return (
+    <section style={{ padding: mobile ? '48px 20px' : '96px 64px', maxWidth: 1400, margin:'0 auto' }}>
+      <div style={{ marginBottom: mobile ? 28 : 56, display:'flex', flexDirection: mobile ? 'column' : 'row', justifyContent:'space-between', alignItems: mobile ? 'flex-start' : 'flex-end', gap: 16 }}>
+        <div>
+          <SectionEyebrow>04 · Le magazine</SectionEyebrow>
+          <h2 style={{ fontSize: mobile ? 40 : 64, lineHeight: 0.95, textTransform:'uppercase', fontWeight: 700, marginTop: 12 }}>
+            Lecture<br/>de braise
+          </h2>
+        </div>
+        <a style={{ fontFamily:'var(--cf-mono)', fontSize: 12, letterSpacing:'0.12em', textTransform:'uppercase', color:'#8B1A1A', borderBottom:'1px solid #8B1A1A', paddingBottom: 2 }}>Tout le mag →</a>
+      </div>
+
+      <div style={{ marginBottom: mobile ? 24 : 40 }}>
+        <FeaturedRecipe
+          mobile={mobile}
+          image={RECIPE_IMAGES.brisket}
+          eyebrow="Reportage · Texas"
+          title="J'ai dormi dehors avec un brisket"
+          dek="14 heures de fumée, 3 réveils nocturnes, et la conviction que le low & slow se mérite. Récit d'une nuit blanche à 110°C."
+          meta={['8 min de lecture', 'Par Mathieu R.', '15 mars']}
+        />
+      </div>
+
+      <div style={{ display:'grid', gridTemplateColumns: mobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: mobile ? 12 : 20 }}>
+        <RecipeCard compact image={RECIPE_IMAGES.picanha} category="Recette · Bœuf" title="Picanha au sel gros" time="45 min" difficulty="Facile"/>
+        <RecipeCard compact image={RECIPE_IMAGES.ribs} category="Recette · Porc" title="Travers façon Memphis" time="5h" difficulty="Intermédiaire"/>
+        <RecipeCard compact image={RECIPE_IMAGES.poulet} category="Article" title="Le poulet entier, et tu n'y reviendras plus" time="6 min" difficulty="—" sponsor/>
+        <RecipeCard compact image={RECIPE_IMAGES.rub} category="Fiche rub" title="Magic Dust : la base américaine" time="—" difficulty="—"/>
+      </div>
+
+      <div style={{ marginTop: mobile ? 24 : 40 }}>
+        <SponsorSlot big mobile={mobile}/>
+      </div>
+    </section>
+  );
+}
+
+function LandingPage({ mobile }) {
+  return (
+    <div className="cf-root cf-paper-bg" style={{ width:'100%' }}>
+      <Header mobile={mobile} dark={false} currentPage="home"/>
+      <LandingHero mobile={mobile}/>
+      <MethodsSection mobile={mobile}/>
+      <MiniCalcSection mobile={mobile}/>
+      <HowItWorks mobile={mobile}/>
+      <ArticlesGrid mobile={mobile}/>
+      <NewsletterBlock mobile={mobile}/>
+      <Footer mobile={mobile}/>
+    </div>
+  );
+}
+
+Object.assign(window, { LandingPage });
+
+</script>
+
+
+<script type="text/babel" data-presets="react" data-src="pages/calculator.jsx">
+// Charbon & Flamme — Calculator (functional, with timer)
+
+const CUTS = [
+  { id:'picanha', name:'Picanha', cat:'Bœuf', img: RECIPE_IMAGES.picanha, basicTemp: 54, tempLabel:'Saignant', desc:'Pièce brésilienne, capeline grasse' },
+  { id:'brisket', name:'Brisket', cat:'Bœuf', img: RECIPE_IMAGES.brisket, basicTemp: 95, tempLabel:'Effiloché', desc:'Poitrine de bœuf, low & slow obligé' },
+  { id:'ribs', name:'Travers', cat:'Porc', img: RECIPE_IMAGES.ribs, basicTemp: 92, tempLabel:'Tendre', desc:'Spare ribs ou St Louis' },
+  { id:'pulled', name:'Épaule porc', cat:'Porc', img: RECIPE_IMAGES.pulled, basicTemp: 95, tempLabel:'Effiloché', desc:'Pulled pork, fonte longue' },
+  { id:'poulet', name:'Poulet entier', cat:'Volaille', img: RECIPE_IMAGES.poulet, basicTemp: 74, tempLabel:'À cœur', desc:'Volaille fermière 1.5 à 2kg' },
+  { id:'boeuf', name:'Côte de bœuf', cat:'Bœuf', img: RECIPE_IMAGES.steak, basicTemp: 54, tempLabel:'Saignant', desc:'Tomahawk ou côte épaisse' },
+  { id:'agneau', name:'Gigot d\'agneau', cat:'Agneau', img: RECIPE_IMAGES.steak, basicTemp: 60, tempLabel:'Rosé', desc:'Gigot entier ou semi-désossé' },
+  { id:'saumon', name:'Saumon', cat:'Poisson', img: RECIPE_IMAGES.saumon, basicTemp: 52, tempLabel:'Nacré', desc:'Filet ou pavé' },
+  { id:'legumes', name:'Légumes', cat:'Veggie', img: RECIPE_IMAGES.legumes, basicTemp: 0, tempLabel:'Marqués', desc:'Maïs, courges, poivrons' },
+];
+
+const METHODS = [
+  { id:'low', name:'Low & Slow', subtitle:'95–135°C', factorMin: 240, prep: 30, repos: 0.18, ambient: 110, color:'#8B1A1A' },
+  { id:'hot', name:'Hot & Fast', subtitle:'220–280°C', factorMin: 9, prep: 15, repos: 0.30, ambient: 250, color:'#C44A1F' },
+  { id:'reverse', name:'Reverse Sear', subtitle:'110°C → 280°C', factorMin: 75, prep: 20, repos: 0.20, ambient: 110, color:'#E8A53C' },
+];
+
+function calculate(cutId, methodId, weightKg, doneness) {
+  const cut = CUTS.find(c => c.id === cutId);
+  const method = METHODS.find(m => m.id === methodId);
+  const cookMin = Math.round(weightKg * method.factorMin * (cutId === 'saumon' || cutId === 'legumes' ? 0.4 : 1) * (1 + (doneness - 50) / 200));
+  const reposMin = Math.max(8, Math.round(cookMin * method.repos));
+  const totalMin = method.prep + cookMin + reposMin;
+  const internalTemp = cut.basicTemp + Math.round((doneness - 50) / 4);
+  return {
+    cut, method, weightKg, doneness,
+    prepMin: method.prep,
+    cookMin, reposMin, totalMin,
+    ambientTemp: method.ambient,
+    internalTemp,
+    phases: [
+      { name:'Préchauffage', minutes: method.prep, temp: method.ambient, action:'Fais monter le grill, prépare la chambre' },
+      { name:'Cuisson', minutes: cookMin, temp: method.ambient, action: methodId === 'reverse' ? 'Cuisson douce à 110°C jusqu\'à T° interne -10°C' : 'Surveille la sonde, retourne si nécessaire' },
+      ...(methodId === 'reverse' ? [{ name:'Saisie', minutes: 4, temp: 280, action:'Feu vif 2 min par face, croûte épaisse' }] : []),
+      { name:'Repos', minutes: reposMin, temp: 0, action:'Sous papier alu, libère les jus' },
+    ],
+  };
+}
+
+function formatTime(min) {
+  if (min < 60) return `${min} min`;
+  const h = Math.floor(min/60);
+  const m = min % 60;
+  return m === 0 ? `${h}h` : `${h}h${m.toString().padStart(2,'0')}`;
+}
+
+function StepDots({ current, total }) {
+  return (
+    <div style={{ display:'flex', alignItems:'center', gap: 6 }}>
+      {Array.from({length: total}).map((_, i) => (
+        <React.Fragment key={i}>
+          <div style={{
+            width: 28, height: 28,
+            borderRadius:'50%',
+            border: `1.5px solid ${i <= current ? '#8B1A1A' : 'rgba(31,26,20,0.2)'}`,
+            background: i < current ? '#8B1A1A' : 'transparent',
+            color: i < current ? '#F5EFE0' : (i === current ? '#8B1A1A' : '#968A7A'),
+            display:'flex', alignItems:'center', justifyContent:'center',
+            fontFamily:'var(--cf-serif)', fontSize: 13, fontWeight: 700,
+          }}>{i < current ? '✓' : i + 1}</div>
+          {i < total - 1 && <div style={{ width: 16, height: 1.5, background: i < current ? '#8B1A1A' : 'rgba(31,26,20,0.2)' }}/>}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+}
+
+function Timer({ totalSec, running, onToggle, onReset }) {
+  const [elapsed, setElapsed] = React.useState(0);
+  React.useEffect(() => {
+    if (!running) return;
+    const i = setInterval(() => setElapsed(e => Math.min(e + 1, totalSec)), 1000);
+    return () => clearInterval(i);
+  }, [running, totalSec]);
+  React.useEffect(() => { setElapsed(0); }, [totalSec]);
+  const remaining = Math.max(0, totalSec - elapsed);
+  const h = Math.floor(remaining / 3600);
+  const m = Math.floor((remaining % 3600) / 60);
+  const s = remaining % 60;
+  const pct = totalSec > 0 ? (elapsed / totalSec) * 100 : 0;
+  return (
+    <div style={{
+      background:'#14100B', color:'#F5EFE0',
+      padding: 20,
+      position:'relative', overflow:'hidden',
+      border:'2px solid #8B1A1A',
+    }}>
+      <EmberGlow count={6}/>
+      <div style={{ position:'relative' }}>
+        <div className="cf-eyebrow" style={{ color:'#E8A53C', marginBottom: 8 }}>⏱ Timer pitmaster</div>
+        <div className={running ? 'cf-flicker' : ''} style={{
+          fontFamily:'var(--cf-serif)', fontSize: 56, fontWeight: 700, lineHeight: 1,
+          color: running ? '#E8A53C' : '#F5EFE0',
+          fontVariantNumeric:'tabular-nums',
+          textShadow: running ? '0 0 20px rgba(232,165,60,0.5)' : 'none',
+        }}>
+          {h.toString().padStart(2,'0')}<span style={{ color:'#6E6356' }}>:</span>{m.toString().padStart(2,'0')}<span style={{ color:'#6E6356' }}>:</span>{s.toString().padStart(2,'0')}
+        </div>
+        <div style={{
+          height: 4, background:'rgba(245,239,224,0.1)', marginTop: 12, position:'relative', overflow:'hidden',
+        }}>
+          <div style={{
+            position:'absolute', left: 0, top: 0, bottom: 0,
+            width: `${pct}%`,
+            background:'linear-gradient(to right, #8B1A1A, #E8A53C)',
+            transition:'width 1s linear',
+          }}/>
+        </div>
+        <div style={{ display:'flex', gap: 8, marginTop: 16 }}>
+          <FireButton size="sm" type={running ? 'cream' : 'primary'} onClick={onToggle} fullWidth>
+            {running ? '❚❚ Pause' : '▶ Démarrer'}
+          </FireButton>
+          <FireButton size="sm" type="ghost" onClick={onReset} style={{ color:'#F5EFE0', borderColor:'rgba(245,239,224,0.3)' }}>↺</FireButton>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CookTimeline({ result, mobile }) {
+  const total = result.totalMin;
+  return (
+    <div style={{ position:'relative', padding: mobile ? '12px 0' : '20px 0' }}>
+      {!mobile && (
+        <div style={{ position:'relative', display:'flex', alignItems:'stretch', gap: 0, marginBottom: 16 }}>
+          {result.phases.map((p, i) => (
+            <div key={i} style={{
+              flex: p.minutes / total,
+              minWidth: 0,
+              padding:'14px 12px',
+              background: i % 2 === 0 ? '#1F1A14' : '#3A3025',
+              color:'#F5EFE0',
+              borderRight: i < result.phases.length - 1 ? '1px solid rgba(245,239,224,0.15)' : 'none',
+              position:'relative',
+            }}>
+              <div className="cf-eyebrow" style={{ color:'#E8A53C', fontSize: 9 }}>Phase 0{i+1}</div>
+              <div style={{ fontFamily:'var(--cf-serif)', fontSize: 18, fontWeight: 600, textTransform:'uppercase', marginTop: 4 }}>{p.name}</div>
+              <div style={{ fontFamily:'var(--cf-mono)', fontSize: 11, color:'#D9CDB5', marginTop: 4 }}>{formatTime(p.minutes)} {p.temp > 0 && `· ${p.temp}°C`}</div>
+            </div>
+          ))}
+        </div>
+      )}
+      {mobile && (
+        <div style={{ display:'flex', flexDirection:'column', gap: 0 }}>
+          {result.phases.map((p, i) => (
+            <div key={i} style={{
+              padding: 14,
+              background: i % 2 === 0 ? '#1F1A14' : '#3A3025',
+              color:'#F5EFE0',
+              display:'flex', alignItems:'center', gap: 14,
+              borderBottom: i < result.phases.length - 1 ? '1px solid rgba(245,239,224,0.1)' : 'none',
+            }}>
+              <div style={{
+                width: 38, height: 38, borderRadius:'50%',
+                border:'1.5px solid #E8A53C', color:'#E8A53C',
+                fontFamily:'var(--cf-serif)', fontWeight: 700, fontSize: 16,
+                display:'flex', alignItems:'center', justifyContent:'center',
+                flexShrink: 0,
+              }}>{i+1}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontFamily:'var(--cf-serif)', fontSize: 18, fontWeight: 600, textTransform:'uppercase' }}>{p.name}</div>
+                <div style={{ fontFamily:'var(--cf-mono)', fontSize: 11, color:'#D9CDB5', marginTop: 2 }}>{formatTime(p.minutes)} {p.temp > 0 && `· ${p.temp}°C`}</div>
+                <div style={{ fontSize: 12, color:'#B8AC97', marginTop: 4, lineHeight: 1.4 }}>{p.action}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      {!mobile && (
+        <div style={{ display:'flex', gap: 0 }}>
+          {result.phases.map((p, i) => (
+            <div key={i} style={{ flex: p.minutes / total, padding:'12px 12px', borderRight: i < result.phases.length - 1 ? '1px solid rgba(31,26,20,0.1)' : 'none' }}>
+              <div style={{ fontSize: 12, color:'#3A3025', lineHeight: 1.5 }}>{p.action}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CalculatorPage({ mobile }) {
+  const [step, setStep] = React.useState(0); // 0 cut, 1 method, 2 params, 3 result
+  const [cut, setCut] = React.useState('brisket');
+  const [method, setMethod] = React.useState('low');
+  const [weight, setWeight] = React.useState(2.5);
+  const [doneness, setDoneness] = React.useState(50);
+  const [running, setRunning] = React.useState(false);
+  const [check, setCheck] = React.useState({});
+
+  const result = calculate(cut, method, weight, doneness);
+  const stepLabels = ['Choisir le cut', 'Méthode', 'Paramètres', 'Résultat'];
+
+  const checklist = [
+    'Sors la viande 1h avant — température ambiante',
+    'Allume les braises 30 min avant',
+    'Sonde calibrée et branchée',
+    'Bac d\'eau dans le smoker',
+    'Bois choisi : chêne, hickory, ou pommier',
+    'Glaçage / mop sauce préparé si besoin',
+  ];
+
+  const PageHeader = (
+    <div style={{ padding: mobile ? '24px 20px 16px' : '40px 64px 24px', maxWidth: 1280, margin:'0 auto' }}>
+      <SectionEyebrow>Le calculateur</SectionEyebrow>
+      <h1 style={{ fontSize: mobile ? 40 : 72, lineHeight: 0.95, textTransform:'uppercase', fontWeight: 700, marginTop: 12 }}>
+        Calcule ta cuisson<br/>au <span style={{ color:'#8B1A1A', fontStyle:'italic' }}>degré près</span>.
+      </h1>
+      <div style={{ marginTop: mobile ? 20 : 32, display:'flex', alignItems:'center', justifyContent: mobile ? 'flex-start' : 'space-between', gap: 16, flexWrap:'wrap' }}>
+        <StepDots current={step} total={4}/>
+        <div className="cf-eyebrow" style={{ color:'#3A3025' }}>Étape {Math.min(step+1, 4)} / 4 — {stepLabels[Math.min(step, 3)]}</div>
+      </div>
+    </div>
+  );
+
+  // STEP 0: cut selection
+  const StepCut = (
+    <div style={{ padding: mobile ? '8px 20px 32px' : '16px 64px 64px', maxWidth: 1280, margin:'0 auto' }}>
+      <div style={{ display:'grid', gridTemplateColumns: mobile ? 'repeat(2,1fr)' : 'repeat(3,1fr)', gap: mobile ? 10 : 16 }}>
+        {CUTS.map(c => (
+          <button key={c.id} onClick={() => setCut(c.id)} style={{
+            position:'relative',
+            padding: 0,
+            background:'#FAF6EE',
+            border: cut === c.id ? '2.5px solid #8B1A1A' : '1.5px solid rgba(31,26,20,0.15)',
+            cursor:'pointer',
+            textAlign:'left',
+            overflow:'hidden',
+            transition:'all .15s',
+            transform: cut === c.id ? 'translateY(-2px)' : 'none',
+            boxShadow: cut === c.id ? '0 8px 20px rgba(139,26,26,0.18)' : 'none',
+          }}>
+            <div style={{
+              aspectRatio:'5/3',
+              backgroundImage:`url(${c.img})`,
+              backgroundSize:'cover', backgroundPosition:'center',
+              position:'relative',
+            }}>
+              {cut === c.id && (
+                <div style={{ position:'absolute', top: 8, right: 8, background:'#8B1A1A', color:'#F5EFE0', width: 28, height: 28, borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontWeight: 700, fontSize: 14 }}>✓</div>
+              )}
+              <div style={{ position:'absolute', top: 8, left: 8, fontFamily:'var(--cf-mono)', fontSize: 9, letterSpacing:'0.12em', textTransform:'uppercase', color:'#F5EFE0', background:'rgba(20,16,11,0.7)', padding:'3px 6px' }}>{c.cat}</div>
+            </div>
+            <div style={{ padding: mobile ? 10 : 14 }}>
+              <div style={{ fontFamily:'var(--cf-serif)', fontSize: mobile ? 18 : 22, fontWeight: 600, textTransform:'uppercase', lineHeight: 1, color:'#1F1A14' }}>{c.name}</div>
+              {!mobile && <div style={{ fontSize: 12, color:'#6E6356', marginTop: 4 }}>{c.desc}</div>}
+            </div>
+          </button>
+        ))}
+      </div>
+      <div style={{ marginTop: 24, display:'flex', justifyContent:'flex-end' }}>
+        <FireButton size="lg" onClick={() => setStep(1)} icon={<span>→</span>} fullWidth={mobile}>Méthode</FireButton>
+      </div>
+    </div>
+  );
+
+  // STEP 1: method
+  const StepMethod = (
+    <div style={{ padding: mobile ? '8px 20px 32px' : '16px 64px 64px', maxWidth: 1280, margin:'0 auto' }}>
+      <div style={{ display:'grid', gridTemplateColumns: mobile ? '1fr' : 'repeat(3,1fr)', gap: 16 }}>
+        {METHODS.map(m => (
+          <button key={m.id} onClick={() => setMethod(m.id)} style={{
+            padding: 0,
+            background: method === m.id ? '#1F1A14' : '#FAF6EE',
+            color: method === m.id ? '#F5EFE0' : '#1F1A14',
+            border: method === m.id ? `2.5px solid ${m.color}` : '1.5px solid rgba(31,26,20,0.15)',
+            cursor:'pointer',
+            textAlign:'left',
+            overflow:'hidden',
+            position:'relative',
+            transition:'all .15s',
+          }}>
+            <div style={{ padding: 24, display:'flex', flexDirection:'column', alignItems:'flex-start', gap: 14 }}>
+              <MethodBadge method={m.id} size={method === m.id ? 96 : 80}/>
+              <div>
+                <div className="cf-eyebrow" style={{ color: method === m.id ? '#E8A53C' : '#8B1A1A' }}>{m.subtitle}</div>
+                <div style={{ fontFamily:'var(--cf-serif)', fontSize: 28, fontWeight: 700, textTransform:'uppercase', marginTop: 4 }}>{m.name}</div>
+              </div>
+            </div>
+            {method === m.id && <EmberGlow count={6}/>}
+          </button>
+        ))}
+      </div>
+      <div style={{ marginTop: 24, display:'flex', gap: 12, justifyContent:'space-between' }}>
+        <FireButton size="md" type="ghost" onClick={() => setStep(0)}>← Cut</FireButton>
+        <FireButton size="lg" onClick={() => setStep(2)} icon={<span>→</span>}>Paramètres</FireButton>
+      </div>
+    </div>
+  );
+
+  // STEP 2: params
+  const StepParams = (
+    <div style={{ padding: mobile ? '8px 20px 32px' : '16px 64px 64px', maxWidth: 900, margin:'0 auto' }}>
+      <div style={{ background:'#FAF6EE', border:'1.5px solid rgba(31,26,20,0.15)', padding: mobile ? 20 : 32, display:'flex', flexDirection:'column', gap: 28 }}>
+        <div>
+          <div className="cf-eyebrow" style={{ marginBottom: 14 }}>Poids de la pièce</div>
+          <div style={{ fontFamily:'var(--cf-serif)', fontSize: 56, fontWeight: 700, color:'#8B1A1A', lineHeight: 1 }}>
+            {weight.toFixed(1)} <span style={{ fontSize: 24, color:'#1F1A14' }}>kg</span>
+          </div>
+          <input type="range" min="0.4" max="6" step="0.1" value={weight} onChange={e => setWeight(parseFloat(e.target.value))}
+            style={{ width:'100%', accentColor:'#8B1A1A', marginTop: 14 }}/>
+          <div style={{ display:'flex', justifyContent:'space-between', fontFamily:'var(--cf-mono)', fontSize: 10, letterSpacing:'0.1em', color:'#6E6356', textTransform:'uppercase', marginTop: 4 }}>
+            <span>400 g</span><span>3 kg</span><span>6 kg</span>
+          </div>
+        </div>
+        <hr className="cf-divider"/>
+        <div>
+          <div className="cf-eyebrow" style={{ marginBottom: 14 }}>Cuisson désirée</div>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline' }}>
+            <div style={{ fontFamily:'var(--cf-serif)', fontSize: 32, fontWeight: 600 }}>
+              {doneness < 30 ? 'Bleu' : doneness < 45 ? 'Saignant' : doneness < 65 ? 'À point' : doneness < 85 ? 'Bien cuit' : 'Très cuit'}
+            </div>
+            <div style={{ fontFamily:'var(--cf-mono)', fontSize: 14, color:'#8B1A1A' }}>{result.internalTemp}°C à cœur</div>
+          </div>
+          <input type="range" min="0" max="100" step="5" value={doneness} onChange={e => setDoneness(parseFloat(e.target.value))}
+            style={{ width:'100%', accentColor:'#8B1A1A', marginTop: 14 }}/>
+        </div>
+        <hr className="cf-divider"/>
+        <div>
+          <div className="cf-eyebrow" style={{ marginBottom: 14 }}>Paramètres avancés</div>
+          <div style={{ display:'grid', gridTemplateColumns: mobile ? '1fr 1fr' : 'repeat(4,1fr)', gap: 10 }}>
+            {['Chêne','Hickory','Pommier','Mesquite'].map(w => (
+              <Pill key={w}>{w}</Pill>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div style={{ marginTop: 24, display:'flex', gap: 12, justifyContent:'space-between' }}>
+        <FireButton size="md" type="ghost" onClick={() => setStep(1)}>← Méthode</FireButton>
+        <FireButton size="lg" onClick={() => setStep(3)} icon={<span>→</span>}>Calculer</FireButton>
+      </div>
+    </div>
+  );
+
+  // STEP 3: result
+  const StepResult = (
+    <div style={{ padding: mobile ? '8px 20px 48px' : '16px 64px 96px', maxWidth: 1280, margin:'0 auto' }}>
+      {/* Hero result */}
+      <div style={{ background:'#1F1A14', color:'#F5EFE0', padding: mobile ? 20 : 32, marginBottom: 20, position:'relative', overflow:'hidden', border:'2px solid #8B1A1A' }}>
+        <SmokeBackdrop intensity={0.3} dark={true}/>
+        <EmberGlow count={10}/>
+        <div style={{ position:'relative' }}>
+          <div style={{ display:'flex', alignItems:'center', gap: 12, marginBottom: 16, flexWrap:'wrap' }}>
+            <div className="cf-eyebrow" style={{ color:'#E8A53C' }}>Ton plan de cuisson</div>
+            <div style={{ height: 1, flex: 1, background:'rgba(245,239,224,0.15)', minWidth: 40 }}/>
+            <div style={{ fontFamily:'var(--cf-serif)', fontSize: 14, fontWeight: 500, textTransform:'uppercase', letterSpacing:'0.08em', color:'#B8AC97' }}>{result.cut.name} · {result.method.name} · {weight}kg</div>
+          </div>
+          <div style={{ display:'grid', gridTemplateColumns: mobile ? 'repeat(2,1fr)' : 'repeat(4,1fr)', gap: mobile ? 16 : 24 }}>
+            <div>
+              <div style={{ fontFamily:'var(--cf-serif)', fontSize: mobile ? 48 : 72, fontWeight: 700, lineHeight: 1, color:'#E8A53C' }}>{formatTime(result.totalMin)}</div>
+              <div className="cf-eyebrow" style={{ color:'#B8AC97', marginTop: 6 }}>Durée totale</div>
+            </div>
+            <div>
+              <div style={{ fontFamily:'var(--cf-serif)', fontSize: mobile ? 48 : 72, fontWeight: 700, lineHeight: 1, color:'#F5EFE0' }}>{result.ambientTemp}<span style={{ fontSize: mobile ? 22 : 32, color:'#B8AC97' }}>°C</span></div>
+              <div className="cf-eyebrow" style={{ color:'#B8AC97', marginTop: 6 }}>Temp. chambre</div>
+            </div>
+            <div>
+              <div style={{ fontFamily:'var(--cf-serif)', fontSize: mobile ? 48 : 72, fontWeight: 700, lineHeight: 1, color:'#F5EFE0' }}>{result.internalTemp}<span style={{ fontSize: mobile ? 22 : 32, color:'#B8AC97' }}>°C</span></div>
+              <div className="cf-eyebrow" style={{ color:'#B8AC97', marginTop: 6 }}>À cœur</div>
+            </div>
+            <div>
+              <div style={{ fontFamily:'var(--cf-serif)', fontSize: mobile ? 48 : 72, fontWeight: 700, lineHeight: 1, color:'#F5EFE0' }}>{Math.round(weight * 0.78 * 10) / 10}<span style={{ fontSize: mobile ? 22 : 32, color:'#B8AC97' }}>kg</span></div>
+              <div className="cf-eyebrow" style={{ color:'#B8AC97', marginTop: 6 }}>Rendement estimé</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display:'grid', gridTemplateColumns: mobile ? '1fr' : '1.5fr 1fr', gap: 20 }}>
+        {/* Timeline */}
+        <div style={{ background:'#FAF6EE', border:'1.5px solid rgba(31,26,20,0.15)' }}>
+          <div style={{ padding:'14px 20px', borderBottom:'1.5px solid rgba(31,26,20,0.1)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+            <div className="cf-eyebrow">Timeline pitmaster</div>
+            <div style={{ fontFamily:'var(--cf-mono)', fontSize: 11, color:'#8B1A1A' }}>{result.phases.length} phases</div>
+          </div>
+          <CookTimeline result={result} mobile={mobile}/>
+        </div>
+
+        {/* Timer + Actions */}
+        <div style={{ display:'flex', flexDirection:'column', gap: 16 }}>
+          <Timer
+            totalSec={result.totalMin * 60}
+            running={running}
+            onToggle={() => setRunning(r => !r)}
+            onReset={() => { setRunning(false); }}
+          />
+          <div style={{ background:'#FAF6EE', border:'1.5px solid rgba(31,26,20,0.15)', padding: 18 }}>
+            <div className="cf-eyebrow" style={{ marginBottom: 12 }}>Checklist pitmaster</div>
+            <div style={{ display:'flex', flexDirection:'column', gap: 8 }}>
+              {checklist.map((c, i) => (
+                <label key={i} style={{ display:'flex', alignItems:'flex-start', gap: 10, cursor:'pointer', fontSize: 13, lineHeight: 1.4 }}>
+                  <input type="checkbox" checked={!!check[i]} onChange={e => setCheck({ ...check, [i]: e.target.checked })} style={{ accentColor:'#8B1A1A', marginTop: 2 }}/>
+                  <span style={{ color: check[i] ? '#968A7A' : '#1F1A14', textDecoration: check[i] ? 'line-through' : 'none' }}>{c}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Actions row */}
+      <div style={{ marginTop: 20, display:'grid', gridTemplateColumns: mobile ? '1fr 1fr' : 'repeat(4, 1fr)', gap: 10 }}>
+        <FireButton size="md" type="cream" icon="↓">PDF</FireButton>
+        <FireButton size="md" type="cream" icon="♥">Sauver</FireButton>
+        <FireButton size="md" type="cream" icon="↗">Partager</FireButton>
+        <FireButton size="md" type="primary" onClick={() => setStep(0)} icon="↺">Refaire</FireButton>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="cf-root cf-paper-bg" style={{ width:'100%', minHeight:'100%' }}>
+      <Header mobile={mobile} dark={false} currentPage="calc"/>
+      {PageHeader}
+      {step === 0 && StepCut}
+      {step === 1 && StepMethod}
+      {step === 2 && StepParams}
+      {step === 3 && StepResult}
+      <Footer mobile={mobile}/>
+    </div>
+  );
+}
+
+Object.assign(window, { CalculatorPage, CUTS, METHODS, calculate });
+
+</script>
+
+<script type="text/babel" data-presets="react" data-src="pages/secondary.jsx">
+// Charbon & Flamme — Recipe list, Rub fiche, Article pages
+
+// ─────────────────────────────────────────────────────────────
+// 3. RECIPE LIST PAGE
+// ─────────────────────────────────────────────────────────────
+function RecipeListPage({ mobile }) {
+  const [filter, setFilter] = React.useState('all');
+  const cats = ['Tout', 'Bœuf', 'Porc', 'Volaille', 'Agneau', 'Poisson', 'Légumes'];
+  const methods = ['Toutes méthodes', 'Low & Slow', 'Hot & Fast', 'Reverse Sear'];
+
+  const recipes = [
+    { img: RECIPE_IMAGES.brisket, cat:'Bœuf', title:'Brisket fumé 14h', time:'14h', diff:'Avancé' },
+    { img: RECIPE_IMAGES.picanha, cat:'Bœuf', title:'Picanha au sel gros', time:'45 min', diff:'Facile' },
+    { img: RECIPE_IMAGES.ribs, cat:'Porc', title:'Travers Memphis', time:'5h', diff:'Inter.' },
+    { img: RECIPE_IMAGES.poulet, cat:'Volaille', title:'Poulet beer can', time:'1h30', diff:'Facile', sponsor:true },
+    { img: RECIPE_IMAGES.pulled, cat:'Porc', title:'Pulled pork', time:'12h', diff:'Avancé' },
+    { img: RECIPE_IMAGES.steak, cat:'Bœuf', title:'Côte de bœuf reverse', time:'2h', diff:'Inter.' },
+    { img: RECIPE_IMAGES.saumon, cat:'Poisson', title:'Saumon planche cèdre', time:'30 min', diff:'Facile' },
+    { img: RECIPE_IMAGES.legumes, cat:'Légumes', title:'Maïs grillé chimichurri', time:'20 min', diff:'Facile' },
+    { img: RECIPE_IMAGES.burger, cat:'Bœuf', title:'Smashburger jus', time:'15 min', diff:'Facile' },
+  ];
+
+  return (
+    <div className="cf-root cf-paper-bg" style={{ width:'100%' }}>
+      <Header mobile={mobile} currentPage="recettes"/>
+      <section style={{ padding: mobile ? '32px 20px 16px' : '64px 64px 32px', maxWidth: 1400, margin:'0 auto' }}>
+        <SectionEyebrow>Le mag · Recettes & articles</SectionEyebrow>
+        <h1 style={{ fontSize: mobile ? 56 : 120, lineHeight: 0.92, textTransform:'uppercase', fontWeight: 700, marginTop: 12, letterSpacing:'-0.015em' }}>
+          Recettes<br/>de <span style={{ color:'#8B1A1A', fontStyle:'italic' }}>feu</span>.
+        </h1>
+        <p style={{ marginTop: 16, fontSize: mobile ? 14 : 16, color:'#3A3025', maxWidth: 560, lineHeight: 1.5 }}>
+          De la côte de bœuf reverse au pulled pork de 12 heures. Toutes nos recettes sont reliées au calculateur — un clic et tu cuisines.
+        </p>
+      </section>
+
+      <section style={{ padding: mobile ? '0 20px 16px' : '0 64px 24px', maxWidth: 1400, margin:'0 auto' }}>
+        <div style={{ display:'flex', gap: 8, overflowX:'auto', paddingBottom: 8 }} className="cf-noscroll">
+          {cats.map(c => <Pill key={c} active={c === 'Tout'}>{c}</Pill>)}
+        </div>
+        {!mobile && (
+          <div style={{ display:'flex', gap: 8, marginTop: 8 }}>
+            {methods.map(m => <Pill key={m} active={m === 'Toutes méthodes'}>{m}</Pill>)}
+            <div style={{ flex: 1 }}/>
+            <Pill>⏱ Temps ▾</Pill>
+            <Pill>★ Difficulté ▾</Pill>
+          </div>
+        )}
+      </section>
+
+      <section style={{ padding: mobile ? '0 20px 32px' : '0 64px 32px', maxWidth: 1400, margin:'0 auto' }}>
+        <FeaturedRecipe
+          mobile={mobile}
+          image={RECIPE_IMAGES.brisket}
+          eyebrow="À la une · Reportage"
+          title="J'ai dormi dehors avec un brisket"
+          dek="14 heures de fumée, 3 réveils nocturnes, et la conviction que le low & slow se mérite. Récit d'une nuit blanche à 110°C."
+          meta={['8 min de lecture', 'Mathieu R.', '15 mars']}
+        />
+      </section>
+
+      <section style={{ padding: mobile ? '0 20px 24px' : '0 64px 32px', maxWidth: 1400, margin:'0 auto' }}>
+        <div style={{ display:'grid', gridTemplateColumns: mobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: mobile ? 12 : 20 }}>
+          {recipes.slice(0, 4).map((r, i) => (
+            <RecipeCard key={i} compact image={r.img} category={r.cat} title={r.title} time={r.time} difficulty={r.diff} sponsor={r.sponsor}/>
+          ))}
+        </div>
+      </section>
+
+      <section style={{ padding: mobile ? '0 20px 24px' : '0 64px 32px', maxWidth: 1400, margin:'0 auto' }}>
+        <SponsorSlot mobile={mobile} label="Cette grille vous est offerte par" name="Big Green Egg · Carbon Steel"/>
+      </section>
+
+      <section style={{ padding: mobile ? '0 20px 48px' : '0 64px 64px', maxWidth: 1400, margin:'0 auto' }}>
+        <div style={{ display:'grid', gridTemplateColumns: mobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: mobile ? 12 : 20 }}>
+          {recipes.slice(4).map((r, i) => (
+            <RecipeCard key={i} compact image={r.img} category={r.cat} title={r.title} time={r.time} difficulty={r.diff} sponsor={r.sponsor}/>
+          ))}
+        </div>
+        <div style={{ textAlign:'center', marginTop: 32 }}>
+          <FireButton size="md" type="ghost">Charger plus de recettes</FireButton>
+        </div>
+      </section>
+
+      <NewsletterBlock mobile={mobile}/>
+      <Footer mobile={mobile}/>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// 4. RUB PAGE
+// ─────────────────────────────────────────────────────────────
+function RubPage({ mobile }) {
+  const ingredients = [
+    { name:'Paprika fumé', pct: 28, color:'#8B1A1A' },
+    { name:'Cassonade brune', pct: 22, color:'#6B4423' },
+    { name:'Sel de mer', pct: 15, color:'#E5DBC6' },
+    { name:'Poivre noir mignonette', pct: 12, color:'#1F1A14' },
+    { name:'Ail granulé', pct: 9, color:'#D9CDB5' },
+    { name:'Cumin moulu', pct: 6, color:'#A0763A' },
+    { name:'Moutarde sèche', pct: 5, color:'#C4942C' },
+    { name:'Cayenne', pct: 3, color:'#C44A1F' },
+  ];
+
+  return (
+    <div className="cf-root cf-paper-bg" style={{ width:'100%' }}>
+      <Header mobile={mobile} currentPage="rubs"/>
+
+      {/* Hero */}
+      <section style={{
+        position:'relative',
+        padding: mobile ? '32px 20px 40px' : '64px 64px 80px',
+        background:'#1F1A14', color:'#F5EFE0', overflow:'hidden',
+      }}>
+        <div style={{
+          position:'absolute', inset: 0,
+          backgroundImage:`linear-gradient(to right, rgba(20,16,11,0.85) 0%, rgba(20,16,11,0.5) 100%), url(${RECIPE_IMAGES.rub})`,
+          backgroundSize:'cover', backgroundPosition:'center',
+        }}/>
+        <SmokeBackdrop intensity={0.3} dark={true}/>
+        <div style={{ position:'relative', maxWidth: 1280, margin:'0 auto', display:'grid', gridTemplateColumns: mobile ? '1fr' : '1.6fr 1fr', gap: 32, alignItems:'center' }}>
+          <div>
+            <div className="cf-eyebrow" style={{ color:'#E8A53C' }}>Fiche rub · 02 / Bœuf & porc</div>
+            <h1 style={{ fontSize: mobile ? 64 : 132, lineHeight: 0.9, textTransform:'uppercase', fontWeight: 700, marginTop: 14, letterSpacing:'-0.02em' }}>
+              Magic<br/>Dust
+            </h1>
+            <p style={{ marginTop: 18, fontSize: mobile ? 15 : 18, color:'#D9CDB5', maxWidth: 560, lineHeight: 1.5 }}>
+              Le rub de référence des compétitions BBQ américaines, version Charbon & Flamme. Sucré-fumé, légèrement piquant, polyvalent. Ton point de départ pour tout ce qui passe au feu.
+            </p>
+            <div style={{ marginTop: 24, display:'flex', gap: 16, fontFamily:'var(--cf-mono)', fontSize: 11, letterSpacing:'0.1em', color:'#B8AC97', textTransform:'uppercase', flexWrap:'wrap' }}>
+              <span><span style={{ color:'#E8A53C' }}>★★★★</span>☆ <span style={{ color:'#F5EFE0' }}>4.6 / 5</span></span>
+              <span>· 8 ingrédients</span>
+              <span>· Niveau pitmaster</span>
+            </div>
+          </div>
+          {!mobile && (
+            <div style={{ display:'flex', justifyContent:'center' }}>
+              <StampBadge size={220} topText="MAGIC DUST" bottomText="· EST. 1989 ·" center="C&F" accent="#E8A53C" tone="light" borderStyle="dashed"/>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Composition */}
+      <section style={{ padding: mobile ? '40px 20px' : '80px 64px', maxWidth: 1280, margin:'0 auto' }}>
+        <div style={{ display:'grid', gridTemplateColumns: mobile ? '1fr' : '1fr 1.2fr', gap: mobile ? 32 : 64 }}>
+          <div>
+            <SectionEyebrow>Composition</SectionEyebrow>
+            <h2 style={{ fontSize: mobile ? 36 : 56, lineHeight: 0.95, textTransform:'uppercase', fontWeight: 700, marginTop: 12 }}>
+              Huit<br/>ingrédients,<br/><span style={{ color:'#8B1A1A', fontStyle:'italic' }}>zéro</span> compromis.
+            </h2>
+            <p style={{ marginTop: 18, fontSize: 14, color:'#3A3025', lineHeight: 1.6 }}>
+              Le sucre brun construit la croûte. Le paprika fumé donne la couleur. Le cumin et la moutarde tiennent l'ensemble. Le cayenne ferme la marche, sans dominer.
+            </p>
+          </div>
+          <div style={{ background:'#FAF6EE', border:'1.5px solid rgba(31,26,20,0.15)', padding: mobile ? 20 : 28 }}>
+            <div className="cf-eyebrow" style={{ marginBottom: 16 }}>Proportions · base 100g</div>
+            <div style={{ display:'flex', flexDirection:'column', gap: 12 }}>
+              {ingredients.map((ing, i) => (
+                <div key={i}>
+                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline', marginBottom: 4 }}>
+                    <span style={{ fontFamily:'var(--cf-serif)', fontSize: 16, fontWeight: 500, textTransform:'uppercase', letterSpacing:'0.02em' }}>{ing.name}</span>
+                    <span style={{ fontFamily:'var(--cf-mono)', fontSize: 12, color:'#8B1A1A', fontWeight: 600 }}>{ing.pct}g</span>
+                  </div>
+                  <div style={{ height: 6, background:'rgba(31,26,20,0.08)', position:'relative' }}>
+                    <div style={{ position:'absolute', left: 0, top: 0, bottom: 0, width: `${ing.pct * 3}%`, background: ing.color, maxWidth:'100%' }}/>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Dosage + Compatibilité */}
+      <section style={{ padding: mobile ? '0 20px 40px' : '0 64px 80px', maxWidth: 1280, margin:'0 auto' }}>
+        <div style={{ display:'grid', gridTemplateColumns: mobile ? '1fr' : 'repeat(3, 1fr)', gap: mobile ? 16 : 20 }}>
+          <div style={{ background:'#1F1A14', color:'#F5EFE0', padding: 24 }}>
+            <div className="cf-eyebrow" style={{ color:'#E8A53C' }}>Dosage</div>
+            <div style={{ marginTop: 14, display:'flex', flexDirection:'column', gap: 12, fontFamily:'var(--cf-serif)' }}>
+              <div><span style={{ fontSize: 32, fontWeight: 700, color:'#E8A53C' }}>20g/kg</span><div style={{ fontSize: 12, color:'#B8AC97', marginTop: 2, fontFamily:'var(--cf-mono)', letterSpacing:'0.08em' }}>LOW & SLOW</div></div>
+              <div><span style={{ fontSize: 32, fontWeight: 700, color:'#E8A53C' }}>12g/kg</span><div style={{ fontSize: 12, color:'#B8AC97', marginTop: 2, fontFamily:'var(--cf-mono)', letterSpacing:'0.08em' }}>HOT & FAST</div></div>
+              <div><span style={{ fontSize: 32, fontWeight: 700, color:'#E8A53C' }}>15g/kg</span><div style={{ fontSize: 12, color:'#B8AC97', marginTop: 2, fontFamily:'var(--cf-mono)', letterSpacing:'0.08em' }}>REVERSE SEAR</div></div>
+            </div>
+          </div>
+          <div style={{ background:'#FAF6EE', border:'1.5px solid rgba(31,26,20,0.15)', padding: 24 }}>
+            <div className="cf-eyebrow">Cuts compatibles</div>
+            <div style={{ marginTop: 14, display:'flex', flexWrap:'wrap', gap: 8 }}>
+              {['Brisket','Travers','Pulled pork','Picanha','Côte de bœuf','Poulet entier'].map(t => <Pill key={t} active>{t}</Pill>)}
+            </div>
+            <div className="cf-eyebrow" style={{ marginTop: 24 }}>À éviter sur</div>
+            <div style={{ marginTop: 8, display:'flex', flexWrap:'wrap', gap: 8 }}>
+              {['Poisson','Légumes verts'].map(t => <Pill key={t}>{t}</Pill>)}
+            </div>
+          </div>
+          <div style={{ background:'#FAF6EE', border:'1.5px solid rgba(31,26,20,0.15)', padding: 24, display:'flex', flexDirection:'column' }}>
+            <div className="cf-eyebrow">L'origine</div>
+            <p style={{ marginTop: 12, fontSize: 14, lineHeight: 1.6, color:'#3A3025', flex: 1 }}>
+              Inventé par Mike Mills dans l'Illinois pour ses compétitions. La recette a fuité dans les années 90, chacun a sa version. La nôtre tire vers le fumé et adoucit le sucre — version française, version BBQ.
+            </p>
+            <FireButton size="sm" type="ghost" style={{ marginTop: 16, alignSelf:'flex-start' }}>Lire l'histoire complète →</FireButton>
+          </div>
+        </div>
+      </section>
+
+      {/* Affiliate */}
+      <section style={{ padding: mobile ? '0 20px 40px' : '0 64px 64px', maxWidth: 1280, margin:'0 auto' }}>
+        <div style={{
+          background:'#FAF6EE',
+          border:'2px dashed #8B1A1A',
+          padding: mobile ? 24 : 36,
+          display:'flex', flexDirection: mobile ? 'column' : 'row',
+          alignItems:'center', gap: 24,
+        }}>
+          <StampBadge size={mobile ? 90 : 120} topText="ACHAT MALIN" bottomText="· LIEN PARTENAIRE ·" center="€" accent="#8B1A1A"/>
+          <div style={{ flex: 1, textAlign: mobile ? 'center' : 'left' }}>
+            <div className="cf-eyebrow" style={{ marginBottom: 6 }}>Acheter ce rub · lien affilié</div>
+            <h3 style={{ fontSize: mobile ? 24 : 32, textTransform:'uppercase', fontWeight: 700, lineHeight: 1.05 }}>Magic Dust prêt à l'emploi · Pot de 250g</h3>
+            <p style={{ marginTop: 8, fontSize: 14, color:'#3A3025' }}>Préparé par notre partenaire <strong>Pitmaster Supply</strong>. On touche une commission, ça finance le calculateur.</p>
+          </div>
+          <FireButton size="lg" type="primary">14,90€ · Commander</FireButton>
+        </div>
+      </section>
+
+      {/* Recipes using this rub */}
+      <section style={{ padding: mobile ? '0 20px 48px' : '0 64px 80px', maxWidth: 1400, margin:'0 auto' }}>
+        <div style={{ marginBottom: 24 }}>
+          <SectionEyebrow>Avec ce rub</SectionEyebrow>
+          <h2 style={{ fontSize: mobile ? 32 : 48, textTransform:'uppercase', fontWeight: 700, marginTop: 12 }}>5 recettes, 5 ambiances</h2>
+        </div>
+        <div style={{ display:'grid', gridTemplateColumns: mobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: mobile ? 12 : 20 }}>
+          <RecipeCard compact image={RECIPE_IMAGES.brisket} category="Bœuf" title="Brisket Magic Dust" time="14h" difficulty="Avancé"/>
+          <RecipeCard compact image={RECIPE_IMAGES.ribs} category="Porc" title="Travers caramélisés" time="5h" difficulty="Inter."/>
+          <RecipeCard compact image={RECIPE_IMAGES.pulled} category="Porc" title="Pulled pork classique" time="12h" difficulty="Avancé"/>
+          <RecipeCard compact image={RECIPE_IMAGES.poulet} category="Volaille" title="Poulet rôti" time="1h30" difficulty="Facile"/>
+        </div>
+      </section>
+
+      <Footer mobile={mobile}/>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// 5. ARTICLE / RECIPE PAGE
+// ─────────────────────────────────────────────────────────────
+function ArticlePage({ mobile }) {
+  return (
+    <div className="cf-root cf-paper-bg" style={{ width:'100%' }}>
+      <Header mobile={mobile} currentPage="articles"/>
+
+      <article>
+        {/* Hero */}
+        <header style={{ padding: mobile ? '32px 20px 24px' : '72px 64px 32px', maxWidth: 920, margin:'0 auto' }}>
+          <div className="cf-eyebrow" style={{ color:'#8B1A1A' }}>Reportage · Texas · Long format</div>
+          <h1 style={{ fontSize: mobile ? 44 : 88, lineHeight: 0.95, textTransform:'uppercase', fontWeight: 700, marginTop: 16, letterSpacing:'-0.02em' }}>
+            J'ai dormi<br/>dehors avec<br/>un <span style={{ color:'#8B1A1A', fontStyle:'italic' }}>brisket</span>.
+          </h1>
+          <p style={{ marginTop: 20, fontSize: mobile ? 17 : 22, lineHeight: 1.45, color:'#3A3025', fontWeight: 400 }}>
+            14 heures de fumée, 3 réveils nocturnes, et la conviction que le low & slow se mérite. Récit d'une nuit blanche à 110°C, quelque part entre Lockhart et l'aurore.
+          </p>
+          <div style={{ marginTop: 24, display:'flex', gap: 16, fontFamily:'var(--cf-mono)', fontSize: 11, letterSpacing:'0.1em', color:'#6E6356', textTransform:'uppercase', flexWrap:'wrap', alignItems:'center' }}>
+            <div style={{ width: 36, height: 36, background:'#1F1A14', color:'#E8A53C', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'var(--cf-serif)', fontWeight: 700 }}>MR</div>
+            <span><strong style={{ color:'#1F1A14' }}>Mathieu Ratel</strong> · 15 mars 2026</span>
+            <span>· 8 min de lecture</span>
+            <span>· ★ Pitmaster</span>
+          </div>
+        </header>
+
+        {/* Hero image */}
+        <div style={{
+          width: mobile ? '100%' : 'calc(100% - 64px)',
+          maxWidth: 1200,
+          margin:'0 auto',
+          aspectRatio: mobile ? '4/3' : '16/9',
+          backgroundImage:`url(${RECIPE_IMAGES.brisket})`,
+          backgroundSize:'cover', backgroundPosition:'center',
+          marginBottom: mobile ? 32 : 48,
+        }}/>
+
+        {/* Body */}
+        <div style={{ padding: mobile ? '0 20px' : '0 64px', maxWidth: 720, margin:'0 auto' }}>
+          <p style={{ fontSize: mobile ? 17 : 19, lineHeight: 1.65, color:'#1F1A14' }}>
+            <span style={{ fontFamily:'var(--cf-serif)', fontSize: mobile ? 56 : 80, fontWeight: 700, float:'left', lineHeight: 0.85, paddingTop: 4, paddingRight: 12, color:'#8B1A1A' }}>I</span>
+            l est 23h47 quand je sors le brisket du frigo. 4,2 kilos de poitrine de bœuf, gras épais, marbrure correcte sans plus. J'ai acheté la pièce ce matin chez Mickaël, le boucher de la rue Saint-Maur, qui m'a regardé comme si j'étais fou de vouloir cuire ça toute une nuit.
+          </p>
+          <p style={{ fontSize: mobile ? 17 : 19, lineHeight: 1.65, marginTop: 20, color:'#1F1A14' }}>
+            « Tu vas dormir sur ton balcon ? » Oui, Mickaël. C'est exactement le plan.
+          </p>
+
+          <h2 style={{ fontSize: mobile ? 32 : 44, textTransform:'uppercase', fontWeight: 700, marginTop: 48, marginBottom: 16, lineHeight: 1 }}>
+            Préparer la nuit
+          </h2>
+          <p style={{ fontSize: mobile ? 17 : 19, lineHeight: 1.65, color:'#1F1A14' }}>
+            Le brisket américain a ceci de particulier qu'il refuse l'à-peu-près. Tu peux ruiner une côte de bœuf en 4 minutes ; un brisket te punit pendant 14 heures, à raison d'un degré de trop par heure.
+          </p>
+
+          {/* Pull quote */}
+          <blockquote style={{
+            margin: mobile ? '36px -20px' : '48px -64px',
+            padding: mobile ? '32px 24px' : '48px 80px',
+            background:'#1F1A14', color:'#E8A53C',
+            fontFamily:'var(--cf-serif)',
+            fontSize: mobile ? 28 : 42,
+            lineHeight: 1.15,
+            fontWeight: 500,
+            fontStyle:'italic',
+            textAlign:'center',
+            position:'relative', overflow:'hidden',
+          }}>
+            <EmberGlow count={8}/>
+            <span style={{ position:'relative' }}>« Le low & slow ne te demande pas du talent. Il te demande de la patience, et la patience, ça se mérite plus que ça ne s'apprend. »</span>
+            <div style={{ marginTop: 14, fontFamily:'var(--cf-mono)', fontSize: 11, letterSpacing:'0.16em', color:'#B8AC97', textTransform:'uppercase', fontStyle:'normal' }}>— Aaron Franklin, à un journaliste épuisé</div>
+          </blockquote>
+
+          <p style={{ fontSize: mobile ? 17 : 19, lineHeight: 1.65, color:'#1F1A14' }}>
+            J'allume les braises à minuit. Chêne et un peu de hickory pour la fumée. Le smoker monte en dix minutes à 110°C. Je trim le brisket — j'enlève le gras dur, je laisse une couche d'un demi-pouce sur le dessus. Frottage généreux : Magic Dust, double dose côté fat cap.
+          </p>
+        </div>
+
+        {/* Calculator embed */}
+        <div style={{ padding: mobile ? '32px 20px' : '48px 64px', maxWidth: 720, margin:'0 auto' }}>
+          <div style={{ background:'#1F1A14', color:'#F5EFE0', padding: 24, position:'relative', overflow:'hidden', border:'2px solid #8B1A1A' }}>
+            <EmberGlow count={6}/>
+            <div style={{ position:'relative', display:'flex', flexDirection: mobile ? 'column' : 'row', alignItems: mobile ? 'flex-start' : 'center', gap: 16 }}>
+              <MethodBadge method="low" size={88}/>
+              <div style={{ flex: 1 }}>
+                <div className="cf-eyebrow" style={{ color:'#E8A53C', marginBottom: 4 }}>Cuisson de cette recette</div>
+                <h3 style={{ fontFamily:'var(--cf-serif)', fontSize: 24, textTransform:'uppercase', fontWeight: 700, color:'#F5EFE0', lineHeight: 1.05 }}>Brisket · Low & Slow · 4,2 kg</h3>
+                <div style={{ fontFamily:'var(--cf-mono)', fontSize: 12, color:'#B8AC97', marginTop: 6, letterSpacing:'0.08em' }}>≈ 14h · 110°C · 95°C à cœur</div>
+              </div>
+              <FireButton size="md" type="primary">Lancer →</FireButton>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ padding: mobile ? '0 20px' : '0 64px', maxWidth: 720, margin:'0 auto' }}>
+          <h2 style={{ fontSize: mobile ? 32 : 44, textTransform:'uppercase', fontWeight: 700, marginTop: 48, marginBottom: 16, lineHeight: 1 }}>Le stall, et l'humilité</h2>
+          <p style={{ fontSize: mobile ? 17 : 19, lineHeight: 1.65, color:'#1F1A14' }}>
+            À 4h du matin, la sonde marque 71°C. Une heure plus tard, toujours 71°C. C'est le stall — quand l'évaporation à la surface refroidit la viande aussi vite qu'elle chauffe. Tous les pitmasters connaissent ça. Tous les pitmasters mauvais paniquent. Les bons attendent.
+          </p>
+          <p style={{ fontSize: mobile ? 17 : 19, lineHeight: 1.65, marginTop: 20, color:'#1F1A14' }}>
+            J'attends. Je remets une bûche. Je dors trente minutes dans la chaise longue. Le ciel commence à pâlir, le balcon sent la fumée de bois. À 6h12, la sonde repart : 73, 74, 76. La courbe du stall est cassée.
+          </p>
+        </div>
+
+        {/* Newsletter mid-article */}
+        <div style={{ padding: mobile ? '32px 20px' : '48px 64px', maxWidth: 720, margin:'0 auto' }}>
+          <div style={{ background:'#E5DBC6', border:'1.5px solid rgba(31,26,20,0.2)', padding: mobile ? 20 : 28, display:'flex', flexDirection: mobile ? 'column' : 'row', alignItems:'center', gap: 16 }}>
+            <div style={{ flex: 1 }}>
+              <div className="cf-eyebrow" style={{ color:'#8B1A1A' }}>★ La gazette</div>
+              <h3 style={{ fontSize: 22, textTransform:'uppercase', fontWeight: 700, marginTop: 6, lineHeight: 1.1 }}>On t'envoie une recette comme ça chaque dimanche.</h3>
+            </div>
+            <FireButton size="md">Je m'abonne</FireButton>
+          </div>
+        </div>
+
+        <div style={{ padding: mobile ? '0 20px 48px' : '0 64px 64px', maxWidth: 720, margin:'0 auto' }}>
+          <p style={{ fontSize: mobile ? 17 : 19, lineHeight: 1.65, color:'#1F1A14' }}>
+            À 8h45, le brisket atteint 95°C à cœur. Il a une croûte presque noire, une fumée bleue qui s'accroche au doigt. Je l'enveloppe dans le papier kraft, je le laisse reposer une heure dans la glacière. Le jus se redistribue. La fibre se détend.
+          </p>
+          <p style={{ fontSize: mobile ? 17 : 19, lineHeight: 1.65, marginTop: 20, color:'#1F1A14' }}>
+            À 10h, je tranche. La première coupe est parfaite — un anneau rose de fumée d'un centimètre, une mie qui tient sans s'effriter. Je rappelle Mickaël plus tard dans la journée. « Tu m'apportes une part ? » Bien sûr.
+          </p>
+        </div>
+
+        {/* Tags */}
+        <div style={{ padding: mobile ? '0 20px 32px' : '0 64px 48px', maxWidth: 720, margin:'0 auto', display:'flex', flexWrap:'wrap', gap: 8 }}>
+          {['#brisket','#low-and-slow','#texas','#reportage','#pitmaster','#nuit-blanche'].map(t => <Pill key={t}>{t}</Pill>)}
+        </div>
+      </article>
+
+      {/* Related */}
+      <section style={{ padding: mobile ? '32px 20px 48px' : '64px 64px 80px', maxWidth: 1400, margin:'0 auto', borderTop:'1px solid rgba(31,26,20,0.12)' }}>
+        <div style={{ marginBottom: 24 }}>
+          <SectionEyebrow>À lire ensuite</SectionEyebrow>
+          <h2 style={{ fontSize: mobile ? 32 : 48, textTransform:'uppercase', fontWeight: 700, marginTop: 12 }}>Dans le même feu</h2>
+        </div>
+        <div style={{ display:'grid', gridTemplateColumns: mobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: mobile ? 12 : 20 }}>
+          <RecipeCard compact image={RECIPE_IMAGES.pulled} category="Recette · Porc" title="Pulled pork de 12h" time="12h" difficulty="Avancé"/>
+          <RecipeCard compact image={RECIPE_IMAGES.ribs} category="Recette · Porc" title="Travers Memphis" time="5h" difficulty="Inter."/>
+          <RecipeCard compact image={RECIPE_IMAGES.smoke} category="Article" title="Le bois qui change tout" time="6 min"/>
+          <RecipeCard compact image={RECIPE_IMAGES.steak} category="Recette · Bœuf" title="Côte de bœuf reverse" time="2h" difficulty="Inter."/>
+        </div>
+      </section>
+
+      <NewsletterBlock mobile={mobile}/>
+      <Footer mobile={mobile}/>
+    </div>
+  );
+}
+
+Object.assign(window, { RecipeListPage, RubPage, ArticlePage });
+
+</script>
+
+<script type="text/babel">
+const root = ReactDOM.createRoot(document.getElementById('root'));
+
+function waitForGlobals(names, cb) {
+  if (names.every(n => window[n])) return cb();
+  setTimeout(() => waitForGlobals(names, cb), 30);
+}
+
+function render() {
+  function App() {
+  return (
+    <DesignCanvas>
+      <DCSection id="landing" title="Landing / Homepage" subtitle="Hub principal — vitrine du média + entrée calculateur">
+        <DCArtboard id="landing-mobile" label="Mobile · 390" width={390} height={2400}>
+          <LandingPage mobile={true}/>
+        </DCArtboard>
+        <DCArtboard id="landing-desktop" label="Desktop · 1440" width={1440} height={3600}>
+          <LandingPage mobile={false}/>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="calc" title="Calculateur" subtitle="Le hook fonctionnel · timer qui tourne, calcul réel">
+        <DCArtboard id="calc-mobile" label="Mobile · 390" width={390} height={2200}>
+          <CalculatorPage mobile={true}/>
+        </DCArtboard>
+        <DCArtboard id="calc-desktop" label="Desktop · 1440" width={1440} height={1800}>
+          <CalculatorPage mobile={false}/>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="recettes" title="Page liste · Recettes & Articles" subtitle="Filtres + grille éditoriale">
+        <DCArtboard id="list-mobile" label="Mobile · 390" width={390} height={2400}>
+          <RecipeListPage mobile={true}/>
+        </DCArtboard>
+        <DCArtboard id="list-desktop" label="Desktop · 1440" width={1440} height={2400}>
+          <RecipeListPage mobile={false}/>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="rub" title="Fiche Rub" subtitle="Format fiche technique éditoriale">
+        <DCArtboard id="rub-mobile" label="Mobile · 390" width={390} height={2600}>
+          <RubPage mobile={true}/>
+        </DCArtboard>
+        <DCArtboard id="rub-desktop" label="Desktop · 1440" width={1440} height={2200}>
+          <RubPage mobile={false}/>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="article" title="Article / Recette individuelle" subtitle="Lecture longue · mise en page éditoriale">
+        <DCArtboard id="article-mobile" label="Mobile · 390" width={390} height={3000}>
+          <ArticlePage mobile={true}/>
+        </DCArtboard>
+        <DCArtboard id="article-desktop" label="Desktop · 1440" width={1440} height={3400}>
+          <ArticlePage mobile={false}/>
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+
+root.render(<App/>);
+}
+waitForGlobals(['DesignCanvas','DCSection','DCArtboard','LandingPage','CalculatorPage','RecipeListPage','RubPage','ArticlePage'], render);
+</script>
+</body>
+</html>

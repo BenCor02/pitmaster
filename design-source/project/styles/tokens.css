@@ -1,0 +1,184 @@
+/* Charbon & Flamme — Design Tokens */
+
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root {
+  /* ─── Couleurs ─── */
+  /* Fonds */
+  --cf-cream: #EFE7D8;
+  --cf-cream-soft: #F5EFE0;
+  --cf-cream-deep: #E5DBC6;
+  --cf-paper: #FAF6EE;
+  --cf-kraft: #D9CDB5;
+
+  /* Texte */
+  --cf-charcoal: #1F1A14;
+  --cf-charcoal-soft: #2D261C;
+  --cf-ink: #3A3025;
+  --cf-smoke: #6E6356;
+  --cf-smoke-light: #968A7A;
+  --cf-bone: #B8AC97;
+
+  /* Accents */
+  --cf-fire: #8B1A1A;
+  --cf-fire-deep: #6B1212;
+  --cf-fire-bright: #A52828;
+  --cf-ember: #C44A1F;
+  --cf-ember-soft: #D9692F;
+  --cf-glow: #E8A53C;
+
+  /* Surfaces */
+  --cf-line: rgba(31, 26, 20, 0.12);
+  --cf-line-strong: rgba(31, 26, 20, 0.22);
+  --cf-shadow-warm: rgba(75, 35, 15, 0.18);
+
+  /* ─── Typo ─── */
+  --cf-serif: 'Oswald', 'Bebas Neue', 'Helvetica Neue', sans-serif;
+  --cf-sans: 'IBM Plex Sans', -apple-system, system-ui, sans-serif;
+  --cf-mono: 'IBM Plex Mono', 'Menlo', monospace;
+
+  /* ─── Espacement ─── */
+  --cf-space-1: 4px;
+  --cf-space-2: 8px;
+  --cf-space-3: 12px;
+  --cf-space-4: 16px;
+  --cf-space-5: 24px;
+  --cf-space-6: 32px;
+  --cf-space-7: 48px;
+  --cf-space-8: 64px;
+  --cf-space-9: 96px;
+
+  /* Radius */
+  --cf-radius-xs: 2px;
+  --cf-radius-sm: 4px;
+  --cf-radius-md: 8px;
+  --cf-radius-lg: 14px;
+  --cf-radius-xl: 22px;
+
+  /* Shadows */
+  --cf-shadow-sm: 0 1px 2px rgba(31,26,20,.08), 0 0 0 1px rgba(31,26,20,.04);
+  --cf-shadow-md: 0 4px 12px rgba(31,26,20,.10), 0 1px 3px rgba(31,26,20,.06);
+  --cf-shadow-lg: 0 12px 32px rgba(31,26,20,.18), 0 2px 6px rgba(31,26,20,.08);
+  --cf-shadow-fire: 0 0 24px -4px rgba(139,26,26,.45);
+}
+
+/* ─── Reset léger pour les artboards ─── */
+.cf-root {
+  font-family: var(--cf-sans);
+  color: var(--cf-charcoal);
+  background: var(--cf-cream);
+  line-height: 1.5;
+  font-feature-settings: "ss01", "ss02";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.cf-root *,
+.cf-root *::before,
+.cf-root *::after {
+  box-sizing: border-box;
+}
+.cf-root h1, .cf-root h2, .cf-root h3, .cf-root h4 {
+  font-family: var(--cf-serif);
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.05;
+  margin: 0;
+  color: var(--cf-charcoal);
+}
+.cf-root p { margin: 0; }
+.cf-root button { font-family: inherit; cursor: pointer; }
+.cf-root a { color: inherit; text-decoration: none; }
+
+/* ─── Subtle paper texture ─── */
+.cf-paper-bg {
+  background-color: var(--cf-cream);
+  background-image:
+    radial-gradient(ellipse at top left, rgba(139,26,26,0.04), transparent 60%),
+    radial-gradient(ellipse at bottom right, rgba(196,74,31,0.03), transparent 50%),
+    repeating-linear-gradient(0deg, rgba(31,26,20,0.012) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(31,26,20,0.008) 0 1px, transparent 1px 3px);
+}
+
+.cf-kraft-bg {
+  background-color: var(--cf-kraft);
+  background-image:
+    radial-gradient(ellipse at center, rgba(255,255,255,0.05), transparent 70%),
+    repeating-linear-gradient(45deg, rgba(31,26,20,0.025) 0 1px, transparent 1px 4px);
+}
+
+.cf-charcoal-bg {
+  background-color: var(--cf-charcoal);
+  background-image:
+    radial-gradient(ellipse at top, rgba(196,74,31,0.18), transparent 55%),
+    radial-gradient(ellipse at bottom, rgba(139,26,26,0.12), transparent 60%);
+}
+
+/* ─── Utility classes ─── */
+.cf-eyebrow {
+  font-family: var(--cf-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cf-smoke);
+  font-weight: 500;
+}
+.cf-divider {
+  height: 1px;
+  background: var(--cf-line);
+  border: none;
+  margin: 0;
+}
+.cf-divider-thick {
+  height: 2px;
+  background: var(--cf-charcoal);
+  border: none;
+}
+
+/* ─── Animations ─── */
+@keyframes cfEmberPulse {
+  0%, 100% { opacity: 0.85; filter: brightness(1); }
+  50% { opacity: 1; filter: brightness(1.18); }
+}
+@keyframes cfEmberPulseFast {
+  0%, 100% { opacity: 0.7; }
+  35% { opacity: 1; }
+  70% { opacity: 0.85; }
+}
+@keyframes cfSmokeRise {
+  0% { transform: translate3d(0,20px,0) scale(0.95); opacity: 0; }
+  20% { opacity: 0.45; }
+  100% { transform: translate3d(20px,-80px,0) scale(1.4); opacity: 0; }
+}
+@keyframes cfSmokeDrift {
+  0% { transform: translate3d(-20px,0,0); }
+  50% { transform: translate3d(20px,-10px,0); }
+  100% { transform: translate3d(-20px,0,0); }
+}
+@keyframes cfStampSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes cfFlicker {
+  0%, 100% { opacity: 1; }
+  3% { opacity: .85; }
+  6% { opacity: 1; }
+  10% { opacity: .92; }
+  14% { opacity: 1; }
+}
+@keyframes cfTimerTick {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.cf-ember-pulse { animation: cfEmberPulse 2.4s ease-in-out infinite; }
+.cf-ember-fast { animation: cfEmberPulseFast 1.6s ease-in-out infinite; }
+.cf-flicker { animation: cfFlicker 4s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cf-ember-pulse, .cf-ember-fast, .cf-flicker { animation: none !important; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ─── Hide scrollbars in artboards ─── */
+.cf-noscroll::-webkit-scrollbar { display: none; }
+.cf-noscroll { scrollbar-width: none; }
