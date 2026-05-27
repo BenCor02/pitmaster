@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useAuth } from '../modules/auth/AuthContext.jsx'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { LogoIcon } from '../components/Logo.jsx'
+import { CFLogo } from '../components/cf/Chrome.jsx'
+import { FireButton } from '../components/cf/Primitives.jsx'
 
 const SMOKER_TYPES = [
   { id: 'offset', label: 'Offset Smoker', icon: '🔥' },
@@ -18,8 +19,21 @@ const EXPERIENCE_LEVELS = [
   { id: 'debutant', label: 'Débutant', desc: 'Je débute le low & slow' },
   { id: 'intermediaire', label: 'Intermédiaire', desc: 'Quelques cuissons à mon actif' },
   { id: 'avance', label: 'Avancé', desc: 'Je maîtrise la plupart des cuissons' },
-  { id: 'pitmaster', label: 'Pitmaster', desc: 'Le feu n\'a plus de secret pour moi' },
+  { id: 'pitmaster', label: 'Pitmaster', desc: "Le feu n'a plus de secret pour moi" },
 ]
+
+const inputStyle = {
+  width: '100%',
+  padding: '12px 16px',
+  background: '#FFFFFF',
+  border: '1px solid rgba(31,26,20,0.15)',
+  borderRadius: 8,
+  color: '#1F1A14',
+  fontFamily: 'var(--cf-sans)',
+  fontSize: 14,
+  outline: 'none',
+  boxSizing: 'border-box',
+}
 
 export default function LoginPage() {
   const { signIn, signUp, updateProfile } = useAuth()
@@ -118,83 +132,171 @@ export default function LoginPage() {
   // ── Onboarding screen ──
   if (mode === 'onboarding') {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[#ff6b1a]/[0.04] rounded-full blur-[100px] pointer-events-none animate-fire-breathe" />
-        <div className="w-full max-w-md animate-fade-in-up relative">
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <LogoIcon size={48} />
+      <div
+        style={{
+          minHeight: '100vh',
+          background: '#FAF6EE',
+          color: '#1F1A14',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '40px 16px',
+        }}
+      >
+        <div style={{ width: '100%', maxWidth: 440 }}>
+          <div style={{ textAlign: 'center', marginBottom: 32 }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+              <CFLogo size={36} />
             </div>
-            <h1 className="text-xl font-extrabold text-white tracking-tight mb-1">
+            <h1
+              style={{
+                fontFamily: 'var(--cf-serif)',
+                fontSize: 22,
+                fontWeight: 800,
+                color: '#1F1A14',
+                marginBottom: 6,
+                letterSpacing: '-0.01em',
+              }}
+            >
               Bienvenue, {displayName || 'Pitmaster'} !
             </h1>
-            <p className="text-zinc-500 text-sm">
+            <p style={{ color: '#6E6356', fontSize: 14 }}>
               Dis-nous en plus sur toi pour personnaliser ton expérience
             </p>
           </div>
 
           {/* Smoker type */}
-          <div className="mb-6">
-            <p className="text-sm font-semibold text-zinc-300 mb-3">Ton fumoir principal</p>
-            <div className="grid grid-cols-2 gap-2">
+          <div style={{ marginBottom: 24 }}>
+            <p
+              style={{
+                fontFamily: 'var(--cf-serif)',
+                fontSize: 13,
+                fontWeight: 600,
+                color: '#1F1A14',
+                marginBottom: 12,
+                letterSpacing: '0.04em',
+                textTransform: 'uppercase',
+              }}
+            >
+              Ton fumoir principal
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
               {SMOKER_TYPES.map((s) => (
                 <button
                   key={s.id}
                   onClick={() => setSmokerType(s.id)}
-                  className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border text-left text-sm transition-all ${
-                    smokerType === s.id
-                      ? 'border-[#ff6b1a] bg-[#ff6b1a]/10 text-[#ff8c4a]'
-                      : 'border-zinc-700/50 bg-zinc-900/60 text-zinc-400 hover:border-zinc-600'
-                  }`}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '10px 12px',
+                    borderRadius: 8,
+                    border: smokerType === s.id
+                      ? '1.5px solid #8B1A1A'
+                      : '1px solid rgba(31,26,20,0.15)',
+                    background: smokerType === s.id ? 'rgba(139,26,26,0.06)' : '#FFFFFF',
+                    color: smokerType === s.id ? '#8B1A1A' : '#1F1A14',
+                    textAlign: 'left',
+                    fontSize: 13,
+                    fontFamily: 'var(--cf-sans)',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s',
+                  }}
                 >
-                  <span className="text-lg">{s.icon}</span>
-                  <span className="leading-tight">{s.label}</span>
+                  <span style={{ fontSize: 18 }}>{s.icon}</span>
+                  <span style={{ lineHeight: 1.3 }}>{s.label}</span>
                 </button>
               ))}
             </div>
           </div>
 
           {/* Experience level */}
-          <div className="mb-6">
-            <p className="text-sm font-semibold text-zinc-300 mb-3">Ton niveau</p>
-            <div className="flex flex-col gap-2">
+          <div style={{ marginBottom: 24 }}>
+            <p
+              style={{
+                fontFamily: 'var(--cf-serif)',
+                fontSize: 13,
+                fontWeight: 600,
+                color: '#1F1A14',
+                marginBottom: 12,
+                letterSpacing: '0.04em',
+                textTransform: 'uppercase',
+              }}
+            >
+              Ton niveau
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {EXPERIENCE_LEVELS.map((lvl) => (
                 <button
                   key={lvl.id}
                   onClick={() => setExperienceLevel(lvl.id)}
-                  className={`flex flex-col px-4 py-3 rounded-xl border text-left transition-all ${
-                    experienceLevel === lvl.id
-                      ? 'border-[#ff6b1a] bg-[#ff6b1a]/10'
-                      : 'border-zinc-700/50 bg-zinc-900/60 hover:border-zinc-600'
-                  }`}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    padding: '12px 16px',
+                    borderRadius: 8,
+                    border: experienceLevel === lvl.id
+                      ? '1.5px solid #8B1A1A'
+                      : '1px solid rgba(31,26,20,0.15)',
+                    background: experienceLevel === lvl.id ? 'rgba(139,26,26,0.06)' : '#FFFFFF',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s',
+                  }}
                 >
-                  <span className={`text-sm font-semibold ${experienceLevel === lvl.id ? 'text-[#ff8c4a]' : 'text-zinc-300'}`}>
+                  <span
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 600,
+                      fontFamily: 'var(--cf-sans)',
+                      color: experienceLevel === lvl.id ? '#8B1A1A' : '#1F1A14',
+                    }}
+                  >
                     {lvl.label}
                   </span>
-                  <span className="text-xs text-zinc-500 mt-0.5">{lvl.desc}</span>
+                  <span style={{ fontSize: 12, color: '#6E6356', marginTop: 2 }}>{lvl.desc}</span>
                 </button>
               ))}
             </div>
           </div>
 
           {error && (
-            <div className="px-4 py-2.5 mb-4 bg-red-500/10 border border-red-500/20 rounded-xl animate-fade-in">
-              <p className="text-red-400 text-sm">{error}</p>
+            <div
+              style={{
+                padding: '10px 16px',
+                marginBottom: 16,
+                background: 'rgba(139,26,26,0.06)',
+                border: '1px solid rgba(139,26,26,0.2)',
+                borderRadius: 8,
+              }}
+            >
+              <p style={{ color: '#8B1A1A', fontSize: 13 }}>{error}</p>
             </div>
           )}
 
-          <button
+          <FireButton
             onClick={handleOnboardingSubmit}
             disabled={onboardingSaving}
-            className="w-full py-3.5 bg-gradient-to-r from-[#ff6b1a] to-[#ef4444] hover:from-[#ff7a33] hover:to-[#f55] shadow-lg shadow-[#ff6b1a]/20 hover:shadow-[#ff6b1a]/30 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-brand-600/20 disabled:opacity-50"
+            type="primary"
+            fullWidth
+            style={{ marginBottom: 12 }}
           >
-            {onboardingSaving ? '...' : 'C\'est parti !'}
-          </button>
+            {onboardingSaving ? '...' : "C'est parti !"}
+          </FireButton>
 
           <button
             onClick={handleSkipOnboarding}
             disabled={onboardingSaving}
-            className="w-full mt-3 text-sm text-zinc-600 hover:text-zinc-400 transition-colors"
+            style={{
+              width: '100%',
+              padding: '10px',
+              background: 'none',
+              border: 'none',
+              fontSize: 13,
+              color: '#6E6356',
+              cursor: 'pointer',
+              fontFamily: 'var(--cf-sans)',
+            }}
           >
             Passer cette étape
           </button>
@@ -205,94 +307,156 @@ export default function LoginPage() {
 
   // ── Login / Register screen ──
   return (
-    <div className="min-h-screen flex relative overflow-hidden">
+    <div style={{ minHeight: '100vh', display: 'flex', background: '#FAF6EE', color: '#1F1A14' }}>
       {/* Left: image panel (desktop only) */}
-      <div className="hidden lg:block lg:w-1/2 relative">
+      <div
+        style={{
+          position: 'relative',
+          flex: '0 0 50%',
+        }}
+        className="hidden lg:block"
+      >
         <img
           src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&h=1200&fit=crop&q=85"
           alt=""
-          className="w-full h-full object-cover"
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#080808]" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#080808]/60 to-transparent" />
-        <div className="absolute bottom-12 left-10 right-10">
-          <p className="font-display text-[28px] font-black text-white leading-tight">
-            "Le feu ne ment pas.<br/>
-            <span className="text-[#ff6b1a]">La viande non plus."</span>
+        {/* Light-mode overlay — warm sepia gradient */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(to right, transparent 40%, rgba(250,246,238,0.6))',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(to top, rgba(31,26,20,0.55) 0%, transparent 60%)',
+          }}
+        />
+        <div style={{ position: 'absolute', bottom: 48, left: 40, right: 40 }}>
+          <p
+            style={{
+              fontFamily: 'var(--cf-serif)',
+              fontSize: 28,
+              fontWeight: 900,
+              color: '#F5EFE0',
+              lineHeight: 1.25,
+            }}
+          >
+            "Le feu ne ment pas.
+            <br />
+            <span style={{ color: '#E8A53C' }}>La viande non plus."</span>
           </p>
         </div>
       </div>
 
       {/* Right: form */}
-      <div className="flex-1 flex items-center justify-center px-6 relative">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-[#ff6b1a]/[0.03] rounded-full blur-[100px] pointer-events-none animate-fire-breathe" />
-      <div className="w-full max-w-sm animate-fade-in-up relative">
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-5">
-            <LogoIcon size={52} />
-          </div>
-          <h1 className="font-display text-2xl font-black text-white tracking-tight mb-1">
-            {mode === 'login' ? 'Connexion' : 'Créer un compte'}
-          </h1>
-          <p className="text-zinc-500 text-sm">
-            {mode === 'login' ? 'Retrouve ton espace pitmaster' : 'Rejoins la communauté BBQ'}
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {mode === 'register' && (
-            <input
-              type="text"
-              placeholder="Nom d'affichage"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              className="w-full px-4 py-3 bg-zinc-900/80 border border-zinc-700/50 rounded-xl text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/20 transition-all"
-            />
-          )}
-
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full px-4 py-3 bg-zinc-900/80 border border-zinc-700/50 rounded-xl text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/20 transition-all"
-          />
-
-          <input
-            type="password"
-            placeholder="Mot de passe"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={6}
-            className="w-full px-4 py-3 bg-zinc-900/80 border border-zinc-700/50 rounded-xl text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/20 transition-all"
-          />
-
-          {error && (
-            <div className="px-4 py-2.5 bg-red-500/10 border border-red-500/20 rounded-xl animate-fade-in">
-              <p className="text-red-400 text-sm">{error}</p>
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '40px 24px',
+        }}
+      >
+        <div style={{ width: '100%', maxWidth: 360 }}>
+          <div style={{ textAlign: 'center', marginBottom: 32 }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+              <CFLogo size={36} />
             </div>
-          )}
+            <h1
+              style={{
+                fontFamily: 'var(--cf-serif)',
+                fontSize: 26,
+                fontWeight: 900,
+                color: '#1F1A14',
+                letterSpacing: '-0.01em',
+                marginBottom: 4,
+              }}
+            >
+              {mode === 'login' ? 'Connexion' : 'Créer un compte'}
+            </h1>
+            <p style={{ color: '#6E6356', fontSize: 14 }}>
+              {mode === 'login' ? 'Retrouve ton espace pitmaster' : 'Rejoins la communauté BBQ'}
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {mode === 'register' && (
+              <input
+                type="text"
+                placeholder="Nom d'affichage"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                style={inputStyle}
+              />
+            )}
+
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              style={inputStyle}
+            />
+
+            <input
+              type="password"
+              placeholder="Mot de passe"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+              style={inputStyle}
+            />
+
+            {error && (
+              <div
+                style={{
+                  padding: '10px 16px',
+                  background: 'rgba(139,26,26,0.06)',
+                  border: '1px solid rgba(139,26,26,0.2)',
+                  borderRadius: 8,
+                }}
+              >
+                <p style={{ color: '#8B1A1A', fontSize: 13 }}>{error}</p>
+              </div>
+            )}
+
+            <FireButton
+              as="button"
+              type="primary"
+              fullWidth
+              disabled={loading}
+              style={{ marginTop: 4 }}
+            >
+              {loading ? '...' : mode === 'login' ? 'Se connecter' : "S'inscrire"}
+            </FireButton>
+          </form>
 
           <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3.5 bg-gradient-to-r from-[#ff6b1a] to-[#ef4444] hover:from-[#ff7a33] hover:to-[#f55] shadow-lg shadow-[#ff6b1a]/20 hover:shadow-[#ff6b1a]/30 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-brand-600/20 disabled:opacity-50"
+            onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
+            style={{
+              width: '100%',
+              marginTop: 16,
+              background: 'none',
+              border: 'none',
+              fontSize: 13,
+              color: '#6E6356',
+              cursor: 'pointer',
+              fontFamily: 'var(--cf-sans)',
+            }}
           >
-            {loading ? '...' : mode === 'login' ? 'Se connecter' : "S'inscrire"}
+            {mode === 'login'
+              ? "Pas encore de compte ? S'inscrire"
+              : 'Déjà un compte ? Se connecter'}
           </button>
-        </form>
-
-        <button
-          onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
-          className="w-full mt-4 text-sm text-zinc-500 hover:text-zinc-300 transition-colors"
-        >
-          {mode === 'login'
-            ? "Pas encore de compte ? S'inscrire"
-            : 'Déjà un compte ? Se connecter'}
-        </button>
-      </div>
+        </div>
       </div>
     </div>
   )

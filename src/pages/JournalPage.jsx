@@ -1,23 +1,45 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useAuth } from '../modules/auth/AuthContext.jsx'
 import { Link, useSearchParams } from 'react-router-dom'
 import { journal } from '../lib/journal.js'
+import { CFHeader, CFFooter } from '../components/cf/Chrome.jsx'
+import { FireButton, SectionEyebrow } from '../components/cf/Primitives.jsx'
+
+/* ── useMobile ── */
+function useMobile() {
+  const [mobile, setMobile] = React.useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)').matches : false
+  )
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+    const mq = window.matchMedia('(max-width: 767px)')
+    const handler = (e) => setMobile(e.matches)
+    mq.addEventListener?.('change', handler)
+    return () => mq.removeEventListener?.('change', handler)
+  }, [])
+  return mobile
+}
 
 // ── Rating stars ──────────────────────────────────────────
 function Stars({ value, onChange, readonly = false }) {
   return (
-    <div className="flex gap-1">
+    <div style={{ display: 'flex', gap: 4 }}>
       {[1, 2, 3, 4, 5].map(n => (
         <button
           key={n}
           type="button"
           disabled={readonly}
           onClick={() => onChange?.(n)}
-          className={`text-lg transition-all ${
-            n <= value
-              ? 'text-[#ff6b1a] scale-110'
-              : 'text-zinc-700 hover:text-zinc-500'
-          } ${readonly ? 'cursor-default' : 'cursor-pointer'}`}
+          style={{
+            fontSize: 20,
+            background: 'none',
+            border: 'none',
+            cursor: readonly ? 'default' : 'pointer',
+            color: n <= value ? '#E8A53C' : 'rgba(31,26,20,0.25)',
+            transform: n <= value ? 'scale(1.1)' : 'scale(1)',
+            transition: 'all 0.15s',
+            padding: 0,
+          }}
         >
           ★
         </button>
@@ -28,6 +50,7 @@ function Stars({ value, onChange, readonly = false }) {
 
 // ── Page principale ───────────────────────────────────────
 export default function JournalPage() {
+  const mobile = useMobile()
   const { isAuthenticated, isLoading } = useAuth()
   const [searchParams] = useSearchParams()
   const [sessions, setSessions] = useState([])
@@ -75,29 +98,25 @@ export default function JournalPage() {
   // ── Gate : non connecté ──
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-zinc-500 text-sm">Chargement...</p>
+      <div style={{ minHeight: '100vh', background: '#FAF6EE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p style={{ color: '#6E6356', fontSize: 14 }}>Chargement...</p>
       </div>
     )
   }
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-6">
-        <div className="text-center max-w-sm">
-          <div className="w-14 h-14 rounded-2xl bg-[#ff6b1a]/10 flex items-center justify-center mx-auto mb-4">
-            <span className="text-2xl">📓</span>
+      <div style={{ minHeight: '100vh', background: '#FAF6EE', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px' }}>
+        <div style={{ textAlign: 'center', maxWidth: 360 }}>
+          <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(139,26,26,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontSize: 26 }}>
+            📓
           </div>
-          <h1 className="text-[20px] font-bold text-white mb-2">Journal de cuisson</h1>
-          <p className="text-[14px] text-zinc-400 mb-6 leading-relaxed">
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: '#1F1A14', fontFamily: 'var(--cf-serif)', marginBottom: 10 }}>Journal de cuisson</h1>
+          <p style={{ fontSize: 14, color: '#6E6356', marginBottom: 24, lineHeight: 1.7 }}>
             Connecte-toi pour enregistrer tes sessions de cuisson, noter ce qui a marché et ce qu'il faut améliorer.
           </p>
-          <Link
-            to="/login"
-            state={{ from: '/journal' }}
-            className="btn-primary inline-flex items-center gap-2 px-6 py-3 text-[14px]"
-          >
-            Se connecter
+          <Link to="/login" state={{ from: '/journal' }} style={{ textDecoration: 'none' }}>
+            <FireButton>Se connecter</FireButton>
           </Link>
         </div>
       </div>
@@ -151,81 +170,95 @@ export default function JournalPage() {
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <div className="px-6 lg:px-10 py-6 border-b border-white/[0.06]">
-        <div className="max-w-3xl flex items-center justify-between">
-          <div>
-            <h1 className="text-[20px] font-bold text-white tracking-tight">Journal de cuisson</h1>
-            <p className="text-[13px] text-zinc-500 mt-0.5">
-              {sessions.length} session{sessions.length !== 1 ? 's' : ''} enregistrée{sessions.length !== 1 ? 's' : ''}
-            </p>
+    <div style={{ minHeight: '100vh', background: '#FAF6EE', color: '#1F1A14' }}>
+      <CFHeader />
+      <main>
+        {/* ── Header page ── */}
+        <div style={{ borderBottom: '1px solid rgba(31,26,20,0.10)', background: '#FAF6EE' }}>
+          <div style={{ maxWidth: 768, margin: '0 auto', padding: mobile ? '24px 16px' : '32px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+            <div>
+              <SectionEyebrow>Pitmaster</SectionEyebrow>
+              <h1 style={{ fontSize: mobile ? 22 : 26, fontWeight: 800, color: '#1F1A14', fontFamily: 'var(--cf-serif)', margin: '8px 0 4px' }}>
+                Journal de cuisson
+              </h1>
+              <p style={{ fontSize: 13, color: '#6E6356' }}>
+                {sessions.length} session{sessions.length !== 1 ? 's' : ''} enregistrée{sessions.length !== 1 ? 's' : ''}
+              </p>
+            </div>
+            {view !== 'list' ? (
+              <button
+                onClick={() => { setView('list'); setEditing(null) }}
+                style={{ fontSize: 13, fontWeight: 600, color: '#6E6356', padding: '8px 16px', borderRadius: 12, background: 'none', border: '1px solid rgba(31,26,20,0.15)', cursor: 'pointer' }}
+              >
+                ← Retour
+              </button>
+            ) : (
+              <FireButton onClick={handleNew}>+ Nouvelle session</FireButton>
+            )}
           </div>
-          {view !== 'list' ? (
-            <button
-              onClick={() => { setView('list'); setEditing(null) }}
-              className="text-[13px] font-medium text-zinc-400 hover:text-white px-4 py-2 rounded-xl hover:bg-white/[0.04] transition-all"
-            >
-              ← Retour
-            </button>
-          ) : (
-            <button onClick={handleNew} className="btn-primary px-4 py-2.5 text-[13px]">
-              + Nouvelle session
-            </button>
+        </div>
+
+        {/* ── Contenu ── */}
+        <div style={{ maxWidth: 768, margin: '0 auto', padding: mobile ? '24px 16px 64px' : '32px 24px 80px' }}>
+          {view === 'list' && (
+            <SessionList
+              sessions={sessions}
+              loading={loading}
+              onView={handleDetail}
+              onNew={handleNew}
+              mobile={mobile}
+            />
+          )}
+
+          {view === 'form' && (
+            <SessionForm
+              session={editing}
+              saving={saving}
+              onSave={handleSave}
+              onCancel={() => { setView('list'); setEditing(null) }}
+              mobile={mobile}
+            />
+          )}
+
+          {view === 'detail' && editing && (
+            <SessionDetail
+              session={editing}
+              onEdit={() => handleEdit(editing)}
+              onDelete={() => handleDelete(editing.id)}
+              mobile={mobile}
+            />
           )}
         </div>
-      </div>
-
-      <div className="px-6 lg:px-10 py-8 max-w-3xl">
-        {view === 'list' && (
-          <SessionList
-            sessions={sessions}
-            loading={loading}
-            onView={handleDetail}
-            onNew={handleNew}
-          />
-        )}
-
-        {view === 'form' && (
-          <SessionForm
-            session={editing}
-            saving={saving}
-            onSave={handleSave}
-            onCancel={() => { setView('list'); setEditing(null) }}
-          />
-        )}
-
-        {view === 'detail' && editing && (
-          <SessionDetail
-            session={editing}
-            onEdit={() => handleEdit(editing)}
-            onDelete={() => handleDelete(editing.id)}
-          />
-        )}
-      </div>
+      </main>
+      <CFFooter mobile={mobile} />
     </div>
   )
 }
 
 // ── Liste ──────────────────────────────────────────────────
-function SessionList({ sessions, loading, onView, onNew }) {
+function SessionList({ sessions, loading, onView, onNew, mobile }) {
   if (loading) {
-    return <div className="text-center py-12 text-zinc-600 text-[13px]">Chargement...</div>
+    return (
+      <div style={{ textAlign: 'center', padding: '64px 0', color: '#6E6356', fontSize: 14 }}>
+        Chargement...
+      </div>
+    )
   }
 
   if (sessions.length === 0) {
     return (
-      <div className="text-center py-16">
-        <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center mx-auto mb-4">
-          <span className="text-3xl">📓</span>
+      <div style={{ textAlign: 'center', padding: '64px 0' }}>
+        <div style={{ width: 64, height: 64, borderRadius: 20, background: '#F5EFE0', border: '1px solid rgba(31,26,20,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontSize: 32 }}>
+          📓
         </div>
-        <p className="text-[15px] font-semibold text-white mb-1">Aucune session</p>
-        <p className="text-[13px] text-zinc-500 mb-6">Lance une cuisson et enregistre ta session ici.</p>
-        <div className="flex gap-3 justify-center">
-          <button onClick={onNew} className="btn-primary px-5 py-2.5 text-[13px]">
-            + Nouvelle session
-          </button>
-          <Link to="/calculateur" className="px-5 py-2.5 text-[13px] font-medium text-zinc-400 hover:text-white border border-white/[0.08] rounded-xl hover:bg-white/[0.03] transition-all">
+        <p style={{ fontSize: 17, fontWeight: 700, color: '#1F1A14', marginBottom: 6 }}>Aucune session</p>
+        <p style={{ fontSize: 13, color: '#6E6356', marginBottom: 24 }}>Lance une cuisson et enregistre ta session ici.</p>
+        <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+          <FireButton onClick={onNew}>+ Nouvelle session</FireButton>
+          <Link
+            to="/calculateur"
+            style={{ padding: '10px 20px', fontSize: 13, fontWeight: 600, color: '#6E6356', border: '1px solid rgba(31,26,20,0.15)', borderRadius: 12, textDecoration: 'none' }}
+          >
             Lancer le calculateur
           </Link>
         </div>
@@ -234,30 +267,36 @@ function SessionList({ sessions, loading, onView, onNew }) {
   }
 
   return (
-    <div className="space-y-2">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       {sessions.map(s => (
         <button
           key={s.id}
           onClick={() => onView(s)}
-          className="surface w-full text-left p-4 hover:border-[#ff6b1a]/15 transition-all group"
+          style={{
+            width: '100%', textAlign: 'left', padding: 16, borderRadius: 14,
+            background: '#F5EFE0', border: '1px solid rgba(31,26,20,0.12)', cursor: 'pointer',
+            transition: 'border-color 0.2s',
+          }}
+          onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(139,26,26,0.20)'}
+          onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(31,26,20,0.12)'}
         >
-          <div className="flex items-center gap-4">
-            <div className="w-11 h-11 rounded-xl bg-[#ff6b1a]/10 flex items-center justify-center text-lg shrink-0">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(139,26,26,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>
               🥩
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-0.5">
-                <p className="text-[14px] font-semibold text-white truncate">{s.meat_name}</p>
-                {s.rating && <Stars value={s.rating} readonly />}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 3 }}>
+                <p style={{ fontSize: 14, fontWeight: 700, color: '#1F1A14', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>{s.meat_name}</p>
+                {s.rating > 0 && <Stars value={s.rating} readonly />}
               </div>
-              <p className="text-[12px] text-zinc-500">
+              <p style={{ fontSize: 12, color: '#6E6356', margin: 0 }}>
                 {formatDate(s.cook_date)}
                 {s.weight_kg ? ` · ${s.weight_kg}kg` : ''}
                 {s.cook_temp_c ? ` · ${s.cook_temp_c}°C` : ''}
                 {s.wood_type ? ` · ${s.wood_type}` : ''}
               </p>
             </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-zinc-600 group-hover:text-zinc-400 transition-colors shrink-0">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6E6356" strokeWidth="2" strokeLinecap="round" style={{ flexShrink: 0 }}>
               <polyline points="9 18 15 12 9 6" />
             </svg>
           </div>
@@ -268,25 +307,25 @@ function SessionList({ sessions, loading, onView, onNew }) {
 }
 
 // ── Détail ─────────────────────────────────────────────────
-function SessionDetail({ session, onEdit, onDelete }) {
+function SessionDetail({ session, onEdit, onDelete, mobile }) {
   const s = session
 
   return (
-    <div className="space-y-5 animate-fade-up">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {/* Header */}
-      <div className="surface p-5">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-[#ff6b1a]/10 flex items-center justify-center text-2xl">🥩</div>
+      <div style={{ background: '#F5EFE0', border: '1px solid rgba(31,26,20,0.12)', borderRadius: 16, padding: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(139,26,26,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>🥩</div>
             <div>
-              <h2 className="text-[18px] font-bold text-white">{s.meat_name}</h2>
-              <p className="text-[12px] text-zinc-500">{formatDate(s.cook_date)}</p>
+              <h2 style={{ fontSize: 18, fontWeight: 800, color: '#1F1A14', fontFamily: 'var(--cf-serif)', margin: 0 }}>{s.meat_name}</h2>
+              <p style={{ fontSize: 12, color: '#6E6356', margin: 0 }}>{formatDate(s.cook_date)}</p>
             </div>
           </div>
-          {s.rating && <Stars value={s.rating} readonly />}
+          {s.rating > 0 && <Stars value={s.rating} readonly />}
         </div>
 
-        <div className="flex flex-wrap gap-2 mt-3">
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
           {s.weight_kg && <Tag label={`${s.weight_kg} kg`} />}
           {s.cook_temp_c && <Tag label={`${s.cook_temp_c}°C`} />}
           {s.wrapped && <Tag label="Wrappé" />}
@@ -300,48 +339,51 @@ function SessionDetail({ session, onEdit, onDelete }) {
 
       {/* Rub */}
       {s.rub_used && (
-        <div className="surface p-5">
-          <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">Rub utilisé</p>
-          <p className="text-[14px] text-zinc-200 leading-relaxed">{s.rub_used}</p>
+        <div style={{ background: '#F5EFE0', border: '1px solid rgba(31,26,20,0.12)', borderRadius: 16, padding: 20 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: '#6E6356', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Rub utilisé</p>
+          <p style={{ fontSize: 14, color: '#1F1A14', lineHeight: 1.7, margin: 0 }}>{s.rub_used}</p>
         </div>
       )}
 
       {/* Notes */}
       {s.notes && (
-        <div className="surface p-5">
-          <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">Notes</p>
-          <p className="text-[14px] text-zinc-300 leading-relaxed whitespace-pre-wrap">{s.notes}</p>
+        <div style={{ background: '#F5EFE0', border: '1px solid rgba(31,26,20,0.12)', borderRadius: 16, padding: 20 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: '#6E6356', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Notes</p>
+          <p style={{ fontSize: 14, color: '#1F1A14', lineHeight: 1.7, whiteSpace: 'pre-wrap', margin: 0 }}>{s.notes}</p>
         </div>
       )}
 
       {/* Bilan */}
       {(s.what_went_well || s.what_to_improve) && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr 1fr', gap: 12 }}>
           {s.what_went_well && (
-            <div className="surface p-5">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-sm">✅</span>
-                <p className="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider">Ce qui a marché</p>
+            <div style={{ background: 'rgba(45,106,79,0.06)', border: '1px solid rgba(45,106,79,0.15)', borderRadius: 16, padding: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <span style={{ fontSize: 14 }}>✅</span>
+                <p style={{ fontSize: 11, fontWeight: 700, color: '#2D6A4F', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>Ce qui a marché</p>
               </div>
-              <p className="text-[13px] text-zinc-300 leading-relaxed whitespace-pre-wrap">{s.what_went_well}</p>
+              <p style={{ fontSize: 13, color: '#1F1A14', lineHeight: 1.7, whiteSpace: 'pre-wrap', margin: 0 }}>{s.what_went_well}</p>
             </div>
           )}
           {s.what_to_improve && (
-            <div className="surface p-5">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-sm">🔧</span>
-                <p className="text-[11px] font-semibold text-amber-400 uppercase tracking-wider">À améliorer</p>
+            <div style={{ background: 'rgba(232,165,60,0.06)', border: '1px solid rgba(232,165,60,0.20)', borderRadius: 16, padding: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <span style={{ fontSize: 14 }}>🔧</span>
+                <p style={{ fontSize: 11, fontWeight: 700, color: '#E8A53C', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>À améliorer</p>
               </div>
-              <p className="text-[13px] text-zinc-300 leading-relaxed whitespace-pre-wrap">{s.what_to_improve}</p>
+              <p style={{ fontSize: 13, color: '#1F1A14', lineHeight: 1.7, whiteSpace: 'pre-wrap', margin: 0 }}>{s.what_to_improve}</p>
             </div>
           )}
         </div>
       )}
 
       {/* Actions */}
-      <div className="flex gap-3">
-        <button onClick={onEdit} className="btn-primary px-5 py-2.5 text-[13px]">Modifier</button>
-        <button onClick={onDelete} className="px-5 py-2.5 text-[13px] font-medium text-red-400/70 hover:text-red-400 border border-white/[0.06] rounded-xl hover:bg-red-500/5 transition-all">
+      <div style={{ display: 'flex', gap: 12 }}>
+        <FireButton onClick={onEdit}>Modifier</FireButton>
+        <button
+          onClick={onDelete}
+          style={{ padding: '10px 20px', fontSize: 13, fontWeight: 600, color: '#8B1A1A', background: 'rgba(139,26,26,0.06)', border: '1px solid rgba(139,26,26,0.20)', borderRadius: 12, cursor: 'pointer' }}
+        >
           Supprimer
         </button>
       </div>
@@ -350,21 +392,21 @@ function SessionDetail({ session, onEdit, onDelete }) {
 }
 
 // ── Formulaire ─────────────────────────────────────────────
-function SessionForm({ session, saving, onSave, onCancel }) {
+function SessionForm({ session, saving, onSave, onCancel, mobile }) {
   const [form, setForm] = useState({ ...session })
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }))
 
   return (
-    <div className="space-y-5 animate-fade-up max-w-2xl">
-      <h2 className="text-[16px] font-bold text-white">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 640 }}>
+      <h2 style={{ fontSize: 18, fontWeight: 800, color: '#1F1A14', fontFamily: 'var(--cf-serif)', margin: 0 }}>
         {form.id ? 'Modifier la session' : 'Nouvelle session de cuisson'}
       </h2>
 
       {/* Viande + date */}
-      <div className="surface p-5 space-y-4">
-        <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Infos cuisson</p>
+      <div style={{ background: '#F5EFE0', border: '1px solid rgba(31,26,20,0.12)', borderRadius: 16, padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <p style={{ fontSize: 11, fontWeight: 700, color: '#6E6356', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>Infos cuisson</p>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr 1fr', gap: 12 }}>
           <Field label="Viande">
             <Input value={form.meat_name} onChange={v => set('meat_name', v)} placeholder="Brisket, Pulled pork..." />
           </Field>
@@ -373,7 +415,7 @@ function SessionForm({ session, saving, onSave, onCancel }) {
           </Field>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr 1fr' : '1fr 1fr 1fr', gap: 12 }}>
           <Field label="Poids (kg)">
             <Input type="number" step="0.1" value={form.weight_kg || ''} onChange={v => set('weight_kg', v ? parseFloat(v) : null)} placeholder="4.5" />
           </Field>
@@ -381,7 +423,7 @@ function SessionForm({ session, saving, onSave, onCancel }) {
             <Input type="number" value={form.cook_temp_c || ''} onChange={v => set('cook_temp_c', v ? parseInt(v) : null)} placeholder="110" />
           </Field>
           <Field label="Wrappé ?">
-            <div className="flex gap-2 mt-1">
+            <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
               <SmallBtn active={form.wrapped === true} onClick={() => set('wrapped', true)}>Oui</SmallBtn>
               <SmallBtn active={form.wrapped === false} onClick={() => set('wrapped', false)}>Non</SmallBtn>
             </div>
@@ -392,7 +434,7 @@ function SessionForm({ session, saving, onSave, onCancel }) {
           <Input value={form.rub_used || ''} onChange={v => set('rub_used', v)} placeholder="Dalmatien, Memphis dry rub..." />
         </Field>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr 1fr', gap: 12 }}>
           <Field label="Type de fumoir">
             <Input value={form.smoker_type || ''} onChange={v => set('smoker_type', v)} placeholder="Weber Smokey, Offset, Kamado..." />
           </Field>
@@ -403,10 +445,10 @@ function SessionForm({ session, saving, onSave, onCancel }) {
       </div>
 
       {/* Résultats réels */}
-      <div className="surface p-5 space-y-4">
-        <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Résultats réels</p>
+      <div style={{ background: '#F5EFE0', border: '1px solid rgba(31,26,20,0.12)', borderRadius: 16, padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <p style={{ fontSize: 11, fontWeight: 700, color: '#6E6356', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>Résultats réels</p>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr 1fr' : '1fr 1fr 1fr', gap: 12 }}>
           <Field label="Durée réelle (h)">
             <Input type="number" step="0.5" value={form.actual_duration_hours || ''} onChange={v => set('actual_duration_hours', v ? parseFloat(v) : null)} placeholder="12" />
           </Field>
@@ -420,14 +462,14 @@ function SessionForm({ session, saving, onSave, onCancel }) {
       </div>
 
       {/* Journal */}
-      <div className="surface p-5 space-y-4">
-        <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Journal</p>
+      <div style={{ background: '#F5EFE0', border: '1px solid rgba(31,26,20,0.12)', borderRadius: 16, padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <p style={{ fontSize: 11, fontWeight: 700, color: '#6E6356', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>Journal</p>
 
         <Field label="Notes libres">
           <Textarea value={form.notes || ''} onChange={v => set('notes', v)} placeholder="Fumée légère les 3 premières heures, bark magnifique, stall passé à 73°C..." rows={3} />
         </Field>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr 1fr', gap: 12 }}>
           <Field label="✅ Ce qui a bien marché">
             <Textarea value={form.what_went_well || ''} onChange={v => set('what_went_well', v)} placeholder="Croûte bien formée, bonne gestion du feu..." rows={3} />
           </Field>
@@ -442,15 +484,17 @@ function SessionForm({ session, saving, onSave, onCancel }) {
       </div>
 
       {/* Actions */}
-      <div className="flex gap-3">
-        <button
+      <div style={{ display: 'flex', gap: 12 }}>
+        <FireButton
           onClick={() => onSave(form)}
           disabled={saving || !form.meat_name}
-          className="btn-primary px-6 py-3 text-[14px] disabled:opacity-50"
         >
           {saving ? 'Enregistrement...' : form.id ? 'Mettre à jour' : 'Enregistrer la session'}
-        </button>
-        <button onClick={onCancel} className="px-5 py-3 text-[13px] font-medium text-zinc-400 hover:text-white transition-colors">
+        </FireButton>
+        <button
+          onClick={onCancel}
+          style={{ padding: '10px 20px', fontSize: 13, fontWeight: 600, color: '#6E6356', background: 'none', border: 'none', cursor: 'pointer' }}
+        >
           Annuler
         </button>
       </div>
@@ -463,7 +507,7 @@ function SessionForm({ session, saving, onSave, onCancel }) {
 function Field({ label, children }) {
   return (
     <div>
-      <label className="text-[11px] font-semibold text-zinc-500 mb-1.5 block">{label}</label>
+      <label style={{ fontSize: 11, fontWeight: 700, color: '#6E6356', display: 'block', marginBottom: 6 }}>{label}</label>
       {children}
     </div>
   )
@@ -476,7 +520,14 @@ function Input({ type = 'text', value, onChange, placeholder, ...props }) {
       value={value}
       onChange={e => onChange(e.target.value)}
       placeholder={placeholder}
-      className="w-full px-3 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-[13px] text-white placeholder-zinc-700 focus:outline-none focus:border-[#ff6b1a]/30 transition-all"
+      style={{
+        width: '100%', padding: '10px 12px', background: '#FAF6EE',
+        border: '1px solid rgba(31,26,20,0.15)', borderRadius: 10,
+        fontSize: 13, color: '#1F1A14', outline: 'none', boxSizing: 'border-box',
+        fontFamily: 'var(--cf-sans)',
+      }}
+      onFocus={e => e.target.style.borderColor = 'rgba(139,26,26,0.35)'}
+      onBlur={e => e.target.style.borderColor = 'rgba(31,26,20,0.15)'}
       {...props}
     />
   )
@@ -489,7 +540,14 @@ function Textarea({ value, onChange, placeholder, rows = 3 }) {
       onChange={e => onChange(e.target.value)}
       placeholder={placeholder}
       rows={rows}
-      className="w-full px-3 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-[13px] text-white placeholder-zinc-700 focus:outline-none focus:border-[#ff6b1a]/30 transition-all resize-none"
+      style={{
+        width: '100%', padding: '10px 12px', background: '#FAF6EE',
+        border: '1px solid rgba(31,26,20,0.15)', borderRadius: 10,
+        fontSize: 13, color: '#1F1A14', outline: 'none', boxSizing: 'border-box',
+        fontFamily: 'var(--cf-sans)', resize: 'none', lineHeight: 1.6,
+      }}
+      onFocus={e => e.target.style.borderColor = 'rgba(139,26,26,0.35)'}
+      onBlur={e => e.target.style.borderColor = 'rgba(31,26,20,0.15)'}
     />
   )
 }
@@ -499,11 +557,13 @@ function SmallBtn({ active, onClick, children }) {
     <button
       type="button"
       onClick={onClick}
-      className={`px-3 py-2 rounded-lg text-[12px] font-medium border transition-all ${
-        active
-          ? 'border-[#ff6b1a]/30 bg-[#ff6b1a]/8 text-[#ff6b1a]'
-          : 'border-white/[0.06] text-zinc-500 hover:text-zinc-300'
-      }`}
+      style={{
+        padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+        border: active ? '1px solid rgba(139,26,26,0.30)' : '1px solid rgba(31,26,20,0.15)',
+        background: active ? 'rgba(139,26,26,0.08)' : 'transparent',
+        color: active ? '#8B1A1A' : '#6E6356',
+        transition: 'all 0.15s',
+      }}
     >
       {children}
     </button>
@@ -512,7 +572,11 @@ function SmallBtn({ active, onClick, children }) {
 
 function Tag({ label }) {
   return (
-    <span className="text-[11px] font-medium text-zinc-400 bg-white/[0.04] border border-white/[0.06] px-2.5 py-1 rounded-lg">
+    <span style={{
+      fontSize: 11, fontWeight: 600, color: '#6E6356',
+      background: 'rgba(31,26,20,0.06)', border: '1px solid rgba(31,26,20,0.12)',
+      padding: '4px 10px', borderRadius: 8,
+    }}>
       {label}
     </span>
   )

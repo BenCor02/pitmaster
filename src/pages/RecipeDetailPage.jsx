@@ -1,31 +1,44 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { fetchRecipeBySlug, fetchRecipes } from '../lib/cms.js'
 import { useFavorites } from '../hooks/useFavorites.js'
 import { updateMeta, recipeSchema, injectJsonLd } from '../lib/seo.js'
+import { CFHeader, CFFooter } from '../components/cf/Chrome.jsx'
+
+/* ── useMobile ── */
+function useMobile() {
+  const [mobile, setMobile] = React.useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)').matches : false
+  )
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+    const mq = window.matchMedia('(max-width: 767px)')
+    const handler = (e) => setMobile(e.matches)
+    mq.addEventListener?.('change', handler)
+    return () => mq.removeEventListener?.('change', handler)
+  }, [])
+  return mobile
+}
 
 const TYPE_LABELS = { rub: 'Rub', mop: 'Mop', marinade: 'Marinade', injection: 'Injection', glaze: 'Glaze' }
 const TYPE_ICONS = { rub: '🧂', mop: '🖌️', marinade: '🫙', injection: '💉', glaze: '✨' }
 const TYPE_COLORS = {
-  rub: 'from-amber-500 to-orange-600',
-  mop: 'from-blue-500 to-indigo-600',
-  marinade: 'from-purple-500 to-violet-600',
-  injection: 'from-green-500 to-emerald-600',
-  glaze: 'from-rose-500 to-pink-600',
+  rub: { bg: 'rgba(232,165,60,0.15)', color: '#8B1A1A', border: 'rgba(232,165,60,0.30)' },
+  mop: { bg: 'rgba(59,130,246,0.10)', color: '#1e40af', border: 'rgba(59,130,246,0.20)' },
+  marinade: { bg: 'rgba(147,51,234,0.10)', color: '#6b21a8', border: 'rgba(147,51,234,0.20)' },
+  injection: { bg: 'rgba(34,197,94,0.10)', color: '#15803d', border: 'rgba(34,197,94,0.20)' },
+  glaze: { bg: 'rgba(244,63,94,0.10)', color: '#9f1239', border: 'rgba(244,63,94,0.20)' },
 }
-
 const MEAT_LABELS = {
   brisket: 'Poitrine', beef_short_ribs: 'Plat de côtes', chuck_roast: 'Paleron',
   prime_rib: 'Côte de bœuf', tomahawk: 'Tomahawk', pulled_pork: 'Échine de porc',
   spare_ribs: 'Travers', baby_back_ribs: 'Baby Back', whole_chicken: 'Poulet entier',
 }
-
 const DIFFICULTY_COLORS = {
-  'facile': 'text-green-400 bg-green-500/10 border-green-500/20',
-  'moyen': 'text-amber-400 bg-amber-500/10 border-amber-500/20',
-  'avancé': 'text-red-400 bg-red-500/10 border-red-500/20',
+  'facile': { color: '#2D6A4F', bg: 'rgba(45,106,79,0.10)', border: 'rgba(45,106,79,0.20)' },
+  'moyen': { color: '#E8A53C', bg: 'rgba(232,165,60,0.10)', border: 'rgba(232,165,60,0.20)' },
+  'avancé': { color: '#8B1A1A', bg: 'rgba(139,26,26,0.10)', border: 'rgba(139,26,26,0.20)' },
 }
-
 const TYPE_IMAGES = {
   rub: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=1400&h=500&fit=crop&q=80',
   mop: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1400&h=500&fit=crop&q=80',
@@ -35,6 +48,7 @@ const TYPE_IMAGES = {
 }
 
 export default function RecipeDetailPage() {
+  const mobile = useMobile()
   const { slug } = useParams()
   const [recipe, setRecipe] = useState(null)
   const [related, setRelated] = useState([])
@@ -70,12 +84,12 @@ export default function RecipeDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center animate-fade">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#ff6b1a] to-[#ef4444] flex items-center justify-center mx-auto mb-4 animate-pulse-glow">
-            <span className="text-2xl">🔥</span>
+      <div style={{ minHeight: '100vh', background: '#FAF6EE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(139,26,26,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: 26 }}>
+            🔥
           </div>
-          <p className="text-zinc-500 text-sm font-medium">Chargement...</p>
+          <p style={{ color: '#6E6356', fontSize: 14, fontWeight: 500 }}>Chargement...</p>
         </div>
       </div>
     )
@@ -83,14 +97,16 @@ export default function RecipeDetailPage() {
 
   if (!recipe) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-20 h-20 rounded-3xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center mx-auto mb-5">
-            <span className="text-4xl">😕</span>
+      <div style={{ minHeight: '100vh', background: '#FAF6EE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ width: 72, height: 72, borderRadius: 24, background: '#F5EFE0', border: '1px solid rgba(31,26,20,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontSize: 36 }}>
+            😕
           </div>
-          <p className="text-zinc-300 text-[17px] font-semibold mb-2">Recette introuvable</p>
-          <p className="text-zinc-600 text-[13px] mb-6">Elle a peut-être été déplacée ou supprimée</p>
-          <Link to="/recettes" className="btn-primary px-6 py-3 text-[13px]">← Retour aux recettes</Link>
+          <p style={{ fontSize: 17, fontWeight: 600, color: '#1F1A14', marginBottom: 8 }}>Recette introuvable</p>
+          <p style={{ fontSize: 13, color: '#6E6356', marginBottom: 24 }}>Elle a peut-être été déplacée ou supprimée</p>
+          <Link to="/recettes" style={{ display: 'inline-block', padding: '10px 22px', borderRadius: 12, background: '#8B1A1A', color: '#FAF6EE', fontWeight: 700, fontSize: 13, textDecoration: 'none' }}>
+            ← Retour aux recettes
+          </Link>
         </div>
       </div>
     )
@@ -98,273 +114,276 @@ export default function RecipeDetailPage() {
 
   const ingredients = typeof recipe.ingredients === 'string' ? JSON.parse(recipe.ingredients) : recipe.ingredients
   const steps = typeof recipe.steps === 'string' ? JSON.parse(recipe.steps) : recipe.steps
-  const gradientClass = TYPE_COLORS[recipe.type] || TYPE_COLORS.rub
+  const typeColor = TYPE_COLORS[recipe.type] || TYPE_COLORS.rub
+  const diffColor = DIFFICULTY_COLORS[recipe.difficulty] || DIFFICULTY_COLORS['moyen']
   const imageUrl = recipe.cover_url || recipe.image_url || TYPE_IMAGES[recipe.type] || TYPE_IMAGES.rub
   const completedCount = Object.values(checkedSteps).filter(Boolean).length
   const progress = steps?.length ? (completedCount / steps.length) * 100 : 0
 
   return (
-    <div className="min-h-screen">
+    <div style={{ minHeight: '100vh', background: '#FAF6EE', color: '#1F1A14' }}>
+      <CFHeader />
+      <main>
+        {/* ── Hero immersif pleine largeur ── */}
+        <div style={{ position: 'relative', overflow: 'hidden', minHeight: mobile ? 260 : 380 }}>
+          <div style={{ position: 'absolute', inset: 0 }}>
+            <img
+              src={imageUrl}
+              alt={recipe.title}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', animation: 'slowZoom 25s ease-in-out infinite alternate' }}
+              onError={e => { e.target.style.display = 'none' }}
+            />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(250,246,238,1) 0%, rgba(250,246,238,0.60) 45%, rgba(250,246,238,0.15) 100%)' }} />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(250,246,238,0.85) 0%, transparent 60%)' }} />
+          </div>
 
-      {/* ── Hero immersif pleine largeur ── */}
-      <div className="relative overflow-hidden min-h-[300px] lg:min-h-[400px]">
-        <div className="absolute inset-0">
-          <img
-            src={imageUrl}
-            alt={recipe.title}
-            className="w-full h-full object-cover"
-            style={{ animation: 'slowZoom 25s ease-in-out infinite alternate' }}
-            onError={e => { e.target.style.display = 'none' }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-[#080808]/50 to-[#080808]/20" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#080808]/80 to-transparent" />
-        </div>
-
-        {/* Back + Favorite buttons floating on hero */}
-        <div className="absolute top-4 left-4 right-4 flex justify-between z-10">
-          <Link
-            to="/recettes"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-black/40 backdrop-blur-sm text-[12px] font-bold text-white/80 hover:text-white hover:bg-black/60 transition-all border border-white/[0.08]"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
-            Recettes
-          </Link>
-
-          {isAuthenticated && (
-            <button
-              onClick={() => toggleFavorite(recipe.id)}
-              className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all backdrop-blur-sm border border-white/[0.08] ${
-                isFavorite(recipe.id)
-                  ? 'bg-red-500/30 text-red-400 shadow-lg shadow-red-500/20'
-                  : 'bg-black/40 text-white/60 hover:text-red-400 hover:bg-red-500/20'
-              }`}
-              title={isFavorite(recipe.id) ? 'Retirer du carnet' : 'Ajouter au carnet'}
+          {/* Back + Favorite buttons floating on hero */}
+          <div style={{ position: 'absolute', top: 16, left: 16, right: 16, display: 'flex', justifyContent: 'space-between', zIndex: 10 }}>
+            <Link
+              to="/recettes"
+              style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRadius: 12, background: 'rgba(250,246,238,0.85)', backdropFilter: 'blur(8px)', fontSize: 12, fontWeight: 700, color: '#1F1A14', textDecoration: 'none', border: '1px solid rgba(31,26,20,0.15)' }}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill={isFavorite(recipe.id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
-            </button>
-          )}
-        </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
+              Recettes
+            </Link>
 
-        {/* Recipe info overlay at bottom */}
-        <div className="absolute bottom-0 left-0 right-0 px-6 lg:px-10 pb-8 pt-20 bg-gradient-to-t from-[#080808] via-[#080808]/90 to-transparent">
-          <div className="max-w-4xl animate-fade-up">
-            {/* Badges */}
-            <div className="flex items-center gap-2 mb-4 flex-wrap">
-              <span className={`text-[11px] font-black uppercase px-3 py-1.5 rounded-lg bg-gradient-to-r ${gradientClass} text-white shadow-lg`}>
-                {TYPE_ICONS[recipe.type]} {TYPE_LABELS[recipe.type]}
-              </span>
-              <span className={`text-[11px] font-bold px-3 py-1.5 rounded-lg border ${DIFFICULTY_COLORS[recipe.difficulty]}`}>
-                {recipe.difficulty}
-              </span>
-              {recipe.prep_time && (
-                <span className="text-[11px] font-bold text-zinc-400 px-3 py-1.5 rounded-lg bg-white/[0.06] border border-white/[0.08]">
-                  ⏱ {recipe.prep_time}
-                </span>
-              )}
-              {recipe.yield_amount && (
-                <span className="text-[11px] font-bold text-zinc-400 px-3 py-1.5 rounded-lg bg-white/[0.06] border border-white/[0.08]">
-                  📦 {recipe.yield_amount}
-                </span>
-              )}
-            </div>
-
-            {/* Title */}
-            <h1 className="font-display text-[30px] lg:text-[44px] font-black text-white tracking-tight leading-[1.05] mb-3">
-              {recipe.title}
-            </h1>
-
-            {recipe.origin && (
-              <p className="text-[13px] text-zinc-400 italic mb-3">📍 {recipe.origin}</p>
-            )}
-
-            <p className="text-[15px] text-zinc-300 leading-relaxed max-w-2xl">
-              {recipe.summary}
-            </p>
-
-            {/* Meat tags */}
-            {recipe.meat_types?.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-5">
-                {recipe.meat_types.map(m => (
-                  <span key={m} className="text-[11px] font-semibold px-3 py-1.5 rounded-lg bg-[#ff6b1a]/10 text-[#ff6b1a]/80 border border-[#ff6b1a]/15">
-                    {MEAT_LABELS[m] || m}
-                  </span>
-                ))}
-              </div>
+            {isAuthenticated && (
+              <button
+                onClick={() => toggleFavorite(recipe.id)}
+                style={{
+                  width: 42, height: 42, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  backdropFilter: 'blur(8px)', border: '1px solid rgba(31,26,20,0.15)', cursor: 'pointer',
+                  background: isFavorite(recipe.id) ? 'rgba(139,26,26,0.15)' : 'rgba(250,246,238,0.85)',
+                  color: isFavorite(recipe.id) ? '#8B1A1A' : '#6E6356',
+                }}
+                title={isFavorite(recipe.id) ? 'Retirer du carnet' : 'Ajouter au carnet'}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill={isFavorite(recipe.id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
+              </button>
             )}
           </div>
-        </div>
-      </div>
 
-      {/* ── Content ── */}
-      <div className="px-6 lg:px-10 py-10 max-w-4xl">
-        <div className="grid lg:grid-cols-5 gap-8">
-
-          {/* ── Left: Description + Steps ── */}
-          <div className="lg:col-span-3 space-y-6">
-
-            {/* Description */}
-            {recipe.description && (
-              <div className="surface p-6 animate-fade-up">
-                <h2 className="text-[15px] font-bold text-white mb-3 flex items-center gap-2">
-                  <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff6b1a]/20 to-[#ef4444]/10 flex items-center justify-center text-sm">📖</span>
-                  À propos
-                </h2>
-                <p className="text-[14px] text-zinc-400 leading-[1.8]">{recipe.description}</p>
-              </div>
-            )}
-
-            {/* Steps */}
-            {steps?.length > 0 && (
-              <div className="surface p-6 animate-fade-up">
-                <div className="flex items-center justify-between mb-5">
-                  <h2 className="text-[15px] font-bold text-white flex items-center gap-2">
-                    <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff6b1a]/20 to-[#ef4444]/10 flex items-center justify-center text-sm">👨‍🍳</span>
-                    Préparation
-                  </h2>
-                  <span className="text-[12px] font-bold text-[#ff6b1a]">
-                    {completedCount}/{steps.length}
+          {/* Recipe info overlay at bottom */}
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: mobile ? '48px 24px 24px' : '80px 40px 32px' }}>
+            <div style={{ maxWidth: 760 }}>
+              {/* Badges */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+                <span style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', padding: '5px 12px', borderRadius: 8, background: typeColor.bg, color: typeColor.color, border: `1px solid ${typeColor.border}` }}>
+                  {TYPE_ICONS[recipe.type]} {TYPE_LABELS[recipe.type]}
+                </span>
+                <span style={{ fontSize: 11, fontWeight: 700, padding: '5px 12px', borderRadius: 8, background: diffColor.bg, color: diffColor.color, border: `1px solid ${diffColor.border}` }}>
+                  {recipe.difficulty}
+                </span>
+                {recipe.prep_time && (
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#6E6356', padding: '5px 12px', borderRadius: 8, background: 'rgba(31,26,20,0.06)', border: '1px solid rgba(31,26,20,0.12)' }}>
+                    ⏱ {recipe.prep_time}
                   </span>
-                </div>
+                )}
+                {recipe.yield_amount && (
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#6E6356', padding: '5px 12px', borderRadius: 8, background: 'rgba(31,26,20,0.06)', border: '1px solid rgba(31,26,20,0.12)' }}>
+                    📦 {recipe.yield_amount}
+                  </span>
+                )}
+              </div>
 
-                {/* Progress bar at top */}
-                <div className="mb-6">
-                  <div className="h-1.5 rounded-full bg-white/[0.04] overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-[#ff6b1a] to-[#ef4444] transition-all duration-500 ease-out"
-                      style={{ width: `${progress}%` }}
-                    />
-                  </div>
-                  {progress === 100 && (
-                    <p className="text-[12px] text-green-400 font-bold mt-2 animate-fade">
-                      ✓ Toutes les étapes terminées !
-                    </p>
-                  )}
-                </div>
+              <h1 style={{ fontFamily: 'var(--cf-serif)', fontSize: mobile ? 28 : 42, fontWeight: 900, color: '#1F1A14', lineHeight: 1.05, margin: '0 0 10px' }}>
+                {recipe.title}
+              </h1>
 
-                <div className="space-y-1">
-                  {steps.map((step, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => toggleStep(idx)}
-                      className={`w-full flex items-start gap-4 text-left p-3 rounded-xl transition-all ${
-                        checkedSteps[idx]
-                          ? 'opacity-50 bg-green-500/[0.03]'
-                          : 'hover:bg-white/[0.02]'
-                      }`}
-                    >
-                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-[12px] font-black shrink-0 transition-all ${
-                        checkedSteps[idx]
-                          ? 'bg-green-500/20 text-green-400 scale-90'
-                          : 'bg-gradient-to-br from-[#ff6b1a] to-[#ef4444] text-white shadow-md shadow-[#ff6b1a]/20'
-                      }`}>
-                        {checkedSteps[idx] ? '✓' : idx + 1}
-                      </div>
-                      <p className={`text-[14px] leading-relaxed pt-1 transition-all ${
-                        checkedSteps[idx]
-                          ? 'text-zinc-600 line-through'
-                          : 'text-zinc-300'
-                      }`}>
-                        {step}
-                      </p>
-                    </button>
+              {recipe.origin && (
+                <p style={{ fontSize: 13, color: '#6E6356', fontStyle: 'italic', margin: '0 0 10px' }}>📍 {recipe.origin}</p>
+              )}
+
+              <p style={{ fontSize: 15, color: '#6E6356', lineHeight: 1.7, maxWidth: 560, margin: 0 }}>
+                {recipe.summary}
+              </p>
+
+              {recipe.meat_types?.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 18 }}>
+                  {recipe.meat_types.map(m => (
+                    <span key={m} style={{ fontSize: 11, fontWeight: 600, padding: '5px 12px', borderRadius: 8, background: 'rgba(232,165,60,0.12)', color: '#8B1A1A', border: '1px solid rgba(232,165,60,0.20)' }}>
+                      {MEAT_LABELS[m] || m}
+                    </span>
                   ))}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
+        </div>
 
-          {/* ── Right: Ingredients (sticky) ── */}
-          <div className="lg:col-span-2">
-            <div className="surface-fire p-6 lg:sticky lg:top-6 animate-fade-up">
-              <h2 className="text-[15px] font-bold text-white mb-5 flex items-center gap-2">
-                <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#ff6b1a]/20 to-[#ef4444]/10 flex items-center justify-center text-sm">🧪</span>
-                Ingrédients
-              </h2>
-              <div className="space-y-0">
-                {ingredients.map((ing, idx) => (
-                  <div key={idx} className="flex items-center gap-3 py-3 border-b border-white/[0.04] last:border-0">
-                    <div className="w-2 h-2 rounded-full bg-gradient-to-r from-[#ff6b1a] to-[#ef4444] shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <span className="text-[14px] text-white font-medium">{ing.name}</span>
-                      {ing.note && (
-                        <span className="text-[11px] text-zinc-600 italic ml-2">{ing.note}</span>
-                      )}
-                    </div>
-                    <span className="text-[13px] text-[#ff6b1a] font-bold shrink-0">{ing.qty}</span>
+        {/* ── Content ── */}
+        <div style={{ padding: mobile ? '24px 16px 64px' : '40px 40px 80px', maxWidth: 864, margin: '0 auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '3fr 2fr', gap: 28 }}>
+
+            {/* ── Left: Description + Steps ── */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+              {/* Description */}
+              {recipe.description && (
+                <div style={{ background: '#F5EFE0', border: '1px solid rgba(31,26,20,0.12)', borderRadius: 16, padding: 24 }}>
+                  <h2 style={{ fontSize: 15, fontWeight: 700, color: '#1F1A14', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(139,26,26,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>📖</span>
+                    À propos
+                  </h2>
+                  <p style={{ fontSize: 14, color: '#6E6356', lineHeight: 1.8, margin: 0 }}>{recipe.description}</p>
+                </div>
+              )}
+
+              {/* Steps */}
+              {steps?.length > 0 && (
+                <div style={{ background: '#F5EFE0', border: '1px solid rgba(31,26,20,0.12)', borderRadius: 16, padding: 24 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                    <h2 style={{ fontSize: 15, fontWeight: 700, color: '#1F1A14', display: 'flex', alignItems: 'center', gap: 8, margin: 0 }}>
+                      <span style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(139,26,26,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>👨‍🍳</span>
+                      Préparation
+                    </h2>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: '#8B1A1A' }}>
+                      {completedCount}/{steps.length}
+                    </span>
                   </div>
-                ))}
-              </div>
 
-              {recipe.yield_amount && (
-                <div className="mt-5 pt-4 border-t border-white/[0.08]">
-                  <div className="flex items-center gap-3 text-[13px]">
-                    <span className="w-8 h-8 rounded-lg bg-white/[0.04] flex items-center justify-center text-sm">📦</span>
-                    <div>
-                      <p className="text-zinc-500 text-[11px]">Rendement</p>
-                      <p className="text-white font-bold">{recipe.yield_amount}</p>
+                  {/* Progress bar */}
+                  <div style={{ marginBottom: 20 }}>
+                    <div style={{ height: 6, borderRadius: 4, background: 'rgba(31,26,20,0.08)', overflow: 'hidden' }}>
+                      <div
+                        style={{ height: '100%', borderRadius: 4, background: 'linear-gradient(to right, #8B1A1A, #E8A53C)', transition: 'width 0.5s ease-out', width: `${progress}%` }}
+                      />
                     </div>
+                    {progress === 100 && (
+                      <p style={{ fontSize: 12, color: '#2D6A4F', fontWeight: 700, marginTop: 8 }}>
+                        ✓ Toutes les étapes terminées !
+                      </p>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    {steps.map((step, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => toggleStep(idx)}
+                        style={{
+                          width: '100%', display: 'flex', alignItems: 'flex-start', gap: 14, textAlign: 'left',
+                          padding: '10px 12px', borderRadius: 12, border: 'none', cursor: 'pointer',
+                          background: checkedSteps[idx] ? 'rgba(45,106,79,0.04)' : 'transparent',
+                          opacity: checkedSteps[idx] ? 0.55 : 1,
+                          transition: 'all 0.2s',
+                        }}
+                      >
+                        <div style={{
+                          width: 30, height: 30, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 12, fontWeight: 800, flexShrink: 0, transition: 'all 0.2s',
+                          background: checkedSteps[idx] ? 'rgba(45,106,79,0.15)' : '#8B1A1A',
+                          color: checkedSteps[idx] ? '#2D6A4F' : '#FAF6EE',
+                        }}>
+                          {checkedSteps[idx] ? '✓' : idx + 1}
+                        </div>
+                        <p style={{
+                          fontSize: 14, lineHeight: 1.65, paddingTop: 4, transition: 'all 0.2s', margin: 0,
+                          color: checkedSteps[idx] ? '#6E6356' : '#1F1A14',
+                          textDecoration: checkedSteps[idx] ? 'line-through' : 'none',
+                        }}>
+                          {step}
+                        </p>
+                      </button>
+                    ))}
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Tags */}
-            {recipe.tags?.length > 0 && (
-              <div className="mt-5 flex flex-wrap gap-1.5 animate-fade-up">
-                {recipe.tags.map(tag => (
-                  <span key={tag} className="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-white/[0.03] text-zinc-500 border border-white/[0.06] hover:border-[#ff6b1a]/20 hover:text-[#ff6b1a]/60 transition-colors cursor-default">
-                    #{tag}
-                  </span>
-                ))}
+            {/* ── Right: Ingredients (sticky) ── */}
+            <div>
+              <div style={{ background: '#F5EFE0', border: '1px solid rgba(31,26,20,0.15)', borderRadius: 16, padding: 24, position: mobile ? 'static' : 'sticky', top: 24 }}>
+                <h2 style={{ fontSize: 15, fontWeight: 700, color: '#1F1A14', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(139,26,26,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>🧪</span>
+                  Ingrédients
+                </h2>
+                <div>
+                  {ingredients.map((ing, idx) => (
+                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: idx < ingredients.length - 1 ? '1px solid rgba(31,26,20,0.08)' : 'none' }}>
+                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#8B1A1A', flexShrink: 0 }} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <span style={{ fontSize: 14, color: '#1F1A14', fontWeight: 500 }}>{ing.name}</span>
+                        {ing.note && (
+                          <span style={{ fontSize: 11, color: '#6E6356', fontStyle: 'italic', marginLeft: 6 }}>{ing.note}</span>
+                        )}
+                      </div>
+                      <span style={{ fontSize: 13, color: '#8B1A1A', fontWeight: 700, flexShrink: 0 }}>{ing.qty}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {recipe.yield_amount && (
+                  <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid rgba(31,26,20,0.10)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 13 }}>
+                      <span style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(31,26,20,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>📦</span>
+                      <div>
+                        <p style={{ color: '#6E6356', fontSize: 11, margin: 0 }}>Rendement</p>
+                        <p style={{ color: '#1F1A14', fontWeight: 700, margin: 0 }}>{recipe.yield_amount}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
+
+              {/* Tags */}
+              {recipe.tags?.length > 0 && (
+                <div style={{ marginTop: 16, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {recipe.tags.map(tag => (
+                    <span key={tag} style={{ fontSize: 11, fontWeight: 500, padding: '4px 10px', borderRadius: 8, background: 'rgba(31,26,20,0.05)', color: '#6E6356', border: '1px solid rgba(31,26,20,0.10)', cursor: 'default' }}>
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
+
+          {/* ── Related recipes ── */}
+          {related.length > 0 && (
+            <div style={{ marginTop: 56 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
+                <div style={{ flex: 1, height: 1, background: 'rgba(31,26,20,0.12)' }} />
+                <p style={{ fontSize: 12, fontWeight: 800, color: '#8B1A1A', textTransform: 'uppercase', letterSpacing: '0.15em', margin: 0 }}>
+                  Autres {TYPE_LABELS[recipe.type]}s
+                </p>
+                <div style={{ flex: 1, height: 1, background: 'rgba(31,26,20,0.12)' }} />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : 'repeat(3, 1fr)', gap: 16 }}>
+                {related.map(r => {
+                  const relImg = r.cover_url || TYPE_IMAGES[r.type] || TYPE_IMAGES.rub
+                  return (
+                    <Link
+                      key={r.id}
+                      to={`/recettes/${r.slug}`}
+                      style={{ textDecoration: 'none', background: '#F5EFE0', border: '1px solid rgba(31,26,20,0.12)', borderRadius: 16, overflow: 'hidden', display: 'block' }}
+                    >
+                      <div style={{ position: 'relative', height: 110, overflow: 'hidden', background: '#E8DCC8' }}>
+                        <img
+                          src={relImg}
+                          alt={r.title}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.7s', display: 'block' }}
+                          loading="lazy"
+                          onError={e => { e.target.style.display = 'none' }}
+                        />
+                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(31,26,20,0.25), transparent)' }} />
+                      </div>
+                      <div style={{ padding: 16 }}>
+                        <h4 style={{ fontSize: 14, fontWeight: 700, color: '#1F1A14', lineHeight: 1.3, marginBottom: 4 }}>
+                          {r.title}
+                        </h4>
+                        <p style={{ fontSize: 11, color: '#6E6356', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', margin: 0 }}>{r.summary}</p>
+                      </div>
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+          )}
         </div>
-
-        {/* ── Related recipes ── */}
-        {related.length > 0 && (
-          <div className="mt-14">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="h-px flex-1 fire-divider" />
-              <p className="text-[12px] font-black text-[#ff6b1a] uppercase tracking-[0.15em]">
-                Autres {TYPE_LABELS[recipe.type]}s
-              </p>
-              <div className="h-px flex-1 fire-divider" />
-            </div>
-
-            <div className="grid sm:grid-cols-3 gap-4 stagger">
-              {related.map(r => {
-                const relImg = r.cover_url || TYPE_IMAGES[r.type] || TYPE_IMAGES.rub
-                return (
-                  <Link
-                    key={r.id}
-                    to={`/recettes/${r.slug}`}
-                    className="card-premium group overflow-hidden"
-                  >
-                    <div className="relative h-[120px] overflow-hidden bg-zinc-900">
-                      <img
-                        src={relImg}
-                        alt={r.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        loading="lazy"
-                        onError={e => { e.target.style.display = 'none' }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#111] to-transparent" />
-                    </div>
-                    <div className="p-4">
-                      <h4 className="text-[14px] font-bold text-white group-hover:text-[#ff6b1a] transition-colors mb-1 leading-snug">
-                        {r.title}
-                      </h4>
-                      <p className="text-[11px] text-zinc-500 line-clamp-2">{r.summary}</p>
-                    </div>
-                  </Link>
-                )
-              })}
-            </div>
-          </div>
-        )}
-      </div>
-
+      </main>
+      <CFFooter mobile={mobile} />
       <style>{`
         @keyframes slowZoom {
           from { transform: scale(1); }

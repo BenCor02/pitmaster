@@ -8,6 +8,7 @@
 import React from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { FireButton, SectionEyebrow, SmokeBackdrop, EmberGlow } from './Primitives.jsx'
+import { useAuth } from '../../modules/auth/AuthContext.jsx'
 
 // ───────────────────────────────────────────────
 // CFLogo — logo Charbon & Flamme (cercle + flamme + wordmark)
@@ -60,17 +61,56 @@ export function CFLogo({ size = 28, color = '#1F1A14', accent = '#8B1A1A' }) {
 // CFHeader — header sticky cohérent avec le routeur
 // ───────────────────────────────────────────────
 export function CFHeader({ dark = false }) {
-  const items = [
+  const { isAuthenticated, signOut } = useAuth()
+
+  const mainItems = [
     { to: '/calculateur', label: 'Calculateur' },
     { to: '/recettes', label: 'Recettes' },
     { to: '/guides', label: 'Guides' },
-    { to: '/bbq-guide', label: 'BBQ' },
+    { to: '/bbq', label: 'BBQ' },
+    { to: '/bois', label: 'Bois' },
   ]
+
+  const toolItems = [
+    { to: '/portions', label: 'Calculateur de portions' },
+    { to: '/comparateur', label: 'Comparateur de recettes' },
+    { to: '/multi', label: 'Multi-cuisson' },
+    { to: '/live', label: 'Live Cook (sonde)' },
+  ]
+
+  const userItems = isAuthenticated
+    ? [
+        { to: '/carnet', label: 'Mon carnet' },
+        { to: '/journal', label: 'Mon journal' },
+      ]
+    : []
+
+  const allMobileItems = [
+    ...mainItems,
+    { divider: true, label: 'Outils' },
+    ...toolItems,
+    ...(isAuthenticated ? [{ divider: true, label: 'Mon espace' }, ...userItems] : []),
+  ]
+
   const bg = dark ? 'rgba(20,16,11,0.92)' : 'rgba(239,231,216,0.92)'
   const fg = dark ? '#F5EFE0' : '#1F1A14'
   const accent = '#8B1A1A'
+  const border = dark ? 'rgba(245,239,224,0.1)' : 'rgba(31,26,20,0.12)'
+  const muted = dark ? 'rgba(245,239,224,0.45)' : '#6E6356'
 
   const [open, setOpen] = React.useState(false)
+  const [toolsOpen, setToolsOpen] = React.useState(false)
+  const toolsRef = React.useRef(null)
+
+  // Fermer dropdown outils si clic extérieur
+  React.useEffect(() => {
+    if (!toolsOpen) return
+    const handler = (e) => {
+      if (toolsRef.current && !toolsRef.current.contains(e.target)) setToolsOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [toolsOpen])
 
   return (
     <header
@@ -80,63 +120,174 @@ export function CFHeader({ dark = false }) {
         zIndex: 50,
         background: bg,
         backdropFilter: 'blur(8px)',
-        borderBottom: `1px solid ${dark ? 'rgba(245,239,224,0.1)' : 'rgba(31,26,20,0.12)'}`,
+        borderBottom: `1px solid ${border}`,
       }}
     >
-      {/* Desktop / Tablet */}
+      {/* ── Desktop ── */}
       <div
         className="hidden md:flex"
-        style={{
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '18px 48px',
-        }}
+        style={{ alignItems: 'center', justifyContent: 'space-between', padding: '16px 40px' }}
       >
-        <Link to="/" aria-label="Accueil" style={{ textDecoration: 'none' }}>
-          <CFLogo size={26} color={fg} accent={accent} />
+        <Link to="/" aria-label="Accueil" style={{ textDecoration: 'none', flexShrink: 0 }}>
+          <CFLogo size={24} color={fg} accent={accent} />
         </Link>
-        <nav style={{ display: 'flex', gap: 4 }}>
-          {items.map((item) => (
+
+        <nav style={{ display: 'flex', gap: 0, alignItems: 'center' }}>
+          {mainItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               style={({ isActive }) => ({
                 fontFamily: 'var(--cf-serif)',
-                fontSize: 14,
+                fontSize: 13,
                 fontWeight: 500,
                 letterSpacing: '0.06em',
                 textTransform: 'uppercase',
-                padding: '8px 14px',
+                padding: '8px 12px',
                 color: isActive ? accent : fg,
                 borderBottom: isActive ? `2px solid ${accent}` : '2px solid transparent',
                 textDecoration: 'none',
+                whiteSpace: 'nowrap',
+              })}
+            >
+              {item.label}
+            </NavLink>
+          ))}
+
+          {/* Dropdown Outils */}
+          <div ref={toolsRef} style={{ position: 'relative' }}>
+            <button
+              onClick={() => setToolsOpen((v) => !v)}
+              style={{
+                fontFamily: 'var(--cf-serif)',
+                fontSize: 13,
+                fontWeight: 500,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                padding: '8px 12px',
+                color: toolsOpen ? accent : fg,
+                background: 'none',
+                border: 'none',
+                borderBottom: toolsOpen ? `2px solid ${accent}` : '2px solid transparent',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 5,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Outils
+              <svg
+                width="10" height="10" viewBox="0 0 10 10" fill="none"
+                style={{ transform: toolsOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }}
+              >
+                <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+            </button>
+            {toolsOpen && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  marginTop: 4,
+                  background: dark ? '#1F1A14' : '#FAF6EE',
+                  border: `1px solid ${border}`,
+                  boxShadow: '0 8px 24px rgba(31,26,20,0.12)',
+                  minWidth: 220,
+                  zIndex: 100,
+                }}
+              >
+                {toolItems.map((item) => (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    onClick={() => setToolsOpen(false)}
+                    style={({ isActive }) => ({
+                      display: 'block',
+                      padding: '10px 16px',
+                      fontFamily: 'var(--cf-serif)',
+                      fontSize: 13,
+                      textDecoration: 'none',
+                      color: isActive ? accent : fg,
+                      background: isActive ? (dark ? 'rgba(139,26,26,0.12)' : 'rgba(139,26,26,0.06)') : 'transparent',
+                      borderLeft: isActive ? `3px solid ${accent}` : '3px solid transparent',
+                    })}
+                  >
+                    {item.label}
+                  </NavLink>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Mon espace (si connecté) */}
+          {isAuthenticated && userItems.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              style={({ isActive }) => ({
+                fontFamily: 'var(--cf-serif)',
+                fontSize: 13,
+                fontWeight: 500,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                padding: '8px 12px',
+                color: isActive ? accent : muted,
+                borderBottom: isActive ? `2px solid ${accent}` : '2px solid transparent',
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
               })}
             >
               {item.label}
             </NavLink>
           ))}
         </nav>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <Link to="/calculateur" aria-label="Recherche" style={{ color: fg }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <circle cx="11" cy="11" r="7" />
-              <path d="m20 20-3.5-3.5" />
-            </svg>
-          </Link>
-          <FireButton size="sm" type={dark ? 'cream' : 'primary'}>
-            Newsletter
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+          {isAuthenticated ? (
+            <button
+              onClick={signOut}
+              style={{
+                fontFamily: 'var(--cf-mono)',
+                fontSize: 11,
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                color: muted,
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '6px 8px',
+              }}
+            >
+              Déconnexion
+            </button>
+          ) : (
+            <Link
+              to="/login"
+              style={{
+                fontFamily: 'var(--cf-mono)',
+                fontSize: 11,
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                color: muted,
+                textDecoration: 'none',
+                padding: '6px 8px',
+              }}
+            >
+              Connexion
+            </Link>
+          )}
+          <FireButton size="sm" as={Link} to="/calculateur" type={dark ? 'cream' : 'primary'}>
+            Calculer
           </FireButton>
         </div>
       </div>
 
-      {/* Mobile */}
+      {/* ── Mobile ── */}
       <div
         className="flex md:hidden"
-        style={{
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '12px 16px',
-        }}
+        style={{ alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px' }}
       >
         <Link to="/" aria-label="Accueil" style={{ textDecoration: 'none' }}>
           <CFLogo size={20} color={fg} accent={accent} />
@@ -144,14 +295,10 @@ export function CFHeader({ dark = false }) {
         <button
           onClick={() => setOpen((v) => !v)}
           aria-label="Menu"
-          style={{ background: 'none', border: 'none', padding: 4, color: fg }}
+          style={{ background: 'none', border: 'none', padding: 4, color: fg, cursor: 'pointer' }}
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-            {open ? (
-              <path d="M6 6l12 12M6 18L18 6" />
-            ) : (
-              <path d="M3 6h18M3 12h18M3 18h18" />
-            )}
+            {open ? <path d="M6 6l12 12M6 18L18 6" /> : <path d="M3 6h18M3 12h18M3 18h18" />}
           </svg>
         </button>
       </div>
@@ -160,33 +307,93 @@ export function CFHeader({ dark = false }) {
         <nav
           className="md:hidden"
           style={{
-            padding: '8px 16px 16px',
+            padding: '8px 16px 20px',
             display: 'flex',
             flexDirection: 'column',
-            gap: 4,
-            borderTop: `1px solid ${dark ? 'rgba(245,239,224,0.1)' : 'rgba(31,26,20,0.10)'}`,
+            gap: 2,
+            borderTop: `1px solid ${border}`,
+            maxHeight: '80vh',
+            overflowY: 'auto',
           }}
         >
-          {items.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              onClick={() => setOpen(false)}
-              style={({ isActive }) => ({
-                fontFamily: 'var(--cf-serif)',
-                fontSize: 16,
-                fontWeight: 500,
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                padding: '12px 8px',
-                color: isActive ? accent : fg,
-                borderLeft: isActive ? `2px solid ${accent}` : '2px solid transparent',
-                textDecoration: 'none',
-              })}
-            >
-              {item.label}
-            </NavLink>
-          ))}
+          {allMobileItems.map((item, i) =>
+            item.divider ? (
+              <div
+                key={i}
+                style={{
+                  fontFamily: 'var(--cf-mono)',
+                  fontSize: 10,
+                  letterSpacing: '0.12em',
+                  textTransform: 'uppercase',
+                  color: muted,
+                  padding: '14px 8px 4px',
+                  borderTop: i > 0 ? `1px solid ${border}` : 'none',
+                  marginTop: i > 0 ? 8 : 0,
+                }}
+              >
+                {item.label}
+              </div>
+            ) : (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                onClick={() => setOpen(false)}
+                style={({ isActive }) => ({
+                  fontFamily: 'var(--cf-serif)',
+                  fontSize: 15,
+                  fontWeight: 500,
+                  letterSpacing: '0.04em',
+                  padding: '11px 8px',
+                  color: isActive ? accent : fg,
+                  borderLeft: isActive ? `3px solid ${accent}` : '3px solid transparent',
+                  textDecoration: 'none',
+                  paddingLeft: isActive ? 10 : 8,
+                })}
+              >
+                {item.label}
+              </NavLink>
+            )
+          )}
+
+          <div style={{ marginTop: 16, paddingTop: 16, borderTop: `1px solid ${border}` }}>
+            {isAuthenticated ? (
+              <button
+                onClick={() => { signOut(); setOpen(false) }}
+                style={{
+                  fontFamily: 'var(--cf-mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  color: muted,
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '8px 8px',
+                  width: '100%',
+                  textAlign: 'left',
+                }}
+              >
+                Déconnexion
+              </button>
+            ) : (
+              <Link
+                to="/login"
+                onClick={() => setOpen(false)}
+                style={{
+                  display: 'block',
+                  fontFamily: 'var(--cf-mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  color: muted,
+                  textDecoration: 'none',
+                  padding: '8px 8px',
+                }}
+              >
+                Se connecter
+              </Link>
+            )}
+          </div>
         </nav>
       )}
     </header>
@@ -283,9 +490,9 @@ export function NewsletterBlock({ mobile }) {
             flexWrap: 'wrap',
           }}
         >
-          <span>· 4 200+ inscrits</span>
           <span>· hebdomadaire</span>
           <span>· 100% bbq</span>
+          <span>· zéro spam</span>
         </div>
       </div>
     </section>

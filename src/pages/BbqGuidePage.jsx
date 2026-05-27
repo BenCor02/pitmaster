@@ -4,10 +4,27 @@
  * recommandations par niveau, SEO optimisé.
  */
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { updateMeta, injectJsonLd } from '../lib/seo.js'
 import { supabase } from '../lib/supabase.js'
+import { CFHeader, CFFooter, NewsletterBlock } from '../components/cf/Chrome.jsx'
+import { FireButton, SectionEyebrow, Pill } from '../components/cf/Primitives.jsx'
+
+/* ── useMobile ── */
+function useMobile() {
+  const [mobile, setMobile] = React.useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)').matches : false
+  )
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+    const mq = window.matchMedia('(max-width: 767px)')
+    const handler = (e) => setMobile(e.matches)
+    mq.addEventListener?.('change', handler)
+    return () => mq.removeEventListener?.('change', handler)
+  }, [])
+  return mobile
+}
 
 /* ── Données statiques (fallback si table Supabase absente) ── */
 const BBQ_TYPES_STATIC = [
@@ -249,37 +266,38 @@ const BBQ_TYPES_STATIC = [
 
 /* ── Niveau config ── */
 const LEVEL_CONFIG = {
-  debutant: { label: 'Débutant', color: 'text-green-400', bg: 'bg-green-500/10', border: 'border-green-500/20', icon: '🌱' },
-  intermediaire: { label: 'Intermédiaire', color: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20', icon: '🔥' },
-  avance: { label: 'Avancé', color: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20', icon: '🏆' },
+  debutant: { label: 'Débutant', color: '#2D6A4F', bg: 'rgba(45,106,79,0.12)', border: 'rgba(45,106,79,0.25)', icon: '🌱' },
+  intermediaire: { label: 'Intermédiaire', color: '#E8A53C', bg: 'rgba(232,165,60,0.12)', border: 'rgba(232,165,60,0.25)', icon: '🔥' },
+  avance: { label: 'Avancé', color: '#8B1A1A', bg: 'rgba(139,26,26,0.10)', border: 'rgba(139,26,26,0.25)', icon: '🏆' },
 }
 
 /* ── Tableau comparatif ── */
 function ComparisonTable({ bbqTypes }) {
   return (
     <div className="overflow-x-auto -mx-4 px-4 pb-4">
-      <table className="w-full text-[13px] border-collapse min-w-[700px]">
+      <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse', minWidth: 700 }}>
         <thead>
-          <tr className="border-b border-white/[0.06]">
-            <th className="text-left py-3 px-3 text-stone-400 font-medium">Type</th>
-            <th className="text-left py-3 px-3 text-stone-400 font-medium">Saveur fumée</th>
-            <th className="text-left py-3 px-3 text-stone-400 font-medium">Facilité</th>
-            <th className="text-left py-3 px-3 text-stone-400 font-medium">Prix entrée</th>
-            <th className="text-left py-3 px-3 text-stone-400 font-medium">Polyvalence</th>
-            <th className="text-left py-3 px-3 text-stone-400 font-medium">Niveau</th>
+          <tr style={{ borderBottom: '1px solid rgba(31,26,20,0.15)' }}>
+            {['Type', 'Saveur fumée', 'Facilité', 'Prix entrée', 'Polyvalence', 'Niveau'].map(h => (
+              <th key={h} style={{ textAlign: 'left', padding: '10px 12px', color: '#6E6356', fontWeight: 500 }}>{h}</th>
+            ))}
           </tr>
         </thead>
         <tbody>
           {bbqTypes.map(bbq => {
             const lev = LEVEL_CONFIG[bbq.level]
             return (
-              <tr key={bbq.id} className="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors">
-                <td className="py-3 px-3 font-medium text-stone-200">{bbq.icon} {bbq.name}</td>
-                <td className="py-3 px-3">{bbq.id === 'offset' ? '⭐⭐⭐⭐⭐' : bbq.id === 'kamado' ? '⭐⭐⭐⭐' : bbq.id === 'wsm' ? '⭐⭐⭐⭐' : bbq.id === 'kettle' ? '⭐⭐⭐' : bbq.id === 'pellet' ? '⭐⭐⭐' : bbq.id === 'gas' ? '⭐⭐' : '⭐⭐'}</td>
-                <td className="py-3 px-3">{bbq.id === 'pellet' ? '⭐⭐⭐⭐⭐' : bbq.id === 'electric' ? '⭐⭐⭐⭐⭐' : bbq.id === 'gas' ? '⭐⭐⭐⭐' : bbq.id === 'kamado' ? '⭐⭐⭐' : bbq.id === 'kettle' ? '⭐⭐⭐⭐' : bbq.id === 'wsm' ? '⭐⭐⭐' : '⭐⭐'}</td>
-                <td className="py-3 px-3 text-stone-300">{(bbq.priceRange || '').split('–')[0].trim()}</td>
-                <td className="py-3 px-3">{bbq.id === 'kamado' ? '⭐⭐⭐⭐⭐' : bbq.id === 'gas' ? '⭐⭐⭐⭐' : bbq.id === 'pellet' ? '⭐⭐⭐⭐' : bbq.id === 'kettle' ? '⭐⭐⭐' : bbq.id === 'offset' ? '⭐⭐' : bbq.id === 'wsm' ? '⭐⭐' : '⭐⭐'}</td>
-                <td className="py-3 px-3"><span className={`text-[11px] px-2 py-0.5 rounded-full ${lev.bg} ${lev.color} ${lev.border} border`}>{lev.icon} {lev.label}</span></td>
+              <tr key={bbq.id} style={{ borderBottom: '1px solid rgba(31,26,20,0.07)' }}>
+                <td style={{ padding: '10px 12px', fontWeight: 600, color: '#1F1A14' }}>{bbq.icon} {bbq.name}</td>
+                <td style={{ padding: '10px 12px' }}>{bbq.id === 'offset' ? '⭐⭐⭐⭐⭐' : bbq.id === 'kamado' ? '⭐⭐⭐⭐' : bbq.id === 'wsm' ? '⭐⭐⭐⭐' : bbq.id === 'kettle' ? '⭐⭐⭐' : bbq.id === 'pellet' ? '⭐⭐⭐' : bbq.id === 'gas' ? '⭐⭐' : '⭐⭐'}</td>
+                <td style={{ padding: '10px 12px' }}>{bbq.id === 'pellet' ? '⭐⭐⭐⭐⭐' : bbq.id === 'electric' ? '⭐⭐⭐⭐⭐' : bbq.id === 'gas' ? '⭐⭐⭐⭐' : bbq.id === 'kamado' ? '⭐⭐⭐' : bbq.id === 'kettle' ? '⭐⭐⭐⭐' : bbq.id === 'wsm' ? '⭐⭐⭐' : '⭐⭐'}</td>
+                <td style={{ padding: '10px 12px', color: '#6E6356' }}>{(bbq.priceRange || '').split('–')[0].trim()}</td>
+                <td style={{ padding: '10px 12px' }}>{bbq.id === 'kamado' ? '⭐⭐⭐⭐⭐' : bbq.id === 'gas' ? '⭐⭐⭐⭐' : bbq.id === 'pellet' ? '⭐⭐⭐⭐' : bbq.id === 'kettle' ? '⭐⭐⭐' : bbq.id === 'offset' ? '⭐⭐' : bbq.id === 'wsm' ? '⭐⭐' : '⭐⭐'}</td>
+                <td style={{ padding: '10px 12px' }}>
+                  <span style={{ fontSize: 11, padding: '3px 10px', borderRadius: 20, background: lev.bg, color: lev.color, border: `1px solid ${lev.border}`, fontWeight: 600 }}>
+                    {lev.icon} {lev.label}
+                  </span>
+                </td>
               </tr>
             )
           })}
@@ -294,74 +312,78 @@ function BbqCard({ bbq, isExpanded, onToggle }) {
   const lev = LEVEL_CONFIG[bbq.level]
 
   return (
-    <div className={`rounded-2xl border transition-all duration-300 overflow-hidden ${isExpanded ? 'border-[#ff6b1a]/20 bg-[#111]/80' : 'border-white/[0.05] bg-[#0e0e0e]/60 hover:border-white/[0.08]'}`}>
+    <div style={{
+      borderRadius: 16,
+      border: isExpanded ? '1px solid rgba(139,26,26,0.25)' : '1px solid rgba(31,26,20,0.12)',
+      background: '#F5EFE0',
+      overflow: 'hidden',
+      transition: 'all 0.3s',
+    }}>
       {/* Header — toujours visible */}
-      <button onClick={onToggle} className="w-full text-left p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-4">
-        <div className="flex items-center gap-4 flex-1 min-w-0">
-          <span className="text-3xl shrink-0">{bbq.icon}</span>
-          <div className="min-w-0">
-            <h3 className="text-lg font-bold text-stone-100 font-display">{bbq.name}</h3>
-            <p className="text-[11px] text-stone-500 mt-0.5">{bbq.altNames.join(' · ')}</p>
-          </div>
+      <button onClick={onToggle} style={{ width: '100%', textAlign: 'left', padding: '20px 24px', display: 'flex', alignItems: 'center', gap: 16, background: 'none', border: 'none', cursor: 'pointer' }}>
+        <span style={{ fontSize: 28, flexShrink: 0 }}>{bbq.icon}</span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h3 style={{ fontSize: 17, fontWeight: 700, color: '#1F1A14', fontFamily: 'var(--cf-serif)', margin: 0 }}>{bbq.name}</h3>
+          <p style={{ fontSize: 11, color: '#6E6356', marginTop: 2 }}>{bbq.altNames.join(' · ')}</p>
         </div>
-        <div className="flex items-center gap-3 shrink-0">
-          <span className={`text-[11px] px-2.5 py-1 rounded-full ${lev.bg} ${lev.color} ${lev.border} border font-medium`}>{lev.icon} {lev.label}</span>
-          <span className="text-[12px] text-stone-500">{bbq.priceRange}</span>
-          <svg className={`w-4 h-4 text-stone-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" /></svg>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+          <span style={{ fontSize: 11, padding: '4px 10px', borderRadius: 20, background: lev.bg, color: lev.color, border: `1px solid ${lev.border}`, fontWeight: 600 }}>{lev.icon} {lev.label}</span>
+          <span style={{ fontSize: 12, color: '#6E6356' }}>{bbq.priceRange}</span>
+          <svg style={{ width: 16, height: 16, color: '#6E6356', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(180deg)' : 'none' }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" /></svg>
         </div>
       </button>
 
       {/* Tagline */}
-      <div className="px-5 sm:px-6 pb-4 -mt-2">
-        <p className="text-[13px] text-[#ff8c4a] italic">{bbq.tagline}</p>
+      <div style={{ padding: '0 24px 16px' }}>
+        <p style={{ fontSize: 13, color: '#8B1A1A', fontStyle: 'italic' }}>{bbq.tagline}</p>
       </div>
 
       {/* Contenu expansible */}
       {isExpanded && (
-        <div className="px-5 sm:px-6 pb-6 space-y-6 border-t border-white/[0.04] pt-5">
+        <div style={{ padding: '20px 24px 24px', borderTop: '1px solid rgba(31,26,20,0.10)', display: 'flex', flexDirection: 'column', gap: 20 }}>
           {/* Description */}
-          <p className="text-[13px] leading-relaxed text-stone-400">{bbq.description}</p>
+          <p style={{ fontSize: 13, lineHeight: 1.7, color: '#6E6356', margin: 0 }}>{bbq.description}</p>
 
           {/* Specs rapides */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10 }}>
             {[
               { label: 'Température', value: bbq.tempRange },
               { label: 'Combustible', value: bbq.fuel },
               { label: 'Capacité', value: bbq.capacity },
               { label: 'Budget', value: bbq.priceRange },
             ].map(spec => (
-              <div key={spec.label} className="rounded-xl bg-white/[0.02] border border-white/[0.04] p-3">
-                <p className="text-[10px] uppercase tracking-wider text-stone-600 mb-1">{spec.label}</p>
-                <p className="text-[12px] text-stone-300 font-medium">{spec.value}</p>
+              <div key={spec.label} style={{ borderRadius: 12, background: 'rgba(31,26,20,0.04)', border: '1px solid rgba(31,26,20,0.10)', padding: 12 }}>
+                <p style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6E6356', marginBottom: 4 }}>{spec.label}</p>
+                <p style={{ fontSize: 12, color: '#1F1A14', fontWeight: 600, margin: 0 }}>{spec.value}</p>
               </div>
             ))}
           </div>
 
           {/* + et - */}
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div className="rounded-xl bg-green-500/[0.04] border border-green-500/[0.08] p-4">
-              <h4 className="text-[13px] font-bold text-green-400 mb-3 flex items-center gap-2">
-                <span className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center text-[10px]">+</span>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div style={{ borderRadius: 12, background: 'rgba(45,106,79,0.06)', border: '1px solid rgba(45,106,79,0.15)', padding: 16 }}>
+              <h4 style={{ fontSize: 13, fontWeight: 700, color: '#2D6A4F', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(45,106,79,0.15)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 10 }}>+</span>
                 Avantages
               </h4>
-              <ul className="space-y-2">
+              <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {bbq.pros.map((pro, i) => (
-                  <li key={i} className="text-[12px] text-stone-400 leading-relaxed flex gap-2">
-                    <span className="text-green-500 shrink-0 mt-0.5">✓</span>
+                  <li key={i} style={{ fontSize: 12, color: '#6E6356', lineHeight: 1.6, display: 'flex', gap: 6 }}>
+                    <span style={{ color: '#2D6A4F', flexShrink: 0 }}>✓</span>
                     {pro}
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="rounded-xl bg-red-500/[0.04] border border-red-500/[0.08] p-4">
-              <h4 className="text-[13px] font-bold text-red-400 mb-3 flex items-center gap-2">
-                <span className="w-5 h-5 rounded-full bg-red-500/20 flex items-center justify-center text-[10px]">−</span>
+            <div style={{ borderRadius: 12, background: 'rgba(139,26,26,0.04)', border: '1px solid rgba(139,26,26,0.12)', padding: 16 }}>
+              <h4 style={{ fontSize: 13, fontWeight: 700, color: '#8B1A1A', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(139,26,26,0.12)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 10 }}>−</span>
                 Inconvénients
               </h4>
-              <ul className="space-y-2">
+              <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {bbq.cons.map((con, i) => (
-                  <li key={i} className="text-[12px] text-stone-400 leading-relaxed flex gap-2">
-                    <span className="text-red-500 shrink-0 mt-0.5">✗</span>
+                  <li key={i} style={{ fontSize: 12, color: '#6E6356', lineHeight: 1.6, display: 'flex', gap: 6 }}>
+                    <span style={{ color: '#8B1A1A', flexShrink: 0 }}>✗</span>
                     {con}
                   </li>
                 ))}
@@ -370,20 +392,20 @@ function BbqCard({ bbq, isExpanded, onToggle }) {
           </div>
 
           {/* Idéal pour / Pas idéal pour */}
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div>
-              <p className="text-[11px] uppercase tracking-wider text-stone-600 mb-2">Idéal pour</p>
-              <div className="flex flex-wrap gap-1.5">
+              <p style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6E6356', marginBottom: 8 }}>Idéal pour</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {bbq.bestFor.map(item => (
-                  <span key={item} className="text-[11px] px-2.5 py-1 rounded-lg bg-[#ff6b1a]/10 text-[#ff8c4a] border border-[#ff6b1a]/10">{item}</span>
+                  <span key={item} style={{ fontSize: 11, padding: '4px 10px', borderRadius: 8, background: 'rgba(232,165,60,0.12)', color: '#8B1A1A', border: '1px solid rgba(232,165,60,0.20)' }}>{item}</span>
                 ))}
               </div>
             </div>
             <div>
-              <p className="text-[11px] uppercase tracking-wider text-stone-600 mb-2">Pas idéal pour</p>
-              <div className="flex flex-wrap gap-1.5">
+              <p style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6E6356', marginBottom: 8 }}>Pas idéal pour</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {bbq.notIdealFor.map(item => (
-                  <span key={item} className="text-[11px] px-2.5 py-1 rounded-lg bg-white/[0.03] text-stone-500 border border-white/[0.05]">{item}</span>
+                  <span key={item} style={{ fontSize: 11, padding: '4px 10px', borderRadius: 8, background: 'rgba(31,26,20,0.05)', color: '#6E6356', border: '1px solid rgba(31,26,20,0.10)' }}>{item}</span>
                 ))}
               </div>
             </div>
@@ -391,14 +413,14 @@ function BbqCard({ bbq, isExpanded, onToggle }) {
 
           {/* Marques */}
           <div>
-            <p className="text-[11px] uppercase tracking-wider text-stone-600 mb-2">Marques recommandées</p>
-            <p className="text-[12px] text-stone-400">{bbq.brands.join(' · ')}</p>
+            <p style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6E6356', marginBottom: 6 }}>Marques recommandées</p>
+            <p style={{ fontSize: 12, color: '#6E6356', margin: 0 }}>{bbq.brands.join(' · ')}</p>
           </div>
 
           {/* Conseil terrain */}
-          <div className="rounded-xl bg-[#ff6b1a]/[0.04] border border-[#ff6b1a]/[0.10] p-4">
-            <p className="text-[11px] uppercase tracking-wider text-[#ff6b1a] mb-2 flex items-center gap-1.5">🔥 Conseil terrain</p>
-            <p className="text-[12px] text-stone-400 leading-relaxed">{bbq.tips}</p>
+          <div style={{ borderRadius: 12, background: 'rgba(232,165,60,0.08)', border: '1px solid rgba(232,165,60,0.20)', padding: 16 }}>
+            <p style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#E8A53C', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>🔥 Conseil terrain</p>
+            <p style={{ fontSize: 12, color: '#6E6356', lineHeight: 1.7, margin: 0 }}>{bbq.tips}</p>
           </div>
         </div>
       )}
@@ -408,6 +430,7 @@ function BbqCard({ bbq, isExpanded, onToggle }) {
 
 /* ── Page principale ── */
 export default function BbqGuidePage() {
+  const mobile = useMobile()
   const [bbqTypes, setBbqTypes] = useState(BBQ_TYPES_STATIC)
   const [expandedId, setExpandedId] = useState(null)
   const [levelFilter, setLevelFilter] = useState('all')
@@ -417,7 +440,6 @@ export default function BbqGuidePage() {
     supabase.from('bbq_types').select('*').eq('status', 'published').order('sort_order')
       .then(({ data }) => {
         if (data?.length) {
-          // Map DB columns (snake_case) to component props (camelCase)
           setBbqTypes(data.map(d => ({
             id: d.id, name: d.name, altNames: d.alt_names || [], icon: d.icon,
             tagline: d.tagline, description: d.description, tempRange: d.temp_range,
@@ -427,7 +449,7 @@ export default function BbqGuidePage() {
           })))
         }
       })
-      .catch(() => {}) // silently fallback to static
+      .catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -450,100 +472,111 @@ export default function BbqGuidePage() {
   const filtered = levelFilter === 'all' ? bbqTypes : bbqTypes.filter(b => b.level === levelFilter)
 
   return (
-    <div className="min-h-screen bg-[#080808]">
-
-      {/* ── Hero ── */}
-      <section className="relative pt-20 pb-16 sm:pt-28 sm:pb-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#ff6b1a]/[0.03] via-transparent to-transparent" />
-        <div className="absolute inset-0 smoke-bg opacity-30" />
-        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <p className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#ff6b1a]/10 border border-[#ff6b1a]/15 text-[#ff8c4a] text-[11px] font-semibold tracking-wide uppercase mb-6">
-            Guide comparatif 2025
-          </p>
-          <h1 className="text-3xl sm:text-5xl font-display font-black text-stone-100 leading-[1.1] mb-4">
-            Quel <span className="text-[#ff6b1a]">BBQ</span> choisir ?
-          </h1>
-          <p className="text-stone-500 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-            Offset, kamado, pellet, bouilloire, fumoir vertical... Chaque type de barbecue a ses forces et ses limites. On t'aide à trouver celui qui correspond à ton niveau et à tes envies.
-          </p>
-        </div>
-      </section>
-
-      {/* ── Contenu ── */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-24 space-y-12">
-
-        {/* Tableau comparatif */}
-        <section>
-          <h2 className="text-xl font-display font-bold text-stone-200 mb-4">Comparatif rapide</h2>
-          <div className="rounded-2xl border border-white/[0.05] bg-[#0e0e0e]/60 p-4">
-            <ComparisonTable bbqTypes={bbqTypes} />
+    <div style={{ minHeight: '100vh', background: '#FAF6EE', color: '#1F1A14' }}>
+      <CFHeader />
+      <main>
+        {/* ── Hero ── */}
+        <section style={{ paddingTop: mobile ? 64 : 96, paddingBottom: mobile ? 48 : 72, textAlign: 'center' }}>
+          <div style={{ maxWidth: 800, margin: '0 auto', padding: '0 16px' }}>
+            <SectionEyebrow>Guide comparatif 2025</SectionEyebrow>
+            <h1 style={{ fontSize: mobile ? 32 : 48, fontWeight: 900, fontFamily: 'var(--cf-serif)', color: '#1F1A14', lineHeight: 1.1, margin: '16px 0' }}>
+              Quel <span style={{ color: '#8B1A1A' }}>BBQ</span> choisir ?
+            </h1>
+            <p style={{ color: '#6E6356', fontSize: mobile ? 15 : 17, maxWidth: 600, margin: '0 auto', lineHeight: 1.7 }}>
+              Offset, kamado, pellet, bouilloire, fumoir vertical... Chaque type de barbecue a ses forces et ses limites. On t'aide à trouver celui qui correspond à ton niveau et à tes envies.
+            </p>
           </div>
         </section>
 
-        {/* Filtre par niveau */}
-        <section>
-          <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-            <h2 className="text-xl font-display font-bold text-stone-200">Tous les types de BBQ</h2>
-            <div className="flex gap-2">
-              {[
-                { key: 'all', label: 'Tous' },
-                { key: 'debutant', label: '🌱 Débutant' },
-                { key: 'intermediaire', label: '🔥 Intermédiaire' },
-                { key: 'avance', label: '🏆 Avancé' },
-              ].map(f => (
-                <button
-                  key={f.key}
-                  onClick={() => setLevelFilter(f.key)}
-                  className={`text-[11px] px-3 py-1.5 rounded-lg border transition-colors ${levelFilter === f.key ? 'bg-[#ff6b1a]/15 border-[#ff6b1a]/20 text-[#ff8c4a]' : 'bg-white/[0.02] border-white/[0.05] text-stone-500 hover:text-stone-300'}`}
-                >
-                  {f.label}
-                </button>
+        {/* ── Contenu ── */}
+        <div style={{ maxWidth: 864, margin: '0 auto', padding: '0 16px 80px', display: 'flex', flexDirection: 'column', gap: 48 }}>
+
+          {/* Tableau comparatif */}
+          <section>
+            <h2 style={{ fontSize: 20, fontWeight: 700, fontFamily: 'var(--cf-serif)', color: '#1F1A14', marginBottom: 16 }}>Comparatif rapide</h2>
+            <div style={{ borderRadius: 16, border: '1px solid rgba(31,26,20,0.12)', background: '#F5EFE0', padding: 16 }}>
+              <ComparisonTable bbqTypes={bbqTypes} />
+            </div>
+          </section>
+
+          {/* Filtre par niveau */}
+          <section>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
+              <h2 style={{ fontSize: 20, fontWeight: 700, fontFamily: 'var(--cf-serif)', color: '#1F1A14', margin: 0 }}>Tous les types de BBQ</h2>
+              <div style={{ display: 'flex', gap: 8 }}>
+                {[
+                  { key: 'all', label: 'Tous' },
+                  { key: 'debutant', label: '🌱 Débutant' },
+                  { key: 'intermediaire', label: '🔥 Intermédiaire' },
+                  { key: 'avance', label: '🏆 Avancé' },
+                ].map(f => (
+                  <button
+                    key={f.key}
+                    onClick={() => setLevelFilter(f.key)}
+                    style={{
+                      fontSize: 11, padding: '6px 12px', borderRadius: 8,
+                      border: levelFilter === f.key ? '1px solid rgba(139,26,26,0.25)' : '1px solid rgba(31,26,20,0.12)',
+                      background: levelFilter === f.key ? 'rgba(139,26,26,0.08)' : 'transparent',
+                      color: levelFilter === f.key ? '#8B1A1A' : '#6E6356',
+                      cursor: 'pointer', fontWeight: 500,
+                    }}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {filtered.map(bbq => (
+                <BbqCard
+                  key={bbq.id}
+                  bbq={bbq}
+                  isExpanded={expandedId === bbq.id}
+                  onToggle={() => setExpandedId(expandedId === bbq.id ? null : bbq.id)}
+                />
               ))}
             </div>
-          </div>
+          </section>
 
-          <div className="space-y-3">
-            {filtered.map(bbq => (
-              <BbqCard
-                key={bbq.id}
-                bbq={bbq}
-                isExpanded={expandedId === bbq.id}
-                onToggle={() => setExpandedId(expandedId === bbq.id ? null : bbq.id)}
-              />
-            ))}
-          </div>
-        </section>
-
-        {/* Guide de choix rapide */}
-        <section className="rounded-2xl border border-[#ff6b1a]/10 bg-gradient-to-br from-[#ff6b1a]/[0.04] to-transparent p-6 sm:p-8">
-          <h2 className="text-xl font-display font-bold text-stone-200 mb-4">Notre recommandation par profil</h2>
-          <div className="space-y-4">
-            {[
-              { profile: 'Tu débutes et tu veux un résultat garanti', pick: 'Pellet smoker', why: 'Zéro gestion de feu, résultats constants dès la première cuisson. Un Pit Boss ou Z Grills et c\'est parti.' },
-              { profile: 'Tu veux fumer au charbon sans te ruiner', pick: 'Weber Smokey Mountain (WSM)', why: 'Le meilleur rapport qualité/résultat. Température stable, prix accessible, utilisé en compétition.' },
-              { profile: 'Tu veux la polyvalence totale', pick: 'Kamado', why: 'Fumer, griller, rôtir, pizza. Un seul appareil qui fait tout. Investissement, mais pour la vie.' },
-              { profile: 'Tu veux la saveur ultime, 100% bois', pick: 'Offset smoker', why: 'Le graal du fumage. Demande du temps et de la pratique, mais rien n\'égale cette saveur.' },
-              { profile: 'Tu as un balcon en appartement', pick: 'Fumoir électrique', why: 'Pas de flamme, pas de fumée excessive. Parfait pour le saumon fumé et le bacon maison.' },
-            ].map((rec, i) => (
-              <div key={i} className="flex gap-4 items-start">
-                <div className="w-8 h-8 rounded-lg bg-[#ff6b1a]/15 flex items-center justify-center text-[#ff6b1a] font-bold text-[12px] shrink-0 mt-0.5">{i + 1}</div>
-                <div>
-                  <p className="text-[13px] text-stone-300 font-medium">{rec.profile}</p>
-                  <p className="text-[13px] mt-1"><span className="text-[#ff8c4a] font-bold">→ {rec.pick}</span> <span className="text-stone-500">— {rec.why}</span></p>
+          {/* Guide de choix rapide */}
+          <section style={{ borderRadius: 16, border: '1px solid rgba(232,165,60,0.20)', background: 'rgba(232,165,60,0.06)', padding: mobile ? 24 : 36 }}>
+            <h2 style={{ fontSize: 20, fontWeight: 700, fontFamily: 'var(--cf-serif)', color: '#1F1A14', marginBottom: 20 }}>Notre recommandation par profil</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {[
+                { profile: 'Tu débutes et tu veux un résultat garanti', pick: 'Pellet smoker', why: 'Zéro gestion de feu, résultats constants dès la première cuisson. Un Pit Boss ou Z Grills et c\'est parti.' },
+                { profile: 'Tu veux fumer au charbon sans te ruiner', pick: 'Weber Smokey Mountain (WSM)', why: 'Le meilleur rapport qualité/résultat. Température stable, prix accessible, utilisé en compétition.' },
+                { profile: 'Tu veux la polyvalence totale', pick: 'Kamado', why: 'Fumer, griller, rôtir, pizza. Un seul appareil qui fait tout. Investissement, mais pour la vie.' },
+                { profile: 'Tu veux la saveur ultime, 100% bois', pick: 'Offset smoker', why: 'Le graal du fumage. Demande du temps et de la pratique, mais rien n\'égale cette saveur.' },
+                { profile: 'Tu as un balcon en appartement', pick: 'Fumoir électrique', why: 'Pas de flamme, pas de fumée excessive. Parfait pour le saumon fumé et le bacon maison.' },
+              ].map((rec, i) => (
+                <div key={i} style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                  <div style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(139,26,26,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8B1A1A', fontWeight: 700, fontSize: 12, flexShrink: 0, marginTop: 2 }}>{i + 1}</div>
+                  <div>
+                    <p style={{ fontSize: 13, color: '#1F1A14', fontWeight: 600, margin: 0 }}>{rec.profile}</p>
+                    <p style={{ fontSize: 13, marginTop: 4 }}>
+                      <span style={{ color: '#8B1A1A', fontWeight: 700 }}>→ {rec.pick}</span>
+                      <span style={{ color: '#6E6356' }}> — {rec.why}</span>
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
 
-        {/* CTA */}
-        <section className="text-center">
-          <p className="text-stone-500 text-sm mb-4">Tu as choisi ton fumoir ? Lance ta première cuisson.</p>
-          <Link to="/calculateur" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#ff6b1a] to-[#dc2626] text-white font-bold text-sm hover:shadow-lg hover:shadow-[#ff6b1a]/25 transition-all">
-            🔥 Ouvrir le calculateur
-          </Link>
-        </section>
-      </div>
+          {/* Newsletter */}
+          <NewsletterBlock />
+
+          {/* CTA */}
+          <section style={{ textAlign: 'center' }}>
+            <p style={{ color: '#6E6356', fontSize: 14, marginBottom: 16 }}>Tu as choisi ton fumoir ? Lance ta première cuisson.</p>
+            <Link to="/calculateur">
+              <FireButton>🔥 Ouvrir le calculateur</FireButton>
+            </Link>
+          </section>
+        </div>
+      </main>
+      <CFFooter mobile={mobile} />
     </div>
   )
 }

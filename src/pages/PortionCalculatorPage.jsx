@@ -1,6 +1,22 @@
-import { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { updateMeta } from '../lib/seo.js'
+import { CFHeader, CFFooter, NewsletterBlock } from '../components/cf/Chrome.jsx'
+import { FireButton, SectionEyebrow, Pill } from '../components/cf/Primitives.jsx'
+
+function useMobile() {
+  const [mobile, setMobile] = React.useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)').matches : false
+  )
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+    const mq = window.matchMedia('(max-width: 767px)')
+    const handler = (e) => setMobile(e.matches)
+    mq.addEventListener?.('change', handler)
+    return () => mq.removeEventListener?.('change', handler)
+  }, [])
+  return mobile
+}
 
 /**
  * Données de rendement par viande.
@@ -124,6 +140,7 @@ const CAT_LABELS = { boeuf: 'Boeuf', porc: 'Porc', volaille: 'Volaille' }
 const CAT_ORDER = ['boeuf', 'porc', 'volaille']
 
 export default function PortionCalculatorPage() {
+  const mobile = useMobile()
   const [guests, setGuests] = useState(8)
   const [appetite, setAppetite] = useState('normal') // light | normal | big
   const [selectedMeat, setSelectedMeat] = useState(null)
@@ -157,86 +174,97 @@ export default function PortionCalculatorPage() {
 
   const selectedResult = selectedMeat ? results.find(r => r.id === selectedMeat) : null
 
+  const borderColor = 'rgba(31,26,20,0.15)'
+  const cardBg = '#F5EFE0'
+
   return (
-    <div className="min-h-screen">
+    <div style={{ minHeight: '100vh', background: '#FAF6EE', color: '#1F1A14' }}>
+      <CFHeader />
 
       {/* ── Hero ── */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#ff6b1a]/[0.06] via-transparent to-red-500/[0.04]" />
-        <div className="relative px-6 lg:px-10 py-10 lg:py-14 max-w-4xl">
-          <div className="animate-fade-up">
-            <div className="badge badge-accent mb-4">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#ff6b1a] mr-2 animate-pulse" />
-              Outil Pitmaster
-            </div>
-            <h1 className="text-[28px] lg:text-[36px] font-extrabold text-white tracking-tight leading-[1.1] mb-2">
-              Combien de viande <span className="text-gradient">acheter ?</span>
-            </h1>
-            <p className="text-[14px] lg:text-[15px] text-zinc-400 max-w-lg leading-relaxed">
-              Calcule les quantités exactes de viande crue à acheter selon le nombre d'invités. Rendements réels, pas de la théorie.
-            </p>
-          </div>
+      <div style={{ background: 'linear-gradient(135deg, rgba(139,26,26,0.05) 0%, transparent 60%)', padding: mobile ? '32px 16px 24px' : '48px 64px 32px' }}>
+        <div style={{ maxWidth: 800 }}>
+          <SectionEyebrow accent="#8B1A1A">Outil Pitmaster</SectionEyebrow>
+          <h1 style={{
+            fontFamily: 'var(--cf-serif)',
+            fontSize: mobile ? 28 : 38,
+            fontWeight: 700,
+            color: '#1F1A14',
+            letterSpacing: '-0.01em',
+            lineHeight: 1.1,
+            margin: '12px 0 8px',
+          }}>
+            Combien de viande acheter ?
+          </h1>
+          <p style={{ fontSize: mobile ? 14 : 15, color: '#6E6356', maxWidth: 500, lineHeight: 1.65 }}>
+            Calcule les quantités exactes de viande crue à acheter selon le nombre d'invités. Rendements réels, pas de la théorie.
+          </p>
         </div>
       </div>
 
-      <div className="px-6 lg:px-10 pb-12 max-w-4xl">
+      <main style={{ maxWidth: 1200, margin: '0 auto', padding: mobile ? '0 16px 48px' : '0 48px 48px' }}>
 
         {/* ── Controls ── */}
-        <div className="surface p-5 mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-end gap-5">
+        <div style={{ background: cardBg, border: `1px solid ${borderColor}`, borderRadius: 4, padding: mobile ? 20 : 28, marginBottom: 24 }}>
+          <div style={{ display: 'flex', flexDirection: mobile ? 'column' : 'row', alignItems: mobile ? 'flex-start' : 'flex-end', gap: 28 }}>
 
             {/* Guests */}
-            <div className="flex-1">
-              <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-[0.08em] mb-3 block">
+            <div style={{ flex: 1 }}>
+              <label style={{ fontSize: 11, fontFamily: 'var(--cf-mono)', fontWeight: 600, color: '#6E6356', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 12 }}>
                 Nombre de personnes
               </label>
-              <div className="flex items-center gap-3">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <button
                   onClick={() => setGuests(Math.max(1, guests - 1))}
-                  className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.08] text-zinc-400 hover:text-white hover:bg-white/[0.08] transition-all text-lg font-bold"
+                  style={{
+                    width: 40, height: 40, borderRadius: 2,
+                    background: '#FAF6EE', border: `1px solid ${borderColor}`,
+                    color: '#1F1A14', fontSize: 18, fontWeight: 700, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}
                 >
                   −
                 </button>
-                <div className="relative">
-                  <input
-                    type="number"
-                    min="1"
-                    max="100"
-                    value={guests}
-                    onChange={(e) => setGuests(Math.max(1, Math.min(100, parseInt(e.target.value) || 1)))}
-                    className="w-20 text-center px-3 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-[22px] font-extrabold text-white focus:outline-none focus:border-[#ff6b1a]/30 transition-all"
-                  />
-                </div>
+                <input
+                  type="number"
+                  min="1"
+                  max="100"
+                  value={guests}
+                  onChange={(e) => setGuests(Math.max(1, Math.min(100, parseInt(e.target.value) || 1)))}
+                  style={{
+                    width: 72, textAlign: 'center', padding: '8px 12px',
+                    background: '#FAF6EE', border: `1px solid ${borderColor}`, borderRadius: 2,
+                    fontSize: 22, fontWeight: 700, color: '#1F1A14',
+                    fontFamily: 'var(--cf-serif)', outline: 'none',
+                  }}
+                />
                 <button
                   onClick={() => setGuests(Math.min(100, guests + 1))}
-                  className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.08] text-zinc-400 hover:text-white hover:bg-white/[0.08] transition-all text-lg font-bold"
+                  style={{
+                    width: 40, height: 40, borderRadius: 2,
+                    background: '#FAF6EE', border: `1px solid ${borderColor}`,
+                    color: '#1F1A14', fontSize: 18, fontWeight: 700, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}
                 >
                   +
                 </button>
               </div>
-              <div className="flex gap-1.5 mt-3 flex-wrap">
+              <div style={{ display: 'flex', gap: 6, marginTop: 12, flexWrap: 'wrap' }}>
                 {[4, 6, 8, 10, 15, 20, 30].map(n => (
-                  <button
-                    key={n}
-                    onClick={() => setGuests(n)}
-                    className={`px-2.5 py-1.5 rounded-lg text-[12px] font-medium border transition-all ${
-                      guests === n
-                        ? 'border-[#ff6b1a]/30 bg-[#ff6b1a]/8 text-[#ff6b1a]'
-                        : 'border-white/[0.06] text-zinc-500 hover:text-zinc-300 hover:border-white/[0.1]'
-                    }`}
-                  >
+                  <Pill key={n} active={guests === n} onClick={() => setGuests(n)}>
                     {n}
-                  </button>
+                  </Pill>
                 ))}
               </div>
             </div>
 
             {/* Appetite */}
             <div>
-              <label className="text-[11px] font-semibold text-zinc-500 uppercase tracking-[0.08em] mb-3 block">
+              <label style={{ fontSize: 11, fontFamily: 'var(--cf-mono)', fontWeight: 600, color: '#6E6356', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: 12 }}>
                 Appétit
               </label>
-              <div className="flex gap-2">
+              <div style={{ display: 'flex', gap: 8 }}>
                 {[
                   { id: 'light', label: 'Léger', icon: '🥗', desc: '−25%' },
                   { id: 'normal', label: 'Normal', icon: '🍽️', desc: 'Standard' },
@@ -245,15 +273,18 @@ export default function PortionCalculatorPage() {
                   <button
                     key={a.id}
                     onClick={() => setAppetite(a.id)}
-                    className={`flex flex-col items-center px-4 py-2.5 rounded-xl border transition-all ${
-                      appetite === a.id
-                        ? 'border-[#ff6b1a] bg-[#ff6b1a]/10 text-[#ff8c4a]'
-                        : 'border-zinc-700/50 bg-zinc-900/60 text-zinc-400 hover:border-zinc-600'
-                    }`}
+                    style={{
+                      display: 'flex', flexDirection: 'column', alignItems: 'center',
+                      padding: '10px 14px', borderRadius: 2, cursor: 'pointer',
+                      border: `1.5px solid ${appetite === a.id ? '#8B1A1A' : borderColor}`,
+                      background: appetite === a.id ? 'rgba(139,26,26,0.06)' : '#FAF6EE',
+                      color: appetite === a.id ? '#8B1A1A' : '#6E6356',
+                      transition: 'all .15s',
+                    }}
                   >
-                    <span className="text-lg mb-0.5">{a.icon}</span>
-                    <span className="text-[11px] font-semibold">{a.label}</span>
-                    <span className="text-[9px] text-zinc-600">{a.desc}</span>
+                    <span style={{ fontSize: 18, marginBottom: 2 }}>{a.icon}</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, fontFamily: 'var(--cf-sans)' }}>{a.label}</span>
+                    <span style={{ fontSize: 9, color: '#6E6356', fontFamily: 'var(--cf-mono)', marginTop: 1 }}>{a.desc}</span>
                   </button>
                 ))}
               </div>
@@ -262,16 +293,20 @@ export default function PortionCalculatorPage() {
         </div>
 
         {/* ── Results grid ── */}
-        <div className="space-y-6">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
           {CAT_ORDER.map(cat => {
             const items = byCategory[cat]
             if (!items) return null
             return (
               <div key={cat}>
-                <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-[0.08em] mb-3 px-1">
+                <p style={{ fontSize: 11, fontFamily: 'var(--cf-mono)', fontWeight: 600, color: '#6E6356', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12, paddingLeft: 2 }}>
                   {CAT_LABELS[cat]}
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: mobile ? '1fr' : 'repeat(3, 1fr)',
+                  gap: 12,
+                }}>
                   {items.map(meat => {
                     const r = results.find(x => x.id === meat.id)
                     const active = selectedMeat === meat.id
@@ -279,29 +314,32 @@ export default function PortionCalculatorPage() {
                       <button
                         key={meat.id}
                         onClick={() => setSelectedMeat(active ? null : meat.id)}
-                        className={`surface text-left p-4 transition-all group ${active ? 'surface-active' : ''}`}
+                        style={{
+                          textAlign: 'left', padding: 16, cursor: 'pointer',
+                          background: active ? 'rgba(139,26,26,0.05)' : cardBg,
+                          border: `1.5px solid ${active ? '#8B1A1A' : borderColor}`,
+                          borderRadius: 4,
+                          transition: 'all .15s',
+                        }}
                       >
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg transition-colors ${
-                            active ? 'bg-[#ff6b1a]/10' : 'bg-white/[0.03]'
-                          }`}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                          <div style={{
+                            width: 40, height: 40, borderRadius: 4,
+                            background: active ? 'rgba(139,26,26,0.10)' : 'rgba(31,26,20,0.06)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0,
+                          }}>
                             {meat.icon}
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <p className={`text-[13px] font-semibold transition-colors ${
-                              active ? 'text-white' : 'text-zinc-300 group-hover:text-white'
-                            }`}>
-                              {meat.name}
-                            </p>
-                            <p className="text-[10px] text-zinc-600">{meat.serving_style}</p>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <p style={{ fontSize: 13, fontWeight: 600, color: '#1F1A14', fontFamily: 'var(--cf-sans)' }}>{meat.name}</p>
+                            <p style={{ fontSize: 10, color: '#6E6356', fontFamily: 'var(--cf-mono)', marginTop: 2 }}>{meat.serving_style}</p>
                           </div>
                         </div>
-
-                        <div className="flex items-baseline gap-1.5">
-                          <span className="text-[28px] font-extrabold text-[#ff6b1a] leading-none">{r.rawKg}</span>
-                          <span className="text-[13px] text-zinc-500 font-medium">kg à acheter</span>
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                          <span style={{ fontSize: 28, fontWeight: 700, color: '#8B1A1A', lineHeight: 1, fontFamily: 'var(--cf-serif)' }}>{r.rawKg}</span>
+                          <span style={{ fontSize: 13, color: '#6E6356', fontWeight: 500 }}>kg à acheter</span>
                         </div>
-                        <p className="text-[11px] text-zinc-600 mt-1">
+                        <p style={{ fontSize: 11, color: '#6E6356', marginTop: 4, fontFamily: 'var(--cf-mono)' }}>
                           ≈ {r.cookedKg} kg cuit · rendement {meat.yield_pct}%
                         </p>
                       </button>
@@ -315,81 +353,85 @@ export default function PortionCalculatorPage() {
 
         {/* ── Detail card ── */}
         {selectedResult && (
-          <div className="mt-6 animate-fade-up">
-            <div className="surface p-6 border-[#ff6b1a]/[0.15]">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-[#ff6b1a]/10 flex items-center justify-center text-2xl">
+          <div style={{ marginTop: 24 }}>
+            <div style={{ background: cardBg, border: `1.5px solid #8B1A1A`, borderRadius: 4, padding: mobile ? 20 : 28 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}>
+                <div style={{ width: 48, height: 48, borderRadius: 4, background: 'rgba(139,26,26,0.10)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0 }}>
                   {selectedResult.icon}
                 </div>
                 <div>
-                  <h3 className="text-[16px] font-bold text-white">{selectedResult.name}</h3>
-                  <p className="text-[12px] text-zinc-500">{selectedResult.serving_style}</p>
+                  <h3 style={{ fontSize: 16, fontWeight: 700, color: '#1F1A14', fontFamily: 'var(--cf-serif)' }}>{selectedResult.name}</h3>
+                  <p style={{ fontSize: 12, color: '#6E6356', fontFamily: 'var(--cf-mono)', marginTop: 2 }}>{selectedResult.serving_style}</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3 mb-4">
-                <div className="rounded-xl p-3 bg-[#ff6b1a]/[0.08] border border-[#ff6b1a]/[0.15] text-center">
-                  <p className="text-[9px] font-semibold text-[#ff8c4a]/70 uppercase tracking-wider">À acheter</p>
-                  <p className="text-[24px] font-extrabold text-[#ff6b1a]">{selectedResult.rawKg}</p>
-                  <p className="text-[10px] text-zinc-500">kg brut</p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 20 }}>
+                <div style={{ borderRadius: 4, padding: 14, background: 'rgba(139,26,26,0.07)', border: '1px solid rgba(139,26,26,0.20)', textAlign: 'center' }}>
+                  <p style={{ fontSize: 9, fontWeight: 600, color: '#8B1A1A', textTransform: 'uppercase', letterSpacing: '0.1em', fontFamily: 'var(--cf-mono)' }}>À acheter</p>
+                  <p style={{ fontSize: 26, fontWeight: 700, color: '#8B1A1A', fontFamily: 'var(--cf-serif)', margin: '4px 0' }}>{selectedResult.rawKg}</p>
+                  <p style={{ fontSize: 10, color: '#6E6356' }}>kg brut</p>
                 </div>
-                <div className="rounded-xl p-3 bg-white/[0.04] border border-white/[0.06] text-center">
-                  <p className="text-[9px] font-semibold text-zinc-500 uppercase tracking-wider">Cuit</p>
-                  <p className="text-[24px] font-extrabold text-white">{selectedResult.cookedKg}</p>
-                  <p className="text-[10px] text-zinc-500">kg</p>
+                <div style={{ borderRadius: 4, padding: 14, background: '#FAF6EE', border: `1px solid ${borderColor}`, textAlign: 'center' }}>
+                  <p style={{ fontSize: 9, fontWeight: 600, color: '#6E6356', textTransform: 'uppercase', letterSpacing: '0.1em', fontFamily: 'var(--cf-mono)' }}>Cuit</p>
+                  <p style={{ fontSize: 26, fontWeight: 700, color: '#1F1A14', fontFamily: 'var(--cf-serif)', margin: '4px 0' }}>{selectedResult.cookedKg}</p>
+                  <p style={{ fontSize: 10, color: '#6E6356' }}>kg</p>
                 </div>
-                <div className="rounded-xl p-3 bg-white/[0.04] border border-white/[0.06] text-center">
-                  <p className="text-[9px] font-semibold text-zinc-500 uppercase tracking-wider">Rendement</p>
-                  <p className="text-[24px] font-extrabold text-white">{selectedResult.yield_pct}%</p>
-                  <p className="text-[10px] text-zinc-500">après cuisson</p>
+                <div style={{ borderRadius: 4, padding: 14, background: '#FAF6EE', border: `1px solid ${borderColor}`, textAlign: 'center' }}>
+                  <p style={{ fontSize: 9, fontWeight: 600, color: '#6E6356', textTransform: 'uppercase', letterSpacing: '0.1em', fontFamily: 'var(--cf-mono)' }}>Rendement</p>
+                  <p style={{ fontSize: 26, fontWeight: 700, color: '#1F1A14', fontFamily: 'var(--cf-serif)', margin: '4px 0' }}>{selectedResult.yield_pct}%</p>
+                  <p style={{ fontSize: 10, color: '#6E6356' }}>après cuisson</p>
                 </div>
               </div>
 
-              <div className="px-4 py-3 rounded-xl bg-white/[0.02] border border-white/[0.04] mb-4">
-                <p className="text-[12px] text-zinc-400 leading-relaxed">
-                  <span className="text-[#ff6b1a] font-semibold">Conseil :</span> {selectedResult.note}
+              <div style={{ padding: '14px 16px', borderRadius: 4, background: '#FAF6EE', border: `1px solid ${borderColor}`, marginBottom: 20 }}>
+                <p style={{ fontSize: 12, color: '#6E6356', lineHeight: 1.6 }}>
+                  <span style={{ color: '#8B1A1A', fontWeight: 600 }}>Conseil :</span> {selectedResult.note}
                 </p>
               </div>
 
-              <div className="flex gap-3">
-                <Link
-                  to={selectedResult.cook_link}
-                  className="btn-primary px-5 py-2.5 text-[13px] inline-flex items-center gap-2"
-                >
-                  <span>🔥</span>
-                  Calculer la cuisson
-                </Link>
-              </div>
+              <FireButton as={Link} to={selectedResult.cook_link} size="md">
+                <span>🔥</span>
+                Calculer la cuisson
+              </FireButton>
             </div>
           </div>
         )}
 
         {/* ── Tips ── */}
-        <div className="surface p-5 mt-6">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#ff6b1a] to-red-600 flex items-center justify-center">
-              <span className="text-xs">💡</span>
+        <div style={{ background: cardBg, border: `1px solid ${borderColor}`, borderRadius: 4, padding: mobile ? 20 : 24, marginTop: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+            <div style={{ width: 28, height: 28, borderRadius: 2, background: '#8B1A1A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <span style={{ fontSize: 12 }}>💡</span>
             </div>
-            <h3 className="text-[14px] font-bold text-white">Astuces quantités</h3>
+            <h3 style={{ fontSize: 14, fontWeight: 700, color: '#1F1A14', fontFamily: 'var(--cf-serif)' }}>Astuces quantités</h3>
           </div>
-          <div className="space-y-2.5">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
               'Si tu sers plusieurs viandes, réduis chaque quantité de 30-40%.',
               'Prévois toujours 10-15% de plus que le calcul — mieux vaut des restes que des invités affamés.',
               'Les accompagnements (coleslaw, pain, sides) réduisent la quantité de viande nécessaire.',
               'Pour un événement, compte ~250g de viande cuite par personne en moyenne.',
             ].map((tip, i) => (
-              <div key={i} className="flex gap-3 items-start">
-                <div className="w-5 h-5 rounded-full bg-white/[0.04] flex items-center justify-center text-[10px] font-bold text-zinc-600 shrink-0 mt-0.5">
+              <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                <div style={{
+                  width: 20, height: 20, borderRadius: '50%',
+                  background: 'rgba(139,26,26,0.10)', border: '1px solid rgba(139,26,26,0.20)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 10, fontWeight: 700, color: '#8B1A1A', flexShrink: 0, marginTop: 1,
+                  fontFamily: 'var(--cf-mono)',
+                }}>
                   {i + 1}
                 </div>
-                <p className="text-[12px] text-zinc-400 leading-relaxed">{tip}</p>
+                <p style={{ fontSize: 12, color: '#6E6356', lineHeight: 1.6 }}>{tip}</p>
               </div>
             ))}
           </div>
         </div>
 
-      </div>
+      </main>
+
+      <NewsletterBlock mobile={mobile} />
+      <CFFooter mobile={mobile} />
     </div>
   )
 }

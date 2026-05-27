@@ -1,9 +1,26 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { fetchGuides } from '../lib/cms.js'
 import { updateMeta } from '../lib/seo.js'
 import GuideCard from '../components/content/GuideCard.jsx'
+import { CFHeader, CFFooter, NewsletterBlock } from '../components/cf/Chrome.jsx'
+import { SectionEyebrow } from '../components/cf/Primitives.jsx'
+
+function useMobile() {
+  const [mobile, setMobile] = React.useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)').matches : false
+  )
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+    const mq = window.matchMedia('(max-width: 767px)')
+    const handler = (e) => setMobile(e.matches)
+    mq.addEventListener?.('change', handler)
+    return () => mq.removeEventListener?.('change', handler)
+  }, [])
+  return mobile
+}
 
 export default function GuidesListPage() {
+  const mobile = useMobile()
   const [guides, setGuides] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -21,55 +38,73 @@ export default function GuidesListPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-zinc-500 text-sm">Chargement...</p>
+      <div style={{ minHeight: '100vh', background: '#FAF6EE', color: '#1F1A14', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p style={{ color: '#6E6356', fontSize: 14 }}>Chargement...</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen">
+    <div style={{ minHeight: '100vh', background: '#FAF6EE', color: '#1F1A14' }}>
+      <CFHeader />
+
       {/* Hero with image */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0">
-          <img
-            src="https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=1400&h=400&fit=crop&q=80"
-            alt=""
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#080808] via-[#080808]/90 to-[#080808]/50" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-transparent to-[#080808]/20" />
+      <div style={{ position: 'relative', overflow: 'hidden', height: mobile ? 200 : 280 }}>
+        <img
+          src="https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=1400&h=400&fit=crop&q=80"
+          alt=""
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(31,26,20,0.72) 0%, rgba(31,26,20,0.45) 60%, rgba(31,26,20,0.15) 100%)' }} />
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: mobile ? '0 20px' : '0 64px' }}>
+          <SectionEyebrow accent="#E8A53C">Guides Pitmaster</SectionEyebrow>
+          <h1 style={{
+            fontFamily: 'var(--cf-serif)',
+            fontSize: mobile ? 30 : 42,
+            fontWeight: 700,
+            color: '#F5EFE0',
+            margin: '12px 0 8px',
+            lineHeight: 1.1,
+            letterSpacing: '-0.01em',
+          }}>
+            Guides BBQ & Fumage
+          </h1>
+          <p style={{ color: 'rgba(245,239,224,0.75)', fontSize: mobile ? 13 : 15, maxWidth: 480, lineHeight: 1.6 }}>
+            Tout ce qu'il faut savoir pour maîtriser la cuisson au fumoir. Des techniques aux astuces terrain.
+          </p>
         </div>
-        <div className="relative px-6 lg:px-10 py-12 lg:py-16 max-w-5xl">
-          <div className="animate-fade-up">
-            <div className="badge badge-accent mb-4">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#ff6b1a] mr-2 animate-pulse" />
-              Guides Pitmaster
-            </div>
-            <h1 className="font-display text-[30px] lg:text-[40px] font-black text-white tracking-tight leading-[1.1] mb-3">
-              Guides BBQ & <span className="text-gradient">Fumage.</span>
-            </h1>
-            <p className="text-[14px] lg:text-[16px] text-zinc-400 max-w-lg leading-relaxed">
-              Tout ce qu'il faut savoir pour maîtriser la cuisson au fumoir. Des techniques aux astuces terrain.
-            </p>
+      </div>
+
+      <main style={{ maxWidth: 1200, margin: '0 auto', padding: mobile ? '32px 16px' : '48px 48px' }}>
+        {guides.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '64px 0' }}>
+            <p style={{ color: '#6E6356', fontSize: 14 }}>Aucun guide disponible pour le moment.</p>
           </div>
-        </div>
-      </div>
+        ) : (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: mobile ? '1fr' : 'repeat(2, 1fr)',
+            gap: 20,
+          }}>
+            {guides.map(guide => (
+              <div
+                key={guide.id}
+                style={{
+                  background: '#F5EFE0',
+                  border: '1px solid rgba(31,26,20,0.15)',
+                  borderRadius: 4,
+                  overflow: 'hidden',
+                }}
+              >
+                <GuideCard guide={guide} />
+              </div>
+            ))}
+          </div>
+        )}
+      </main>
 
-      <div className="px-6 lg:px-10 pb-12 max-w-5xl">
-
-      {guides.length === 0 ? (
-        <div className="text-center py-16">
-          <p className="text-zinc-600 text-[14px]">Aucun guide disponible pour le moment.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {guides.map(guide => (
-            <GuideCard key={guide.id} guide={guide} />
-          ))}
-        </div>
-      )}
-      </div>
+      <NewsletterBlock mobile={mobile} />
+      <CFFooter mobile={mobile} />
     </div>
   )
 }

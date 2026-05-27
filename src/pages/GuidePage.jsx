@@ -1,11 +1,28 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { fetchGuideBySlug, fetchGuides } from '../lib/cms.js'
 import { renderMarkdown } from '../lib/markdown.js'
 import { updateMeta, articleSchema, injectJsonLd } from '../lib/seo.js'
 import GuideCard from '../components/content/GuideCard.jsx'
+import { CFHeader, CFFooter } from '../components/cf/Chrome.jsx'
+import { FireButton, SectionEyebrow } from '../components/cf/Primitives.jsx'
+
+function useMobile() {
+  const [mobile, setMobile] = React.useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)').matches : false
+  )
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+    const mq = window.matchMedia('(max-width: 767px)')
+    const handler = (e) => setMobile(e.matches)
+    mq.addEventListener?.('change', handler)
+    return () => mq.removeEventListener?.('change', handler)
+  }, [])
+  return mobile
+}
 
 export default function GuidePage() {
+  const mobile = useMobile()
   const { slug } = useParams()
   const [guide, setGuide] = useState(null)
   const [related, setRelated] = useState([])
@@ -56,12 +73,17 @@ export default function GuidePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center animate-fade">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#ff6b1a] to-red-600 flex items-center justify-center mx-auto mb-4 animate-pulse-glow">
-            <span className="text-xl">📚</span>
+      <div style={{ minHeight: '100vh', background: '#FAF6EE', color: '#1F1A14', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: 48, height: 48, borderRadius: 12,
+            background: '#8B1A1A',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 16px',
+          }}>
+            <span style={{ fontSize: 20 }}>📚</span>
           </div>
-          <p className="text-zinc-500 text-sm font-medium">Chargement du guide...</p>
+          <p style={{ color: '#6E6356', fontSize: 14, fontFamily: 'var(--cf-sans)' }}>Chargement du guide...</p>
         </div>
       </div>
     )
@@ -69,85 +91,130 @@ export default function GuidePage() {
 
   if (notFound) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-[48px] font-bold text-zinc-800 mb-2">404</p>
-          <p className="text-zinc-500 text-[14px] mb-6">Ce guide n'existe pas ou n'est plus disponible.</p>
-          <Link to="/guides" className="btn-primary px-6 py-2.5 text-[13px]">Voir tous les guides</Link>
+      <div style={{ minHeight: '100vh', background: '#FAF6EE', color: '#1F1A14', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ fontSize: 48, fontWeight: 700, color: '#1F1A14', marginBottom: 8 }}>404</p>
+          <p style={{ color: '#6E6356', fontSize: 14, marginBottom: 24 }}>Ce guide n'existe pas ou n'est plus disponible.</p>
+          <FireButton as={Link} to="/guides" size="sm">Voir tous les guides</FireButton>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen">
+    <div style={{ minHeight: '100vh', background: '#FAF6EE', color: '#1F1A14' }}>
+      <CFHeader />
+
       {/* Hero */}
       {guide.cover_url && (
-        <div className="relative h-48 sm:h-64 overflow-hidden">
-          <img src={guide.cover_url} alt={guide.title} className="w-full h-full object-cover" loading="lazy" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-[#080808]/60 to-transparent" />
+        <div style={{ position: 'relative', height: mobile ? 180 : 260, overflow: 'hidden' }}>
+          <img src={guide.cover_url} alt={guide.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(31,26,20,0.55) 0%, rgba(31,26,20,0.25) 50%, transparent 100%)' }} />
         </div>
       )}
 
-      <div className="px-6 lg:px-10 py-8 max-w-3xl mx-auto">
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-[12px] text-zinc-600 mb-6">
-          <Link to="/" className="hover:text-zinc-400 transition-colors">Accueil</Link>
-          <span>/</span>
-          <Link to="/guides" className="hover:text-zinc-400 transition-colors">Guides</Link>
-          <span>/</span>
-          <span className="text-zinc-400">{guide.title}</span>
-        </nav>
+      <main style={{ maxWidth: 1200, margin: '0 auto', padding: mobile ? '32px 16px' : '48px 48px' }}>
+        <div style={{ maxWidth: 768, margin: '0 auto' }}>
 
-        {/* Header */}
-        <header className="mb-8">
-          {guide.category && (
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#ff6b1a]/70 mb-2 block">
-              {guide.category}
-            </span>
-          )}
-          <h1 className="text-[28px] sm:text-[36px] font-extrabold text-white tracking-tight leading-tight mb-3">
-            {guide.title}
-          </h1>
-          {guide.summary && (
-            <p className="text-[15px] text-zinc-400 leading-relaxed max-w-xl">{guide.summary}</p>
-          )}
-          {guide.tags?.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-4">
-              {guide.tags.map(tag => (
-                <span key={tag} className="text-[10px] font-medium text-zinc-500 bg-white/[0.04] border border-white/[0.06] px-2.5 py-1 rounded-lg">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
-        </header>
+          {/* Breadcrumb */}
+          <nav style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#6E6356', marginBottom: 24 }}>
+            <Link to="/" style={{ color: '#8B1A1A', textDecoration: 'none' }}>Accueil</Link>
+            <span style={{ color: 'rgba(31,26,20,0.35)' }}>/</span>
+            <Link to="/guides" style={{ color: '#8B1A1A', textDecoration: 'none' }}>Guides</Link>
+            <span style={{ color: 'rgba(31,26,20,0.35)' }}>/</span>
+            <span style={{ color: '#6E6356' }}>{guide.title}</span>
+          </nav>
 
-        {/* Content */}
-        <article
-          className="prose-cf"
-          dangerouslySetInnerHTML={{ __html: renderMarkdown(guide.content) }}
-        />
+          {/* Header */}
+          <header style={{ marginBottom: 32 }}>
+            {guide.category && (
+              <SectionEyebrow accent="#8B1A1A">{guide.category}</SectionEyebrow>
+            )}
+            <h1 style={{
+              fontFamily: 'var(--cf-serif)',
+              fontSize: mobile ? 28 : 38,
+              fontWeight: 700,
+              color: '#1F1A14',
+              letterSpacing: '-0.01em',
+              lineHeight: 1.15,
+              margin: '12px 0 12px',
+            }}>
+              {guide.title}
+            </h1>
+            {guide.summary && (
+              <p style={{ fontSize: 16, color: '#6E6356', lineHeight: 1.65, maxWidth: 580 }}>{guide.summary}</p>
+            )}
+            {guide.tags?.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 16 }}>
+                {guide.tags.map(tag => (
+                  <span key={tag} style={{
+                    fontSize: 11,
+                    fontFamily: 'var(--cf-mono)',
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    color: '#6E6356',
+                    background: '#F5EFE0',
+                    border: '1px solid rgba(31,26,20,0.15)',
+                    padding: '4px 10px',
+                    borderRadius: 2,
+                  }}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </header>
 
-        {/* CTA retour calculateur */}
-        <div className="mt-10 surface p-6 text-center">
-          <p className="text-[14px] text-zinc-400 mb-3">Prêt à planifier ta cuisson ?</p>
-          <Link to="/calculateur" className="btn-primary inline-flex items-center gap-2 px-6 py-2.5 text-[13px]">
-            <span>🔥</span>
-            Lancer le calculateur
-          </Link>
-        </div>
+          {/* Content */}
+          <article
+            className="prose-cf"
+            style={{ color: '#1F1A14' }}
+            dangerouslySetInnerHTML={{ __html: renderMarkdown(guide.content) }}
+          />
 
-        {/* Related guides */}
-        {related.length > 0 && (
-          <div className="mt-10 space-y-4">
-            <h2 className="text-[16px] font-bold text-white">Guides complémentaires</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {related.map(g => <GuideCard key={g.id} guide={g} />)}
-            </div>
+          {/* CTA calculateur */}
+          <div style={{
+            marginTop: 40,
+            background: '#F5EFE0',
+            border: '1px solid rgba(31,26,20,0.15)',
+            borderRadius: 4,
+            padding: 28,
+            textAlign: 'center',
+          }}>
+            <p style={{ fontSize: 14, color: '#6E6356', marginBottom: 16 }}>Prêt à planifier ta cuisson ?</p>
+            <FireButton as={Link} to="/calculateur" size="md">
+              <span>🔥</span>
+              Lancer le calculateur
+            </FireButton>
           </div>
-        )}
-      </div>
+
+          {/* Related guides */}
+          {related.length > 0 && (
+            <div style={{ marginTop: 40 }}>
+              <h2 style={{
+                fontFamily: 'var(--cf-serif)',
+                fontSize: 18,
+                fontWeight: 700,
+                color: '#1F1A14',
+                marginBottom: 16,
+              }}>Guides complémentaires</h2>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: mobile ? '1fr' : 'repeat(2, 1fr)',
+                gap: 16,
+              }}>
+                {related.map(g => (
+                  <div key={g.id} style={{ background: '#F5EFE0', border: '1px solid rgba(31,26,20,0.15)', borderRadius: 4, overflow: 'hidden' }}>
+                    <GuideCard guide={g} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </main>
+
+      <CFFooter mobile={mobile} />
     </div>
   )
 }

@@ -64,7 +64,12 @@ function IconUser() {
 
 // Pages qui utilisent leur propre chrome (CFHeader/CFFooter, design v3 light mode).
 // On bypass complètement le Layout dark mode ici.
-const CF_DESIGN_ROUTES = new Set(['/', '/calculateur', '/recettes'])
+const CF_DESIGN_ROUTES = new Set([
+  '/', '/calculateur', '/recettes',
+  '/guides', '/bbq', '/bois', '/portions', '/comparateur',
+  '/carnet', '/journal', '/live', '/multi', '/login',
+  '/confidentialite', '/404',
+])
 
 export default function Layout({ children }) {
   const { isAuthenticated, isAdmin, signOut, deleteAccount, profile } = useAuth()
@@ -75,7 +80,12 @@ export default function Layout({ children }) {
   const [deleting, setDeleting] = useState(false)
 
   // Pages design v3 (light mode pitmaster) → on rend les enfants tels quels.
-  if (CF_DESIGN_ROUTES.has(location.pathname)) {
+  const isCFRoute =
+    CF_DESIGN_ROUTES.has(location.pathname) ||
+    location.pathname.startsWith('/guides/') ||
+    location.pathname.startsWith('/recettes/') ||
+    location.pathname.startsWith('/partage/')
+  if (isCFRoute) {
     return <>{children}</>
   }
 

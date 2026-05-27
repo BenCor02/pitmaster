@@ -1,15 +1,32 @@
-import { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { updateMeta } from '../lib/seo.js'
 import { fetchRecipes } from '../lib/cms.js'
+import { CFHeader, CFFooter } from '../components/cf/Chrome.jsx'
+import { Pill } from '../components/cf/Primitives.jsx'
+
+/* ── useMobile ── */
+function useMobile() {
+  const [mobile, setMobile] = React.useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)').matches : false
+  )
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+    const mq = window.matchMedia('(max-width: 767px)')
+    const handler = (e) => setMobile(e.matches)
+    mq.addEventListener?.('change', handler)
+    return () => mq.removeEventListener?.('change', handler)
+  }, [])
+  return mobile
+}
 
 const TYPE_LABELS = { rub: 'Rub', mop: 'Mop', marinade: 'Marinade', injection: 'Injection', glaze: 'Glaze' }
 const TYPE_COLORS = {
-  rub: 'from-amber-500 to-orange-600',
-  mop: 'from-blue-500 to-indigo-600',
-  marinade: 'from-purple-500 to-violet-600',
-  injection: 'from-green-500 to-emerald-600',
-  glaze: 'from-rose-500 to-pink-600',
+  rub: { bg: 'rgba(232,165,60,0.15)', color: '#8B1A1A', border: 'rgba(232,165,60,0.30)' },
+  mop: { bg: 'rgba(59,130,246,0.10)', color: '#1e40af', border: 'rgba(59,130,246,0.20)' },
+  marinade: { bg: 'rgba(147,51,234,0.10)', color: '#6b21a8', border: 'rgba(147,51,234,0.20)' },
+  injection: { bg: 'rgba(34,197,94,0.10)', color: '#15803d', border: 'rgba(34,197,94,0.20)' },
+  glaze: { bg: 'rgba(244,63,94,0.10)', color: '#9f1239', border: 'rgba(244,63,94,0.20)' },
 }
 const MEAT_LABELS = {
   brisket: 'Brisket', beef_short_ribs: 'Short Ribs', chuck_roast: 'Chuck Roast',
@@ -17,14 +34,15 @@ const MEAT_LABELS = {
   spare_ribs: 'Spare Ribs', baby_back_ribs: 'Baby Back', whole_chicken: 'Poulet',
 }
 const DIFF_ORDER = { 'facile': 1, 'moyen': 2, 'avancé': 3 }
-const DIFF_COLORS = { 'facile': 'text-green-400', 'moyen': 'text-amber-400', 'avancé': 'text-red-400' }
+const DIFF_COLORS = { 'facile': '#2D6A4F', 'moyen': '#E8A53C', 'avancé': '#8B1A1A' }
 
 const MAX_COMPARE = 3
 
 export default function ComparatorPage() {
+  const mobile = useMobile()
   const [recipes, setRecipes] = useState([])
   const [loading, setLoading] = useState(true)
-  const [selected, setSelected] = useState([])   // array of recipe ids
+  const [selected, setSelected] = useState([])
   const [search, setSearch] = useState('')
   const [filterType, setFilterType] = useState('all')
 
@@ -54,11 +72,9 @@ export default function ComparatorPage() {
     return selected.map(id => recipes.find(r => r.id === id)).filter(Boolean)
   }, [selected, recipes])
 
-  // On a besoin des détails complets (ingrédients) pour les recettes sélectionnées
   const [detailedRecipes, setDetailedRecipes] = useState({})
 
   useEffect(() => {
-    // Charger les détails des recettes sélectionnées qu'on n'a pas encore
     const toLoad = selected.filter(id => !detailedRecipes[id])
     if (toLoad.length === 0) return
 
@@ -76,7 +92,7 @@ export default function ComparatorPage() {
   const toggleSelect = (id) => {
     setSelected(prev => {
       if (prev.includes(id)) return prev.filter(x => x !== id)
-      if (prev.length >= MAX_COMPARE) return prev // max 3
+      if (prev.length >= MAX_COMPARE) return prev
       return [...prev, id]
     })
   }
@@ -87,209 +103,207 @@ export default function ComparatorPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center animate-fade">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#ff6b1a] to-[#ef4444] flex items-center justify-center mx-auto mb-4 animate-pulse-glow">
-            <span className="text-xl">⚖️</span>
+      <div style={{ minHeight: '100vh', background: '#FAF6EE', color: '#1F1A14', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ width: 48, height: 48, borderRadius: 16, background: 'rgba(139,26,26,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: 22 }}>
+            ⚖️
           </div>
-          <p className="text-zinc-500 text-sm">Chargement...</p>
+          <p style={{ color: '#6E6356', fontSize: 14 }}>Chargement...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Hero with image */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0">
-          <img
-            src="https://images.unsplash.com/photo-1558030006-450675393462?w=1400&h=400&fit=crop&q=80"
-            alt=""
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#080808] via-[#080808]/90 to-[#080808]/50" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-transparent to-[#080808]/20" />
-        </div>
-        <div className="relative px-6 lg:px-10 py-12 lg:py-16 max-w-6xl">
-          <div className="animate-fade-up">
-            <div className="badge badge-accent mb-4">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#ff6b1a] mr-2 animate-pulse" />
-              Comparateur
+    <div style={{ minHeight: '100vh', background: '#FAF6EE', color: '#1F1A14' }}>
+      <CFHeader />
+      <main>
+        {/* Hero */}
+        <div style={{ position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', inset: 0 }}>
+            <img
+              src="https://images.unsplash.com/photo-1558030006-450675393462?w=1400&h=400&fit=crop&q=80"
+              alt=""
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(250,246,238,0.97) 40%, rgba(250,246,238,0.75) 100%)' }} />
+          </div>
+          <div style={{ position: 'relative', padding: mobile ? '48px 24px' : '64px 40px', maxWidth: 960 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '4px 14px', borderRadius: 20, background: 'rgba(139,26,26,0.08)', border: '1px solid rgba(139,26,26,0.15)', marginBottom: 16 }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#8B1A1A' }} />
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#8B1A1A', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Comparateur</span>
             </div>
-            <h1 className="font-display text-[28px] lg:text-[36px] font-black text-white tracking-tight leading-[1.1] mb-3">
-              Comparer les <span className="text-gradient">recettes.</span>
+            <h1 style={{ fontFamily: 'var(--cf-serif)', fontSize: mobile ? 28 : 36, fontWeight: 900, color: '#1F1A14', lineHeight: 1.1, margin: '0 0 12px' }}>
+              Comparer les <span style={{ color: '#8B1A1A' }}>recettes.</span>
             </h1>
-            <p className="text-[14px] lg:text-[15px] text-zinc-400 max-w-lg leading-relaxed">
+            <p style={{ fontSize: mobile ? 14 : 15, color: '#6E6356', maxWidth: 500, lineHeight: 1.7, margin: 0 }}>
               Mets jusqu'à 3 recettes côte à côte pour comparer ingrédients, difficulté et viandes compatibles.
             </p>
           </div>
         </div>
-      </div>
 
-      <div className="px-6 lg:px-10 pb-12 max-w-6xl">
+        <div style={{ padding: mobile ? '24px 16px 48px' : '32px 40px 64px', maxWidth: 960, margin: '0 auto' }}>
 
-        {/* ── Comparison view ── */}
-        {selected.length > 0 && (
-          <div className="mb-8 animate-fade-up">
-            <div className="flex items-center gap-3 mb-4">
-              <h2 className="text-[14px] font-bold text-white">Comparaison</h2>
-              <span className="text-[11px] text-zinc-600">{selected.length}/{MAX_COMPARE}</span>
-              <button
-                onClick={() => setSelected([])}
-                className="text-[11px] text-zinc-600 hover:text-red-400 ml-auto transition-colors"
-              >
-                Tout retirer
-              </button>
-            </div>
+          {/* ── Comparison view ── */}
+          {selected.length > 0 && (
+            <div style={{ marginBottom: 32 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                <h2 style={{ fontSize: 14, fontWeight: 700, color: '#1F1A14', margin: 0 }}>Comparaison</h2>
+                <span style={{ fontSize: 11, color: '#6E6356' }}>{selected.length}/{MAX_COMPARE}</span>
+                <button
+                  onClick={() => setSelected([])}
+                  style={{ fontSize: 11, color: '#6E6356', marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer' }}
+                >
+                  Tout retirer
+                </button>
+              </div>
 
-            <div className={`grid gap-3 ${selected.length === 1 ? 'grid-cols-1 max-w-md' : selected.length === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-3'}`}>
-              {selected.map(id => {
-                const r = detailedRecipes[id] || recipes.find(x => x.id === id)
-                if (!r) return null
-                const ingredients = r.ingredients
-                  ? (typeof r.ingredients === 'string' ? JSON.parse(r.ingredients) : r.ingredients)
-                  : []
-                const gradientClass = TYPE_COLORS[r.type] || TYPE_COLORS.rub
+              <div style={{ display: 'grid', gridTemplateColumns: selected.length === 1 ? '1fr' : selected.length === 2 ? '1fr 1fr' : '1fr 1fr 1fr', gap: 12, maxWidth: selected.length === 1 ? 380 : 'none' }}>
+                {selected.map(id => {
+                  const r = detailedRecipes[id] || recipes.find(x => x.id === id)
+                  if (!r) return null
+                  const ingredients = r.ingredients
+                    ? (typeof r.ingredients === 'string' ? JSON.parse(r.ingredients) : r.ingredients)
+                    : []
+                  const typeColor = TYPE_COLORS[r.type] || TYPE_COLORS.rub
 
-                return (
-                  <div key={id} className="surface p-5 relative">
-                    <button
-                      onClick={() => removeFromCompare(id)}
-                      className="absolute top-3 right-3 w-7 h-7 rounded-lg bg-white/[0.05] text-zinc-500 hover:text-red-400 hover:bg-red-500/10 flex items-center justify-center transition-all"
-                    >
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                    </button>
+                  return (
+                    <div key={id} style={{ background: '#F5EFE0', border: '1px solid rgba(31,26,20,0.12)', borderRadius: 16, padding: 20, position: 'relative' }}>
+                      <button
+                        onClick={() => removeFromCompare(id)}
+                        style={{ position: 'absolute', top: 10, right: 10, width: 28, height: 28, borderRadius: 8, background: 'rgba(31,26,20,0.06)', border: 'none', color: '#6E6356', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                      </button>
 
-                    {/* Header */}
-                    <span className={`inline-block text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-gradient-to-r ${gradientClass} text-white mb-3`}>
-                      {TYPE_LABELS[r.type]}
-                    </span>
+                      <span style={{ display: 'inline-block', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', padding: '3px 8px', borderRadius: 6, background: typeColor.bg, color: typeColor.color, border: `1px solid ${typeColor.border}`, marginBottom: 12 }}>
+                        {TYPE_LABELS[r.type]}
+                      </span>
 
-                    <Link to={`/recettes/${r.slug}`} className="hover:text-[#ff6b1a] transition-colors">
-                      <h3 className="text-[15px] font-bold text-white mb-1 leading-tight pr-8">{r.title}</h3>
-                    </Link>
+                      <Link to={`/recettes/${r.slug}`} style={{ textDecoration: 'none' }}>
+                        <h3 style={{ fontSize: 15, fontWeight: 700, color: '#1F1A14', marginBottom: 4, lineHeight: 1.3, paddingRight: 24 }}>{r.title}</h3>
+                      </Link>
 
-                    {r.origin && <p className="text-[10px] text-zinc-600 italic mb-3">📍 {r.origin}</p>}
+                      {r.origin && <p style={{ fontSize: 10, color: '#6E6356', fontStyle: 'italic', marginBottom: 12 }}>📍 {r.origin}</p>}
 
-                    {/* Stats row */}
-                    <div className="flex items-center gap-3 mb-4 text-[11px]">
-                      <span className={`font-bold ${DIFF_COLORS[r.difficulty]}`}>{r.difficulty}</span>
-                      {r.prep_time && <span className="text-zinc-500">⏱ {r.prep_time}</span>}
-                      {r.yield_amount && <span className="text-zinc-500">📦 {r.yield_amount}</span>}
-                    </div>
-
-                    {/* Ingrédients */}
-                    {ingredients.length > 0 && (
-                      <div className="mb-4">
-                        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">Ingrédients</p>
-                        <div className="space-y-1.5">
-                          {ingredients.map((ing, idx) => (
-                            <div key={idx} className="flex items-baseline justify-between gap-2">
-                              <span className="text-[12px] text-zinc-300">{ing.name}</span>
-                              <span className="text-[11px] text-[#ff6b1a] font-bold shrink-0">{ing.qty}</span>
-                            </div>
-                          ))}
-                        </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, fontSize: 11 }}>
+                        <span style={{ fontWeight: 700, color: DIFF_COLORS[r.difficulty] }}>{r.difficulty}</span>
+                        {r.prep_time && <span style={{ color: '#6E6356' }}>⏱ {r.prep_time}</span>}
+                        {r.yield_amount && <span style={{ color: '#6E6356' }}>📦 {r.yield_amount}</span>}
                       </div>
-                    )}
 
-                    {/* Viandes */}
-                    {r.meat_types?.length > 0 && (
-                      <div>
-                        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">Viandes</p>
-                        <div className="flex flex-wrap gap-1">
-                          {r.meat_types.map(m => (
-                            <span key={m} className="text-[9px] font-medium px-2 py-0.5 rounded-md bg-[#ff6b1a]/8 text-[#ff6b1a]/80 border border-[#ff6b1a]/15">
-                              {MEAT_LABELS[m] || m}
-                            </span>
-                          ))}
+                      {ingredients.length > 0 && (
+                        <div style={{ marginBottom: 16 }}>
+                          <p style={{ fontSize: 10, fontWeight: 700, color: '#6E6356', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Ingrédients</p>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                            {ingredients.map((ing, idx) => (
+                              <div key={idx} style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 }}>
+                                <span style={{ fontSize: 12, color: '#1F1A14' }}>{ing.name}</span>
+                                <span style={{ fontSize: 11, color: '#8B1A1A', fontWeight: 700, flexShrink: 0 }}>{ing.qty}</span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
+                      )}
 
-              {/* Placeholder slots */}
-              {Array.from({ length: MAX_COMPARE - selected.length }).map((_, idx) => (
-                <div key={`empty-${idx}`} className="border-2 border-dashed border-white/[0.06] rounded-2xl flex items-center justify-center py-16">
-                  <p className="text-[12px] text-zinc-700">Sélectionne une recette ci-dessous</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ── Selector ── */}
-        <div className="flex flex-wrap items-center gap-3 mb-4">
-          <div className="relative flex-1 max-w-xs">
-            <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-600" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
-            <input
-              type="text"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Chercher..."
-              className="w-full pl-10 pr-4 py-2.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-[13px] text-white placeholder-zinc-600 focus:outline-none focus:border-[#ff6b1a]/30 transition-all"
-            />
-          </div>
-          {['all', 'rub', 'marinade', 'mop', 'injection', 'glaze'].map(t => (
-            <button
-              key={t}
-              onClick={() => setFilterType(t)}
-              className={`px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all ${
-                filterType === t
-                  ? 'border-[#ff6b1a]/30 bg-[#ff6b1a]/10 text-[#ff6b1a]'
-                  : 'border-white/[0.06] text-zinc-600 hover:text-zinc-400'
-              }`}
-            >
-              {t === 'all' ? 'Tout' : TYPE_LABELS[t]}
-            </button>
-          ))}
-        </div>
-
-        {/* Recipe list */}
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map(recipe => {
-            const isSelected = selected.includes(recipe.id)
-            const isFull = selected.length >= MAX_COMPARE && !isSelected
-            return (
-              <button
-                key={recipe.id}
-                onClick={() => !isFull && toggleSelect(recipe.id)}
-                disabled={isFull}
-                className={`text-left p-4 rounded-xl border transition-all ${
-                  isSelected
-                    ? 'border-[#ff6b1a]/30 bg-[#ff6b1a]/[0.06] ring-1 ring-[#ff6b1a]/20'
-                    : isFull
-                    ? 'border-white/[0.04] opacity-40 cursor-not-allowed'
-                    : 'border-white/[0.06] hover:border-white/[0.12] bg-white/[0.02]'
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${
-                    isSelected
-                      ? 'border-[#ff6b1a] bg-[#ff6b1a]'
-                      : 'border-zinc-700'
-                  }`}>
-                    {isSelected && (
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12" /></svg>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-[9px] font-bold uppercase text-zinc-600">{TYPE_LABELS[recipe.type]}</span>
-                      <span className={`text-[9px] font-bold ${DIFF_COLORS[recipe.difficulty]}`}>{recipe.difficulty}</span>
+                      {r.meat_types?.length > 0 && (
+                        <div>
+                          <p style={{ fontSize: 10, fontWeight: 700, color: '#6E6356', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Viandes</p>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                            {r.meat_types.map(m => (
+                              <span key={m} style={{ fontSize: 9, fontWeight: 600, padding: '3px 8px', borderRadius: 6, background: 'rgba(232,165,60,0.12)', color: '#8B1A1A', border: '1px solid rgba(232,165,60,0.20)' }}>
+                                {MEAT_LABELS[m] || m}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <h4 className="text-[13px] font-bold text-white leading-tight mb-1">{recipe.title}</h4>
-                    <p className="text-[11px] text-zinc-600 line-clamp-1">{recipe.summary}</p>
+                  )
+                })}
+
+                {/* Placeholder slots */}
+                {Array.from({ length: MAX_COMPARE - selected.length }).map((_, idx) => (
+                  <div key={`empty-${idx}`} style={{ border: '2px dashed rgba(31,26,20,0.15)', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
+                    <p style={{ fontSize: 12, color: '#6E6356' }}>Sélectionne une recette ci-dessous</p>
                   </div>
-                </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── Selector ── */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+            <div style={{ position: 'relative', flex: 1, maxWidth: 280 }}>
+              <svg style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#6E6356' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+              <input
+                type="text"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Chercher..."
+                style={{ width: '100%', paddingLeft: 38, paddingRight: 16, paddingTop: 10, paddingBottom: 10, background: '#F5EFE0', border: '1px solid rgba(31,26,20,0.15)', borderRadius: 12, fontSize: 13, color: '#1F1A14', outline: 'none', boxSizing: 'border-box' }}
+              />
+            </div>
+            {['all', 'rub', 'marinade', 'mop', 'injection', 'glaze'].map(t => (
+              <button
+                key={t}
+                onClick={() => setFilterType(t)}
+                style={{
+                  padding: '6px 12px', borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                  border: filterType === t ? '1px solid rgba(139,26,26,0.25)' : '1px solid rgba(31,26,20,0.12)',
+                  background: filterType === t ? 'rgba(139,26,26,0.08)' : 'transparent',
+                  color: filterType === t ? '#8B1A1A' : '#6E6356',
+                }}
+              >
+                {t === 'all' ? 'Tout' : TYPE_LABELS[t]}
               </button>
-            )
-          })}
+            ))}
+          </div>
+
+          {/* Recipe list */}
+          <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : 'repeat(auto-fill, minmax(260px, 1fr))', gap: 8 }}>
+            {filtered.map(recipe => {
+              const isSelected = selected.includes(recipe.id)
+              const isFull = selected.length >= MAX_COMPARE && !isSelected
+              return (
+                <button
+                  key={recipe.id}
+                  onClick={() => !isFull && toggleSelect(recipe.id)}
+                  disabled={isFull}
+                  style={{
+                    textAlign: 'left', padding: 16, borderRadius: 12, cursor: isFull ? 'not-allowed' : 'pointer',
+                    border: isSelected ? '1px solid rgba(139,26,26,0.30)' : '1px solid rgba(31,26,20,0.12)',
+                    background: isSelected ? 'rgba(139,26,26,0.06)' : '#F5EFE0',
+                    opacity: isFull ? 0.4 : 1,
+                    outline: isSelected ? '1px solid rgba(139,26,26,0.15)' : 'none',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                    <div style={{
+                      width: 20, height: 20, borderRadius: 6, border: isSelected ? '2px solid #8B1A1A' : '2px solid rgba(31,26,20,0.20)',
+                      background: isSelected ? '#8B1A1A' : 'transparent',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2
+                    }}>
+                      {isSelected && (
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12" /></svg>
+                      )}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                        <span style={{ fontSize: 9, fontWeight: 700, textTransform: 'uppercase', color: '#6E6356' }}>{TYPE_LABELS[recipe.type]}</span>
+                        <span style={{ fontSize: 9, fontWeight: 700, color: DIFF_COLORS[recipe.difficulty] }}>{recipe.difficulty}</span>
+                      </div>
+                      <h4 style={{ fontSize: 13, fontWeight: 700, color: '#1F1A14', lineHeight: 1.3, marginBottom: 4 }}>{recipe.title}</h4>
+                      <p style={{ fontSize: 11, color: '#6E6356', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical' }}>{recipe.summary}</p>
+                    </div>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
         </div>
-      </div>
+      </main>
+      <CFFooter mobile={mobile} />
     </div>
   )
 }

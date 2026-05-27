@@ -31,12 +31,21 @@ const NotFoundPage = lazy(() => import('./pages/NotFoundPage.jsx'))
 
 function PageLoader() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center animate-fade">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#ff6b1a] to-red-600 flex items-center justify-center mx-auto mb-4 animate-pulse">
-          <span className="text-xl">🔥</span>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#FAF6EE' }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{
+          width: 48, height: 48, background: '#8B1A1A', borderRadius: 2,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          margin: '0 auto 12px',
+        }}>
+          <svg viewBox="0 0 40 40" width={28} height={28}>
+            <path d="M 20 32 C 14 28, 12 22, 16 16 C 18 14, 20 11, 20 8 C 20 11, 22 14, 24 16 C 28 22, 26 28, 20 32 Z" fill="#F5EFE0" />
+            <path d="M 20 30 C 17 27, 16 24, 18 20 C 19 18, 20 16, 20 14 C 20 16, 21 18, 22 20 C 24 24, 23 27, 20 30 Z" fill="#E8A53C" />
+          </svg>
         </div>
-        <p className="text-zinc-500 text-sm font-medium">Chargement...</p>
+        <p style={{ fontFamily: 'var(--cf-mono)', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#B8AC97' }}>
+          Chargement…
+        </p>
       </div>
     </div>
   )
