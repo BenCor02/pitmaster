@@ -49,19 +49,27 @@ export async function fetchFaqs({ meatType, cookingMethod } = {}) {
 
 // ── Affiliate Tools ─────────────────────────────────────────
 
-export async function fetchAffiliateTools({ meatType } = {}) {
-  let query = supabase
+export async function fetchAffiliateTools({ placement, meatType } = {}) {
+  const { data, error } = await supabase
     .from('affiliate_tools')
     .select('*')
     .eq('status', 'published')
     .order('sort_order', { ascending: true })
 
-  const { data, error } = await query
   if (error) { console.error('fetchAffiliateTools:', error); return [] }
 
-  // Filtrage : globaux + spécifiques à la viande
-  if (!meatType) return data.filter(d => d.is_global)
-  return data.filter(d => d.is_global || d.meat_type === meatType)
+  // Filtrer par emplacement
+  let filtered = data
+  if (placement) {
+    filtered = filtered.filter(d => Array.isArray(d.placements) && d.placements.includes(placement))
+  }
+
+  // Filtrer par viande (pour le calculateur)
+  if (meatType && placement === 'calculator') {
+    filtered = filtered.filter(d => !d.meat_type || d.meat_type === meatType)
+  }
+
+  return filtered
 }
 
 // ── Guides ──────────────────────────────────────────────────
@@ -188,13 +196,13 @@ function filterByContext(items, meatType, cookingMethod) {
 
 // ── Sponsor Slot ────────────────────────────────────────────
 
-/** Récupère le premier outil marqué "sponsor slot" (affiché dans SponsorSlot) */
+/** Récupère le premier produit marqué emplacement "sponsor" */
 export async function fetchSponsorSlot() {
   const { data, error } = await supabase
     .from('affiliate_tools')
     .select('*')
     .eq('status', 'published')
-    .eq('is_sponsor_slot', true)
+    .contains('placements', ['sponsor'])
     .order('sort_order', { ascending: true })
     .limit(1)
     .maybeSingle()

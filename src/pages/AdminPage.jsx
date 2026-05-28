@@ -286,37 +286,106 @@ function SeoFields({ form, set }) {
     </>
   )
 }
+const PLACEMENT_OPTIONS = [
+  { key: 'home',       label: 'Page d'accueil',            desc: 'Affiché en bas de la home' },
+  { key: 'calculator', label: 'Calculateur BBQ',            desc: 'Affiché sous les résultats de cuisson' },
+  { key: 'guides',     label: 'Pages Guides',               desc: 'Affiché en bas de chaque guide' },
+  { key: 'recipes',    label: 'Pages Recettes & Rubs',      desc: 'Affiché en bas de chaque recette' },
+  { key: 'sponsor',    label: 'Bloc « Sponsorisé par »',    desc: 'Encart dédié entre les sections — un seul actif à la fois' },
+]
+
+function PlacementToggle({ label, desc, active, onToggle }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      style={{
+        display: 'flex', alignItems: 'flex-start', gap: 12,
+        padding: '12px 14px', borderRadius: 8, width: '100%', textAlign: 'left',
+        background: active ? 'rgba(255,107,26,0.1)' : 'rgba(255,255,255,0.03)',
+        border: `1px solid ${active ? 'rgba(255,107,26,0.35)' : 'rgba(255,255,255,0.07)'}`,
+        cursor: 'pointer', transition: 'all 0.15s',
+      }}
+    >
+      <div style={{
+        width: 18, height: 18, borderRadius: 4, flexShrink: 0, marginTop: 1,
+        background: active ? '#ff6b1a' : 'rgba(255,255,255,0.08)',
+        border: `2px solid ${active ? '#ff6b1a' : 'rgba(255,255,255,0.15)'}`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        {active && <span style={{ color: '#fff', fontSize: 11, fontWeight: 700, lineHeight: 1 }}>✓</span>}
+      </div>
+      <div>
+        <div style={{ fontSize: 13, fontWeight: 600, color: active ? '#ff8c4a' : '#e4e4e7', marginBottom: 2 }}>{label}</div>
+        <div style={{ fontSize: 11, color: '#71717a' }}>{desc}</div>
+      </div>
+    </button>
+  )
+}
+
 function AffiliateFields({ form, set }) {
+  const placements = Array.isArray(form.placements) ? form.placements : []
+
+  function togglePlacement(key) {
+    if (placements.includes(key)) {
+      set('placements', placements.filter(p => p !== key))
+    } else {
+      set('placements', [...placements, key])
+    }
+  }
+
+  const hasCalculator = placements.includes('calculator')
+
   return (
     <>
-      <F label="Description"><STA value={form.description} onChange={v => set('description', v)} rows={3} placeholder="Description courte..." /></F>
+      {/* Produit */}
+      <F label="Lien affilié" hint="L'URL vers le produit avec votre code">
+        <SI value={form.affiliate_url} onChange={v => set('affiliate_url', v)} placeholder="https://amzn.to/..." />
+      </F>
+      <F label="Accroche" hint="Une phrase qui donne envie de cliquer">
+        <STA value={form.description} onChange={v => set('description', v)} rows={2} placeholder="Le meilleur thermomètre pour ne plus rater une cuisson..." />
+      </F>
       <G2>
-        <F label="URL affiliation"><SI value={form.affiliate_url} onChange={v => set('affiliate_url', v)} placeholder="https://..." /></F>
-        <F label="Texte CTA"><SI value={form.cta_text} onChange={v => set('cta_text', v)} placeholder="Voir le produit" /></F>
+        <F label="Texte du bouton">
+          <SI value={form.cta_text} onChange={v => set('cta_text', v)} placeholder="Voir le produit" />
+        </F>
+        <F label="Badge" hint="Optionnel — ex: Coup de cœur">
+          <SI value={form.badge} onChange={v => set('badge', v)} placeholder="Recommandé" />
+        </F>
       </G2>
-      <F label="URL image" hint="Aperçu affiché sur la card">
+      <F label="Image du produit" hint="URL d'une photo du produit">
         <SI value={form.image_url} onChange={v => set('image_url', v)} placeholder="https://..." />
         <ImagePreview url={form.image_url} />
       </F>
-      <G2>
-        <F label="Badge"><SI value={form.badge} onChange={v => set('badge', v)} placeholder="Essentiel, Recommandé..." /></F>
-        <F label="Type de produit">
-          <SS value={form.product_type} onChange={v => set('product_type', v)} options={[
-            { value: 'thermometre', label: 'Thermomètre' }, { value: 'fumoir', label: 'Fumoir' },
-            { value: 'accessoire', label: 'Accessoire' }, { value: 'couteau', label: 'Couteau' }, { value: 'charbon', label: 'Charbon / Pellets' },
-          ]} placeholder="Sélectionner..." />
+
+      {/* Emplacements */}
+      <div style={{ marginTop: 4 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: '#52525b', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>
+          Où afficher ce bloc ?
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {PLACEMENT_OPTIONS.map(({ key, label, desc }) => (
+            <PlacementToggle
+              key={key}
+              label={label}
+              desc={desc}
+              active={placements.includes(key)}
+              onToggle={() => togglePlacement(key)}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Viande ciblée — si calculateur sélectionné */}
+      {hasCalculator && (
+        <F label="Restreindre à une viande" hint="Laisser vide = affiché pour tous les calculs">
+          <SS value={form.meat_type} onChange={v => set('meat_type', v)} options={MEAT_OPTIONS} placeholder="Toutes les viandes" />
         </F>
-      </G2>
-      <F label="Viande ciblée"><SS value={form.meat_type} onChange={v => set('meat_type', v)} options={MEAT_OPTIONS} placeholder="Sélectionner..." /></F>
-      <SCB checked={!!form.is_global} onChange={v => set('is_global', v)} label="Affiché pour toutes les viandes" />
-      <SCB
-        checked={!!form.is_sponsor_slot}
-        onChange={v => set('is_sponsor_slot', v)}
-        label="Utiliser comme bloc Sponsorisé par (SponsorSlot)"
-      />
-      {form.is_sponsor_slot && (
+      )}
+
+      {placements.includes('sponsor') && (
         <div style={{ padding: '10px 14px', background: 'rgba(255,107,26,0.07)', border: '1px solid rgba(255,107,26,0.2)', borderRadius: 6, fontSize: 12, color: '#ff8c4a' }}>
-          ⚡ Ce produit s'affichera dans les blocs « Sponsorisé par » sur la page d'accueil et les recettes. Un seul sponsor actif à la fois (le premier par ordre de tri).
+          ⚡ Un seul sponsor actif à la fois — le premier par ordre de tri. Assurez-vous que ce produit est publié.
         </div>
       )}
     </>
@@ -554,7 +623,7 @@ function getColumns(tab) {
           </div>
         </div>
       )},
-      { key: 'product_type', label: 'Type', render: row => row.product_type || '—' }, meatCol, statusCol,
+      { key: 'placements', label: 'Emplacements', render: row => { const p = row.placements || []; return p.length ? p.map(k => ({ home:'Accueil', calculator:'Calculateur', guides:'Guides', recipes:'Recettes', sponsor:'Sponsor' })[k] || k).join(', ') : '—' } }, statusCol,
     ]
     case 'guides': return [
       { key: 'title', label: 'Guide', render: row => <TitleCell title={row.title} sub={`/guides/${row.slug}`} cover={row.cover_url} /> },
@@ -637,7 +706,7 @@ function getEmptyRecord(tab) {
   const base = { status: 'draft', sort_order: 0 }
   switch (tab) {
     case 'seo':       return { ...base, title: '', slug: '', content: '', meat_type: '', cooking_method: '', is_global: false }
-    case 'affiliate': return { ...base, title: '', slug: '', description: '', image_url: '', affiliate_url: '', cta_text: 'Voir le produit', badge: '', product_type: '', meat_type: '', is_global: true, is_sponsor_slot: false }
+    case 'affiliate': return { ...base, title: '', slug: '', description: '', image_url: '', affiliate_url: '', cta_text: 'Voir le produit', badge: '', meat_type: '', placements: [] }
     case 'guides':    return { ...base, title: '', slug: '', summary: '', content: '', cover_url: '', category: '', tags: [], meat_type: '', seo_title: '', seo_description: '' }
     case 'recipes':   return { ...base, title: '', slug: '', type: 'rub', summary: '', description: '', ingredients: [], steps: [], yield_amount: '', prep_time: '', meat_types: [], origin: '', difficulty: 'facile', tags: [], cover_url: '' }
     case 'faq':       return { ...base, question: '', answer: '', meat_type: '', cooking_method: '', is_global: false }

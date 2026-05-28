@@ -35,7 +35,7 @@ export default function ContentBlocks({ meatType, cookingMethod }) {
         const [seo, faq, aff, gd] = await Promise.all([
           seoEnabled ? fetchSeoBlocks({ meatType, cookingMethod }) : Promise.resolve([]),
           faqEnabled ? fetchFaqs({ meatType, cookingMethod }) : Promise.resolve([]),
-          affEnabled ? fetchAffiliateTools({ meatType }) : Promise.resolve([]),
+          affEnabled ? fetchAffiliateTools({ placement: 'calculator', meatType }) : Promise.resolve([]),
           guidesEnabled ? fetchGuides({ meatType, limit: 4 }) : Promise.resolve([]),
         ])
 
