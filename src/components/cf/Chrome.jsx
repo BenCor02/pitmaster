@@ -6,6 +6,7 @@
  */
 
 import React from 'react'
+import { fetchSponsorSlot } from '../../lib/cms.js'
 import { Link, NavLink } from 'react-router-dom'
 import { FireButton, SectionEyebrow, SmokeBackdrop, EmberGlow } from './Primitives.jsx'
 import { useAuth } from '../../modules/auth/AuthContext.jsx'
@@ -600,16 +601,22 @@ export function CFFooter({ mobile }) {
 }
 
 // ───────────────────────────────────────────────
-// SponsorSlot — emplacement sponsorisé éditorial
+// SponsorSlot — branché sur Supabase (affiliate_tools.is_sponsor_slot)
 // ───────────────────────────────────────────────
-export function SponsorSlot({
-  label = 'Sponsorisé par',
-  name = 'Weber Genesis EX-435',
-  description = 'Le grill connecté qui cuit comme un pitmaster du Texas, dans ton jardin.',
-  mobile,
-  big,
-}) {
-  return (
+export function SponsorSlot({ mobile, big }) {
+  const [sponsor, setSponsor] = React.useState(undefined) // undefined = loading
+
+  React.useEffect(() => {
+    fetchSponsorSlot().then(setSponsor)
+  }, [])
+
+  // Chargement ou aucun sponsor configuré
+  if (sponsor === undefined || sponsor === null) return null
+
+  const initial = (sponsor.title || 'S').charAt(0).toUpperCase()
+  const url = sponsor.affiliate_url?.startsWith('http') ? sponsor.affiliate_url : null
+
+  const inner = (
     <div
       style={{
         border: '1px dashed rgba(31,26,20,0.3)',
@@ -620,38 +627,61 @@ export function SponsorSlot({
         gap: big ? 20 : 14,
         flexDirection: big && mobile ? 'column' : 'row',
         textAlign: big && mobile ? 'center' : 'left',
+        textDecoration: 'none',
+        transition: 'border-color 0.2s',
       }}
+      onMouseEnter={e => url && (e.currentTarget.style.borderColor = 'rgba(139,26,26,0.4)')}
+      onMouseLeave={e => url && (e.currentTarget.style.borderColor = 'rgba(31,26,20,0.3)')}
     >
-      <div
-        style={{
-          width: big ? 64 : 40,
-          height: big ? 64 : 40,
-          background: '#1F1A14',
-          color: '#E8A53C',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontFamily: 'var(--cf-serif)',
-          fontWeight: 700,
-          fontSize: big ? 24 : 16,
-          letterSpacing: '0.05em',
-          flexShrink: 0,
-        }}
-      >
-        W
-      </div>
-      <div style={{ flex: 1 }}>
-        <div className="cf-eyebrow" style={{ marginBottom: 4 }}>{label}</div>
-        <div style={{ fontFamily: 'var(--cf-serif)', fontSize: big ? 22 : 15, fontWeight: 600, color: '#1F1A14' }}>
-          {name}
+      {sponsor.image_url?.startsWith('http') ? (
+        <img
+          src={sponsor.image_url}
+          alt={sponsor.title}
+          style={{
+            width: big ? 64 : 40, height: big ? 64 : 40,
+            objectFit: 'contain', flexShrink: 0, borderRadius: 4,
+          }}
+        />
+      ) : (
+        <div
+          style={{
+            width: big ? 64 : 40,
+            height: big ? 64 : 40,
+            background: '#1F1A14',
+            color: '#E8A53C',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontFamily: 'var(--cf-serif)',
+            fontWeight: 700,
+            fontSize: big ? 24 : 16,
+            letterSpacing: '0.05em',
+            flexShrink: 0,
+          }}
+        >
+          {initial}
         </div>
-        {big && <div style={{ fontSize: 13, color: '#6E6356', marginTop: 4 }}>{description}</div>}
+      )}
+      <div style={{ flex: 1 }}>
+        <div className="cf-eyebrow" style={{ marginBottom: 4 }}>Sponsorisé par</div>
+        <div style={{ fontFamily: 'var(--cf-serif)', fontSize: big ? 22 : 15, fontWeight: 600, color: '#1F1A14' }}>
+          {sponsor.title}
+        </div>
+        {big && sponsor.description && (
+          <div style={{ fontSize: 13, color: '#6E6356', marginTop: 4 }}>{sponsor.description}</div>
+        )}
       </div>
-      {big && !mobile && (
+      {big && !mobile && url && (
         <FireButton size="sm" type="ghost">
-          Découvrir →
+          {sponsor.cta_text || 'Découvrir →'}
         </FireButton>
       )}
     </div>
   )
+
+  return url ? (
+    <a href={url} target="_blank" rel="noopener noreferrer sponsored" style={{ display: 'block', textDecoration: 'none' }}>
+      {inner}
+    </a>
+  ) : inner
 }

@@ -185,3 +185,20 @@ function filterByContext(items, meatType, cookingMethod) {
     return false
   })
 }
+
+// ── Sponsor Slot ────────────────────────────────────────────
+
+/** Récupère le premier outil marqué "sponsor slot" (affiché dans SponsorSlot) */
+export async function fetchSponsorSlot() {
+  const { data, error } = await supabase
+    .from('affiliate_tools')
+    .select('*')
+    .eq('status', 'published')
+    .eq('is_sponsor_slot', true)
+    .order('sort_order', { ascending: true })
+    .limit(1)
+    .maybeSingle()
+
+  if (error) { console.error('fetchSponsorSlot:', error); return null }
+  return data
+}

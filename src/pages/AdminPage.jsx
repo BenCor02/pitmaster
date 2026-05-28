@@ -309,6 +309,16 @@ function AffiliateFields({ form, set }) {
       </G2>
       <F label="Viande ciblée"><SS value={form.meat_type} onChange={v => set('meat_type', v)} options={MEAT_OPTIONS} placeholder="Sélectionner..." /></F>
       <SCB checked={!!form.is_global} onChange={v => set('is_global', v)} label="Affiché pour toutes les viandes" />
+      <SCB
+        checked={!!form.is_sponsor_slot}
+        onChange={v => set('is_sponsor_slot', v)}
+        label="Utiliser comme bloc Sponsorisé par (SponsorSlot)"
+      />
+      {form.is_sponsor_slot && (
+        <div style={{ padding: '10px 14px', background: 'rgba(255,107,26,0.07)', border: '1px solid rgba(255,107,26,0.2)', borderRadius: 6, fontSize: 12, color: '#ff8c4a' }}>
+          ⚡ Ce produit s'affichera dans les blocs « Sponsorisé par » sur la page d'accueil et les recettes. Un seul sponsor actif à la fois (le premier par ordre de tri).
+        </div>
+      )}
     </>
   )
 }
@@ -627,7 +637,7 @@ function getEmptyRecord(tab) {
   const base = { status: 'draft', sort_order: 0 }
   switch (tab) {
     case 'seo':       return { ...base, title: '', slug: '', content: '', meat_type: '', cooking_method: '', is_global: false }
-    case 'affiliate': return { ...base, title: '', slug: '', description: '', image_url: '', affiliate_url: '', cta_text: 'Voir le produit', badge: '', product_type: '', meat_type: '', is_global: true }
+    case 'affiliate': return { ...base, title: '', slug: '', description: '', image_url: '', affiliate_url: '', cta_text: 'Voir le produit', badge: '', product_type: '', meat_type: '', is_global: true, is_sponsor_slot: false }
     case 'guides':    return { ...base, title: '', slug: '', summary: '', content: '', cover_url: '', category: '', tags: [], meat_type: '', seo_title: '', seo_description: '' }
     case 'recipes':   return { ...base, title: '', slug: '', type: 'rub', summary: '', description: '', ingredients: [], steps: [], yield_amount: '', prep_time: '', meat_types: [], origin: '', difficulty: 'facile', tags: [], cover_url: '' }
     case 'faq':       return { ...base, question: '', answer: '', meat_type: '', cooking_method: '', is_global: false }
