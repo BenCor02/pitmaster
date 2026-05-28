@@ -287,11 +287,11 @@ function SeoFields({ form, set }) {
   )
 }
 const PLACEMENT_OPTIONS = [
-  { key: 'home',       label: 'Page d'accueil',            desc: 'Affiché en bas de la home' },
-  { key: 'calculator', label: 'Calculateur BBQ',            desc: 'Affiché sous les résultats de cuisson' },
-  { key: 'guides',     label: 'Pages Guides',               desc: 'Affiché en bas de chaque guide' },
-  { key: 'recipes',    label: 'Pages Recettes & Rubs',      desc: 'Affiché en bas de chaque recette' },
-  { key: 'sponsor',    label: 'Bloc « Sponsorisé par »',    desc: 'Encart dédié entre les sections — un seul actif à la fois' },
+  { key: 'home',       label: "Page d'accueil",           desc: 'Affiché en bas de la home' },
+  { key: 'calculator', label: 'Calculateur BBQ',           desc: 'Affiché sous les résultats de cuisson' },
+  { key: 'guides',     label: 'Pages Guides',              desc: 'Affiché en bas de chaque guide' },
+  { key: 'recipes',    label: 'Pages Recettes & Rubs',     desc: 'Affiché en bas de chaque recette' },
+  { key: 'sponsor',    label: 'Bloc Sponsorisé par',       desc: 'Encart dédié entre les sections — un seul actif à la fois' },
 ]
 
 function PlacementToggle({ label, desc, active, onToggle }) {
