@@ -78,46 +78,56 @@ function AdminGuard({ children }) {
   return children
 }
 
+function PublicRoutes() {
+  return (
+    <Layout>
+      <MaintenanceGuard>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/calculateur" element={<CalculatorPage />} />
+          <Route path="/guides" element={<GuidesListPage />} />
+          <Route path="/guides/:slug" element={<GuidePage />} />
+          <Route path="/journal" element={<JournalPage />} />
+          <Route path="/portions" element={<PortionCalculatorPage />} />
+          <Route path="/multi" element={<MultiCookPage />} />
+          <Route path="/recettes" element={<RecipesPage />} />
+          <Route path="/recettes/:slug" element={<RecipeDetailPage />} />
+          <Route path="/comparateur" element={<ComparatorPage />} />
+          <Route path="/bois" element={<WoodGuidePage />} />
+          <Route path="/bbq" element={<BbqGuidePage />} />
+          <Route path="/live" element={<LiveCookPage />} />
+          <Route path="/carnet" element={<FavoritesPage />} />
+          <Route path="/partage/:code" element={<SharedCookPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/confidentialite" element={<PrivacyPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </MaintenanceGuard>
+    </Layout>
+  )
+}
+
 export default function App() {
   return (
     <>
-    {!isNative && <Analytics />}
-    <Layout>
-      <MaintenanceGuard>
+      {!isNative && <Analytics />}
       <ChunkErrorBoundary>
-      <Suspense fallback={<PageLoader />}>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/calculateur" element={<CalculatorPage />} />
-        <Route path="/guides" element={<GuidesListPage />} />
-        <Route path="/guides/:slug" element={<GuidePage />} />
-        <Route path="/journal" element={<JournalPage />} />
-        <Route path="/portions" element={<PortionCalculatorPage />} />
-        <Route path="/multi" element={<MultiCookPage />} />
-        <Route path="/recettes" element={<RecipesPage />} />
-        <Route path="/recettes/:slug" element={<RecipeDetailPage />} />
-        <Route path="/comparateur" element={<ComparatorPage />} />
-        <Route path="/bois" element={<WoodGuidePage />} />
-        <Route path="/bbq" element={<BbqGuidePage />} />
-        <Route path="/live" element={<LiveCookPage />} />
-        <Route path="/carnet" element={<FavoritesPage />} />
-        <Route path="/partage/:code" element={<SharedCookPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/confidentialite" element={<PrivacyPage />} />
-        <Route
-          path="/admin/*"
-          element={
-            <AdminGuard>
-              <AdminPage />
-            </AdminGuard>
-          }
-        />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-      </Suspense>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            {/* Admin — standalone, sans Layout public */}
+            <Route
+              path="/admin/*"
+              element={
+                <AdminGuard>
+                  <AdminPage />
+                </AdminGuard>
+              }
+            />
+            {/* Site public — avec Layout + nav */}
+            <Route path="*" element={<PublicRoutes />} />
+          </Routes>
+        </Suspense>
       </ChunkErrorBoundary>
-      </MaintenanceGuard>
-    </Layout>
     </>
   )
 }
