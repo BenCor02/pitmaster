@@ -845,3 +845,49 @@ input[type="number"]::-webkit-outer-spin-button {
   color: #3A3025;
 }
 .prose-cf tr:nth-child(even) td { background: rgba(31,26,20,0.03); }
+
+/* ── prose-guide : alias prose-cf pour éditeur markdown ── */
+.prose-guide { font-family: var(--cf-sans); color: #3A3025; line-height: 1.75; font-size: 15px; }
+.prose-guide h1,.prose-guide h2,.prose-guide h3,.prose-guide h4 { font-family: var(--cf-serif); font-weight: 700; color: #1F1A14; line-height: 1.25; margin: 1.6em 0 0.6em; }
+.prose-guide h1 { font-size: 2rem; }
+.prose-guide h2 { font-size: 1.5rem; border-bottom: 1px solid rgba(31,26,20,0.12); padding-bottom: 0.4em; }
+.prose-guide h3 { font-size: 1.2rem; }
+.prose-guide p  { color: #3A3025; margin: 0 0 1.1em; }
+.prose-guide strong { color: #1F1A14; font-weight: 700; }
+.prose-guide em { font-style: italic; color: #4A3E32; }
+.prose-guide a  { color: #8B1A1A; text-decoration: underline; text-underline-offset: 3px; }
+.prose-guide ul,.prose-guide ol { color: #3A3025; margin: 0.8em 0 1.2em; padding-left: 1.6em; }
+.prose-guide li { color: #3A3025; margin-bottom: 0.45em; line-height: 1.65; }
+.prose-guide blockquote { border-left: 3px solid #8B1A1A; margin: 1.5em 0; padding: 0.8em 1.2em; background: rgba(139,26,26,0.05); color: #5a3e35; font-style: italic; border-radius: 0 4px 4px 0; }
+.prose-guide code { background: rgba(31,26,20,0.07); color: #8B1A1A; font-family: var(--cf-mono); font-size: 0.85em; padding: 2px 6px; border-radius: 3px; }
+.prose-guide pre { background: #1F1A14; color: #F5EFE0; padding: 1.2em 1.4em; overflow-x: auto; font-family: var(--cf-mono); font-size: 0.85em; margin: 1.5em 0; border-radius: 4px; }
+.prose-guide pre code { background: none; border: none; color: inherit; padding: 0; }
+.prose-guide hr { border: none; border-top: 1px solid rgba(31,26,20,0.15); margin: 2.5em 0; }
+.prose-guide img { max-width: 100%; height: auto; border-radius: 2px; margin: 1.5em 0; }
+.prose-guide table { width: 100%; border-collapse: collapse; margin: 1.5em 0; font-size: 14px; }
+.prose-guide th { background: #F5EFE0; color: #1F1A14; font-family: var(--cf-serif); font-weight: 600; padding: 10px 14px; border: 1px solid rgba(31,26,20,0.15); text-align: left; }
+.prose-guide td { padding: 9px 14px; border: 1px solid rgba(31,26,20,0.12); color: #3A3025; }
+.prose-guide tr:nth-child(even) td { background: rgba(31,26,20,0.03); }
+
+/* ── prose-admin : markdown preview dans l'admin (fond sombre) ── */
+.prose-admin { font-family: var(--cf-sans); color: #a1a1aa; line-height: 1.75; font-size: 14px; }
+.prose-admin h1,.prose-admin h2,.prose-admin h3,.prose-admin h4 { font-family: var(--cf-serif); font-weight: 700; color: #e4e4e7; line-height: 1.25; margin: 1.4em 0 0.5em; }
+.prose-admin h1 { font-size: 1.8rem; }
+.prose-admin h2 { font-size: 1.4rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.35em; }
+.prose-admin h3 { font-size: 1.15rem; }
+.prose-admin p  { color: #a1a1aa; margin: 0 0 1em; }
+.prose-admin strong { color: #e4e4e7; font-weight: 700; }
+.prose-admin em { font-style: italic; color: #d4d4d8; }
+.prose-admin a  { color: #ff8c4a; text-decoration: underline; text-underline-offset: 3px; }
+.prose-admin ul,.prose-admin ol { color: #a1a1aa; margin: 0.8em 0 1.2em; padding-left: 1.6em; }
+.prose-admin li { color: #a1a1aa; margin-bottom: 0.4em; line-height: 1.6; }
+.prose-admin blockquote { border-left: 3px solid #ff6b1a; margin: 1.4em 0; padding: 0.7em 1.1em; background: rgba(255,107,26,0.06); color: #a1a1aa; font-style: italic; border-radius: 0 4px 4px 0; }
+.prose-admin code { background: rgba(255,255,255,0.08); color: #ff8c4a; font-family: var(--cf-mono); font-size: 0.85em; padding: 2px 6px; border-radius: 3px; }
+.prose-admin pre { background: #0c0c0c; color: #e4e4e7; padding: 1.1em 1.3em; overflow-x: auto; font-family: var(--cf-mono); font-size: 0.85em; margin: 1.4em 0; border-radius: 6px; border: 1px solid rgba(255,255,255,0.06); }
+.prose-admin pre code { background: none; border: none; color: inherit; padding: 0; }
+.prose-admin hr { border: none; border-top: 1px solid rgba(255,255,255,0.08); margin: 2em 0; }
+.prose-admin img { max-width: 100%; height: auto; border-radius: 4px; margin: 1.4em 0; }
+.prose-admin table { width: 100%; border-collapse: collapse; margin: 1.4em 0; font-size: 13px; }
+.prose-admin th { background: rgba(255,255,255,0.05); color: #e4e4e7; font-weight: 600; padding: 9px 13px; border: 1px solid rgba(255,255,255,0.08); text-align: left; }
+.prose-admin td { padding: 8px 13px; border: 1px solid rgba(255,255,255,0.06); color: #a1a1aa; }
+.prose-admin tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
