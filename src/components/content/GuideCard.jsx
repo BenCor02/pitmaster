@@ -4,28 +4,69 @@ export default function GuideCard({ guide }) {
   return (
     <Link
       to={`/guides/${guide.slug}`}
-      className="surface overflow-hidden group hover:border-[#ff6b1a]/20 transition-all"
+      style={{
+        display: 'block',
+        background: '#F5EFE0',
+        border: '1px solid rgba(31,26,20,0.15)',
+        borderRadius: 4,
+        overflow: 'hidden',
+        textDecoration: 'none',
+        transition: 'border-color 0.2s, box-shadow 0.2s',
+      }}
+      onMouseEnter={e => {
+        e.currentTarget.style.borderColor = 'rgba(139,26,26,0.35)'
+        e.currentTarget.style.boxShadow = '0 2px 12px rgba(139,26,26,0.08)'
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.borderColor = 'rgba(31,26,20,0.15)'
+        e.currentTarget.style.boxShadow = 'none'
+      }}
     >
       {guide.cover_url && (
-        <div className="h-32 overflow-hidden">
+        <div style={{ height: 128, overflow: 'hidden' }}>
           <img
             src={guide.cover_url}
             alt={guide.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }}
+            loading="lazy"
           />
         </div>
       )}
-      <div className="p-4">
+      <div style={{ padding: '12px 16px' }}>
         {guide.category && (
-          <span className="text-[9px] font-bold uppercase tracking-wider text-[#ff6b1a]/70 mb-1 block">
+          <span style={{
+            display: 'block',
+            fontSize: 9,
+            fontWeight: 700,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            color: '#8B1A1A',
+            marginBottom: 4,
+            fontFamily: 'var(--cf-mono)',
+          }}>
             {guide.category}
           </span>
         )}
-        <h3 className="text-[14px] font-bold text-zinc-200 group-hover:text-white transition-colors mb-1 leading-tight">
+        <h3 style={{
+          fontSize: 14,
+          fontWeight: 700,
+          color: '#1F1A14',
+          marginBottom: 4,
+          lineHeight: 1.35,
+          fontFamily: 'var(--cf-serif)',
+        }}>
           {guide.title}
         </h3>
         {guide.summary && (
-          <p className="text-[11px] text-zinc-500 leading-relaxed line-clamp-2">
+          <p style={{
+            fontSize: 11,
+            color: '#6E6356',
+            lineHeight: 1.55,
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+          }}>
             {guide.summary}
           </p>
         )}
@@ -38,14 +79,14 @@ export function GuideList({ guides }) {
   if (!guides?.length) return null
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
-          <span className="text-xs">📚</span>
-        </div>
-        <h2 className="text-[14px] font-bold text-white">Guides complémentaires</h2>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ fontSize: 18 }}>📚</span>
+        <h2 style={{ fontSize: 14, fontWeight: 700, color: '#1F1A14', fontFamily: 'var(--cf-serif)' }}>
+          Guides complémentaires
+        </h2>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
         {guides.map(guide => (
           <GuideCard key={guide.id} guide={guide} />
         ))}
