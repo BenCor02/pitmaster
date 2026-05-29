@@ -20,6 +20,7 @@ function contextFilter(query, { meatType, cookingMethod } = {}) {
 // ── SEO Blocks ──────────────────────────────────────────────
 
 export async function fetchSeoBlocks({ meatType, cookingMethod } = {}) {
+  if (!supabase) return []
   let query = supabase
     .from('seo_blocks')
     .select('*')
@@ -35,6 +36,7 @@ export async function fetchSeoBlocks({ meatType, cookingMethod } = {}) {
 // ── FAQ ─────────────────────────────────────────────────────
 
 export async function fetchFaqs({ meatType, cookingMethod } = {}) {
+  if (!supabase) return []
   let query = supabase
     .from('faqs')
     .select('*')
@@ -50,6 +52,7 @@ export async function fetchFaqs({ meatType, cookingMethod } = {}) {
 // ── Affiliate Tools ─────────────────────────────────────────
 
 export async function fetchAffiliateTools({ placement, meatType } = {}) {
+  if (!supabase) return []
   const { data, error } = await supabase
     .from('affiliate_tools')
     .select('*')
@@ -75,6 +78,7 @@ export async function fetchAffiliateTools({ placement, meatType } = {}) {
 // ── Guides ──────────────────────────────────────────────────
 
 export async function fetchGuides({ meatType, limit } = {}) {
+  if (!supabase) return []
   let query = supabase
     .from('guides')
     .select('id, title, slug, summary, cover_url, category, tags, meat_type, created_at')
@@ -95,6 +99,7 @@ export async function fetchGuides({ meatType, limit } = {}) {
 }
 
 export async function fetchGuideBySlug(slug) {
+  if (!supabase) return []
   const { data, error } = await supabase
     .from('guides')
     .select('*')
@@ -109,6 +114,7 @@ export async function fetchGuideBySlug(slug) {
 // ── Recipes ────────────────────────────────────────────────
 
 export async function fetchRecipes({ type, meatType, limit } = {}) {
+  if (!supabase) return []
   let query = supabase
     .from('recipes')
     .select('id, title, slug, type, summary, meat_types, origin, difficulty, tags, cover_url, prep_time, created_at')
@@ -130,6 +136,7 @@ export async function fetchRecipes({ type, meatType, limit } = {}) {
 }
 
 export async function fetchRecipeBySlug(slug) {
+  if (!supabase) return []
   const { data, error } = await supabase
     .from('recipes')
     .select('*')
@@ -198,6 +205,7 @@ function filterByContext(items, meatType, cookingMethod) {
 
 /** Récupère le premier produit marqué emplacement "sponsor" */
 export async function fetchSponsorSlot() {
+  if (!supabase) return []
   const { data, error } = await supabase
     .from('affiliate_tools')
     .select('*')

@@ -11,6 +11,7 @@ export function AuthProvider({ children }) {
 
   // Écouter les changements de session Supabase
   useEffect(() => {
+    if (!supabase) { setSession(null); return }
     // Récupérer la session existante
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)

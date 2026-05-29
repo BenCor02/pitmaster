@@ -6,6 +6,7 @@ import { supabase } from './supabase.js'
 
 /** Récupère un setting par sa clé */
 export async function fetchSetting(key) {
+  if (!supabase) return []
   const { data, error } = await supabase
     .from('site_settings')
     .select('value')
@@ -18,6 +19,7 @@ export async function fetchSetting(key) {
 
 /** Récupère tous les settings d'un coup */
 export async function fetchAllSettings() {
+  if (!supabase) return []
   const { data, error } = await supabase
     .from('site_settings')
     .select('key, value')
@@ -30,6 +32,7 @@ export async function fetchAllSettings() {
 
 /** Met à jour un setting via upsert (key est unique) */
 export async function updateSetting(key, value) {
+  if (!supabase) return []
   const { error } = await supabase
     .from('site_settings')
     .upsert({ key, value }, { onConflict: 'key', ignoreDuplicates: false })
