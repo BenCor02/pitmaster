@@ -217,7 +217,7 @@ Rappel : JSON uniquement, "body" en Markdown complet.`,
       aiGenerated:    true,
       showNewsletter: true,
       sourceKeyword:  articleData.sourceKeyword || slug,
-      // publishedAt intentionnellement absent → brouillon
+      publishedAt:    new Date().toISOString(),
     }
 
     const created = await client.create(doc)
