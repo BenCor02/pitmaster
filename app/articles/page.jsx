@@ -2,7 +2,7 @@ import { getPublishedArticles, getArticleCategories } from '../../src/lib/sanity
 import ArticlesListView from '../../src/views/ArticlesListView.jsx'
 import { CFHeader, CFFooter } from '../../src/components/cf/Chrome.jsx'
 
-export const revalidate = 3600
+export const revalidate = 300
 
 export const metadata = {
   title: 'Articles BBQ — Techniques, guides et science du fumage | Charbon & Flamme',
