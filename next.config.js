@@ -1,5 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+<<<<<<< HEAD
+=======
+  experimental: {
+    // Needed for Sanity Studio in App Router
+    serverComponentsExternalPackages: [],
+  },
+>>>>>>> b8014fe (feat: Sanity CMS — Studio /studio, schema articles, génération IA Claude)
   images: {
     remotePatterns: [{ protocol: 'https', hostname: '**' }],
   },

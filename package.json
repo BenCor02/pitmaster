@@ -9,13 +9,26 @@
     "lint": "next lint"
   },
   "dependencies": {
+<<<<<<< HEAD
+=======
+    "@sanity/image-url": "^2.1.1",
+    "@sanity/vision": "^5.28.0",
+>>>>>>> b8014fe (feat: Sanity CMS — Studio /studio, schema articles, génération IA Claude)
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.100.0",
     "@vercel/analytics": "^2.0.1",
     "next": "^15.3.2",
+<<<<<<< HEAD
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "recharts": "^2.15.3"
+=======
+    "next-sanity": "^13.0.7",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "recharts": "^2.15.3",
+    "sanity": "^5.28.0"
+>>>>>>> b8014fe (feat: Sanity CMS — Studio /studio, schema articles, génération IA Claude)
   },
   "devDependencies": {
     "autoprefixer": "^10.4.19",

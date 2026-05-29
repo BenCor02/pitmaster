@@ -12,7 +12,7 @@ const NAV = [
   { id: 'overview', label: 'Tableau de bord', icon: '📊' },
   { id: 'stats',    label: 'Statistiques',    icon: '📈' },
   { type: 'section', label: 'CONTENU' },
-  { id: 'articles', label: 'Articles Média',    icon: '📰' },
+  { id: 'articles', label: 'Articles (Studio)', icon: '📰', href: '/studio' },
   { id: 'guides',   label: 'Guides',          icon: '📚' },
   { id: 'recipes',  label: 'Recettes',        icon: '🧂' },
   { id: 'seo',      label: 'Blocs SEO',       icon: '🔍' },
@@ -93,6 +93,14 @@ export default function AdminShell({ activeTab, onTabChange, profile, signOut, c
 
             const active = activeTab === item.id
             const count  = COUNT_KEYS.includes(item.id) ? counts[item.id] : undefined
+
+            if (item.href) {
+              return (
+                <a key={item.id} href={item.href} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+                  <NavItem icon={item.icon} label={item.label} active={false} count={count} onClick={() => {}} />
+                </a>
+              )
+            }
 
             return (
               <NavItem
