@@ -1,19 +1,16 @@
 /**
- * CHARBON & FLAMME — Capacitor bridge
- *
- * Détecte si l'app tourne dans Capacitor (Android)
- * et expose les APIs natives de manière transparente.
+ * Capacitor bridge — stub pour Next.js (web only)
+ * Sur le web, tout retourne false / 'web'.
  */
 
-import { Capacitor } from '@capacitor/core'
+export const isNative = false
+export const platform = 'web'
+export const isAvailable = () => false
 
-export const isNative = Capacitor.isNativePlatform()
-export const platform = Capacitor.getPlatform() // 'android' | 'ios' | 'web'
-
-/**
- * Vérifie si un plugin Capacitor est disponible.
- * Utile pour éviter les crashes quand on tourne en web.
- */
-export function isPluginAvailable(name) {
-  return Capacitor.isPluginAvailable(name)
-}
+export function requestPermission() { return Promise.resolve({ receive: 'denied' }) }
+export function registerPushToken() { return Promise.resolve() }
+export function onPushNotification() { return () => {} }
+export function scheduleLocalNotification() { return Promise.resolve() }
+export function cancelAllLocalNotifications() { return Promise.resolve() }
+export function getNetworkStatus() { return Promise.resolve({ connected: true }) }
+export function onNetworkChange() { return () => {} }

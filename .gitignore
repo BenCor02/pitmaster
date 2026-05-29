@@ -7,3 +7,4 @@ dist
 # Keystore — NE JAMAIS COMMITER
 *.jks
 *.keystore
+.next

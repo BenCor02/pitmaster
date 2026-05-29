@@ -1,3 +1,5 @@
+'use client'
+
 /**
  * CHARBON & FLAMME — SiteSettingsProvider + useSiteSettings hook
  *

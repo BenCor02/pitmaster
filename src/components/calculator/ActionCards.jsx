@@ -1,5 +1,7 @@
+'use client'
+
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useRouter, Link } from 'next/navigation'
 import { useAuth } from '../../modules/auth/AuthContext.jsx'
 import { journal } from '../../lib/journal.js'
 import { createSharedCook } from '../../lib/sharedCooks.js'
@@ -8,7 +10,7 @@ import { createSharedCook } from '../../lib/sharedCooks.js'
 
 export function ActionBar({ result }) {
   const { isAuthenticated, session, profile } = useAuth()
-  const navigate = useNavigate()
+  const navigate = useRouter()
   const [shareUrl, setShareUrl] = useState(null)
   const [sharing, setSharing] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -16,11 +18,11 @@ export function ActionBar({ result }) {
   const handleSave = () => {
     const prefill = journal.fromCalculatorResult(result)
     const encoded = encodeURIComponent(JSON.stringify(prefill))
-    navigate(`/journal?prefill=${encoded}`)
+    router.push(`/journal?prefill=${encoded}`)
   }
 
   const handleLive = () => {
-    navigate('/live', { state: { profileId: result.profileId, weightKg: result.weightKg, cookTempC: result.cookTempC, wrapped: result.wrapped } })
+    router.push('/live', { state: { profileId: result.profileId, weightKg: result.weightKg, cookTempC: result.cookTempC, wrapped: result.wrapped } })
   }
 
   const handleShare = async () => {
@@ -90,7 +92,7 @@ export function ActionBar({ result }) {
             <span className="text-[12px] font-bold">Sauver</span>
           </button>
         ) : (
-          <Link to="/login" state={{ from: '/' }} className="flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-[#ff6b1a]/8 border border-[#ff6b1a]/15 text-[#ff6b1a] hover:border-[#ff6b1a]/25 transition-all">
+          <Link href="/login" state={{ from: '/' }} className="flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-[#ff6b1a]/8 border border-[#ff6b1a]/15 text-[#ff6b1a] hover:border-[#ff6b1a]/25 transition-all">
             <span className="text-sm">📓</span>
             <span className="text-[12px] font-bold">Sauver</span>
           </Link>
@@ -103,7 +105,7 @@ export function ActionBar({ result }) {
             <span className="text-[12px] font-bold">{sharing ? '...' : 'Partager'}</span>
           </button>
         ) : (
-          <Link to="/login" state={{ from: '/' }} className="flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-sky-500/8 border border-sky-500/15 text-sky-400 hover:border-sky-500/25 transition-all">
+          <Link href="/login" state={{ from: '/' }} className="flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl bg-sky-500/8 border border-sky-500/15 text-sky-400 hover:border-sky-500/25 transition-all">
             <span className="text-sm">🔗</span>
             <span className="text-[12px] font-bold">Partager</span>
           </Link>

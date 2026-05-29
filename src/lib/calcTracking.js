@@ -36,7 +36,7 @@ export function logCalculation({ profile, weightKg, cookTempC, wrapped, doneness
     .from('calculator_logs')
     .insert(payload)
     .then(({ error }) => {
-      if (error && import.meta.env.DEV) {
+      if (error && process.env.NODE_ENV === 'development') {
         console.warn('[calcTracking] insert failed:', error.message)
       }
     })

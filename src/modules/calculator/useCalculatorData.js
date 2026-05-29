@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useEffect } from 'react'
 import { fetchCookingProfiles } from '../../lib/cookingProfiles.js'
 import { MEAT_PROFILES } from './data.js'

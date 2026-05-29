@@ -1,3 +1,5 @@
+'use client'
+
 /**
  * Charbon & Flamme v3 — Chrome (Logo, Header, Footer, Newsletter, Sponsor)
  *
@@ -7,13 +9,23 @@
 
 import React from 'react'
 import { fetchSponsorSlot } from '../../lib/cms.js'
-import { Link, NavLink } from 'react-router-dom'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { FireButton, SectionEyebrow, SmokeBackdrop, EmberGlow } from './Primitives.jsx'
 import { useAuth } from '../../modules/auth/AuthContext.jsx'
 
 // ───────────────────────────────────────────────
 // CFLogo — logo Charbon & Flamme (cercle + flamme + wordmark)
 // ───────────────────────────────────────────────
+
+// NavLink pour Next.js — active state via usePathname
+function NavLink({ href, children, style, className, ...props }) {
+  const pathname = usePathname()
+  const isActive = pathname === href || (href !== '/' && pathname.startsWith(href))
+  const computedStyle = typeof style === 'function' ? style({ isActive }) : style
+  return <Link href={href} style={computedStyle} className={className} {...props}>{children}</Link>
+}
+
 export function CFLogo({ size = 28, color = '#1F1A14', accent = '#8B1A1A' }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -129,7 +141,7 @@ export function CFHeader({ dark = false }) {
         className="hidden md:flex"
         style={{ alignItems: 'center', justifyContent: 'space-between', padding: '16px 40px' }}
       >
-        <Link to="/" aria-label="Accueil" style={{ textDecoration: 'none', flexShrink: 0 }}>
+        <Link href="/" aria-label="Accueil" style={{ textDecoration: 'none', flexShrink: 0 }}>
           <CFLogo size={24} color={fg} accent={accent} />
         </Link>
 
@@ -137,7 +149,7 @@ export function CFHeader({ dark = false }) {
           {mainItems.map((item) => (
             <NavLink
               key={item.to}
-              to={item.to}
+              href={item.to}
               style={({ isActive }) => ({
                 fontFamily: 'var(--cf-serif)',
                 fontSize: 13,
@@ -202,7 +214,7 @@ export function CFHeader({ dark = false }) {
                 {toolItems.map((item) => (
                   <NavLink
                     key={item.to}
-                    to={item.to}
+                    href={item.to}
                     onClick={() => setToolsOpen(false)}
                     style={({ isActive }) => ({
                       display: 'block',
@@ -226,7 +238,7 @@ export function CFHeader({ dark = false }) {
           {isAuthenticated && userItems.map((item) => (
             <NavLink
               key={item.to}
-              to={item.to}
+              href={item.to}
               style={({ isActive }) => ({
                 fontFamily: 'var(--cf-serif)',
                 fontSize: 13,
@@ -265,7 +277,7 @@ export function CFHeader({ dark = false }) {
             </button>
           ) : (
             <Link
-              to="/login"
+              href="/login"
               style={{
                 fontFamily: 'var(--cf-mono)',
                 fontSize: 11,
@@ -290,7 +302,7 @@ export function CFHeader({ dark = false }) {
         className="flex md:hidden"
         style={{ alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px' }}
       >
-        <Link to="/" aria-label="Accueil" style={{ textDecoration: 'none' }}>
+        <Link href="/" aria-label="Accueil" style={{ textDecoration: 'none' }}>
           <CFLogo size={20} color={fg} accent={accent} />
         </Link>
         <button
@@ -337,7 +349,7 @@ export function CFHeader({ dark = false }) {
             ) : (
               <NavLink
                 key={item.to}
-                to={item.to}
+                href={item.to}
                 onClick={() => setOpen(false)}
                 style={({ isActive }) => ({
                   fontFamily: 'var(--cf-serif)',
@@ -378,7 +390,7 @@ export function CFHeader({ dark = false }) {
               </button>
             ) : (
               <Link
-                to="/login"
+                href="/login"
                 onClick={() => setOpen(false)}
                 style={{
                   display: 'block',
@@ -536,7 +548,7 @@ export function CFFooter({ mobile }) {
         }}
       >
         <div>
-          <Link to="/" style={{ textDecoration: 'none' }}>
+          <Link href="/" style={{ textDecoration: 'none' }}>
             <CFLogo size={22} color="#F5EFE0" accent="#E8A53C" />
           </Link>
           <p style={{ marginTop: 16, fontSize: 13, lineHeight: 1.6, maxWidth: 280 }}>
@@ -562,7 +574,7 @@ export function CFFooter({ mobile }) {
               {col.items.map((item) =>
                 item.to ? (
                   <li key={item.label} style={{ fontSize: 13 }}>
-                    <Link to={item.to} style={{ color: 'inherit', textDecoration: 'none' }}>
+                    <Link href={item.to} style={{ color: 'inherit', textDecoration: 'none' }}>
                       {item.label}
                     </Link>
                   </li>

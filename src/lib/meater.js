@@ -12,7 +12,7 @@ import { isNative } from './capacitor.js'
 // Natif (Capacitor) → appel direct (pas de CORS en natif)
 // Dev (Vite)        → appel direct (proxy possible via vite.config.js)
 // Prod web (Vercel) → proxy serveur pour contourner CORS
-const BASE_URL = (isNative || import.meta.env.DEV)
+const BASE_URL = (isNative || process.env.NODE_ENV === 'development')
   ? 'https://public-api.cloud.meater.com/v1'
   : '/api/meater'
 
@@ -39,7 +39,7 @@ export function isConnected() {
 
 export async function login(email, password) {
   const loginUrl = `${BASE_URL}/login`
-  console.log('[meater] login →', loginUrl, '(isNative:', isNative, ', DEV:', import.meta.env.DEV, ')')
+  console.log('[meater] login →', loginUrl, '(isNative:', isNative, ', DEV:', process.env.NODE_ENV === 'development', ')')
 
   let res
   try {
@@ -52,7 +52,7 @@ export async function login(email, password) {
     // Erreur réseau (CORS, serveur down, offline…)
     throw new Error(
       'Impossible de joindre le serveur Meater. ' +
-      (import.meta.env.DEV
+      (process.env.NODE_ENV === 'development'
         ? 'En mode dev, le CORS bloque les appels directs — utilise le proxy Vercel ou un tunnel.'
         : 'Vérifie ta connexion internet.')
     )

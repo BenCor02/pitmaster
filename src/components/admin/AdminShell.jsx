@@ -1,10 +1,12 @@
+'use client'
+
 /**
  * AdminShell — Layout CMS style WordPress
  * Sidebar fixe gauche + header top + zone de contenu principale
  */
 
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 
 const NAV = [
   { id: 'overview', label: 'Tableau de bord', icon: '📊' },
@@ -107,7 +109,7 @@ export default function AdminShell({ activeTab, onTabChange, profile, signOut, c
         {/* Footer */}
         <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: 6 }}>
           <Link
-            to="/"
+            href="/"
             style={{ fontSize: 11, color: '#52525b', textDecoration: 'none' }}
           >
             ← Voir le site

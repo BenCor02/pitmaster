@@ -1,3 +1,5 @@
+'use client'
+
 /**
  * Charbon & Flamme v3 — Primitives
  *

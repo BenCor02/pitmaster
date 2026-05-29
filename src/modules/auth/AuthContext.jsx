@@ -1,3 +1,5 @@
+'use client'
+
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase.js'
 
@@ -153,6 +155,6 @@ export function AuthProvider({ children }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext)
-  if (!ctx) throw new Error('useAuth doit être utilisé dans un AuthProvider')
+  if (!ctx) return { isLoading: true, isAuthenticated: false, isAdmin: false, profile: null, session: null, user: null }
   return ctx
 }
