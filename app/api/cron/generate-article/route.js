@@ -12,7 +12,7 @@
  *   CRON_SECRET, ANTHROPIC_API_KEY, SANITY_API_TOKEN
  */
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { sanityClient, getSanityWriteClient } from '../../../../src/lib/sanity.js'
 
 export const runtime    = 'nodejs'
@@ -225,8 +225,8 @@ Rappel : JSON uniquement, "body" en Markdown complet.`,
     console.log(`[cron] ✅ Article créé : "${articleData.title}" (${created._id})`)
 
     // Invalider le cache Next.js immédiatement
+    revalidateTag('articles')
     revalidatePath('/articles')
-    revalidatePath(`/articles/${slug}`)
 
     return Response.json({
       success:      true,

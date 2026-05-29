@@ -9,7 +9,7 @@ export const sanityClient = createClient({
   projectId: 'nv9jfkc3',
   dataset: 'production',
   apiVersion: '2025-01-01',
-  useCdn: true,          // cache CDN pour la lecture publique
+  useCdn: false,         // désactivé pour que les nouveaux contenus apparaissent immédiatement
   perspective: 'published',
 })
 
@@ -44,7 +44,7 @@ export async function getPublishedArticles({ category, tag, limit = 50 } = {}) {
   return sanityClient.fetch(
     `*[${filter}] | order(publishedAt desc)[0..${limit - 1}] { ${ARTICLE_CARD_FIELDS} }`,
     {},
-    { next: { revalidate: 3600 } }
+    { next: { revalidate: 300, tags: ['articles'] } }
   )
 }
 
