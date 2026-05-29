@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { fetchGuides } from '../lib/cms.js'
+import { sanityClient } from '../lib/sanity.js'
 import { updateMeta } from '../lib/seo.js'
 import GuideCard from '../components/content/GuideCard.jsx'
 import { CFHeader, CFFooter, NewsletterBlock } from '../components/cf/Chrome.jsx'
@@ -32,10 +32,21 @@ export default function GuidesListPage() {
       description: 'Guides pratiques pour maîtriser le barbecue low & slow, le reverse sear, le stall, le wrap et toutes les techniques de pitmaster.',
     })
 
-    fetchGuides().then(data => {
-      setGuides(data)
-      setLoading(false)
-    })
+    sanityClient
+      .fetch(`*[_type == "guide" && status == "published"] | order(publishedAt desc) {
+        _id,
+        title,
+        "slug": slug.current,
+        summary,
+        "coverUrl": coalesce(coverImage.asset->url, coverUrl),
+        category,
+        meatType,
+        tags
+      }`)
+      .then(data => {
+        setGuides(data)
+        setLoading(false)
+      })
   }, [])
 
   if (loading) {
@@ -50,7 +61,7 @@ export default function GuidesListPage() {
     <div style={{ minHeight: '100vh', background: '#FAF6EE', color: '#1F1A14' }}>
       <CFHeader />
 
-      {/* Hero with image */}
+      {/* Hero */}
       <div style={{ position: 'relative', overflow: 'hidden', height: mobile ? 200 : 280 }}>
         <img
           src="https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=1400&h=400&fit=crop&q=80"
@@ -90,7 +101,7 @@ export default function GuidesListPage() {
           }}>
             {guides.map(guide => (
               <div
-                key={guide.id}
+                key={guide._id}
                 style={{
                   background: '#F5EFE0',
                   border: '1px solid rgba(31,26,20,0.15)',

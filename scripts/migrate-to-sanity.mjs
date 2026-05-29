@@ -1,131 +1,125 @@
 /**
- * Migration Supabase → Sanity
+ * Migration Supabase → Sanity  (zéro dépendance npm — fetch natif Node 18+)
  * Guides (19) + Recettes (~78) avec corrections terminologie FR
  *
  * Usage :
- *   SUPABASE_URL=... SUPABASE_KEY=... SANITY_TOKEN=... node scripts/migrate-to-sanity.mjs
- *
- * Variables d'environnement requises :
- *   SUPABASE_URL        → URL de ton projet Supabase
- *   SUPABASE_SERVICE_KEY → clé service role (pas la clé anon)
- *   SANITY_TOKEN        → token Editor/Write depuis sanity.io/manage
+ *   SUPABASE_URL=https://xxx.supabase.co \
+ *   SUPABASE_SERVICE_KEY=eyJxxx \
+ *   SANITY_TOKEN=skxxx \
+ *   node scripts/migrate-to-sanity.mjs
  */
 
-import { createClient } from '@supabase/supabase-js'
-import { createClient as createSanityClient } from '@sanity/client'
-
-// ── Config ──────────────────────────────────────────────────────────────────
-
-const SUPABASE_URL = process.env.SUPABASE_URL
+const SUPABASE_URL = process.env.SUPABASE_URL?.replace(/\/$/, '')
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY
 const SANITY_TOKEN = process.env.SANITY_TOKEN
+const SANITY_PROJECT = 'nv9jfkc3'
+const SANITY_DATASET = 'production'
+const SANITY_API    = `https://${SANITY_PROJECT}.api.sanity.io/v2025-01-01/data`
 
 if (!SUPABASE_URL || !SUPABASE_KEY || !SANITY_TOKEN) {
   console.error('❌ Variables manquantes : SUPABASE_URL, SUPABASE_SERVICE_KEY, SANITY_TOKEN')
   process.exit(1)
 }
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+// ── Helpers Supabase ─────────────────────────────────────────────────────────
 
-const sanity = createSanityClient({
-  projectId: 'nv9jfkc3',
-  dataset: 'production',
-  apiVersion: '2025-01-01',
-  token: SANITY_TOKEN,
-  useCdn: false,
-})
+async function supabaseFetch(table, params = '') {
+  const url = `${SUPABASE_URL}/rest/v1/${table}?${params}`
+  console.log(`   → GET ${url.slice(0, 80)}…`)
+  try {
+    const res = await fetch(url, {
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+      },
+    })
+    if (!res.ok) throw new Error(`HTTP ${res.status}: ${await res.text()}`)
+    return res.json()
+  } catch (err) {
+    throw new Error(`Supabase ${table}: ${err.message}`)
+  }
+}
+
+// ── Helpers Sanity ───────────────────────────────────────────────────────────
+
+async function sanityMutate(mutations) {
+  const res = await fetch(`${SANITY_API}/mutate/${SANITY_DATASET}`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${SANITY_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ mutations }),
+  })
+  if (!res.ok) throw new Error(`Sanity mutate: ${res.status} ${await res.text()}`)
+  return res.json()
+}
+
+async function sanityExists(docId) {
+  const res = await fetch(
+    `${SANITY_API}/query/${SANITY_DATASET}?query=*[_id=="${docId}"][0]._id`,
+    { headers: { Authorization: `Bearer ${SANITY_TOKEN}` } }
+  )
+  const json = await res.json()
+  return !!json?.result
+}
 
 // ── Corrections terminologie ─────────────────────────────────────────────────
-// On garde les termes BBQ universels (rub, bark, brisket, low & slow…)
-// mais on corrige les labels purement anglais sans contexte FR
 
 const TERM_FIXES = [
-  // Types de recettes dans les titres
-  [/\bDry Rub\b/gi, 'Rub sec'],
-  [/\bWet Rub\b/gi, 'Rub humide'],
+  [/\bDry Rub\b/gi,  'Rub sec'],
+  [/\bWet Rub\b/gi,  'Rub humide'],
   [/\bMop Sauce\b/gi, "Sauce d'arrosage"],
-  [/\bGlaze\b/gi, 'Laquage'],
-
-  // Termes anatomiques → français avec terme US entre parenthèses
-  [/\bFlat\b(?! de)/g, 'Plat (Flat)'],
-  [/\bPoint\b(?! de| sur)/g, 'Pointe (Point)'],
-
-  // Cuissons / techniques → garder l'US entre parenthèses pour le SEO
-  [/\bWrap\b/gi, 'Emballage (Wrap)'],
-  [/\bBark\b/gi, 'Croûte (Bark)'],
-  [/\bStall\b/gi, 'Plateau de cuisson (Stall)'],
-
-  // Pitmasters et régions → pas de changement, c'est des noms propres
+  [/\bStall\b/gi,    'Plateau de cuisson (Stall)'],
+  [/\bBark\b/gi,     'Croûte (Bark)'],
 ]
 
-function fixTerms(text) {
+function fix(text) {
   if (!text) return text
-  let result = text
-  for (const [pattern, replacement] of TERM_FIXES) {
-    result = result.replace(pattern, replacement)
-  }
-  return result
+  let s = text
+  for (const [p, r] of TERM_FIXES) s = s.replace(p, r)
+  return s
 }
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-function slugify(text) {
-  return text
-    .toLowerCase()
-    .normalize('NFD').replace(/[̀-ͯ]/g, '') // retire accents
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-}
-
-function sanityId(type, supabaseId) {
-  // Sanity IDs alphanumériques uniquement
-  return `${type}-${supabaseId.replace(/-/g, '')}`
+function sanityId(type, uuid) {
+  return `${type}-${uuid.replace(/-/g, '')}`
 }
 
 // ── Migration Guides ──────────────────────────────────────────────────────────
 
 async function migrateGuides() {
   console.log('\n📚 Migration des guides…')
-
-  const { data: guides, error } = await supabase
-    .from('guides')
-    .select('*')
-    .eq('status', 'published')
-    .order('sort_order')
-
-  if (error) throw new Error(`Supabase guides: ${error.message}`)
+  const guides = await supabaseFetch('guides', 'status=eq.published&order=sort_order.asc')
   console.log(`   ${guides.length} guides trouvés`)
 
   let created = 0, skipped = 0
 
   for (const g of guides) {
-    const docId = sanityId('guide', g.id)
-
-    // Vérifie si déjà migré
-    const existing = await sanity.getDocument(docId)
-    if (existing) { skipped++; continue }
+    const _id = sanityId('guide', g.id)
+    if (await sanityExists(_id)) { skipped++; continue }
 
     const doc = {
-      _id: docId,
+      _id,
       _type: 'guide',
-      title: fixTerms(g.title),
-      slug: { _type: 'slug', current: g.slug },
-      summary: fixTerms(g.summary),
-      content: fixTerms(g.content),
+      title:    fix(g.title),
+      slug:     { _type: 'slug', current: g.slug },
+      summary:  fix(g.summary),
+      content:  fix(g.content),
       coverUrl: g.cover_url || null,
-      category: g.category || null,
+      category: g.category  || null,
       meatType: g.meat_type || null,
-      tags: g.tags || [],
+      tags:     g.tags      || [],
       publishedAt: g.created_at,
       status: 'published',
       seo: {
-        title: fixTerms(g.seo_title) || null,
-        description: fixTerms(g.seo_description) || null,
+        title:       fix(g.seo_title)       || null,
+        description: fix(g.seo_description) || null,
       },
     }
 
-    await sanity.createOrReplace(doc)
-    console.log(`   ✅ Guide : ${g.title}`)
+    await sanityMutate([{ createOrReplace: doc }])
+    console.log(`   ✅ ${g.title}`)
     created++
   }
 
@@ -136,60 +130,49 @@ async function migrateGuides() {
 
 async function migrateRecipes() {
   console.log('\n🧂 Migration des recettes…')
-
-  const { data: recipes, error } = await supabase
-    .from('recipes')
-    .select('*')
-    .eq('status', 'published')
-    .order('sort_order')
-
-  if (error) throw new Error(`Supabase recipes: ${error.message}`)
+  const recipes = await supabaseFetch('recipes', 'status=eq.published&order=sort_order.asc')
   console.log(`   ${recipes.length} recettes trouvées`)
 
   let created = 0, skipped = 0
 
   for (const r of recipes) {
-    const docId = sanityId('recipe', r.id)
+    const _id = sanityId('recipe', r.id)
+    if (await sanityExists(_id)) { skipped++; continue }
 
-    const existing = await sanity.getDocument(docId)
-    if (existing) { skipped++; continue }
-
-    // Normaliser les ingrédients (JSONB Supabase → array Sanity)
     const ingredients = (r.ingredients || []).map((ing, i) => ({
       _type: 'object',
-      _key: `ing-${i}`,
-      name: ing.name || ing.ingredient || '',
-      qty: ing.qty || ing.quantity || ing.amount || '',
-      note: ing.note || '',
+      _key:  `ing${i}`,
+      name:  ing.name || ing.ingredient || '',
+      qty:   ing.qty  || ing.quantity   || ing.amount || '',
+      note:  ing.note || '',
     }))
 
-    // Normaliser les étapes
     const steps = (r.steps || []).map(s =>
       typeof s === 'string' ? s : s.step || s.text || String(s)
     )
 
     const doc = {
-      _id: docId,
+      _id,
       _type: 'recipe',
-      title: fixTerms(r.title),
-      slug: { _type: 'slug', current: r.slug },
-      type: r.type || 'rub',
-      summary: fixTerms(r.summary),
-      description: fixTerms(r.description),
+      title:       fix(r.title),
+      slug:        { _type: 'slug', current: r.slug },
+      type:        r.type        || 'rub',
+      summary:     fix(r.summary),
+      description: fix(r.description),
       ingredients,
       steps,
       yieldAmount: r.yield_amount || null,
-      prepTime: r.prep_time || null,
-      meatTypes: r.meat_types || [],
-      origin: r.origin || null,
-      difficulty: r.difficulty || 'facile',
-      tags: r.tags || [],
-      coverUrl: r.cover_url || null,
+      prepTime:    r.prep_time   || null,
+      meatTypes:   r.meat_types  || [],
+      origin:      r.origin      || null,
+      difficulty:  r.difficulty  || 'facile',
+      tags:        r.tags        || [],
+      coverUrl:    r.cover_url   || null,
       status: 'published',
     }
 
-    await sanity.createOrReplace(doc)
-    console.log(`   ✅ Recette : ${r.title}`)
+    await sanityMutate([{ createOrReplace: doc }])
+    console.log(`   ✅ ${r.title}`)
     created++
   }
 
@@ -199,15 +182,13 @@ async function migrateRecipes() {
 // ── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
-  console.log('🚀 Début de la migration Supabase → Sanity')
-  console.log(`   Projet Sanity : nv9jfkc3 / production`)
-
+  console.log('🚀 Migration Supabase → Sanity')
   try {
     await migrateGuides()
     await migrateRecipes()
-    console.log('\n✨ Migration terminée avec succès !')
+    console.log('\n✨ Migration terminée !')
   } catch (err) {
-    console.error('\n❌ Erreur :', err.message)
+    console.error('\n❌', err.message)
     process.exit(1)
   }
 }

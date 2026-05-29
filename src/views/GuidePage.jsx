@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { fetchGuideBySlug, fetchGuides } from '../lib/cms.js'
+import { sanityClient } from '../lib/sanity.js'
 import { renderMarkdown } from '../lib/markdown.js'
 import { updateMeta, articleSchema, injectJsonLd } from '../lib/seo.js'
 import GuideCard from '../components/content/GuideCard.jsx'
@@ -39,7 +39,23 @@ export default function GuidePage() {
       setLoading(true)
       setNotFound(false)
 
-      const data = await fetchGuideBySlug(slug)
+      const data = await sanityClient.fetch(
+        `*[_type == "guide" && slug.current == $slug && status == "published"][0] {
+          _id,
+          title,
+          "slug": slug.current,
+          summary,
+          content,
+          "coverUrl": coalesce(coverImage.asset->url, coverUrl),
+          category,
+          meatType,
+          tags,
+          "seoTitle": seo.title,
+          "seoDescription": seo.description
+        }`,
+        { slug }
+      )
+
       if (cancelled) return
 
       if (!data) {
@@ -52,16 +68,33 @@ export default function GuidePage() {
 
       // SEO
       updateMeta({
-        title: data.seo_title || data.title,
-        description: data.seo_description || data.summary,
+        title: data.seoTitle || data.title,
+        description: data.seoDescription || data.summary,
         canonical: `https://charbonetflamme.fr/guides/${data.slug}`,
       })
-      injectJsonLd('article-schema', articleSchema(data))
+      injectJsonLd('article-schema', articleSchema({
+        title: data.title,
+        summary: data.summary,
+        cover_url: data.coverUrl,
+        slug: data.slug,
+      }))
 
-      // Related guides
-      const all = await fetchGuides({ meatType: data.meat_type, limit: 4 })
-      if (!cancelled) {
-        setRelated(all.filter(g => g.id !== data.id).slice(0, 2))
+      // Guides liés
+      if (data.meatType) {
+        const all = await sanityClient.fetch(
+          `*[_type == "guide" && status == "published" && meatType == $meatType && slug.current != $slug] | order(publishedAt desc)[0..1] {
+            _id,
+            title,
+            "slug": slug.current,
+            summary,
+            "coverUrl": coalesce(coverImage.asset->url, coverUrl),
+            category,
+            meatType,
+            tags
+          }`,
+          { meatType: data.meatType, slug }
+        )
+        if (!cancelled) setRelated(all || [])
       }
 
       setLoading(false)
@@ -109,9 +142,9 @@ export default function GuidePage() {
       <CFHeader />
 
       {/* Hero */}
-      {guide.cover_url && (
+      {guide.coverUrl && (
         <div style={{ position: 'relative', height: mobile ? 180 : 260, overflow: 'hidden' }}>
-          <img src={guide.cover_url} alt={guide.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
+          <img src={guide.coverUrl} alt={guide.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(31,26,20,0.55) 0%, rgba(31,26,20,0.25) 50%, transparent 100%)' }} />
         </div>
       )}
@@ -168,7 +201,7 @@ export default function GuidePage() {
             )}
           </header>
 
-          {/* Content */}
+          {/* Contenu */}
           <article
             className="prose-cf"
             style={{ color: '#1F1A14' }}
@@ -191,7 +224,7 @@ export default function GuidePage() {
             </FireButton>
           </div>
 
-          {/* Related guides */}
+          {/* Guides liés */}
           {related.length > 0 && (
             <div style={{ marginTop: 40 }}>
               <h2 style={{
@@ -207,7 +240,7 @@ export default function GuidePage() {
                 gap: 16,
               }}>
                 {related.map(g => (
-                  <div key={g.id} style={{ background: '#F5EFE0', border: '1px solid rgba(31,26,20,0.15)', borderRadius: 4, overflow: 'hidden' }}>
+                  <div key={g._id} style={{ background: '#F5EFE0', border: '1px solid rgba(31,26,20,0.15)', borderRadius: 4, overflow: 'hidden' }}>
                     <GuideCard guide={g} />
                   </div>
                 ))}
