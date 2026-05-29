@@ -1,103 +1,240 @@
 /**
  * GET /api/cron/generate-article
- * Déclenché automatiquement par Vercel Cron (voir vercel.json)
+ * Déclenché 2x/jour par Vercel Cron (07h et 17h UTC)
  *
  * Logique :
- *   1. Récupère tous les articles existants dans Sanity (sourceKeyword)
- *   2. Sélectionne un topic non encore traité depuis BBQ_TOPICS
- *   3. Appelle /api/generate-article pour générer l'article
- *   4. Retourne le résultat
+ *   1. Récupère les tendances BBQ depuis Reddit (r/BBQ, r/smoking, r/grilling, r/France)
+ *   2. Récupère les sourceKeywords déjà utilisés dans Sanity
+ *   3. Claude choisit un topic tendance ET écrit l'article complet en un seul appel
+ *   4. Sauvegarde en brouillon dans Sanity
  *
- * Env requis dans Vercel :
- *   CRON_SECRET        — chaîne aléatoire, configurée dans vercel.json + env vars
- *   ANTHROPIC_API_KEY  — console.anthropic.com
- *   SANITY_API_TOKEN   — manage.sanity.io → API → Tokens
- *   NEXT_PUBLIC_BASE_URL — ex : https://charbonetflamme.fr
+ * Env Vercel requis :
+ *   CRON_SECRET, ANTHROPIC_API_KEY, SANITY_API_TOKEN
  */
 
-import { sanityClient } from '../../../../src/lib/sanity.js'
-import { BBQ_TOPICS } from '../../../../src/data/bbq-topics.js'
+import { sanityClient, getSanityWriteClient } from '../../../../src/lib/sanity.js'
 
-export const runtime = 'nodejs'
+export const runtime    = 'nodejs'
+export const maxDuration = 60  // secondes (Vercel Hobby max)
 
-// Vercel Cron passe Authorization: Bearer <CRON_SECRET>
+// ── Auth ──────────────────────────────────────────────────────
 function isAuthorized(request) {
-  const cronSecret = process.env.CRON_SECRET
-  if (!cronSecret) return true // pas de secret configuré → mode dev permissif
-  const auth = request.headers.get('authorization') || ''
-  return auth === `Bearer ${cronSecret}`
+  const secret = process.env.CRON_SECRET
+  if (!secret) return true
+  return (request.headers.get('authorization') || '') === `Bearer ${secret}`
 }
 
+// ── Saison ────────────────────────────────────────────────────
+function getSeason(month) {
+  if ([2, 3, 4].includes(month)) return 'printemps — saison de reprise du BBQ'
+  if ([5, 6, 7].includes(month)) return 'été — pleine saison BBQ, grillades quotidiennes'
+  if ([8, 9, 10].includes(month)) return 'automne — BBQ de fin de saison, low & slow longue durée'
+  return 'hiver — fumage en conditions froides, BBQ de Noël'
+}
+
+// ── Tendances Reddit (RSS public, sans auth) ──────────────────
+async function fetchRedditTrends() {
+  const feeds = [
+    { url: 'https://www.reddit.com/r/BBQ/hot.rss',          origin: 'BBQ américain' },
+    { url: 'https://www.reddit.com/r/smoking/hot.rss',       origin: 'Fumage' },
+    { url: 'https://www.reddit.com/r/grilling/hot.rss',      origin: 'Grillades' },
+    { url: 'https://www.reddit.com/r/Barbeque/hot.rss',      origin: 'Barbecue général' },
+  ]
+
+  const trends = []
+  const timeout = AbortSignal.timeout(6000)
+
+  for (const feed of feeds) {
+    try {
+      const res = await fetch(feed.url, {
+        headers: { 'User-Agent': 'CharbonetFlamme-Bot/1.0' },
+        signal: timeout,
+      })
+      if (!res.ok) continue
+      const xml = await res.text()
+
+      // Extraire les titres du RSS (format Atom ou RSS2)
+      const matches = [...xml.matchAll(/<title>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/title>/gs)]
+      const titles  = matches
+        .map(m => m[1].trim())
+        .filter(t => t.length > 15 && !t.toLowerCase().includes('reddit'))
+        .slice(0, 6)
+
+      titles.forEach(t => trends.push(`[${feed.origin}] ${t}`))
+    } catch {
+      // Timeout ou réseau — on continue sans
+    }
+  }
+
+  return trends.slice(0, 24)
+}
+
+// ── Slugify ───────────────────────────────────────────────────
+function slugify(str) {
+  return str
+    .toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+    .slice(0, 96)
+}
+
+// ── Handler principal ─────────────────────────────────────────
 export async function GET(request) {
   if (!isAuthorized(request)) {
     return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // ── 1. Topics déjà générés ──────────────────────────────────
-  let usedKeywords = new Set()
+  const anthropicKey = process.env.ANTHROPIC_API_KEY
+  if (!anthropicKey) {
+    return Response.json({ error: 'ANTHROPIC_API_KEY manquante' }, { status: 500 })
+  }
+
+  // 1. Tendances Reddit
+  const trendingPosts = await fetchRedditTrends()
+  console.log(`[cron] ${trendingPosts.length} tendances récupérées`)
+
+  // 2. Topics déjà couverts
+  let usedKeywords = []
   try {
-    const existing = await sanityClient.fetch(
+    usedKeywords = await sanityClient.fetch(
       `*[_type == "article" && defined(sourceKeyword)].sourceKeyword`,
       {},
       { cache: 'no-store' }
-    )
-    usedKeywords = new Set(existing || [])
+    ) || []
   } catch (e) {
-    console.error('[cron] Sanity fetch failed:', e.message)
-    // On continue quand même — au pire on regénère un topic
+    console.warn('[cron] Sanity read failed:', e.message)
   }
 
-  // ── 2. Choisir un topic non traité ──────────────────────────
-  const available = BBQ_TOPICS.filter(t => !usedKeywords.has(t.keyword))
+  // 3. Contexte temporel
+  const now    = new Date()
+  const month  = now.toLocaleString('fr-FR', { month: 'long', year: 'numeric' })
+  const season = getSeason(now.getMonth())
 
-  if (available.length === 0) {
-    return Response.json({
-      skipped: true,
-      reason: 'Tous les topics BBQ_TOPICS ont déjà été générés.',
-      total:  BBQ_TOPICS.length,
-    })
-  }
-
-  // Sélection aléatoire parmi les topics disponibles
-  const topic = available[Math.floor(Math.random() * available.length)]
-
-  console.log(`[cron] Topic sélectionné : "${topic.title}" (${available.length} disponibles)`)
-
-  // ── 3. Appeler la route de génération ───────────────────────
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://charbonetflamme.fr'
-
-  let result
+  // 4. Claude : choix du topic + rédaction complète en UN seul appel
+  let articleData
   try {
-    const res = await fetch(`${baseUrl}/api/generate-article`, {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type':      'application/json',
+        'x-api-key':          anthropicKey,
+        'anthropic-version': '2023-06-01',
+      },
       body: JSON.stringify({
-        topic:      topic.title,
-        keyword:    topic.keyword,
-        category:   topic.category,
-        brief:      topic.brief,
-        publishNow: false,   // toujours en brouillon, approbation manuelle
+        model:      'claude-sonnet-4-6',   // plus rapide qu'opus, dans le timeout 60s
+        max_tokens: 8000,
+        system: `Tu es le rédacteur en chef de Charbon & Flamme, premier média BBQ francophone de référence.
+
+Tu rédiges des articles long format (2000-2500 mots) qui mélangent :
+- Techniques et recettes de BBQ américain (Texas, Kansas City, Carolina, Memphis)
+- BBQ français : cochon de lait, agneau, bœuf Charolais, fromages fumés, vins d'accompagnement
+- Tendances actuelles des communautés BBQ en ligne
+- Contenu saisonnier adapté au calendrier français
+
+STYLE : expert mais accessible, tutoiement naturel, chiffres précis (°C, temps), anecdotes de pitmaster.
+
+STRUCTURE OBLIGATOIRE :
+1. Introduction accrocheuse (2-3 §)
+2. 4-6 sections H2 avec sous-sections H3 si besoin
+3. Un tableau ou liste structurée si pertinent
+4. "## L'essentiel à retenir" — 3-5 bullet points
+5. "## Aller plus loin" — 2-3 titres de sujets connexes
+
+FORMAT DE RÉPONSE : JSON strict uniquement :
+{
+  "sourceKeyword": "mot-cle-kebab-case-unique",
+  "title": "Titre accrocheur SEO (50-65 caractères)",
+  "seoTitle": "Variante <title> si différente (60 car max, null sinon)",
+  "seoDescription": "Meta description 140-155 caractères avec mot-clé",
+  "excerpt": "Chapeau éditorial 2-3 phrases (180 car max)",
+  "body": "Contenu Markdown 2000+ mots",
+  "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
+  "category": "technique|science|equipement|recette|culture|saison"
+}`,
+
+        messages: [{
+          role: 'user',
+          content: `## Contexte
+Date : ${month} — Saison : ${season}
+
+## Tendances actuelles sur les forums BBQ internationaux
+${trendingPosts.length > 0
+  ? trendingPosts.map(t => `• ${t}`).join('\n')
+  : '(aucune tendance récupérée — choisis un sujet saisonnier pertinent)'
+}
+
+## Topics déjà traités sur Charbon & Flamme (à NE PAS répéter)
+${usedKeywords.length > 0 ? usedKeywords.join(', ') : '(aucun pour l\'instant)'}
+
+## Ta mission
+1. Choisis UN topic BBQ original qui soit :
+   - En lien avec une tendance ci-dessus OU saisonnier OU sur le BBQ américain/français
+   - Pas encore couvert (voir liste ci-dessus)
+   - Optimisé pour le SEO francophone
+
+2. Écris l'article complet 2000+ mots.
+
+Rappel : JSON uniquement, "body" en Markdown complet.`,
+        }],
       }),
     })
-    result = await res.json()
 
-    if (!res.ok || result.error) {
-      throw new Error(result.error || `HTTP ${res.status}`)
-    }
+    if (!res.ok) throw new Error(`Anthropic ${res.status}: ${await res.text()}`)
+    const result = await res.json()
+    const raw    = result.content?.[0]?.text || ''
+    const match  = raw.match(/\{[\s\S]*\}/)
+    if (!match) throw new Error('Réponse IA invalide — JSON non trouvé')
+    articleData = JSON.parse(match[0])
   } catch (e) {
-    console.error('[cron] Génération échouée:', e.message)
-    return Response.json({ error: `Génération échouée: ${e.message}` }, { status: 502 })
+    console.error('[cron] Génération IA échouée:', e.message)
+    return Response.json({ error: `Génération IA: ${e.message}` }, { status: 502 })
   }
 
-  console.log(`[cron] Article créé : "${result.title}" → /articles/${result.slug}`)
+  // 5. Sauvegarder dans Sanity (brouillon)
+  try {
+    const client = getSanityWriteClient()
+    const slug   = slugify(articleData.title)
+    const kwTag  = (articleData.sourceKeyword || '').replace(/[^a-z0-9-]/g, '')
+    const tags   = [...new Set([
+      ...(articleData.tags || []),
+      kwTag,
+      articleData.category,
+    ].filter(Boolean))].slice(0, 8)
 
-  return Response.json({
-    success:   true,
-    topic:     topic.keyword,
-    category:  topic.category,
-    title:     result.title,
-    slug:      result.slug,
-    sanityId:  result.id,
-    remaining: available.length - 1,
-  })
+    const doc = {
+      _type:          'article',
+      title:          articleData.title,
+      slug:           { _type: 'slug', current: slug },
+      excerpt:        articleData.excerpt,
+      body:           articleData.body,
+      category:       articleData.category || 'technique',
+      tags,
+      seo: {
+        title:       articleData.seoTitle || articleData.title,
+        description: articleData.seoDescription || articleData.excerpt,
+      },
+      authorName:     'IA — Charbon & Flamme',
+      aiGenerated:    true,
+      showNewsletter: true,
+      sourceKeyword:  articleData.sourceKeyword || slug,
+      // publishedAt intentionnellement absent → brouillon
+    }
+
+    const created = await client.create(doc)
+    console.log(`[cron] ✅ Article créé : "${articleData.title}" (${created._id})`)
+
+    return Response.json({
+      success:      true,
+      title:        articleData.title,
+      slug,
+      sanityId:     created._id,
+      category:     articleData.category,
+      tags,
+      trendsUsed:   trendingPosts.length,
+      totalCovered: usedKeywords.length + 1,
+    })
+  } catch (e) {
+    console.error('[cron] Sanity write échouée:', e.message)
+    return Response.json({ error: `Sanity: ${e.message}` }, { status: 500 })
+  }
 }
