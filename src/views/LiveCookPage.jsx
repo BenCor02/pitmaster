@@ -766,10 +766,10 @@ export default function LiveCookPage() {
   }, [])
 
   // Pre-fill from calculator
-  const preSelectedProfile = location.state?.profileId || null
-  const preWeight = location.state?.weightKg || null
-  const preCookTemp = location.state?.cookTempC || null
-  const preWrapped = location.state?.wrapped ?? false
+  const preSelectedProfile = null
+  const preWeight = null
+  const preCookTemp = null
+  const preWrapped = false
 
   // Provider
   const [provider, setProvider] = useState(() => {

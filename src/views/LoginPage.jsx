@@ -41,7 +41,7 @@ export default function LoginPage() {
   const { signIn, signUp, updateProfile } = useAuth()
   const router = useRouter()
   const location = usePathname()
-  const from = location.state?.from || '/'
+  const from = '/'
   const [mode, setMode] = useState('login') // login | register | onboarding
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')

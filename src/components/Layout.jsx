@@ -77,17 +77,17 @@ const CF_DESIGN_ROUTES = new Set([
 export default function Layout({ children }) {
   const { isAuthenticated, isAdmin, signOut, deleteAccount, profile } = useAuth()
   const { isModuleEnabled } = useSiteSettings()
-  const location = usePathname()
+  const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
   // Pages design v3 (light mode pitmaster) → on rend les enfants tels quels.
   const isCFRoute =
-    CF_DESIGN_ROUTES.has(location.pathname) ||
-    location.pathname.startsWith('/guides/') ||
-    location.pathname.startsWith('/recettes/') ||
-    location.pathname.startsWith('/partage/')
+    CF_DESIGN_ROUTES.has(pathname) ||
+    pathname.startsWith('/guides/') ||
+    pathname.startsWith('/recettes/') ||
+    pathname.startsWith('/partage/')
   if (isCFRoute) {
     return <>{children}</>
   }
@@ -103,7 +103,7 @@ export default function Layout({ children }) {
     }
   }, [deleteAccount])
 
-  const isActive = (path) => location.pathname === path
+  const isActive = (path) => pathname === path
   const userName = profile?.display_name || profile?.email || 'Utilisateur'
   const userInitial = userName[0].toUpperCase()
   const userRole = profile?.role === 'admin' || profile?.role === 'super_admin' ? 'Pit Master' : 'Membre'
@@ -185,10 +185,10 @@ export default function Layout({ children }) {
           {isModuleEnabled('recipes') && (
             <NavItem
               to="/recettes"
-              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={location.pathname.startsWith('/recettes') ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" /><path d="M8 12l2 2 4-4" /></svg>}
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={pathname.startsWith('/recettes') ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" /><path d="M8 12l2 2 4-4" /></svg>}
               label="Recettes"
               sublabel="Rubs, Mops & Marinades"
-              active={location.pathname.startsWith('/recettes')}
+              active={pathname.startsWith('/recettes')}
             />
           )}
           {isModuleEnabled('comparator') && (
@@ -244,10 +244,10 @@ export default function Layout({ children }) {
               {isModuleEnabled('journal') && (
                 <NavItem
                   to="/journal"
-                  icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={location.pathname === '/journal' ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" /></svg>}
+                  icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={pathname === '/journal' ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" /></svg>}
                   label="Mon journal"
                   sublabel="Sessions de cuisson"
-                  active={location.pathname === '/journal'}
+                  active={pathname === '/journal'}
                   pro
                 />
               )}
@@ -263,7 +263,7 @@ export default function Layout({ children }) {
                 icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isActive('/guides') ? '#ff6b1a' : 'currentColor'} strokeWidth="1.8" strokeLinecap="round"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>}
                 label="Guides"
                 sublabel="BBQ & Techniques"
-                active={location.pathname.startsWith('/guides')}
+                active={pathname.startsWith('/guides')}
               />
             </div>
           )}
@@ -401,7 +401,7 @@ export default function Layout({ children }) {
                 href="/recettes"
                 onClick={() => setMobileOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
-                  location.pathname.startsWith('/recettes') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
+                  pathname.startsWith('/recettes') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
                 }`}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" /><path d="M8 12l2 2 4-4" /></svg>
@@ -469,7 +469,7 @@ export default function Layout({ children }) {
                 href="/guides"
                 onClick={() => setMobileOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
-                  location.pathname.startsWith('/guides') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
+                  pathname.startsWith('/guides') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
                 }`}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
