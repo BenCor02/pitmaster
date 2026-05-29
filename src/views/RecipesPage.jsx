@@ -11,7 +11,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { fetchRecipes } from '../lib/cms.js'
+import { sanityClient } from '../lib/sanity.js'
 import { updateMeta } from '../lib/seo.js'
 import { useRecipeImages } from '../lib/recipeImages.js'
 import { Pill, SectionEyebrow, FireButton } from '../components/cf/Primitives.jsx'
@@ -96,7 +96,19 @@ export default function RecipesPage() {
 
   useEffect(() => {
     let alive = true
-    fetchRecipes().then((data) => {
+    sanityClient.fetch(`*[_type == "recipe" && status == "published"] | order(type asc, title asc) {
+      _id,
+      title,
+      "slug": slug.current,
+      type,
+      summary,
+      "coverUrl": coalesce(coverImage.asset->url, coverUrl),
+      meatTypes,
+      difficulty,
+      prepTime,
+      tags,
+      origin
+    }`).then((data) => {
       if (!alive) return
       setRecipes(data || [])
     })
@@ -108,7 +120,7 @@ export default function RecipesPage() {
     if (!recipes) return []
     let list = recipes
     if (type !== 'all') list = list.filter((r) => r.type === type)
-    if (meat !== 'all') list = list.filter((r) => Array.isArray(r.meat_types) && r.meat_types.includes(meat))
+    if (meat !== 'all') list = list.filter((r) => Array.isArray(r.meatTypes) && r.meatTypes.includes(meat))
     return list
   }, [recipes, type, meat])
 
@@ -279,12 +291,12 @@ export default function RecipesPage() {
         >
           <FeaturedRecipe
             mobile={mobile}
-            image={featured.cover_url || fallbackImage(featured.type, images)}
+            image={featured.coverUrl || fallbackImage(featured.type, images)}
             eyebrow={`${TYPE_OPTIONS.find((t) => t.id === featured.type)?.label || 'Recette'}${featured.origin ? ` · ${featured.origin}` : ''}`}
             title={featured.title}
             dek={featured.summary || ''}
             meta={[
-              featured.prep_time ? `${featured.prep_time} de prep` : null,
+              featured.prepTime ? `${featured.prepTime} de prep` : null,
               featured.difficulty ? DIFFICULTY_LABELS[featured.difficulty] || featured.difficulty : null,
               featured.tags?.[0] || null,
             ].filter(Boolean)}
@@ -307,12 +319,12 @@ export default function RecipesPage() {
           >
             {grid.slice(0, 4).map((r) => (
               <RecipeCard
-                key={r.id}
+                key={r._id}
                 compact
-                image={r.cover_url || fallbackImage(r.type, images)}
+                image={r.coverUrl || fallbackImage(r.type, images)}
                 category={`${TYPE_OPTIONS.find((t) => t.id === r.type)?.label || 'Recette'}${r.origin ? ` · ${r.origin}` : ''}`}
                 title={r.title}
-                time={r.prep_time || '—'}
+                time={r.prepTime || '—'}
                 difficulty={r.difficulty ? DIFFICULTY_LABELS[r.difficulty] || r.difficulty : '—'}
                 onClick={() => router.push(`/recettes/${r.slug}`)}
               />
@@ -352,12 +364,12 @@ export default function RecipesPage() {
           >
             {grid.slice(4).map((r) => (
               <RecipeCard
-                key={r.id}
+                key={r._id}
                 compact
-                image={r.cover_url || fallbackImage(r.type, images)}
+                image={r.coverUrl || fallbackImage(r.type, images)}
                 category={`${TYPE_OPTIONS.find((t) => t.id === r.type)?.label || 'Recette'}${r.origin ? ` · ${r.origin}` : ''}`}
                 title={r.title}
-                time={r.prep_time || '—'}
+                time={r.prepTime || '—'}
                 difficulty={r.difficulty ? DIFFICULTY_LABELS[r.difficulty] || r.difficulty : '—'}
                 onClick={() => router.push(`/recettes/${r.slug}`)}
               />

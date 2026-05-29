@@ -22,10 +22,10 @@ export default function GuideCard({ guide }) {
         e.currentTarget.style.boxShadow = 'none'
       }}
     >
-      {guide.cover_url && (
+      {(guide.coverUrl || guide.cover_url) && (
         <div style={{ height: 128, overflow: 'hidden' }}>
           <img
-            src={guide.cover_url}
+            src={guide.coverUrl || guide.cover_url}
             alt={guide.title}
             style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }}
             loading="lazy"
@@ -88,7 +88,7 @@ export function GuideList({ guides }) {
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 12 }}>
         {guides.map(guide => (
-          <GuideCard key={guide.id} guide={guide} />
+          <GuideCard key={guide._id || guide.id} guide={guide} />
         ))}
       </div>
     </div>

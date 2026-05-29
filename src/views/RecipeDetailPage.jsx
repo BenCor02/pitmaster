@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { fetchRecipeBySlug, fetchRecipes } from '../lib/cms.js'
+import { sanityClient } from '../lib/sanity.js'
 import { useFavorites } from '../hooks/useFavorites.js'
 import { updateMeta, recipeSchema, injectJsonLd } from '../lib/seo.js'
 import { CFHeader, CFFooter } from '../components/cf/Chrome.jsx'
@@ -63,7 +63,24 @@ export default function RecipeDetailPage() {
     setLoading(true)
     setCheckedSteps({})
     window.scrollTo(0, 0)
-    fetchRecipeBySlug(slug).then(data => {
+
+    sanityClient.fetch(`*[_type == "recipe" && slug.current == $slug && status == "published"][0] {
+      _id,
+      title,
+      "slug": slug.current,
+      type,
+      summary,
+      description,
+      ingredients,
+      steps,
+      "coverUrl": coalesce(coverImage.asset->url, coverUrl),
+      meatTypes,
+      difficulty,
+      prepTime,
+      yieldAmount,
+      origin,
+      tags
+    }`, { slug }).then(data => {
       setRecipe(data)
       setLoading(false)
       if (data) {
@@ -73,8 +90,10 @@ export default function RecipeDetailPage() {
           canonical: `https://charbonetflamme.fr/recettes/${data.slug}`,
         })
         injectJsonLd('recipe-schema', recipeSchema(data))
-        fetchRecipes({ type: data.type, limit: 6 }).then(all => {
-          setRelated(all.filter(r => r.slug !== slug).slice(0, 3))
+        sanityClient.fetch(`*[_type == "recipe" && status == "published" && type == $type && slug.current != $slug][0..2] {
+          _id, title, "slug": slug.current, type, summary, "coverUrl": coalesce(coverImage.asset->url, coverUrl)
+        }`, { type: data.type, slug }).then(all => {
+          setRelated(all || [])
         })
       }
     })
@@ -115,11 +134,11 @@ export default function RecipeDetailPage() {
     )
   }
 
-  const ingredients = typeof recipe.ingredients === 'string' ? JSON.parse(recipe.ingredients) : recipe.ingredients
-  const steps = typeof recipe.steps === 'string' ? JSON.parse(recipe.steps) : recipe.steps
+  const ingredients = Array.isArray(recipe.ingredients) ? recipe.ingredients : []
+  const steps = Array.isArray(recipe.steps) ? recipe.steps : []
   const typeColor = TYPE_COLORS[recipe.type] || TYPE_COLORS.rub
   const diffColor = DIFFICULTY_COLORS[recipe.difficulty] || DIFFICULTY_COLORS['moyen']
-  const imageUrl = recipe.cover_url || recipe.image_url || TYPE_IMAGES[recipe.type] || TYPE_IMAGES.rub
+  const imageUrl = recipe.coverUrl || TYPE_IMAGES[recipe.type] || TYPE_IMAGES.rub
   const completedCount = Object.values(checkedSteps).filter(Boolean).length
   const progress = steps?.length ? (completedCount / steps.length) * 100 : 0
 
@@ -152,16 +171,16 @@ export default function RecipeDetailPage() {
 
             {isAuthenticated && (
               <button
-                onClick={() => toggleFavorite(recipe.id)}
+                onClick={() => toggleFavorite(recipe._id)}
                 style={{
                   width: 42, height: 42, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center',
                   backdropFilter: 'blur(8px)', border: '1px solid rgba(31,26,20,0.15)', cursor: 'pointer',
-                  background: isFavorite(recipe.id) ? 'rgba(139,26,26,0.15)' : 'rgba(250,246,238,0.85)',
-                  color: isFavorite(recipe.id) ? '#8B1A1A' : '#6E6356',
+                  background: isFavorite(recipe._id) ? 'rgba(139,26,26,0.15)' : 'rgba(250,246,238,0.85)',
+                  color: isFavorite(recipe._id) ? '#8B1A1A' : '#6E6356',
                 }}
-                title={isFavorite(recipe.id) ? 'Retirer du carnet' : 'Ajouter au carnet'}
+                title={isFavorite(recipe._id) ? 'Retirer du carnet' : 'Ajouter au carnet'}
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill={isFavorite(recipe.id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill={isFavorite(recipe._id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" /></svg>
               </button>
             )}
           </div>
@@ -177,14 +196,14 @@ export default function RecipeDetailPage() {
                 <span style={{ fontSize: 11, fontWeight: 700, padding: '5px 12px', borderRadius: 8, background: diffColor.bg, color: diffColor.color, border: `1px solid ${diffColor.border}` }}>
                   {recipe.difficulty}
                 </span>
-                {recipe.prep_time && (
+                {recipe.prepTime && (
                   <span style={{ fontSize: 11, fontWeight: 700, color: '#6E6356', padding: '5px 12px', borderRadius: 8, background: 'rgba(31,26,20,0.06)', border: '1px solid rgba(31,26,20,0.12)' }}>
-                    ⏱ {recipe.prep_time}
+                    ⏱ {recipe.prepTime}
                   </span>
                 )}
-                {recipe.yield_amount && (
+                {recipe.yieldAmount && (
                   <span style={{ fontSize: 11, fontWeight: 700, color: '#6E6356', padding: '5px 12px', borderRadius: 8, background: 'rgba(31,26,20,0.06)', border: '1px solid rgba(31,26,20,0.12)' }}>
-                    📦 {recipe.yield_amount}
+                    📦 {recipe.yieldAmount}
                   </span>
                 )}
               </div>
@@ -201,9 +220,9 @@ export default function RecipeDetailPage() {
                 {recipe.summary}
               </p>
 
-              {recipe.meat_types?.length > 0 && (
+              {recipe.meatTypes?.length > 0 && (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 18 }}>
-                  {recipe.meat_types.map(m => (
+                  {recipe.meatTypes.map(m => (
                     <span key={m} style={{ fontSize: 11, fontWeight: 600, padding: '5px 12px', borderRadius: 8, background: 'rgba(232,165,60,0.12)', color: '#8B1A1A', border: '1px solid rgba(232,165,60,0.20)' }}>
                       {MEAT_LABELS[m] || m}
                     </span>
@@ -316,13 +335,13 @@ export default function RecipeDetailPage() {
                   ))}
                 </div>
 
-                {recipe.yield_amount && (
+                {recipe.yieldAmount && (
                   <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid rgba(31,26,20,0.10)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 13 }}>
                       <span style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(31,26,20,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>📦</span>
                       <div>
                         <p style={{ color: '#6E6356', fontSize: 11, margin: 0 }}>Rendement</p>
-                        <p style={{ color: '#1F1A14', fontWeight: 700, margin: 0 }}>{recipe.yield_amount}</p>
+                        <p style={{ color: '#1F1A14', fontWeight: 700, margin: 0 }}>{recipe.yieldAmount}</p>
                       </div>
                     </div>
                   </div>
@@ -355,10 +374,10 @@ export default function RecipeDetailPage() {
 
               <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : 'repeat(3, 1fr)', gap: 16 }}>
                 {related.map(r => {
-                  const relImg = r.cover_url || TYPE_IMAGES[r.type] || TYPE_IMAGES.rub
+                  const relImg = r.coverUrl || TYPE_IMAGES[r.type] || TYPE_IMAGES.rub
                   return (
                     <Link
-                      key={r.id}
+                      key={r._id}
                       href={`/recettes/${r.slug}`}
                       style={{ textDecoration: 'none', background: '#F5EFE0', border: '1px solid rgba(31,26,20,0.12)', borderRadius: 16, overflow: 'hidden', display: 'block' }}
                     >
