@@ -85,6 +85,13 @@ export const article = defineType({
       initialValue: true,
     }),
     defineField({
+      name: 'sourceKeyword',
+      title: 'Mot-clé source (IA)',
+      type: 'string',
+      description: 'Mot-clé BBQ_TOPICS utilisé pour générer cet article — évite les doublons cron',
+      readOnly: true,
+    }),
+    defineField({
       name: 'seo',
       title: 'SEO',
       type: 'object',
