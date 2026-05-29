@@ -1,4 +1,8 @@
-import HomePage from '../src/views/HomePage.jsx'
-export const dynamic = 'force-dynamic'
+'use client'
+import dynamic from 'next/dynamic'
 
-export default HomePage
+const HomePage = dynamic(() => import('../src/views/HomePage.jsx'), { ssr: false })
+
+export default function Page() {
+  return <HomePage />
+}

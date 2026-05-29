@@ -1,12 +1,9 @@
-import WoodGuidePage from '../../src/views/WoodGuidePage.jsx'
+'use client'
+import dynamic from 'next/dynamic'
 
-export const metadata = {
-  title: 'Guide des Essences de Bois pour le Fumage BBQ',
-  description: 'Chêne, hickory, pommier, cerisier... Découvrez quelle essence de bois choisir selon la viande.',
-}
 
-export const dynamic = 'force-dynamic'
+const WoodGuidePage = dynamic(() => import('../../src/views/WoodGuidePage.jsx'), { ssr: false })
 
-export default function BoisPage() {
+export default function Page() {
   return <WoodGuidePage />
 }
