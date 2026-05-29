@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'next/navigation'
 import { useAuth } from './modules/auth/AuthContext.jsx'
 import { useSiteSettings } from './hooks/useSiteSettings.jsx'
 import Layout from './components/Layout.jsx'
@@ -73,7 +73,7 @@ function AdminGuard({ children }) {
   // 3. Connecté mais profil pas encore chargé → attendre (CRITIQUE : ne pas vérifier isAdmin ici)
   if (profile === null || profile === undefined) return <div className="min-h-screen flex items-center justify-center text-zinc-400">Chargement du profil...</div>
   // 4. Profil chargé, vérifier le rôle
-  if (!isAdmin) return <Navigate to="/" replace />
+  if (!isAdmin) return /* redirect to / */null
 
   return children
 }

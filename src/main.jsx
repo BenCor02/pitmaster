@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter } from 'next/navigation'
 import { AuthProvider } from './modules/auth/AuthContext.jsx'
 import { SiteSettingsProvider } from './hooks/useSiteSettings.jsx'
 import { ToastProvider } from './components/Toast.jsx'

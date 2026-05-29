@@ -1,3 +1,5 @@
+'use client'
+
 /**
  * CHARBON & FLAMME — Images de référence des cuts/méthodes
  *

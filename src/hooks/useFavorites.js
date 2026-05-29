@@ -1,3 +1,5 @@
+'use client'
+
 /**
  * CHARBON & FLAMME — Hook favoris
  * Gère l'état des favoris avec cache local pour réactivité instantanée.

@@ -1,3 +1,5 @@
+'use client'
+
 /**
  * StatisticsTab — Page admin "Statistiques calculateur"
  *

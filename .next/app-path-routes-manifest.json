@@ -1,0 +1,21 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/admin/[[...slug]]/page": "/admin/[[...slug]]",
+  "/calculateur/page": "/calculateur",
+  "/confidentialite/page": "/confidentialite",
+  "/comparateur/page": "/comparateur",
+  "/login/page": "/login",
+  "/journal/page": "/journal",
+  "/live/page": "/live",
+  "/carnet/page": "/carnet",
+  "/multi/page": "/multi",
+  "/portions/page": "/portions",
+  "/partage/[code]/page": "/partage/[code]",
+  "/recettes/page": "/recettes",
+  "/page": "/",
+  "/bois/page": "/bois",
+  "/guides/page": "/guides",
+  "/guides/[slug]/page": "/guides/[slug]",
+  "/recettes/[slug]/page": "/recettes/[slug]",
+  "/bbq/page": "/bbq"
+}

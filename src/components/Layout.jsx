@@ -1,5 +1,7 @@
+'use client'
+
 import { useState, useCallback } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'next/navigation'
 import { useAuth } from '../modules/auth/AuthContext.jsx'
 import { useSiteSettings } from '../hooks/useSiteSettings.jsx'
 import { LogoIcon, LogoFull } from './Logo.jsx'
@@ -123,7 +125,7 @@ export default function Layout({ children }) {
 
         {/* ── Brand header ── */}
         <div className="px-5 pt-7 pb-4 shrink-0">
-          <Link to="/" className="group">
+          <Link href="/" className="group">
             <LogoFull iconSize={30} className="group-hover:opacity-90 transition-opacity" />
           </Link>
         </div>
@@ -319,7 +321,7 @@ export default function Layout({ children }) {
             </>
           ) : (
             <Link
-              to="/login"
+              href="/login"
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.03] transition-all"
             >
               <div className="w-9 h-9 rounded-xl bg-zinc-800/60 border border-white/[0.06] flex items-center justify-center">
@@ -337,7 +339,7 @@ export default function Layout({ children }) {
       {/* ══════════ MOBILE HEADER ══════════ */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 glass">
         <div className="flex items-center justify-between px-4 h-14">
-          <Link to="/">
+          <Link href="/">
             <LogoFull iconSize={22} />
           </Link>
           <button
@@ -354,7 +356,7 @@ export default function Layout({ children }) {
         {mobileOpen && (
           <nav aria-label="Navigation mobile" className="animate-fade border-t border-white/[0.05] px-4 py-3 space-y-1 bg-[#0e0e0e]">
             <Link
-              to="/"
+              href="/"
               onClick={() => setMobileOpen(false)}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
                 isActive('/') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
@@ -364,7 +366,7 @@ export default function Layout({ children }) {
               Accueil
             </Link>
             <Link
-              to="/calculateur"
+              href="/calculateur"
               onClick={() => setMobileOpen(false)}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
                 isActive('/calculateur') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
@@ -374,7 +376,7 @@ export default function Layout({ children }) {
               Calculateur
             </Link>
             <Link
-              to="/portions"
+              href="/portions"
               onClick={() => setMobileOpen(false)}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
                 isActive('/portions') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
@@ -384,7 +386,7 @@ export default function Layout({ children }) {
               Quantités
             </Link>
             <Link
-              to="/multi"
+              href="/multi"
               onClick={() => setMobileOpen(false)}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
                 isActive('/multi') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
@@ -395,7 +397,7 @@ export default function Layout({ children }) {
             </Link>
             {isModuleEnabled('recipes') && (
               <Link
-                to="/recettes"
+                href="/recettes"
                 onClick={() => setMobileOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
                   location.pathname.startsWith('/recettes') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
@@ -407,7 +409,7 @@ export default function Layout({ children }) {
             )}
             {isModuleEnabled('comparator') && (
               <Link
-                to="/comparateur"
+                href="/comparateur"
                 onClick={() => setMobileOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
                   isActive('/comparateur') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
@@ -419,7 +421,7 @@ export default function Layout({ children }) {
             )}
             {isModuleEnabled('wood_guide') && (
               <Link
-                to="/bois"
+                href="/bois"
                 onClick={() => setMobileOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
                   isActive('/bois') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
@@ -430,7 +432,7 @@ export default function Layout({ children }) {
               </Link>
             )}
             <Link
-              to="/bbq"
+              href="/bbq"
               onClick={() => setMobileOpen(false)}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
                 isActive('/bbq') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
@@ -440,7 +442,7 @@ export default function Layout({ children }) {
               Types de BBQ
             </Link>
             <Link
-              to="/live"
+              href="/live"
               onClick={() => setMobileOpen(false)}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
                 isActive('/live') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
@@ -451,7 +453,7 @@ export default function Layout({ children }) {
             </Link>
             {isAuthenticated && isModuleEnabled('favorites') && (
               <Link
-                to="/carnet"
+                href="/carnet"
                 onClick={() => setMobileOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
                   isActive('/carnet') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
@@ -463,7 +465,7 @@ export default function Layout({ children }) {
             )}
             {isModuleEnabled('guides') && (
               <Link
-                to="/guides"
+                href="/guides"
                 onClick={() => setMobileOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
                   location.pathname.startsWith('/guides') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
@@ -475,7 +477,7 @@ export default function Layout({ children }) {
             )}
             {isModuleEnabled('journal') && (
               <Link
-                to="/journal"
+                href="/journal"
                 onClick={() => setMobileOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
                   isActive('/journal') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
@@ -487,7 +489,7 @@ export default function Layout({ children }) {
             )}
             {isAdmin && (
               <Link
-                to="/admin"
+                href="/admin"
                 onClick={() => setMobileOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all ${
                   isActive('/admin') ? 'text-white bg-white/[0.06] font-medium' : 'text-zinc-400'
@@ -516,7 +518,7 @@ export default function Layout({ children }) {
               </>
             ) : (
               <Link
-                to="/login"
+                href="/login"
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center gap-3 px-3 py-2.5 text-[14px] text-zinc-400"
               >
@@ -578,7 +580,7 @@ function ProBadge() {
 function NavItem({ to, icon, label, sublabel, active, pro }) {
   return (
     <Link
-      to={to}
+      href={to}
       className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group relative ${
         active
           ? 'bg-gradient-to-r from-[#ff6b1a]/[0.10] to-[#dc2626]/[0.05] text-white border border-[#ff6b1a]/[0.15]'

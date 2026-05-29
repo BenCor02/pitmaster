@@ -1,9 +1,9 @@
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 
 export default function GuideCard({ guide }) {
   return (
     <Link
-      to={`/guides/${guide.slug}`}
+      href={`/guides/${guide.slug}`}
       style={{
         display: 'block',
         background: '#F5EFE0',
