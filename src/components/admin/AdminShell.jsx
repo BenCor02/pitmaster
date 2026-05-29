@@ -12,7 +12,7 @@ const NAV = [
   { id: 'overview', label: 'Tableau de bord', icon: '📊' },
   { id: 'stats',    label: 'Statistiques',    icon: '📈' },
   { type: 'section', label: 'CONTENU' },
-  { id: 'articles', label: 'Articles (Studio)', icon: '📰', href: '/studio' },
+  { id: 'articles', label: 'Articles (Studio)', icon: '📰', href: 'https://studio.charbonetflamme.fr' },
   { id: 'guides',   label: 'Guides',          icon: '📚' },
   { id: 'recipes',  label: 'Recettes',        icon: '🧂' },
   { id: 'seo',      label: 'Blocs SEO',       icon: '🔍' },

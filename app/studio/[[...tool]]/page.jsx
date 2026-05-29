@@ -1,11 +1,9 @@
-/**
- * Sanity Studio embarqué — accessible à /studio
- * Protégé par l'auth Sanity (compte sanity.io requis)
- */
-'use client'
-import { NextStudio } from 'next-sanity/studio'
-import config from '../../../sanity.config.js'
+import { redirect } from 'next/navigation'
 
+/**
+ * Le Studio Sanity est déployé séparément dans /studio (sous-projet indépendant).
+ * On redirige vers studio.charbonetflamme.fr (ou l'URL Sanity-hébergée).
+ */
 export default function StudioPage() {
-  return <NextStudio config={config} />
+  redirect('https://studio.charbonetflamme.fr')
 }

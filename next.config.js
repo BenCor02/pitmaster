@@ -1,14 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  compiler: {
-    styledComponents: true,
-  },
   images: {
     remotePatterns: [{ protocol: 'https', hostname: '**' }],
   },
   transpilePackages: ['recharts'],
   webpack: (config) => {
-    // Stubber les modules Capacitor (app mobile) pour le build web
     const capacitorModules = [
       '@capacitor/core',
       '@capacitor/app',
