@@ -391,7 +391,7 @@ export default function PortionCalculatorPage() {
                 </p>
               </div>
 
-              <FireButton as={Link} to={selectedResult.cook_link} size="md">
+              <FireButton as={Link} href={selectedResult.cook_link} size="md">
                 <span>🔥</span>
                 Calculer la cuisson
               </FireButton>

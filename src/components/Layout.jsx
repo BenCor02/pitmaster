@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { Link, useLocation } from 'next/navigation'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useAuth } from '../modules/auth/AuthContext.jsx'
 import { useSiteSettings } from '../hooks/useSiteSettings.jsx'
 import { LogoIcon, LogoFull } from './Logo.jsx'
@@ -76,7 +77,7 @@ const CF_DESIGN_ROUTES = new Set([
 export default function Layout({ children }) {
   const { isAuthenticated, isAdmin, signOut, deleteAccount, profile } = useAuth()
   const { isModuleEnabled } = useSiteSettings()
-  const location = useLocation()
+  const location = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleting, setDeleting] = useState(false)

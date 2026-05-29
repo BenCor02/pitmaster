@@ -800,7 +800,7 @@ export default function AdminPage() {
   return (
     <>
       <AdminShell activeTab={tab} onTabChange={setTab} profile={profile} signOut={signOut} counts={shellCounts}>
-        {tab === 'overview' && <OverviewTab counts={counts} onNavigate={setTab} />}
+        {tab === 'overview' && <OverviewTab counts={counts} on={setTab} />}
         {tab === 'stats'    && <StatisticsTab />}
         {tab === 'settings' && <SettingsTab toast={toast} />}
         {tableName && !editing && (
@@ -818,7 +818,7 @@ export default function AdminPage() {
 }
 
 // ── Overview ──────────────────────────────────────────────────
-function OverviewTab({ counts, onNavigate }) {
+function OverviewTab({ counts, on }) {
   const cards = [
     { key: 'guides', label: 'Guides', icon: '📚', total: counts.guides, pub: counts.guides_pub },
     { key: 'recipes', label: 'Recettes', icon: '🧂', total: counts.recipes, pub: counts.recipes_pub },
@@ -837,7 +837,7 @@ function OverviewTab({ counts, onNavigate }) {
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
         {cards.map(card => (
-          <button key={card.key} onClick={() => onNavigate(card.key)}
+          <button key={card.key} onClick={() => on(card.key)}
             style={{ padding: '18px 20px', background: '#111113', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, cursor: 'pointer', textAlign: 'left', transition: 'border-color 0.15s' }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,107,26,0.25)' }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)' }}>

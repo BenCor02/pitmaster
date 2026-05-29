@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../modules/auth/AuthContext.jsx'
-import { Link, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { journal } from '../lib/journal.js'
 import { CFHeader, CFFooter } from '../components/cf/Chrome.jsx'
 import { FireButton, SectionEyebrow } from '../components/cf/Primitives.jsx'

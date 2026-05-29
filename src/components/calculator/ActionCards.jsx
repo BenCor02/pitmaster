@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter, Link } from 'next/navigation'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useAuth } from '../../modules/auth/AuthContext.jsx'
 import { journal } from '../../lib/journal.js'
 import { createSharedCook } from '../../lib/sharedCooks.js'

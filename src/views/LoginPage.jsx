@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { useAuth } from '../modules/auth/AuthContext.jsx'
-import { useRouter, useLocation } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { CFLogo } from '../components/cf/Chrome.jsx'
 import { FireButton } from '../components/cf/Primitives.jsx'
 
@@ -40,7 +40,7 @@ const inputStyle = {
 export default function LoginPage() {
   const { signIn, signUp, updateProfile } = useAuth()
   const router = useRouter()
-  const location = useLocation()
+  const location = usePathname()
   const from = location.state?.from || '/'
   const [mode, setMode] = useState('login') // login | register | onboarding
   const [email, setEmail] = useState('')

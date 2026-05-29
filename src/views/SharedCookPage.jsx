@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useParams, Link } from 'next/navigation'
+import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { fetchSharedCook } from '../lib/sharedCooks.js'
 import { CFHeader, CFFooter } from '../components/cf/Chrome.jsx'
 import { FireButton, SectionEyebrow } from '../components/cf/Primitives.jsx'

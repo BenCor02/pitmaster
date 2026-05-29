@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useParams, Link } from 'next/navigation'
+import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { fetchRecipeBySlug, fetchRecipes } from '../lib/cms.js'
 import { useFavorites } from '../hooks/useFavorites.js'
 import { updateMeta, recipeSchema, injectJsonLd } from '../lib/seo.js'

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useLocation } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { updateMeta } from '../lib/seo.js'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, ReferenceArea } from 'recharts'
 import * as meater from '../lib/meater.js'
@@ -755,7 +755,7 @@ function ChartTooltip({ active, payload }) {
 // ── MAIN PAGE ───────────────────────────────────────────
 
 export default function LiveCookPage() {
-  const location = useLocation()
+  const location = usePathname()
 
   useEffect(() => {
     updateMeta({

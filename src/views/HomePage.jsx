@@ -11,7 +11,8 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react'
-import { Link, useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { updateMeta } from '../lib/seo.js'
 import { useSiteSettings } from '../hooks/useSiteSettings.jsx'
 import { useRecipeImages, imageForProfile } from '../lib/recipeImages.js'

@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useParams, Link } from 'next/navigation'
+import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { fetchGuideBySlug, fetchGuides } from '../lib/cms.js'
 import { renderMarkdown } from '../lib/markdown.js'
 import { updateMeta, articleSchema, injectJsonLd } from '../lib/seo.js'

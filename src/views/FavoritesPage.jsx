@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Link, Navigate } from 'next/navigation'
+import Link from 'next/link'
 import { updateMeta } from '../lib/seo.js'
 import { useAuth } from '../modules/auth/AuthContext.jsx'
 import { fetchFavorites, removeFavorite } from '../lib/favorites.js'
