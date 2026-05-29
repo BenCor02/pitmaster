@@ -83,6 +83,107 @@ export async function getArticleCategories() {
   return Object.entries(counts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count)
 }
 
+// ── Guides ───────────────────────────────────────────────────
+
+const GUIDE_CARD_FIELDS = `
+  _id,
+  title,
+  "slug": slug.current,
+  summary,
+  "coverUrl": coalesce(coverImage.asset->url, coverUrl),
+  category,
+  meatType,
+  tags,
+  publishedAt
+`
+
+export async function getPublishedGuides({ category, meatType } = {}) {
+  let filter = `_type == "guide" && status == "published"`
+  if (category) filter += ` && category == "${category}"`
+  if (meatType) filter += ` && meatType == "${meatType}"`
+
+  return sanityClient.fetch(
+    `*[${filter}] | order(publishedAt desc) { ${GUIDE_CARD_FIELDS} }`,
+    {},
+    { next: { revalidate: 3600 } }
+  )
+}
+
+export async function getGuideBySlug(slug) {
+  return sanityClient.fetch(
+    `*[_type == "guide" && slug.current == $slug && status == "published"][0] {
+      ${GUIDE_CARD_FIELDS},
+      content,
+      "seoTitle": seo.title,
+      "seoDescription": seo.description,
+      _updatedAt
+    }`,
+    { slug },
+    { next: { revalidate: 3600 } }
+  )
+}
+
+export async function getAllGuideSlugs() {
+  const results = await sanityClient.fetch(
+    `*[_type == "guide" && status == "published"].slug.current`,
+    {},
+    { next: { revalidate: 3600 } }
+  )
+  return results || []
+}
+
+// ── Recettes ─────────────────────────────────────────────────
+
+const RECIPE_CARD_FIELDS = `
+  _id,
+  title,
+  "slug": slug.current,
+  type,
+  summary,
+  "coverUrl": coalesce(coverImage.asset->url, coverUrl),
+  meatTypes,
+  difficulty,
+  prepTime,
+  tags
+`
+
+export async function getPublishedRecipes({ type, meatType } = {}) {
+  let filter = `_type == "recipe" && status == "published"`
+  if (type)     filter += ` && type == "${type}"`
+  if (meatType) filter += ` && "${meatType}" in meatTypes`
+
+  return sanityClient.fetch(
+    `*[${filter}] | order(type asc, title asc) { ${RECIPE_CARD_FIELDS} }`,
+    {},
+    { next: { revalidate: 3600 } }
+  )
+}
+
+export async function getRecipeBySlug(slug) {
+  return sanityClient.fetch(
+    `*[_type == "recipe" && slug.current == $slug && status == "published"][0] {
+      ${RECIPE_CARD_FIELDS},
+      description,
+      ingredients,
+      steps,
+      yieldAmount,
+      origin,
+      _updatedAt
+    }`,
+    { slug },
+    { next: { revalidate: 3600 } }
+  )
+}
+
+export async function getAllRecipeSlugs() {
+  const results = await sanityClient.fetch(
+    `*[_type == "recipe" && status == "published"].slug.current`,
+    {},
+    { next: { revalidate: 3600 } }
+  )
+  return results || []
+}
+
 // ── Écriture (pour génération IA) ────────────────────────────
 // Nécessite SANITY_API_TOKEN avec permission write
 
