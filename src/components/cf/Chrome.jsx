@@ -21,6 +21,7 @@ import { useAuth } from '../../modules/auth/AuthContext.jsx'
 // NavLink pour Next.js — active state via usePathname
 function NavLink({ href, children, style, className, ...props }) {
   const pathname = usePathname()
+  if (!href) return <span className={className} {...props}>{children}</span>
   const isActive = pathname === href || (href !== '/' && pathname.startsWith(href))
   const computedStyle = typeof style === 'function' ? style({ isActive }) : style
   return <Link href={href} style={computedStyle} className={className} {...props}>{children}</Link>

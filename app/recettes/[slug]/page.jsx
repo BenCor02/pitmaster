@@ -1,22 +1,10 @@
-import { fetchRecipeBySlug, fetchRecipes } from '../../../src/lib/cms.js'
-import { notFound } from 'next/navigation'
-import RecipeDetailPage from '../../../src/views/RecipeDetailPage.jsx'
+'use client'
+import dynamic from 'next/dynamic'
+import { useParams } from 'next/navigation'
 
-export async function generateStaticParams() {
-  const recipes = await fetchRecipes()
-  return recipes.map(r => ({ slug: r.slug }))
-}
+const RecipeDetailPage = dynamic(() => import('../../../src/views/RecipeDetailPage.jsx'), { ssr: false })
 
-export async function generateMetadata({ params }) {
-  const { slug } = await params
-  const r = await fetchRecipeBySlug(slug)
-  if (!r) return {}
-  return { title: r.title, description: r.summary }
-}
-
-export default async function RecetteDetailPage({ params }) {
-  const { slug } = await params
-  const recipe = await fetchRecipeBySlug(slug)
-  if (!recipe) notFound()
-  return <RecipeDetailPage prefetchedRecipe={recipe} slug={slug} />
+export default function Page() {
+  const { slug } = useParams()
+  return <RecipeDetailPage slug={slug} />
 }
