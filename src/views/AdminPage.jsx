@@ -13,6 +13,7 @@ import MarkdownEditor from '../components/admin/MarkdownEditor.jsx'
 import StatisticsTab from '../components/admin/StatisticsTab.jsx'
 
 const TABLE_MAP = {
+  articles: 'articles',
   seo: 'seo_blocks', affiliate: 'affiliate_tools', guides: 'guides',
   recipes: 'recipes', faq: 'faqs', woods: 'woods', bbq: 'bbq_types', profiles: 'cooking_profiles',
 }
@@ -393,6 +394,103 @@ function AffiliateFields({ form, set }) {
     </>
   )
 }
+function ArticleMainFields({ form, set }) {
+  return (
+    <>
+      <div style={{ padding: 20, background: '#111113', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10 }}>
+        <F label="Extrait" hint="Chapeau affiché sur la card et dans les résultats Google (1-2 phrases)">
+          <STA value={form.excerpt} onChange={v => set('excerpt', v)} rows={2} placeholder="Une phrase d'accroche..." />
+        </F>
+        <F label="URL de la cover" hint="Image de couverture (jpg/png/webp)">
+          <SI value={form.cover_url} onChange={v => set('cover_url', v)} placeholder="https://..." />
+        </F>
+      </div>
+      <div style={{ background: '#111113', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, overflow: 'hidden' }}>
+        <div style={{ padding: '13px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: 10, fontWeight: 700, color: '#71717a', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Contenu (Markdown)</span>
+        </div>
+        <MarkdownEditor value={form.body} onChange={v => set('body', v)} rows={28} placeholder="# Titre\n\nContenu de l'article en Markdown..." />
+      </div>
+    </>
+  )
+}
+function ArticleMetaFields({ form, set }) {
+  const ARTICLE_CATS = [
+    { value: 'technique',  label: 'Technique' },
+    { value: 'equipement', label: 'Équipement' },
+    { value: 'science',    label: 'Science BBQ' },
+    { value: 'recette',    label: 'Recette' },
+    { value: 'culture',    label: 'Culture' },
+    { value: 'saison',     label: 'Saison' },
+  ]
+  return (
+    <>
+      <MetaCard title="Catégorisation">
+        <F label="Catégorie">
+          <SS value={form.category} onChange={v => set('category', v)} options={ARTICLE_CATS} placeholder="Sélectionner..." />
+        </F>
+        <F label="Auteur"><SI value={form.author_name} onChange={v => set('author_name', v)} placeholder="Charbon & Flamme" /></F>
+        <F label="Tags" hint="Séparés par des virgules">
+          <SI value={Array.isArray(form.tags) ? form.tags.join(', ') : form.tags || ''} onChange={v => set('tags', v.split(',').map(t => t.trim()).filter(Boolean))} placeholder="fumage, low&slow, brisket" />
+        </F>
+        <F label="Généré par IA">
+          <button onClick={() => set('ai_generated', !form.ai_generated)} style={{ padding: '7px 14px', borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: form.ai_generated ? '1px solid rgba(255,107,26,0.4)' : '1px solid rgba(255,255,255,0.08)', background: form.ai_generated ? 'rgba(255,107,26,0.1)' : 'transparent', color: form.ai_generated ? '#ff8c4a' : '#71717a' }}>
+            {form.ai_generated ? '🤖 Oui' : 'Non'}
+          </button>
+        </F>
+        <F label="CTA Newsletter">
+          <button onClick={() => set('show_newsletter_cta', !form.show_newsletter_cta)} style={{ padding: '7px 14px', borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: form.show_newsletter_cta ? '1px solid rgba(255,107,26,0.4)' : '1px solid rgba(255,255,255,0.08)', background: form.show_newsletter_cta ? 'rgba(255,107,26,0.1)' : 'transparent', color: form.show_newsletter_cta ? '#ff8c4a' : '#71717a' }}>
+            {form.show_newsletter_cta ? '✓ Affiché' : 'Masqué'}
+          </button>
+        </F>
+      </MetaCard>
+      <MetaCard title="SEO">
+        <F label="Titre SEO" hint="Si vide, le titre de l'article est utilisé">
+          <SI value={form.seo_title} onChange={v => set('seo_title', v)} placeholder="Titre pour Google (60 car. max)" />
+        </F>
+        <F label="Description SEO">
+          <STA value={form.seo_description} onChange={v => set('seo_description', v)} rows={2} placeholder="Meta description (155 car. max)" />
+        </F>
+      </MetaCard>
+      <MetaCard title="Génération IA">
+        <AIArticleGenerator onGenerated={(body, excerpt) => { set('body', body); if (excerpt) set('excerpt', excerpt) }} title={form.title} category={form.category} />
+      </MetaCard>
+    </>
+  )
+}
+function AIArticleGenerator({ onGenerated, title, category }) {
+  const [loading, setLoading] = React.useState(false)
+  const [topic, setTopic] = React.useState('')
+  const [error, setError] = React.useState(null)
+
+  const generate = async () => {
+    if (!topic && !title) return
+    setLoading(true); setError(null)
+    try {
+      const res = await fetch('/api/generate-article', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic: topic || title, category }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Erreur génération')
+      onGenerated(data.body, data.excerpt)
+    } catch (e) { setError(e.message) }
+    setLoading(false)
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <p style={{ fontSize: 11, color: '#71717a', margin: 0 }}>Génère le contenu d'un article complet à partir d'un sujet BBQ. Le résultat remplace le contenu actuel.</p>
+      <SI value={topic} onChange={setTopic} placeholder={title || "Ex: Comment réussir un brisket texan..."} />
+      <button onClick={generate} disabled={loading} style={{ padding: '9px 16px', borderRadius: 6, background: loading ? '#27272a' : 'rgba(255,107,26,0.15)', border: '1px solid rgba(255,107,26,0.3)', color: loading ? '#52525b' : '#ff8c4a', fontSize: 12, fontWeight: 700, cursor: loading ? 'default' : 'pointer' }}>
+        {loading ? '⏳ Génération en cours...' : '🤖 Générer avec l'IA'}
+      </button>
+      {error && <p style={{ fontSize: 11, color: '#f87171', margin: 0 }}>{error}</p>}
+    </div>
+  )
+}
+
 function GuideMainFields({ form, set }) {
   return (
     <>
@@ -627,6 +725,13 @@ function getColumns(tab) {
       )},
       { key: 'placements', label: 'Emplacements', render: row => { const p = row.placements || []; return p.length ? p.map(k => ({ home:'Accueil', calculator:'Calculateur', guides:'Guides', recipes:'Recettes', sponsor:'Sponsor' })[k] || k).join(', ') : '—' } }, statusCol,
     ]
+    case 'articles': return [
+      { key: 'title', label: 'Article', render: row => <TitleCell title={row.title} sub={`/articles/${row.slug}`} cover={row.cover_url} /> },
+      { key: 'category', label: 'Catégorie', render: row => row.category || '—' },
+      { key: 'author_name', label: 'Auteur', render: row => row.author_name || '—' },
+      { key: 'ai_generated', label: 'IA', render: row => row.ai_generated ? '🤖' : '—' },
+      statusCol,
+    ]
     case 'guides': return [
       { key: 'title', label: 'Guide', render: row => <TitleCell title={row.title} sub={`/guides/${row.slug}`} cover={row.cover_url} /> },
       { key: 'category', label: 'Catégorie', render: row => row.category || '—' }, meatCol, statusCol,
@@ -711,6 +816,7 @@ function getEmptyRecord(tab) {
     case 'affiliate': return { ...base, title: '', slug: '', description: '', image_url: '', affiliate_url: '', cta_text: 'Voir le produit', badge: '', meat_type: '', placements: [] }
     case 'guides':    return { ...base, title: '', slug: '', summary: '', content: '', cover_url: '', category: '', tags: [], meat_type: '', seo_title: '', seo_description: '' }
     case 'recipes':   return { ...base, title: '', slug: '', type: 'rub', summary: '', description: '', ingredients: [], steps: [], yield_amount: '', prep_time: '', meat_types: [], origin: '', difficulty: 'facile', tags: [], cover_url: '' }
+    case 'articles':  return { ...base, title: '', slug: '', excerpt: '', body: '', cover_url: '', category: 'technique', tags: [], author_name: 'Charbon & Flamme', ai_generated: false, show_newsletter_cta: true, linked_profile_ids: [], seo_title: '', seo_description: '' }
     case 'faq':       return { ...base, question: '', answer: '', meat_type: '', cooking_method: '', is_global: false }
     case 'woods':     return { ...base, id: '', name: '', scientific_name: '', emoji: '', intensity: 'moyen', flavor_profile: '', description: '', best_meats: [], avoid_meats: [], burn_characteristics: '', origin: '', availability_eu: '', safety_notes: '', pitmaster_tips: '', source: '', is_toxic: false, toxic_reason: '' }
     case 'bbq':       return { ...base, id: '', name: '', alt_names: [], icon: '', tagline: '', description: '', temp_range: '', fuel: '', price_range: '', level: 'debutant', capacity: '', pros: [], cons: [], best_for: [], not_ideal_for: [], brands: [], tips: '' }
@@ -719,7 +825,7 @@ function getEmptyRecord(tab) {
   }
 }
 function getFormTitle(tab) {
-  return { seo: 'bloc SEO', affiliate: 'produit affilié', guides: 'guide', recipes: 'recette', faq: 'FAQ', woods: 'essence de bois', bbq: 'type BBQ', profiles: 'profil de cuisson' }[tab] || 'contenu'
+  return { articles: 'article', seo: 'bloc SEO', affiliate: 'produit affilié', guides: 'guide', recipes: 'recette', faq: 'FAQ', woods: 'essence de bois', bbq: 'type BBQ', profiles: 'profil de cuisson' }[tab] || 'contenu'
 }
 
 // ── Main AdminPage ─────────────────────────────────────────────
@@ -747,12 +853,13 @@ export default function AdminPage() {
 
   const loadCounts = async () => {
     try {
-      const [seo, aff, guides, recipes, faq, woods, bbq, profiles] = await Promise.all([
-        adminCms.list('seo_blocks'), adminCms.list('affiliate_tools'), adminCms.list('guides'),
+      const [arts, seo, aff, guides, recipes, faq, woods, bbq, profiles] = await Promise.all([
+        adminCms.list('articles').catch(() => []), adminCms.list('seo_blocks'), adminCms.list('affiliate_tools'), adminCms.list('guides'),
         adminCms.list('recipes'), adminCms.list('faqs'),
         adminCms.list('woods').catch(() => []), adminCms.list('bbq_types').catch(() => []), adminCms.list('cooking_profiles').catch(() => []),
       ])
       setCounts({
+        articles: arts.length, articles_pub: arts.filter(i => i.status === 'published').length,
         seo: seo.length, seo_pub: seo.filter(i => i.status === 'published').length,
         affiliate: aff.length, aff_pub: aff.filter(i => i.status === 'published').length,
         guides: guides.length, guides_pub: guides.filter(i => i.status === 'published').length,
@@ -795,7 +902,7 @@ export default function AdminPage() {
   }
 
   const handleNew = () => setEditing(getEmptyRecord(tab))
-  const shellCounts = { guides: counts.guides, recipes: counts.recipes, seo: counts.seo, faq: counts.faq, affiliate: counts.affiliate, profiles: counts.profiles, bbq: counts.bbq, woods: counts.woods }
+  const shellCounts = { articles: counts.articles, guides: counts.guides, recipes: counts.recipes, seo: counts.seo, faq: counts.faq, affiliate: counts.affiliate, profiles: counts.profiles, bbq: counts.bbq, woods: counts.woods }
 
   return (
     <>
@@ -820,6 +927,7 @@ export default function AdminPage() {
 // ── Overview ──────────────────────────────────────────────────
 function OverviewTab({ counts, on }) {
   const cards = [
+    { key: 'articles', label: 'Articles', icon: '📰', total: counts.articles, pub: counts.articles_pub },
     { key: 'guides', label: 'Guides', icon: '📚', total: counts.guides, pub: counts.guides_pub },
     { key: 'recipes', label: 'Recettes', icon: '🧂', total: counts.recipes, pub: counts.recipes_pub },
     { key: 'seo', label: 'Blocs SEO', icon: '🔍', total: counts.seo, pub: counts.seo_pub },
@@ -893,7 +1001,7 @@ function FormView({ tab, record, saving, onSave, onCancel }) {
   const [form, setForm] = useState({ ...record })
   const set = (key, val) => setForm(prev => ({ ...prev, [key]: val }))
   const isNew = (tab === 'woods' || tab === 'bbq' || tab === 'profiles') ? !record._existing : !record.id
-  const isWide = tab === 'guides' || tab === 'recipes'
+  const isWide = tab === 'articles' || tab === 'guides' || tab === 'recipes'
 
   const SaveBtn = ({ full }) => (
     <button onClick={() => onSave(form)} disabled={saving}
@@ -943,6 +1051,7 @@ function FormView({ tab, record, saving, onSave, onCancel }) {
       {isWide ? (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 20, alignItems: 'start' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {tab === 'articles' && <ArticleMainFields form={form} set={set} />}
             {tab === 'guides'  && <GuideMainFields form={form} set={set} />}
             {tab === 'recipes' && <RecipeMainFields form={form} set={set} />}
           </div>
@@ -955,6 +1064,7 @@ function FormView({ tab, record, saving, onSave, onCancel }) {
               <SI value={form.cover_url || ''} onChange={v => set('cover_url', v)} placeholder="https://..." />
               <ImagePreview url={form.cover_url} />
             </MetaCard>
+            {tab === 'articles' && <ArticleMetaFields form={form} set={set} />}
             {tab === 'guides'  && <GuideMetaFields form={form} set={set} />}
             {tab === 'recipes' && <RecipeMetaFields form={form} set={set} />}
             <SaveBtn full />

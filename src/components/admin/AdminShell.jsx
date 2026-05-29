@@ -12,6 +12,7 @@ const NAV = [
   { id: 'overview', label: 'Tableau de bord', icon: '📊' },
   { id: 'stats',    label: 'Statistiques',    icon: '📈' },
   { type: 'section', label: 'CONTENU' },
+  { id: 'articles', label: 'Articles Média',    icon: '📰' },
   { id: 'guides',   label: 'Guides',          icon: '📚' },
   { id: 'recipes',  label: 'Recettes',        icon: '🧂' },
   { id: 'seo',      label: 'Blocs SEO',       icon: '🔍' },
@@ -25,7 +26,7 @@ const NAV = [
   { id: 'settings', label: 'Réglages',        icon: '⚙️' },
 ]
 
-const COUNT_KEYS = ['guides', 'recipes', 'seo', 'faq', 'affiliate', 'profiles', 'bbq', 'woods']
+const COUNT_KEYS = ['articles', 'guides', 'recipes', 'seo', 'faq', 'affiliate', 'profiles', 'bbq', 'woods']
 
 export default function AdminShell({ activeTab, onTabChange, profile, signOut, counts = {}, children }) {
   const currentNav = NAV.find(n => n.id === activeTab)

@@ -79,6 +79,7 @@ export function CFHeader({ dark = false }) {
 
   const mainItems = [
     { to: '/calculateur', label: 'Calculateur' },
+    { to: '/articles', label: 'Articles' },
     { to: '/recettes', label: 'Recettes' },
     { to: '/guides', label: 'Guides' },
     { to: '/bbq', label: 'BBQ' },
