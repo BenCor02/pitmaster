@@ -98,7 +98,7 @@ export default function GuidePage() {
         <div style={{ textAlign: 'center' }}>
           <p style={{ fontSize: 48, fontWeight: 700, color: '#1F1A14', marginBottom: 8 }}>404</p>
           <p style={{ color: '#6E6356', fontSize: 14, marginBottom: 24 }}>Ce guide n'existe pas ou n'est plus disponible.</p>
-          <FireButton as={Link} to="/guides" size="sm">Voir tous les guides</FireButton>
+          <FireButton as={Link} href="/guides" size="sm">Voir tous les guides</FireButton>
         </div>
       </div>
     )
@@ -185,7 +185,7 @@ export default function GuidePage() {
             textAlign: 'center',
           }}>
             <p style={{ fontSize: 14, color: '#6E6356', marginBottom: 16 }}>Prêt à planifier ta cuisson ?</p>
-            <FireButton as={Link} to="/calculateur" size="md">
+            <FireButton as={Link} href="/calculateur" size="md">
               <span>🔥</span>
               Lancer le calculateur
             </FireButton>

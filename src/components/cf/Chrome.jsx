@@ -292,7 +292,7 @@ export function CFHeader({ dark = false }) {
               Connexion
             </Link>
           )}
-          <FireButton size="sm" as={Link} to="/calculateur" type={dark ? 'cream' : 'primary'}>
+          <FireButton size="sm" as={Link} href="/calculateur" type={dark ? 'cream' : 'primary'}>
             Calculer
           </FireButton>
         </div>

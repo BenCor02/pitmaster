@@ -90,7 +90,7 @@ export default function SharedCookPage() {
             <p style={{ color: '#6E6356', fontSize: 15, marginBottom: 20 }}>
               Ce lien de partage n'existe pas ou a expiré
             </p>
-            <FireButton as={Link} to="/calculateur" type="primary" size="sm">
+            <FireButton as={Link} href="/calculateur" type="primary" size="sm">
               Retour au calculateur
             </FireButton>
           </div>
@@ -471,7 +471,7 @@ export default function SharedCookPage() {
 
           {/* CTA */}
           <div style={{ marginTop: 40, textAlign: 'center' }}>
-            <FireButton as={Link} to="/calculateur" type="primary" size="lg">
+            <FireButton as={Link} href="/calculateur" type="primary" size="lg">
               Planifier ma propre cuisson
             </FireButton>
             <p
