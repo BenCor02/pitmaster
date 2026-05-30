@@ -85,6 +85,18 @@ export const article = defineType({
       initialValue: true,
     }),
     defineField({
+      name: 'coverUrl',
+      title: 'Image de couverture (URL externe)',
+      type: 'url',
+      description: 'URL Pexels ou autre — utilisé si pas d\'image Sanity uploadée',
+    }),
+    defineField({
+      name: 'coverCredit',
+      title: 'Crédit photo',
+      type: 'string',
+      description: 'Ex : John Doe / Pexels',
+    }),
+    defineField({
       name: 'sourceKeyword',
       title: 'Mot-clé source (IA)',
       type: 'string',

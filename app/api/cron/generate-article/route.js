@@ -70,6 +70,45 @@ async function fetchRedditTrends() {
   return trends.slice(0, 24)
 }
 
+// ── Image Pexels ──────────────────────────────────────────────
+const CATEGORY_QUERIES = {
+  technique:  'bbq barbecue grilling smoke',
+  equipement: 'bbq smoker grill equipment',
+  science:    'meat cooking fire wood smoke',
+  recette:    'bbq grilled food recipe',
+  culture:    'barbecue american food outdoor',
+  saison:     'outdoor grilling summer fire',
+}
+
+async function fetchPexelsImage(category, keyword) {
+  const pexelsKey = process.env.PEXELS_API_KEY
+  if (!pexelsKey) return null
+
+  const query = CATEGORY_QUERIES[category] || 'bbq barbecue'
+  try {
+    const res = await fetch(
+      `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=5&orientation=landscape`,
+      {
+        headers: { Authorization: pexelsKey },
+        signal: AbortSignal.timeout(5000),
+      }
+    )
+    if (!res.ok) return null
+    const data  = await res.json()
+    const photos = data.photos || []
+    if (!photos.length) return null
+    // Photo aléatoire parmi les 5 premiers résultats
+    const photo = photos[Math.floor(Math.random() * photos.length)]
+    return {
+      url:          photo.src.large2x || photo.src.large,
+      photographer: photo.photographer,
+      pexelsUrl:    photo.url,
+    }
+  } catch {
+    return null
+  }
+}
+
 // ── Slugify ───────────────────────────────────────────────────
 function slugify(str) {
   return str
@@ -191,7 +230,11 @@ Rappel : JSON uniquement, "body" en Markdown complet.`,
     return Response.json({ error: `Génération IA: ${e.message}` }, { status: 502 })
   }
 
-  // 5. Sauvegarder dans Sanity (brouillon)
+  // 5. Image de couverture via Pexels
+  const image = await fetchPexelsImage(articleData.category, articleData.sourceKeyword)
+  if (image) console.log(`[cron] 📸 Image Pexels : ${image.url}`)
+
+  // 6. Sauvegarder dans Sanity
   try {
     const client = getSanityWriteClient()
     const slug   = slugify(articleData.title)
@@ -219,6 +262,7 @@ Rappel : JSON uniquement, "body" en Markdown complet.`,
       showNewsletter: true,
       sourceKeyword:  articleData.sourceKeyword || slug,
       publishedAt:    new Date().toISOString(),
+      ...(image ? { coverUrl: image.url, coverCredit: `${image.photographer} / Pexels` } : {}),
     }
 
     const created = await client.create(doc)

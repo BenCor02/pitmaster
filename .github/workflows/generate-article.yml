@@ -1,0 +1,28 @@
+name: Générer un article BBQ
+
+on:
+  schedule:
+    - cron: '0 7 * * *'   # 9h Paris (heure d'été)
+    - cron: '0 17 * * *'  # 19h Paris (heure d'été)
+  workflow_dispatch:        # déclenchement manuel depuis GitHub Actions
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Générer l'article
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SANITY_API_TOKEN: ${{ secrets.SANITY_API_TOKEN }}
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+        run: node scripts/generate-article.mjs
