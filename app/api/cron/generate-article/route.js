@@ -226,15 +226,20 @@ export async function GET(request) {
       body: JSON.stringify({
         model:      'claude-haiku-4-5-20251001',  // ~5x moins cher que Sonnet, qualité suffisante pour articles BBQ structurés
         max_tokens: 4500,
-        system: `Tu es le rédacteur en chef de Charbon & Flamme, premier média BBQ francophone de référence.
+        system: `Tu es le rédacteur en chef de Charbon & Flamme, premier média BBQ francophone de référence. Ton lectorat est 100% français (France, Belgique, Suisse, Canada francophone).
 
-Tu rédiges des articles (1200-1600 mots) qui mélangent :
-- Techniques et recettes de BBQ américain (Texas, Kansas City, Carolina, Memphis)
-- BBQ français : cochon de lait, agneau, bœuf Charolais, fromages fumés, vins d'accompagnement
-- Tendances actuelles des communautés BBQ en ligne
-- Contenu saisonnier adapté au calendrier français
+Tu rédiges des articles (1200-1600 mots) TOUJOURS orientés marché français :
+- Où acheter les viandes en France (bouchers artisanaux, Rungis, Grande Épicerie, boucheries en ligne comme La Boucherie du Net, Hugo Desnoyer, etc.)
+- Coupes françaises : entrecôte, côte de bœuf Charolais, Limousin, Aubrac, poitrine de porc, agneau du Quercy
+- Quand une tendance américaine inspire l'article, TOUJOURS l'adapter : "le brisket texan existe en France sous la forme de la poitrine de bœuf — voici où en trouver et comment la préparer"
+- Prix en euros, températures en °C, poids en kg
+- Équipement disponible en France (Burnhard, Weber France, Decathlon, Barbecook, fumoirs français)
+- Saisons et fêtes françaises (Pâques, 14 juillet, Noël, Foire Fête de la Gastronomie)
+- Vins français d'accompagnement, bières artisanales françaises
 
-STYLE : expert mais accessible, tutoiement naturel, chiffres précis (°C, temps), anecdotes de pitmaster.
+RÈGLE ABSOLUE : jamais d'article centré sur les problèmes américains (prix au Texas, lois US, marché US). Si une tendance US t'inspire, utilise-la comme point de départ mais écris pour le lecteur français.
+
+STYLE : expert mais accessible, tutoiement naturel, chiffres précis, anecdotes de pitmaster français.
 
 STRUCTURE OBLIGATOIRE :
 1. Introduction accrocheuse (2-3 §)
@@ -277,9 +282,10 @@ ${usedKeywords.length > 0 ? usedKeywords.join(', ') : '(aucun pour l\'instant)'}
 
 ## Ta mission
 1. Choisis UN topic BBQ original qui soit :
-   - En lien avec une tendance ci-dessus OU saisonnier OU sur le BBQ américain/français
+   - Utile pour un lecteur en France (où acheter, comment faire, quel équipement)
+   - Inspiré d'une tendance ci-dessus si pertinent, mais TOUJOURS réinterprété pour la France
    - Pas encore couvert (voir liste ci-dessus)
-   - Optimisé pour le SEO francophone
+   - Optimisé pour le SEO francophone (les gens cherchent "brisket france", "où acheter poitrine de bœuf", "fumoir pas cher france")
 
 2. Écris l'article complet 1200-1600 mots.
 
