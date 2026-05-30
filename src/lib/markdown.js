@@ -1,9 +1,9 @@
 /**
  * Markdown léger → HTML (avec sanitisation anti-XSS)
- * Pas de dépendance externe. Couvre : headings, bold, italic, lists, links, paragraphs, tables.
+ * Couvre : images, headings, bold, italic, lists, links, paragraphs, tables, blockquotes, hr.
  */
 
-/** Échappe les caractères HTML dangereux */
+/** Échappe les caractères HTML dangereux dans du texte brut */
 function escapeHtml(str) {
   return str
     .replace(/&/g, '&amp;')
@@ -13,11 +13,20 @@ function escapeHtml(str) {
     .replace(/'/g, '&#39;')
 }
 
-/** Valide qu'une URL est safe (pas de javascript:, data:, etc.) */
-function safeHref(url) {
-  const trimmed = url.trim().toLowerCase()
-  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('/') || trimmed.startsWith('#')) {
-    return escapeHtml(url.trim())
+/**
+ * Valide et retourne une URL safe (rejette javascript:, data:, etc.)
+ * NE ré-échappe PAS — l'URL a déjà été traitée par escapeHtml globalement.
+ */
+function safeUrl(url) {
+  const trimmed = url.trim()
+  const lower = trimmed.toLowerCase()
+  if (
+    lower.startsWith('http://') ||
+    lower.startsWith('https://') ||
+    lower.startsWith('/') ||
+    lower.startsWith('#')
+  ) {
+    return trimmed
   }
   return '#'
 }
@@ -25,9 +34,27 @@ function safeHref(url) {
 export function renderMarkdown(md) {
   if (!md) return ''
 
-  // Pré-échapper tout le HTML brut avant le parsing markdown
-  let html = escapeHtml(md)
+  // 1. Extraire les blocs image AVANT l'échappement pour récupérer les URLs proprement
+  //    Format : ![alt text](https://...)
+  const imageSlots = []
+  let processed = md.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, alt, url) => {
+    const placeholder = `%%IMG_${imageSlots.length}%%`
+    imageSlots.push({ alt: alt.trim(), url: url.trim() })
+    return placeholder
+  })
 
+  // 2. Extraire les liens markdown pour la même raison
+  const linkSlots = []
+  processed = processed.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, text, url) => {
+    const placeholder = `%%LNK_${linkSlots.length}%%`
+    linkSlots.push({ text: text.trim(), url: url.trim() })
+    return placeholder
+  })
+
+  // 3. Échapper tout le texte restant (hors URLs déjà extraites)
+  let html = escapeHtml(processed)
+
+  // 4. Appliquer les transformations Markdown
   html = html
     // Tables
     .replace(/^\|(.+)\|\s*\n\|[-| :]+\|\s*\n((?:\|.+\|\s*\n?)*)/gm, (_, header, body) => {
@@ -40,27 +67,41 @@ export function renderMarkdown(md) {
     })
     // Headings
     .replace(/^#### (.+)$/gm, '<h4>$1</h4>')
-    .replace(/^### (.+)$/gm, '<h4>$1</h4>')
-    .replace(/^## (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
     .replace(/^# (.+)$/gm, '<h2>$1</h2>')
+    // Horizontal rule
+    .replace(/^---+$/gm, '<hr />')
+    // Blockquotes
+    .replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>')
     // Bold + italic
+    .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
     // Lists
     .replace(/^- (.+)$/gm, '<li>$1</li>')
     .replace(/^(\d+)\. (.+)$/gm, '<li value="$1">$2</li>')
-    // Links — URLs validées
-    .replace(/\[(.+?)\]\((.+?)\)/g, (_, text, url) =>
-      `<a href="${safeHref(url)}" target="_blank" rel="noopener noreferrer">${text}</a>`
-    )
-    // Paragraphs (lines that aren't already HTML)
-    .replace(/^(?!<[a-z])((?!^\s*$).+)$/gm, (match) => {
-      if (match.startsWith('<')) return match
-      return `<p>${match}</p>`
-    })
+    // Paragraphs (lignes non-HTML)
+    .replace(/^(?!<[a-z/]|%%)((?!\s*$).+)$/gm, match => `<p>${match}</p>`)
 
-  // Wrap consecutive <li> in <ul>
-  html = html.replace(/((?:<li[^>]*>.*?<\/li>\s*)+)/g, '<ul class="mb-3 list-disc">$1</ul>')
+  // 5. Réinjecter les images
+  imageSlots.forEach(({ alt, url }, i) => {
+    const safeAlt = escapeHtml(alt)
+    const safeImgUrl = safeUrl(url)
+    const imgHtml = `<figure style="margin:28px 0"><img src="${safeImgUrl}" alt="${safeAlt}" loading="lazy" style="width:100%;border-radius:4px;display:block;object-fit:cover" />${safeAlt ? `<figcaption style="font-size:12px;color:#6E6356;margin-top:6px;font-style:italic;text-align:center">${safeAlt}</figcaption>` : ''}</figure>`
+    html = html.replace(`%%IMG_${i}%%`, imgHtml)
+  })
+
+  // 6. Réinjecter les liens
+  linkSlots.forEach(({ text, url }, i) => {
+    const safeLinkUrl = safeUrl(url)
+    const isExternal = url.startsWith('http')
+    const attrs = isExternal ? ' target="_blank" rel="noopener noreferrer"' : ''
+    html = html.replace(`%%LNK_${i}%%`, `<a href="${safeLinkUrl}"${attrs}>${escapeHtml(text)}</a>`)
+  })
+
+  // 7. Wrapper les <li> consécutifs en <ul>
+  html = html.replace(/((?:<li[^>]*>.*?<\/li>\s*)+)/g, '<ul>$1</ul>')
 
   return html
 }
