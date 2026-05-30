@@ -110,6 +110,25 @@ async function fetchPexelsImage(category, imageQuery) {
   }
 }
 
+// ── Injection d'images dans le body Markdown ─────────────────
+async function injectImagesInBody(body) {
+  const markers = [...body.matchAll(/\[IMAGE:\s*([^\]]+)\]/g)]
+  if (!markers.length) return body
+
+  let result = body
+  for (const marker of markers) {
+    const [full, query] = marker
+    const img = await fetchPexelsImage(null, query.trim())
+    if (img) {
+      const mdImage = `\n\n![${query.trim()}](${img.url})\n*Crédit : ${img.photographer} / Pexels*\n\n`
+      result = result.replace(full, mdImage)
+    } else {
+      result = result.replace(full, '') // supprime le marqueur si pas d'image
+    }
+  }
+  return result
+}
+
 // ── Slugify ───────────────────────────────────────────────────
 function slugify(str) {
   return str
@@ -177,9 +196,12 @@ STYLE : expert mais accessible, tutoiement naturel, chiffres précis (°C, temps
 STRUCTURE OBLIGATOIRE :
 1. Introduction accrocheuse (2-3 §)
 2. 4-6 sections H2 avec sous-sections H3 si besoin
-3. Un tableau ou liste structurée si pertinent
-4. "## L'essentiel à retenir" — 3-5 bullet points
-5. "## Aller plus loin" — 2-3 titres de sujets connexes
+3. Place 2 à 3 marqueurs d'images dans le corps aux transitions naturelles entre sections, format : [IMAGE: search terms in english]
+   Exemples : [IMAGE: smoked brisket sliced texas] ou [IMAGE: offset smoker wood fire] ou [IMAGE: pitmaster bbq competition]
+   → Chaque marqueur sera remplacé par une vraie photo Pexels adaptée au contenu
+4. Un tableau ou liste structurée si pertinent
+5. "## L'essentiel à retenir" — 3-5 bullet points
+6. "## Aller plus loin" — 2-3 titres de sujets connexes
 
 FORMAT DE RÉPONSE : JSON strict uniquement :
 {
@@ -188,10 +210,10 @@ FORMAT DE RÉPONSE : JSON strict uniquement :
   "seoTitle": "Variante <title> si différente (60 car max, null sinon)",
   "seoDescription": "Meta description 140-155 caractères avec mot-clé",
   "excerpt": "Chapeau éditorial 2-3 phrases (180 car max)",
-  "body": "Contenu Markdown 2000+ mots",
+  "body": "Contenu Markdown 2000+ mots avec 2-3 marqueurs [IMAGE: ...] aux bons endroits",
   "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
   "category": "technique|science|equipement|recette|culture|saison",
-  "imageQuery": "3-5 mots en anglais pour chercher une photo sur Pexels, très précis (ex: 'smoked brisket texas bbq' ou 'kamado grill charcoal' ou 'pulled pork sandwich')"
+  "imageQuery": "3-5 mots anglais pour la photo de couverture (ex: 'smoked brisket texas bbq')"
 }`,
 
         messages: [{
@@ -240,6 +262,9 @@ Rappel : JSON uniquement, "body" en Markdown complet.`,
   try {
     const client = getSanityWriteClient()
     const slug   = slugify(articleData.title)
+
+    // Injecter les images inline dans le body avant de sauvegarder
+    const injectedBody = await injectImagesInBody(articleData.body || '')
     const kwTag  = (articleData.sourceKeyword || '').replace(/[^a-z0-9-]/g, '')
     const tags   = [...new Set([
       ...(articleData.tags || []),
@@ -252,7 +277,7 @@ Rappel : JSON uniquement, "body" en Markdown complet.`,
       title:          articleData.title,
       slug:           { _type: 'slug', current: slug },
       excerpt:        articleData.excerpt,
-      body:           articleData.body,
+      body:           injectedBody,
       category:       articleData.category || 'technique',
       tags,
       seo: {

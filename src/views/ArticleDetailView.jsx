@@ -152,6 +152,72 @@ export default function ArticleDetailView({ article }) {
           </div>
         </header>
 
+        {/* Styles prose images */}
+        <style>{`
+          .article-prose img {
+            max-width: 100%;
+            width: 100%;
+            border-radius: 4px;
+            margin: 8px 0 4px;
+            display: block;
+            object-fit: cover;
+          }
+          .article-prose em {
+            font-size: 12px;
+            color: #6E6356;
+            display: block;
+            margin-bottom: 24px;
+            font-style: italic;
+          }
+          .article-prose h2 {
+            font-family: var(--cf-serif);
+            font-size: clamp(20px, 3vw, 28px);
+            font-weight: 800;
+            text-transform: uppercase;
+            margin: 48px 0 16px;
+            color: #1F1A14;
+            line-height: 1.1;
+          }
+          .article-prose h3 {
+            font-family: var(--cf-serif);
+            font-size: clamp(17px, 2.5vw, 22px);
+            font-weight: 700;
+            margin: 32px 0 12px;
+            color: #1F1A14;
+          }
+          .article-prose p { margin: 0 0 20px; }
+          .article-prose ul, .article-prose ol { margin: 0 0 20px; padding-left: 24px; }
+          .article-prose li { margin-bottom: 8px; }
+          .article-prose strong { color: #1F1A14; font-weight: 700; }
+          .article-prose table {
+            width: 100%; border-collapse: collapse; margin: 24px 0;
+            font-size: 14px;
+          }
+          .article-prose th {
+            background: #8B1A1A; color: #FAF6EE;
+            padding: 10px 14px; text-align: left;
+            font-family: var(--cf-mono); font-size: 11px;
+            text-transform: uppercase; letter-spacing: 0.08em;
+          }
+          .article-prose td {
+            padding: 10px 14px; border-bottom: 1px solid rgba(31,26,20,0.08);
+          }
+          .article-prose tr:nth-child(even) td { background: rgba(31,26,20,0.03); }
+          .article-prose blockquote {
+            border-left: 3px solid #8B1A1A;
+            margin: 24px 0; padding: 12px 20px;
+            background: rgba(139,26,26,0.05);
+            font-style: italic; color: #6E6356;
+          }
+          .article-prose code {
+            font-family: var(--cf-mono); font-size: 13px;
+            background: rgba(31,26,20,0.06); padding: 2px 6px; border-radius: 3px;
+          }
+          .article-prose hr {
+            border: none; border-top: 1px solid rgba(31,26,20,0.08); margin: 40px 0;
+          }
+        `}</style>
+
         {/* Body */}
         <div
           className="article-prose"
