@@ -15,8 +15,8 @@
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { sanityClient, getSanityWriteClient } from '../../../../src/lib/sanity.js'
 
-export const runtime    = 'nodejs'
-export const maxDuration = 60  // secondes (Vercel Hobby max)
+export const runtime     = 'nodejs'
+export const maxDuration = 300  // secondes (Vercel Pro)
 
 // ── Auth ──────────────────────────────────────────────────────
 function isAuthorized(request) {
