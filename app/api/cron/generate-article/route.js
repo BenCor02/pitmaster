@@ -110,7 +110,7 @@ async function fetchBBQTrends() {
     })
   )
 
-  return trends.slice(0, 30)
+  return trends.slice(0, 15)
 }
 
 // ── Image Pexels ──────────────────────────────────────────────
@@ -224,11 +224,11 @@ export async function GET(request) {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model:      'claude-sonnet-4-6',   // plus rapide qu'opus, dans le timeout 60s
-        max_tokens: 8000,
+        model:      'claude-haiku-4-5-20251001',  // ~5x moins cher que Sonnet, qualité suffisante pour articles BBQ structurés
+        max_tokens: 4500,
         system: `Tu es le rédacteur en chef de Charbon & Flamme, premier média BBQ francophone de référence.
 
-Tu rédiges des articles long format (2000-2500 mots) qui mélangent :
+Tu rédiges des articles (1200-1600 mots) qui mélangent :
 - Techniques et recettes de BBQ américain (Texas, Kansas City, Carolina, Memphis)
 - BBQ français : cochon de lait, agneau, bœuf Charolais, fromages fumés, vins d'accompagnement
 - Tendances actuelles des communautés BBQ en ligne
@@ -281,7 +281,7 @@ ${usedKeywords.length > 0 ? usedKeywords.join(', ') : '(aucun pour l\'instant)'}
    - Pas encore couvert (voir liste ci-dessus)
    - Optimisé pour le SEO francophone
 
-2. Écris l'article complet 2000+ mots.
+2. Écris l'article complet 1200-1600 mots.
 
 Rappel : JSON uniquement, "body" en Markdown complet.`,
         }],
