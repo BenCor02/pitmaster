@@ -26,16 +26,16 @@ function ArticleCard({ article, featured = false }) {
         height: '100%', display: 'flex', flexDirection: featured ? 'row' : 'column',
       }}>
         {/* Cover */}
-        {article.cover_url && (
+        {article.coverUrl && (
           <div style={{
             flexShrink: 0,
             width: featured ? '45%' : '100%',
             aspectRatio: featured ? 'auto' : '16/9',
             minHeight: featured ? 260 : 'auto',
-            background: `url(${article.cover_url}) center/cover no-repeat, #E8DECE`,
+            background: `url(${article.coverUrl}) center/cover no-repeat, #E8DECE`,
           }} />
         )}
-        {!article.cover_url && (
+        {!article.coverUrl && (
           <div style={{
             flexShrink: 0,
             width: featured ? '45%' : '100%',

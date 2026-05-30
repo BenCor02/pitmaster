@@ -69,10 +69,10 @@ export default function ArticleDetailView({ article }) {
     '@type': 'Article',
     headline: article.seo_title || article.title,
     description: article.seo_description || article.excerpt,
-    image: article.cover_url,
-    datePublished: article.published_at,
-    dateModified: article.updated_at,
-    author: { '@type': 'Person', name: article.author_name || 'Charbon & Flamme' },
+    image: article.coverUrl,
+    datePublished: article.publishedAt,
+    dateModified: article._updatedAt,
+    author: { '@type': 'Person', name: article.authorName || 'Charbon & Flamme' },
     publisher: {
       '@type': 'Organization',
       name: 'Charbon & Flamme',
@@ -85,10 +85,10 @@ export default function ArticleDetailView({ article }) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* Cover */}
-      {article.cover_url ? (
+      {article.coverUrl ? (
         <div style={{
           width: '100%', height: 420, maxHeight: '50vh',
-          background: `url(${article.cover_url}) center/cover no-repeat`,
+          background: `url(${article.coverUrl}) center/cover no-repeat`,
         }} />
       ) : (
         <div style={{
@@ -134,17 +134,17 @@ export default function ArticleDetailView({ article }) {
           )}
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
             <span style={{ fontSize: 13, color: C.muted, fontWeight: 600 }}>
-              {article.author_name || 'Charbon & Flamme'}
+              {article.authorName || 'Charbon & Flamme'}
             </span>
             <span style={{ width: 3, height: 3, borderRadius: 99, background: C.muted, flexShrink: 0 }} />
-            <span style={{ fontSize: 13, color: C.muted }}>{formatDate(article.published_at)}</span>
-            {article.reading_time_min && (
+            <span style={{ fontSize: 13, color: C.muted }}>{formatDate(article.publishedAt)}</span>
+            {article.readingTimeMin && (
               <>
                 <span style={{ width: 3, height: 3, borderRadius: 99, background: C.muted, flexShrink: 0 }} />
-                <span style={{ fontSize: 13, color: C.muted }}>{article.reading_time_min} min de lecture</span>
+                <span style={{ fontSize: 13, color: C.muted }}>{article.readingTimeMin} min de lecture</span>
               </>
             )}
-            {article.ai_generated && (
+            {article.aiGenerated && (
               <span style={{ fontSize: 10, fontFamily: 'var(--cf-mono)', fontWeight: 700, color: C.gold, background: 'rgba(232,165,60,0.12)', border: `1px solid rgba(232,165,60,0.3)`, padding: '3px 8px', borderRadius: 99 }}>
                 Généré par IA
               </span>
@@ -163,7 +163,7 @@ export default function ArticleDetailView({ article }) {
         />
 
         {/* Newsletter CTA */}
-        {article.show_newsletter_cta && <NewsletterCta />}
+        {article.showNewsletter && <NewsletterCta />}
 
         {/* Tags */}
         {article.tags?.length > 0 && (
