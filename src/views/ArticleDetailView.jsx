@@ -227,6 +227,13 @@ export default function ArticleDetailView({ article }) {
             background: rgba(139,26,26,0.05);
             font-style: italic; color: #6E6356;
           }
+          .article-prose a {
+            color: #8B1A1A;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            font-weight: 600;
+          }
+          .article-prose a:hover { color: #C8801A; }
           .article-prose code {
             font-family: var(--cf-mono); font-size: 13px;
             background: rgba(31,26,20,0.06); padding: 2px 6px; border-radius: 3px;

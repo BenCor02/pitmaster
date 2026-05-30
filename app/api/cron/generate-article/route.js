@@ -244,7 +244,9 @@ STRUCTURE OBLIGATOIRE :
    → Chaque marqueur sera remplacé par une vraie photo Pexels adaptée au contenu
 4. Un tableau ou liste structurée si pertinent
 5. "## L'essentiel à retenir" — 3-5 bullet points
-6. "## Aller plus loin" — 2-3 titres de sujets connexes
+6. "## Aller plus loin" — 2-3 liens Markdown cliquables vers des sujets connexes, format obligatoire :
+   - [Titre accrocheur du sujet connexe](/articles?tag=mot-cle-kebab-case)
+   Exemples : [Maîtriser le fumage à froid](/articles?tag=fumage-froid) ou [Les essences de bois pour le porc](/articles?tag=bois-fumage-porc)
 
 FORMAT DE RÉPONSE : JSON strict uniquement :
 {
