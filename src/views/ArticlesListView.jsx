@@ -20,37 +20,49 @@ function formatDate(iso) {
 function ArticleCard({ article, featured = false }) {
   return (
     <Link href={`/articles/${article.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
-      <div style={{
-        background: C.card, border: `1px solid ${C.cardBorder}`, borderRadius: 4,
-        overflow: 'hidden', transition: 'border-color 0.15s',
-        height: '100%', display: 'flex', flexDirection: featured ? 'row' : 'column',
-      }}>
+      <div
+        className={featured ? 'al-featured-card' : ''}
+        style={{
+          background: C.card, border: `1px solid ${C.cardBorder}`, borderRadius: 4,
+          overflow: 'hidden', transition: 'border-color 0.15s',
+          height: '100%', display: 'flex', flexDirection: featured ? 'row' : 'column',
+        }}
+      >
         {/* Cover */}
         {article.coverUrl && (
-          <div style={{
-            flexShrink: 0,
-            width: featured ? '45%' : '100%',
-            aspectRatio: featured ? 'auto' : '16/9',
-            minHeight: featured ? 260 : 'auto',
-            background: `url(${article.coverUrl}) center/cover no-repeat, #E8DECE`,
-          }} />
+          <div
+            className={featured ? 'al-featured-img' : ''}
+            style={{
+              flexShrink: 0,
+              width: featured ? '45%' : '100%',
+              aspectRatio: featured ? 'auto' : '16/9',
+              minHeight: featured ? 260 : 'auto',
+              background: `url(${article.coverUrl}) center/cover no-repeat, #E8DECE`,
+            }}
+          />
         )}
         {!article.coverUrl && (
-          <div style={{
-            flexShrink: 0,
-            width: featured ? '45%' : '100%',
-            height: featured ? 'auto' : 180,
-            minHeight: featured ? 260 : 180,
-            background: `linear-gradient(135deg, #8B1A1A 0%, #C8801A 100%)`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: featured ? 64 : 48,
-          }}>
+          <div
+            className={featured ? 'al-featured-img' : ''}
+            style={{
+              flexShrink: 0,
+              width: featured ? '45%' : '100%',
+              height: featured ? 'auto' : 180,
+              minHeight: featured ? 260 : 180,
+              background: `linear-gradient(135deg, #8B1A1A 0%, #C8801A 100%)`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: featured ? 64 : 48,
+            }}
+          >
             {categoryEmoji(article.category)}
           </div>
         )}
 
         {/* Content */}
-        <div style={{ padding: featured ? '28px 32px' : '20px', flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div
+          className={featured ? 'al-featured-content' : ''}
+          style={{ padding: featured ? '28px 32px' : '20px', flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}
+        >
           {/* Category + time */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {article.category && (
@@ -67,11 +79,14 @@ function ArticleCard({ article, featured = false }) {
           </div>
 
           {/* Title */}
-          <h2 style={{
-            fontFamily: 'var(--cf-serif)', fontWeight: 800, color: C.text, margin: 0,
-            textTransform: 'uppercase', lineHeight: 1.1,
-            fontSize: featured ? 32 : 18,
-          }}>
+          <h2
+            className={featured ? 'al-featured-title' : ''}
+            style={{
+              fontFamily: 'var(--cf-serif)', fontWeight: 800, color: C.text, margin: 0,
+              textTransform: 'uppercase', lineHeight: 1.1,
+              fontSize: featured ? 32 : 18,
+            }}
+          >
             {article.title}
           </h2>
 
@@ -101,23 +116,44 @@ export default function ArticlesListView({ articles, categories, activeCategory 
 
   return (
     <div style={{ minHeight: '100vh', background: C.bg, color: C.text }}>
+      <style>{`
+        .al-hero { padding: 56px 0 40px; }
+        .al-hero h1 { font-size: 48px; }
+        .al-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 40px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+        .al-featured-card { flex-direction: row; }
+        .al-featured-img { width: 45%; min-height: 260px; }
+        .al-featured-content { padding: 28px 32px; }
+        .al-featured-title { font-size: 32px; }
+        .al-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        @media (max-width: 700px) {
+          .al-hero { padding: 32px 0 28px; }
+          .al-hero h1 { font-size: 30px; }
+          .al-hero p { font-size: 14px; }
+          .al-filters { flex-wrap: nowrap; margin-bottom: 28px; }
+          .al-featured-card { flex-direction: column !important; }
+          .al-featured-img { width: 100% !important; min-height: 200px !important; aspect-ratio: 16/9; }
+          .al-featured-content { padding: 16px !important; }
+          .al-featured-title { font-size: 22px !important; }
+          .al-grid { grid-template-columns: 1fr; gap: 14px; }
+        }
+      `}</style>
       <main style={{ maxWidth: 1100, margin: '0 auto', padding: '0 20px 80px' }}>
 
         {/* Hero */}
-        <div style={{ padding: '56px 0 40px', borderBottom: `1px solid ${C.borderLight}`, marginBottom: 40 }}>
+        <div className="al-hero" style={{ borderBottom: `1px solid ${C.borderLight}`, marginBottom: 40 }}>
           <p style={{ fontFamily: 'var(--cf-mono)', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: C.red, marginBottom: 12 }}>
             Le mag BBQ
           </p>
-          <h1 style={{ fontFamily: 'var(--cf-serif)', fontSize: 48, fontWeight: 800, lineHeight: 1, textTransform: 'uppercase', color: C.text, margin: '0 0 16px' }}>
+          <h1 className="al-hero" style={{ fontFamily: 'var(--cf-serif)', fontWeight: 800, lineHeight: 1, textTransform: 'uppercase', color: C.text, margin: '0 0 16px' }}>
             Articles & Techniques
           </h1>
-          <p style={{ fontSize: 16, color: C.muted, lineHeight: 1.7, maxWidth: 560, margin: 0 }}>
+          <p className="al-hero" style={{ color: C.muted, lineHeight: 1.7, maxWidth: 560, margin: 0 }}>
             Guides, science du BBQ, comparatifs d'équipement et culture du fumage — tout ce qu'il faut pour maîtriser le feu.
           </p>
         </div>
 
         {/* Category filter */}
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 40 }}>
+        <div className="al-filters">
           <Link href="/articles" style={{ textDecoration: 'none' }}>
             <span style={{
               fontFamily: 'var(--cf-mono)', fontSize: 11, fontWeight: 700,
@@ -166,7 +202,7 @@ export default function ArticlesListView({ articles, categories, activeCategory 
 
         {/* Grid */}
         {rest.length > 0 && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
+          <div className="al-grid">
             {rest.map(a => <ArticleCard key={a.id} article={a} />)}
           </div>
         )}

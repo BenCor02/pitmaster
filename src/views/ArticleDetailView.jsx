@@ -21,9 +21,9 @@ function formatDate(iso) {
 /** Bloc newsletter statique en bas de chaque article */
 function NewsletterCta() {
   return (
-    <div style={{
-      background: C.red, borderRadius: 4, padding: '36px 40px',
-      display: 'flex', alignItems: 'center', gap: 32, flexWrap: 'wrap',
+    <div className="ad-newsletter" style={{
+      background: C.red, borderRadius: 4,
+      display: 'flex', alignItems: 'center', flexWrap: 'wrap',
       margin: '60px 0',
     }}>
       <div style={{ flex: 1, minWidth: 240 }}>
@@ -41,6 +41,7 @@ function NewsletterCta() {
         <input
           type="email"
           placeholder="ton@email.fr"
+          className="ad-newsletter-input"
           style={{
             padding: '12px 18px', borderRadius: 4, border: '1px solid rgba(250,246,238,0.3)',
             background: 'rgba(250,246,238,0.12)', color: '#FAF6EE', fontSize: 14,
@@ -82,12 +83,29 @@ export default function ArticleDetailView({ article }) {
 
   return (
     <div style={{ minHeight: '100vh', background: C.bg, color: C.text }}>
+      <style>{`
+        .ad-cover { height: 420px; max-height: 50vh; }
+        .ad-main { max-width: 760px; margin: 0 auto; padding: 0 20px 80px; }
+        .ad-title { font-size: clamp(26px, 5vw, 48px); }
+        .ad-newsletter { padding: 36px 40px; gap: 32px; }
+        .ad-newsletter h3 { font-size: 28px; }
+        @media (max-width: 700px) {
+          .ad-cover { height: 220px; }
+          .ad-main { padding: 0 16px 60px; }
+          .ad-breadcrumb { padding: 16px 0 20px !important; }
+          .ad-header { margin-bottom: 24px !important; padding-bottom: 20px !important; }
+          .ad-newsletter { padding: 24px 20px !important; gap: 20px !important; flex-direction: column; }
+          .ad-newsletter h3 { font-size: 22px !important; }
+          .ad-newsletter-input { min-width: 0 !important; width: 100%; }
+          .ad-meta { gap: 10px !important; }
+        }
+      `}</style>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* Cover */}
       {article.coverUrl ? (
-        <div style={{
-          width: '100%', height: 420, maxHeight: '50vh',
+        <div className="ad-cover" style={{
+          width: '100%',
           background: `url(${article.coverUrl}) center/cover no-repeat`,
         }} />
       ) : (
@@ -101,10 +119,10 @@ export default function ArticleDetailView({ article }) {
         </div>
       )}
 
-      <main style={{ maxWidth: 760, margin: '0 auto', padding: '0 20px 80px' }}>
+      <main className="ad-main">
 
         {/* Breadcrumb */}
-        <div style={{ padding: '24px 0 32px', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div className="ad-breadcrumb" style={{ padding: '24px 0 32px', display: 'flex', alignItems: 'center', gap: 8 }}>
           <Link href="/articles" style={{ fontSize: 12, color: C.muted, textDecoration: 'none', fontFamily: 'var(--cf-mono)' }}>
             ← Articles
           </Link>
@@ -119,7 +137,7 @@ export default function ArticleDetailView({ article }) {
         </div>
 
         {/* Header */}
-        <header style={{ marginBottom: 40, paddingBottom: 32, borderBottom: `1px solid ${C.borderLight}` }}>
+        <header className="ad-header" style={{ marginBottom: 40, paddingBottom: 32, borderBottom: `1px solid ${C.borderLight}` }}>
           <h1 style={{
             fontFamily: 'var(--cf-serif)', fontSize: 'clamp(28px, 5vw, 48px)',
             fontWeight: 800, textTransform: 'uppercase', lineHeight: 1.05,
@@ -132,7 +150,7 @@ export default function ArticleDetailView({ article }) {
               {article.excerpt}
             </p>
           )}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+          <div className="ad-meta" style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
             <span style={{ fontSize: 13, color: C.muted, fontWeight: 600 }}>
               {article.authorName || 'Charbon & Flamme'}
             </span>

@@ -33,41 +33,84 @@ function getSeason(month) {
   return 'hiver — fumage en conditions froides, BBQ de Noël'
 }
 
-// ── Tendances Reddit (RSS public, sans auth) ──────────────────
-async function fetchRedditTrends() {
+// ── Tendances BBQ (Google News + blogs pitmaster) ─────────────
+async function fetchBBQTrends() {
   const feeds = [
-    { url: 'https://www.reddit.com/r/BBQ/hot.rss',          origin: 'BBQ américain' },
-    { url: 'https://www.reddit.com/r/smoking/hot.rss',       origin: 'Fumage' },
-    { url: 'https://www.reddit.com/r/grilling/hot.rss',      origin: 'Grillades' },
-    { url: 'https://www.reddit.com/r/Barbeque/hot.rss',      origin: 'Barbecue général' },
+    // Google News — recherches ciblées (RSS public, pas d'auth)
+    {
+      url: 'https://news.google.com/rss/search?q=BBQ+pitmaster+smoked+meat&hl=en-US&gl=US&ceid=US:en',
+      origin: 'Google News EN',
+    },
+    {
+      url: 'https://news.google.com/rss/search?q=barbecue+grilling+technique+recipe&hl=en-US&gl=US&ceid=US:en',
+      origin: 'Google News Techniques',
+    },
+    {
+      url: 'https://news.google.com/rss/search?q=barbecue+fumage+recette&hl=fr&gl=FR&ceid=FR:fr',
+      origin: 'Google News FR',
+    },
+    {
+      url: 'https://news.google.com/rss/search?q=BBQ+competition+pitmaster+2025&hl=en-US&gl=US&ceid=US:en',
+      origin: 'Compétitions BBQ',
+    },
+    // Blogs pitmaster américains
+    {
+      url: 'https://amazingribs.com/feed/',
+      origin: 'AmazingRibs.com',
+    },
+    {
+      url: 'https://www.seriouseats.com/bbq-and-grilling.rss',
+      origin: 'Serious Eats BBQ',
+    },
+    {
+      url: 'https://www.smoking-meat.com/feed',
+      origin: 'Smoking-Meat.com',
+    },
+    // Reddit en complément
+    {
+      url: 'https://www.reddit.com/r/BBQ/hot.rss',
+      origin: 'Reddit r/BBQ',
+    },
+    {
+      url: 'https://www.reddit.com/r/smoking/hot.rss',
+      origin: 'Reddit Fumage',
+    },
   ]
 
   const trends = []
-  const timeout = AbortSignal.timeout(6000)
+  const timeout = AbortSignal.timeout(8000)
 
-  for (const feed of feeds) {
-    try {
-      const res = await fetch(feed.url, {
-        headers: { 'User-Agent': 'CharbonetFlamme-Bot/1.0' },
-        signal: timeout,
-      })
-      if (!res.ok) continue
-      const xml = await res.text()
+  await Promise.allSettled(
+    feeds.map(async (feed) => {
+      try {
+        const res = await fetch(feed.url, {
+          headers: { 'User-Agent': 'CharbonetFlamme-Bot/1.0 (+https://charbonetflamme.fr)' },
+          signal: timeout,
+        })
+        if (!res.ok) return
+        const xml = await res.text()
 
-      // Extraire les titres du RSS (format Atom ou RSS2)
-      const matches = [...xml.matchAll(/<title>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/title>/gs)]
-      const titles  = matches
-        .map(m => m[1].trim())
-        .filter(t => t.length > 15 && !t.toLowerCase().includes('reddit'))
-        .slice(0, 6)
+        // Titres (RSS2 <title> ou Atom <title>)
+        const matches = [...xml.matchAll(/<title>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/title>/gs)]
+        const titles  = matches
+          .map(m => m[1].replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim())
+          .filter(t =>
+            t.length > 20 &&
+            !t.toLowerCase().includes('google') &&
+            !t.toLowerCase().includes('reddit') &&
+            !t.toLowerCase().includes('amazing ribs') &&
+            !t.toLowerCase().includes('serious eats')
+          )
+          .slice(0, 5)
 
-      titles.forEach(t => trends.push(`[${feed.origin}] ${t}`))
-    } catch {
-      // Timeout ou réseau — on continue sans
-    }
-  }
+        titles.forEach(t => trends.push(`[${feed.origin}] ${t}`))
+      } catch {
+        // Timeout ou réseau — on continue sans
+      }
+    })
+  )
 
-  return trends.slice(0, 24)
+  return trends.slice(0, 30)
 }
 
 // ── Image Pexels ──────────────────────────────────────────────
@@ -149,8 +192,8 @@ export async function GET(request) {
     return Response.json({ error: 'ANTHROPIC_API_KEY manquante' }, { status: 500 })
   }
 
-  // 1. Tendances Reddit
-  const trendingPosts = await fetchRedditTrends()
+  // 1. Tendances BBQ (Google News + blogs pitmaster + Reddit)
+  const trendingPosts = await fetchBBQTrends()
   console.log(`[cron] ${trendingPosts.length} tendances récupérées`)
 
   // 2. Topics déjà couverts
@@ -221,7 +264,7 @@ FORMAT DE RÉPONSE : JSON strict uniquement :
           content: `## Contexte
 Date : ${month} — Saison : ${season}
 
-## Tendances actuelles sur les forums BBQ internationaux
+## Tendances actuelles (Google News, AmazingRibs, SeriousEats, Reddit BBQ)
 ${trendingPosts.length > 0
   ? trendingPosts.map(t => `• ${t}`).join('\n')
   : '(aucune tendance récupérée — choisis un sujet saisonnier pertinent)'
@@ -288,7 +331,7 @@ Rappel : JSON uniquement, "body" en Markdown complet.`,
       aiGenerated:    true,
       showNewsletter: true,
       sourceKeyword:  articleData.sourceKeyword || slug,
-      publishedAt:    new Date().toISOString(),
+      // publishedAt non défini → brouillon invisible sur le site jusqu'à validation manuelle
       ...(image ? { coverUrl: image.url, coverCredit: `${image.photographer} / Pexels` } : {}),
     }
 
