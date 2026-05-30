@@ -80,11 +80,12 @@ const CATEGORY_QUERIES = {
   saison:     'outdoor grilling summer fire',
 }
 
-async function fetchPexelsImage(category, keyword) {
+async function fetchPexelsImage(category, imageQuery) {
   const pexelsKey = process.env.PEXELS_API_KEY
   if (!pexelsKey) return null
 
-  const query = CATEGORY_QUERIES[category] || 'bbq barbecue'
+  // Priorité : query spécifique générée par Claude, sinon fallback catégorie
+  const query = imageQuery || CATEGORY_QUERIES[category] || 'bbq barbecue'
   try {
     const res = await fetch(
       `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=5&orientation=landscape`,
@@ -189,7 +190,8 @@ FORMAT DE RÉPONSE : JSON strict uniquement :
   "excerpt": "Chapeau éditorial 2-3 phrases (180 car max)",
   "body": "Contenu Markdown 2000+ mots",
   "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
-  "category": "technique|science|equipement|recette|culture|saison"
+  "category": "technique|science|equipement|recette|culture|saison",
+  "imageQuery": "3-5 mots en anglais pour chercher une photo sur Pexels, très précis (ex: 'smoked brisket texas bbq' ou 'kamado grill charcoal' ou 'pulled pork sandwich')"
 }`,
 
         messages: [{
@@ -230,8 +232,8 @@ Rappel : JSON uniquement, "body" en Markdown complet.`,
     return Response.json({ error: `Génération IA: ${e.message}` }, { status: 502 })
   }
 
-  // 5. Image de couverture via Pexels
-  const image = await fetchPexelsImage(articleData.category, articleData.sourceKeyword)
+  // 5. Image de couverture via Pexels — utilise la query générée par Claude
+  const image = await fetchPexelsImage(articleData.category, articleData.imageQuery)
   if (image) console.log(`[cron] 📸 Image Pexels : ${image.url}`)
 
   // 6. Sauvegarder dans Sanity
